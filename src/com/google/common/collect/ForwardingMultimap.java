@@ -1,0 +1,117 @@
+// Copyright 2006 Google Inc. All Rights Reserved.
+
+package com.google.common.collect;
+
+import com.google.common.base.Nullable;
+
+import java.util.Collection;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+/**
+ * A multimap which forwards all its method calls to another multimap.
+ * Subclasses should override one or more methods to change or add behavior of
+ * the backing multimap as desired per the <a
+ * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
+ *
+ * @see ForwardingObject
+ * @author konigsberg@google.com (Robert Konigsberg)
+ */
+public abstract class ForwardingMultimap<K,V> extends ForwardingObject
+    implements Multimap<K,V> {
+
+  protected ForwardingMultimap(Multimap<K,V> delegate) {
+    super(delegate);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override protected Multimap<K,V> delegate() {
+    return (Multimap<K,V>) super.delegate();
+  }
+
+  public Map<K, Collection<V>> asMap() {
+    return delegate().asMap();
+  }
+
+  public void clear() {
+    delegate().clear();
+  }
+
+  public Set<Entry<K, Collection<V>>> collectionEntries() {
+    return delegate().collectionEntries();
+  }
+
+  public boolean containsEntry(@Nullable Object key, @Nullable Object value) {
+    return delegate().containsEntry(key, value);
+  }
+
+  public boolean containsKey(@Nullable Object key) {
+    return delegate().containsKey(key);
+  }
+
+  public boolean containsValue(@Nullable Object value) {
+    return delegate().containsValue(value);
+  }
+
+  public Collection<Entry<K,V>> entries() {
+    return delegate().entries();
+  }
+
+  public Collection<V> get(@Nullable K key) {
+    return delegate().get(key);
+  }
+
+  public boolean isEmpty() {
+    return delegate().isEmpty();
+  }
+
+  public Multiset<K> keys() {
+    return delegate().keys();
+  }
+
+  public Set<K> keySet() {
+    return delegate().keySet();
+  }
+
+  public boolean put(@Nullable K key, @Nullable V value) {
+    return delegate().put(key, value);
+  }
+
+  public void putAll(K key, Iterable<? extends V> values) {
+    delegate().putAll(key, values);
+  }
+
+  public void putAll(Multimap<? extends K, ? extends V> multimap) {
+    delegate().putAll(multimap);
+  }
+
+  public boolean remove(@Nullable Object key, @Nullable Object value) {
+    return delegate().remove(key, value);
+  }
+
+  public Collection<V> removeAll(@Nullable Object key) {
+    return delegate().removeAll(key);
+  }
+
+  public Collection<V> replaceValues(@Nullable K key,
+      Iterable<? extends V> values) {
+    return delegate().replaceValues(key, values);
+  }
+
+  public int size() {
+    return delegate().size();
+  }
+
+  public Collection<V> values() {
+    return delegate().values();
+  }
+
+  @Override public boolean equals(@Nullable Object obj) {
+    return delegate().equals(obj);
+  }
+
+  @Override public int hashCode() {
+    return delegate().hashCode();
+  }
+}
