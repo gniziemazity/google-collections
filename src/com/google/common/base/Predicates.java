@@ -25,7 +25,7 @@ import java.io.Serializable;
  *
  * <p>"Lispy, but good."
  *
- * @todo (kevinb): considering having these implement a
+ * <p>TODO(kevinb): considering having these implement a
  *   {@code VisitablePredicate} interface which specifies an
  *   {@code accept(PredicateVisitor)} method.
  *

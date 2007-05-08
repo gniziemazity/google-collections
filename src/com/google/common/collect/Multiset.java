@@ -65,8 +65,8 @@ public interface Multiset<E> extends Collection<E> {
 
   /**
    * Removes <b>all</b> occurrences of the specified element from this
-   * multiset.  This method complements {@link #remove}, which removes only
-   * one occurrence at a time.
+   * multiset.  This method complements {@link Multiset#remove}, which removes
+   * only one occurrence at a time.
    *
    * @param element the element whose occurrences should all be removed
    * @return the number of occurrences successfully removed, possibly zero

@@ -190,7 +190,6 @@ public interface Multimap<K,V> {
    * underlying multimap.
    *
    * @return collection of distinct keys
-   * @see #keys
    */
   Set<K> keySet();
 
@@ -206,7 +205,6 @@ public interface Multimap<K,V> {
    * @return {@link Multiset} with keys corresponding to the distinct keys of
    *     the multimap and frequencies corresponding to the number of values
    *     that each key maps to
-   * @see #keySet
    */
   Multiset<K> keys();
 
@@ -267,7 +265,7 @@ public interface Multimap<K,V> {
    * putAll}.
    *
    * <p>The collections returned by {@code asMap().get(Object)} have the same
-   * behavior as those returned by {@link #get}.
+   * behavior as those returned by {@link Multimap#get}.
    *
    * @return a map view from a key to its collection of values
    */
@@ -275,8 +273,8 @@ public interface Multimap<K,V> {
 
   /**
    * Compares the specified object to this multimap for equality. Two multimaps
-   * are equal if and only if their map views, as returned by {@link #asMap},
-   * are equal.
+   * are equal if and only if their map views, as returned by
+   * {@link Multimap#asMap}, are equal.
    *
    * <p>Note that two multimaps with identical key-value mappings may or may not
    * always be equal, depending on the implementation. For example, {@link
@@ -290,7 +288,7 @@ public interface Multimap<K,V> {
 
   /**
    * Returns the hash code for this multimap. The hash code is defined as the
-   * hash code of the map view, as returned by {@link #asMap}.
+   * hash code of the map view, as returned by {@link Multimap#asMap}.
    *
    * @see Map#hashCode
    */

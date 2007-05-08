@@ -165,7 +165,7 @@ public final class LinkedListMultimap<K,V>
   /**
    * Removes the specified node from the linked list. This method is only
    * intended to be used from the {@code Iterator} classes. See also {@link
-   * #removeAllNodes(Object)}.
+   * LinkedListMultimap#removeAllNodes(Object)}.
    */
   private void removeNode(Node<K,V> node) {
     if (node.previous != null) {

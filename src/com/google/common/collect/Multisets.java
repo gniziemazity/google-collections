@@ -426,13 +426,13 @@ public final class Multisets {
    * Returns an immutable multiset containing only the specified object. The
    * returned multiset is serializable if the specified object is serializable.
    *
-   * @param o the sole object to be stored in the returned multiset
+   * @param element the sole object to be stored in the returned multiset
    */
-  public static <E> Multiset<E> singletonMultiset(@Nullable E e) {
-    return new SingletonMultiset<E>(e);
+  public static <E> Multiset<E> singletonMultiset(@Nullable E element) {
+    return new SingletonMultiset<E>(element);
   }
 
-  /** @see #singletonMultiset */
+  /** @see Multisets#singletonMultiset */
   static class SingletonMultiset<E> implements Multiset<E>, Serializable {
     private final E element;
     private transient volatile Set<E> elementSet;
@@ -530,7 +530,7 @@ public final class Multisets {
 
   /**
    * Returns an immutable empty {@code Multiset}. Equivalent to {@link
-   * #emptyMultiset}.
+   * Multisets#emptyMultiset}.
    */
   public static <E> Multiset<E> immutableMultiset() {
     return emptyMultiset();
@@ -549,12 +549,13 @@ public final class Multisets {
   /**
    * Returns an immutable {@code Multiset} containing the specified elements.
    *
-   * <p>Unlike an <i>unmodifiable</i> multiset such as that returned by {@link
-   * #unmodifiableMultiset}, which provides a read-only view of an underlying
-   * multiset which may itself be mutable, an <i>immutable</i> multiset makes a
-   * copy of the original elements, so that the returned multiset is
-   * <i>guaranteed</i> never to change. This is critical, for example, if the
-   * multiset is an element of a {@code HashSet} or a key in a {@code HashMap}.
+   * <p>Unlike an <i>unmodifiable</i> multimap such as that returned by {@link
+   * Multimaps#unmodifiableMultimap}, which provides a read-only view of an
+   * underlying multimap which may itself be mutable, an <i>immutable</i>
+   * multimap makes a copy of the original mappings, so that the returned
+   * multimap is <i>guaranteed</i> never to change. This is critical, for
+   * example, if the multimap is an element of a {@code HashSet} or a key in a
+   * {@code HashMap}.
    *
    * @param elements the elements that the returned multiset should contain
    */

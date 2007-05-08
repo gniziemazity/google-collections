@@ -589,7 +589,7 @@ public final class Maps {
    * This method lets you get a plain-old-{@code Map} out of a {@code
    * Properties}.  Note that you won't be able to save the changes to
    * the Map the way you can with {@link
-   * Properties#store(OutputStream,String)}.  Most people don't do this
+   * Properties#store(java.io.OutputStream,String)}.  Most people don't do this
    * anyway.
    *
    * @param prop A non-null {@code Properties} object to be converted.
@@ -741,8 +741,8 @@ public final class Maps {
    * @throws NullPointerException if any argument is null
    */
   public static <K extends Enum<K>, V> EnumHashBiMap<K,V> newEnumHashBiMap(
-      Class<K> enumKeyType) {
-    return new EnumHashBiMap<K,V>(enumKeyType);
+      Class<K> keyType) {
+    return new EnumHashBiMap<K,V>(keyType);
   }
 
   /**
@@ -754,8 +754,8 @@ public final class Maps {
    * @throws NullPointerException if any argument is null
    */
   public static <K extends Enum<K>, V extends Enum<V>> EnumBiMap<K,V>
-      newEnumBiMap(Class<K> enumKeyType, Class<V> enumValueType) {
-    return new EnumBiMap<K,V>(enumKeyType, enumValueType);
+      newEnumBiMap(Class<K> keyType, Class<V> valueType) {
+    return new EnumBiMap<K,V>(keyType, valueType);
   }
 
   /**

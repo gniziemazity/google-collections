@@ -45,7 +45,7 @@ public interface BiMap<K,V> extends Map<K,V> {
    * <p><b>Warning:</b> the results of calling this method may vary depending
    * on the iteration order of {@code map}!
    *
-   * @throws IllegalArgumentException if an attempt to {@link #put} any
+   * @throws IllegalArgumentException if an attempt to {@link BiMap#put} any
    *     particular entry fails.  <b>Warning:</b> the bimap may be left with
    *     an indeterminate number of entries from {@code map} having been
    *     added.
@@ -53,11 +53,11 @@ public interface BiMap<K,V> extends Map<K,V> {
   void putAll(Map<? extends K, ? extends V> map);
 
   /**
-   * An alternate form of {@link #put} which silently removes any existing
+   * An alternate form of {@link BiMap#put} which silently removes any existing
    * entry with the value {@code value} (unless it is already matched with the
-   * key {@code key}) before proceeding with the {@link #put} operation.  Note
-   * that a successful call to this method could cause the size of the bimap
-   * to increase by one, stay the same, or even decrease by one.
+   * key {@code key}) before proceeding with the {@link BiMap#put} operation.
+   * Note that a successful call to this method could cause the size of the
+   * bimap to increase by one, stay the same, or even decrease by one.
    *
    * <p><b>Warning</b>: If an existing entry with this value is removed, the
    * key for this entry is discarded and not returned.

@@ -41,7 +41,7 @@ public final class TreeMultiset<E> extends AbstractMultiset<E>
    * <tt>add(Object)</tt> call will throw a <tt>ClassCastException</tt>.
    *
    * @see Comparable
-   * @see TreeSet
+   * @see java.util.TreeSet
    */
   public TreeMultiset() {
     super(new TreeMap<E, Frequency>());
