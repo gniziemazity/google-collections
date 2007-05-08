@@ -59,7 +59,7 @@
 
   <target name="jar" depends="compile" description="Build jar.">
     <mkdir dir="${build.dir}/dist"/>
-    <jar jarfile="${build.dir}/dist/guice-${version}.jar">
+    <jar jarfile="${build.dir}/dist/google-collect-${version}.jar">
       <fileset dir="${build.dir}/classes"/>
     </jar>
   </target>
