@@ -17,10 +17,9 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
-
 import java.util.Collection;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Basic implementation of the {@link ListMultimap} interface. It's a wrapper

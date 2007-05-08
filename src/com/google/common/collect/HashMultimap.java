@@ -17,7 +17,6 @@
 package com.google.common.collect;
 
 import com.google.common.base.Objects;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;

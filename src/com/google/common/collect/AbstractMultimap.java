@@ -18,7 +18,6 @@ package com.google.common.collect;
 
 import com.google.common.base.Nullable;
 import com.google.common.base.Objects;
-
 import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractMap;

@@ -20,7 +20,6 @@ import com.google.common.base.FinalizableSoftReference;
 import com.google.common.base.FinalizableWeakReference;
 import com.google.common.base.ReferenceType;
 import static com.google.common.base.ReferenceType.STRONG;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

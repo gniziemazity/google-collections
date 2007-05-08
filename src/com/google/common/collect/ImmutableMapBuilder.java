@@ -19,7 +19,6 @@ package com.google.common.collect;
 import com.google.common.base.Nullable;
 import com.google.common.base.Preconditions;
 import static com.google.common.base.Preconditions.checkState;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;

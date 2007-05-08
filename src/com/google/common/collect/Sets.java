@@ -16,11 +16,9 @@
 
 package com.google.common.collect;
 
+import com.google.common.base.Nullable;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-
-import com.google.common.base.Nullable;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.AbstractSet;
