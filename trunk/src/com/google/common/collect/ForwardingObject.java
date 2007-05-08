@@ -17,7 +17,6 @@
 package com.google.common.collect;
 
 import static com.google.common.base.Objects.nonNull;
-
 import java.io.Serializable;
 
 /**

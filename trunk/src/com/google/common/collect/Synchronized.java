@@ -17,15 +17,14 @@
 package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map.Entry;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.RandomAccess;
 import java.util.Set;
 import java.util.SortedSet;

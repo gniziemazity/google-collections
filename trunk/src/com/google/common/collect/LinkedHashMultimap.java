@@ -18,7 +18,6 @@ package com.google.common.collect;
 
 import com.google.common.base.Nullable;
 import com.google.common.base.Objects;
-
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;

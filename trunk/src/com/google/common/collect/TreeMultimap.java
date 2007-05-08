@@ -18,14 +18,13 @@ package com.google.common.collect;
 
 import com.google.common.base.Nullable;
 import com.google.common.base.Objects;
-
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.Map.Entry;
 
 /**
  * Implementation of {@link Multimap} whose keys and values are ordered by their

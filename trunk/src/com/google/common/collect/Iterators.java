@@ -23,7 +23,6 @@ import com.google.common.base.Objects;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import com.google.common.base.Predicate;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;

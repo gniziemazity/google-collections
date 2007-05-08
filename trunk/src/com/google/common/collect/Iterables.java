@@ -20,15 +20,14 @@ import com.google.common.base.Function;
 import com.google.common.base.Nullable;
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Predicate;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.ListIterator;
 
 /**
  * This class contains static utility methods that operate on or return
