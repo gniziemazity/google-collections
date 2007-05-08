@@ -136,8 +136,7 @@ public final class LinkedListMultiset<E> extends ForwardingMultiset<E>
 
   /**
    * Removes the specified node from the linked list. This method is only
-   * intended to be used from the {@code Iterator} classes. See also {@link
-   * #removeAllNodes(Object)}.
+   * intended to be used from the {@code Iterator} classes.
    */
   private void removeNode(Node<E> node) {
     if (node.previous != null) {

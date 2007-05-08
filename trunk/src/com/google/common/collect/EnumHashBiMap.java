@@ -47,7 +47,7 @@ public final class EnumHashBiMap<K extends Enum<K>, V>
    * Constructs a new bimap with the same mappings as the specified map. If the
    * specified map is an {@code EnumHashBiMap} or an {@code EnumBiMap} instance,
    * this constructor behaves identically to {@link
-   * #EnumHashBiMap(EnumHashBiMap)} or {@link #EnumHashBiMap(EnumBiMap)},
+   * #EnumHashBiMap(EnumHashBiMap)} or {@link #EnumHashBiMap(EnumHashBiMap)},
    * respectively. Otherwise, the specified map must contain at least one
    * mapping (in order to determine the new enum bimap's key type).
    * 

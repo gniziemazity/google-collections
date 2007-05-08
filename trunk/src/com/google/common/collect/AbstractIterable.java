@@ -19,7 +19,7 @@ package com.google.common.collect;
 import java.util.Iterator;
 
 /**
- * Provides an implementation of {@link #toString} for {@code Iterable}
+ * Provides an implementation of {@link Object#toString} for {@code Iterable}
  * instances.
  *
  * @author mbostock@google.com (Mike Bostock)

@@ -934,7 +934,7 @@ public final class Multimaps {
     return (SetMultimap<K,V>) EMPTY_MULTIMAP;
   }
 
-  /** @see #emptyMultimap */
+  /** @see Multimaps#emptyMultimap */
   static class EmptyMultimap<K,V>
       implements SetMultimap<K,V>, Serializable {
     private static final long serialVersionUID = -3460258070136750256L;
@@ -1099,7 +1099,7 @@ public final class Multimaps {
         Collections.unmodifiableSet(collectionEntries));
   }
 
-  /** @see #unmodifiableCollectionEntries */
+  /** @see Multimaps#unmodifiableCollectionEntries */
   static class UnmodifiableCollectionEntries<K,V>
       extends ForwardingSet<Entry<K, Collection<V>>> {
     UnmodifiableCollectionEntries(
@@ -1151,7 +1151,7 @@ public final class Multimaps {
     return new MapMultimap<K,V>(map);
   }
 
-  /** @see #forMap */
+  /** @see Multimaps#forMap */
   static class MapMultimap<K,V> implements SetMultimap<K,V>, Serializable {
     private static final long serialVersionUID = 7845222491160860175L;
     private final Map<K,V> map;
@@ -1294,7 +1294,7 @@ public final class Multimaps {
       return buf.toString();
     }
 
-    /** @see #collectionEntries */
+    /** @see Multimap#collectionEntries */
     class CollectionEntries extends AbstractSet<Entry<K, Collection<V>>> {
       public int size() {
         return map.size();
@@ -1324,7 +1324,7 @@ public final class Multimaps {
       /* TODO(mbostock): faster contains, remove? */
     }
 
-    /** @see #asMap */
+    /** @see Multimap#asMap */
     class AsMap extends AbstractMap<K, Collection<V>> {
       public Set<Map.Entry<K, Collection<V>>> entrySet() {
         return collectionEntries();
@@ -1360,7 +1360,7 @@ public final class Multimaps {
     return new SingletonMultimap<K,V>(key, value);
   }
 
-  /** @see #singletonMultimap */
+  /** @see Multimaps#singletonMultimap */
   static class SingletonMultimap<K,V>
       implements SetMultimap<K,V>, Serializable {
     private final K key;
@@ -1500,11 +1500,12 @@ public final class Multimaps {
    * Returns a new immutable multimap containing the specified key-value pairs.
    *
    * <p>Unlike an <i>unmodifiable</i> multimap such as that returned by {@link
-   * #unmodifiableMultimap}, which provides a read-only view of an underlying
-   * multimap which may itself be mutable, an <i>immutable</i> multimap makes a
-   * copy of the original mappings, so that the returned multimap is
-   * <i>guaranteed</i> never to change. This is critical, for example, if the
-   * multimap is an element of a {@code HashSet} or a key in a {@code HashMap}.
+   * Multimaps#unmodifiableMultimap}, which provides a read-only view of an
+   * underlying multimap which may itself be mutable, an <i>immutable</i>
+   * multimap makes a copy of the original mappings, so that the returned
+   * multimap is <i>guaranteed</i> never to change. This is critical, for
+   * example, if the multimap is an element of a {@code HashSet} or a key in a
+   * {@code HashMap}.
    *
    * @see ImmutableMapBuilder
    */
@@ -1521,11 +1522,12 @@ public final class Multimaps {
    * Returns a new immutable multimap containing the specified key-value pairs.
    *
    * <p>Unlike an <i>unmodifiable</i> multimap such as that returned by {@link
-   * #unmodifiableMultimap}, which provides a read-only view of an underlying
-   * multimap which may itself be mutable, an <i>immutable</i> multimap makes a
-   * copy of the original mappings, so that the returned multimap is
-   * <i>guaranteed</i> never to change. This is critical, for example, if the
-   * multimap is an element of a {@code HashSet} or a key in a {@code HashMap}.
+   * Multimaps#unmodifiableMultimap}, which provides a read-only view of an
+   * underlying multimap which may itself be mutable, an <i>immutable</i>
+   * multimap makes a copy of the original mappings, so that the returned
+   * multimap is <i>guaranteed</i> never to change. This is critical, for
+   * example, if the multimap is an element of a {@code HashSet} or a key in a
+   * {@code HashMap}.
    *
    * @see ImmutableMapBuilder
    */
@@ -1544,11 +1546,12 @@ public final class Multimaps {
    * Returns a new immutable multimap containing the specified key-value pairs.
    *
    * <p>Unlike an <i>unmodifiable</i> multimap such as that returned by {@link
-   * #unmodifiableMultimap}, which provides a read-only view of an underlying
-   * multimap which may itself be mutable, an <i>immutable</i> multimap makes a
-   * copy of the original mappings, so that the returned multimap is
-   * <i>guaranteed</i> never to change. This is critical, for example, if the
-   * multimap is an element of a {@code HashSet} or a key in a {@code HashMap}.
+   * Multimaps#unmodifiableMultimap}, which provides a read-only view of an
+   * underlying multimap which may itself be mutable, an <i>immutable</i>
+   * multimap makes a copy of the original mappings, so that the returned
+   * multimap is <i>guaranteed</i> never to change. This is critical, for
+   * example, if the multimap is an element of a {@code HashSet} or a key in a
+   * {@code HashMap}.
    *
    * @see ImmutableMapBuilder
    */
@@ -1569,11 +1572,12 @@ public final class Multimaps {
    * Returns a new immutable multimap containing the specified key-value pairs.
    *
    * <p>Unlike an <i>unmodifiable</i> multimap such as that returned by {@link
-   * #unmodifiableMultimap}, which provides a read-only view of an underlying
-   * multimap which may itself be mutable, an <i>immutable</i> multimap makes a
-   * copy of the original mappings, so that the returned multimap is
-   * <i>guaranteed</i> never to change. This is critical, for example, if the
-   * multimap is an element of a {@code HashSet} or a key in a {@code HashMap}.
+   * Multimaps#unmodifiableMultimap}, which provides a read-only view of an
+   * underlying multimap which may itself be mutable, an <i>immutable</i>
+   * multimap makes a copy of the original mappings, so that the returned
+   * multimap is <i>guaranteed</i> never to change. This is critical, for
+   * example, if the multimap is an element of a {@code HashSet} or a key in a
+   * {@code HashMap}.
    *
    * @see ImmutableMapBuilder
    */

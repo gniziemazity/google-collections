@@ -143,8 +143,8 @@ public abstract class AbstractMultimap<K,V> implements Multimap<K,V>,
   /**
    * Creates the collection of values for an explicitly provided key.
    *
-   * <p>By default, it simply calls {@link #createCollection()}, but subclasses
-   * such as {@link LinkedHashMultimap} override it.
+   * <p>By default, it simply calls {@link AbstractMultimap#createCollection()},
+   * but subclasses such as {@link LinkedHashMultimap} override it.
    *
    * @param key key to associate with values in the collection
    * @return an empty collection of values
@@ -570,7 +570,6 @@ public abstract class AbstractMultimap<K,V> implements Multimap<K,V>,
    * @return the multiset of keys corresponding to the distinct keys of the
    *     multimap and frequencies corresponding to the number of values that
    *     each key maps to
-   * @see #keySet
    */
   public Multiset<K> keys() {
     if (multiset == null) {

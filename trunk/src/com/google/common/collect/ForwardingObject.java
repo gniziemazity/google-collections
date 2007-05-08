@@ -30,7 +30,7 @@ import java.io.Serializable;
  * implementation of {@code toString()}, you might say:
  *
  * <pre>  return new ForwardingObject(object) {
- *      @Override public String toString() {
+ *      {@literal @}Override public String toString() {
  *        return delegate().getClass().getName() + '@'
  *            + Integer.toHexString(hashCode());
  *      }
@@ -77,8 +77,8 @@ public abstract class ForwardingObject implements Serializable {
    * Returns the backing delegate object. This method should be overridden to
    * specify the correct return type. For example:
    *
-   * <pre>  @SuppressWarnings("unchecked")
-   *  @Override protected Foo delegate() {
+   * <pre>  {@literal @}SuppressWarnings("unchecked")
+   *  {@literal @}Override protected Foo delegate() {
    *    return (Foo) super.delegate();
    *  }</pre>
    *
@@ -96,8 +96,8 @@ public abstract class ForwardingObject implements Serializable {
    * drop the {@code throws} clause, and specify the correct return type. For
    * example:
    *
-   * <pre>  @SuppressWarnings("unchecked")
-   *  @Override public Foo clone() {
+   * <pre>  {@literal @}SuppressWarnings("unchecked")
+   *  {@literal @}Override public Foo clone() {
    *    try {
    *      return (Foo) super.clone();
    *    } catch (CloneNotSupportedException e) {
@@ -107,9 +107,10 @@ public abstract class ForwardingObject implements Serializable {
    *
    * Since the default ({@code super}) implementation of {@code clone} performs
    * only a shallow copy, you should typically also override {@link
-   * #cloneDelegate} to specify how the backing object is cloned.
+   * ForwardingObject#cloneDelegate} to specify how the backing object is
+   * cloned.
    *
-   * @see #cloneDelegate
+   * @see ForwardingObject#cloneDelegate
    */
   protected ForwardingObject clone() throws CloneNotSupportedException {
     ForwardingObject clone = (ForwardingObject) super.clone();
@@ -119,9 +120,9 @@ public abstract class ForwardingObject implements Serializable {
 
   /**
    * Creates and returns a clone of the backing delegate object. This method has
-   * the same semantics as {@link #clone}, but in regards to the delegate object
-   * rather than the decorator object. The default behavior is just to return a
-   * reference to the underlying delegate.
+   * the same semantics as {@link Object#clone}, but in regards to the delegate
+   * object rather than the decorator object. The default behavior is just to
+   * return a reference to the underlying delegate.
    *
    * <p>Override this method, <i>leaving it protected</i>, and specify the
    * correct return type. For example:
@@ -130,7 +131,7 @@ public abstract class ForwardingObject implements Serializable {
    *    return delegate().clone();
    *  }</pre>
    *
-   * @see #clone
+   * @see ForwardingObject#clone
    */
   protected Object cloneDelegate() {
     return delegate;

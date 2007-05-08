@@ -136,7 +136,7 @@ public final class Sets {
 
   /**
    * Returns an empty sorted set. This is an optimization of
-   * {@link #immutableSortedSet(E...)} for zero arguments.
+   * {@link #immutableSortedSet(Object...)} for zero arguments.
    *
    * @return an immutable empty sorted set
    */
@@ -147,7 +147,7 @@ public final class Sets {
 
   /**
    * Returns an empty sorted set having the given {@code Comparator}. This is
-   * an optimization of {@link #immutableSortedSet(Comparator, E...)} for
+   * an optimization of {@link #immutableSortedSet(Comparator, Object...)} for
    * zero arguments.
    *
    * @param comparator the comparator for the empty set
@@ -161,7 +161,7 @@ public final class Sets {
 
   /**
    * Returns a sorted set having only the given element. This is an
-   * optimization of {@link #immutableSortedSet(E...)} for one argument.
+   * optimization of {@link #immutableSortedSet(Object...)} for one argument.
    *
    * @param element the lone element to be in the returned set
    * @return an immutable sorted set containing only the given element
@@ -175,7 +175,7 @@ public final class Sets {
   /**
    * Returns a sorted set having only the given element and the given
    * {@code Comparator}. This is an optimization of
-   * {@link #immutableSortedSet(Comparator, E...)} for one argument.
+   * {@link #immutableSortedSet(Comparator, Object...)} for one argument.
    *
    * @param comparator the comparator for the one-element set
    * @param element the lone element to be in the returned set
@@ -257,7 +257,7 @@ public final class Sets {
 
   /**
    * Returns an immutable Set instance containing the elements in the provided
-   * set. See {@link #immutableSet(E...)} for details.
+   * set. See {@link #immutableSet(E[])} for details.
    *
    * @param collection a collection containing the elements to be in the
    *     returned set
@@ -955,7 +955,7 @@ public final class Sets {
    * implementation corresponding to any {@link Map} implementation.  There
    * is no need to use this method on a {@link Map} implementation that
    * already has a corresponding {@link Set} implementation (such as {@link
-   * HashMap} or {@link TreeMap}).
+   * java.util.HashMap} or {@link java.util.TreeMap}).
    *
    * <p><em>Note that this method was temporarily imported from Java 6's
    * Collections.newSetFromMap, and will be deprecated upon Java 6's

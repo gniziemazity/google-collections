@@ -18,8 +18,8 @@ package com.google.common.collect;
 
 /**
  * Interface for defining a constraint on the types of elements that are
- * allowed to be added to a {@link Collection}. For example, to enforce that a
- * collection contains no {@code null} elements, you might say:
+ * allowed to be added to a {@link java.util.Collection}. For example, to
+ * enforce that a collection contains no {@code null} elements, you might say:
  *
  * <pre>  public void checkElement(Object element) {
  *    if (element == null) {

@@ -108,7 +108,7 @@ class StandardBiMap<K,V> extends ForwardingMap<K,V> implements BiMap<K,V> {
     return clone;
   }
 
-  /** @see #cloneDelegate */
+  /** @see StandardBiMap#cloneDelegate */
   private static class CloneDelegateNotSupportedException
       extends RuntimeException {}
 
@@ -133,7 +133,7 @@ class StandardBiMap<K,V> extends ForwardingMap<K,V> implements BiMap<K,V> {
     return keySet;
   }
 
-  /** @see #keySet() */
+  /** @see StandardBiMap#keySet() */
   private class KeySet extends ForwardingSet<K> {
     public KeySet(Set<K> keySet) {
       super(keySet);
@@ -196,7 +196,7 @@ class StandardBiMap<K,V> extends ForwardingMap<K,V> implements BiMap<K,V> {
     return valueSet;
   }
 
-  /** @see #values() */
+  /** @see StandardBiMap#values() */
   private class Values extends ForwardingSet<V> {
     Values(Set<V> values) {
       super(values);
@@ -242,7 +242,7 @@ class StandardBiMap<K,V> extends ForwardingMap<K,V> implements BiMap<K,V> {
     return entrySet;
   }
 
-  /** @see #entrySet() */
+  /** @see StandardBiMap#entrySet() */
   private class EntrySet extends ForwardingSet<Entry<K,V>> {
     EntrySet(Set<Entry<K,V>> entrySet) {
       super(entrySet);

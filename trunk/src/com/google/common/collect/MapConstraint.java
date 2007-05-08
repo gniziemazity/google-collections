@@ -18,8 +18,9 @@ package com.google.common.collect;
 
 /**
  * Interface for defining a constraint on the types of keys and values that are
- * allowed to be added to a {@link Map} or {@link Multimap}. For example, to
- * enforce that a map contains no {@code null} keys or values, you might say:
+ * allowed to be added to a {@link java.util.Map} or {@link Multimap}. For
+ * example, to enforce that a map contains no {@code null} keys or values, you
+ * might say:
  *
  * <pre>  public void checkKeyValue(Object key, Object value) {
  *    if (key == null) {

@@ -375,7 +375,7 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
   /**
    * Returns a string representation of this multiset.  The string
    * representation consists of a list of element-frequency pairs in the order
-   * returned by {@link #iterator}, enclosed in brackets ({@code "[]"}).
+   * returned by {@link Multiset#iterator}, enclosed in brackets ({@code "[]"}).
    * Adjacent pairs are separated by the characters {@code ", "} (comma and
    * space).  Each element-frequency pair is rendered as the element (using
    * {@link String#valueOf}, followed by the string {@code " x "} (space,
@@ -407,8 +407,8 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
    * drop the {@code throws} clause, and specify the correct return type. For
    * example:
    *
-   * <pre>  @SuppressWarnings("unchecked")
-   *  @Override public FooMultiset clone() {
+   * <pre>  @{@literal @}uppressWarnings("unchecked")
+   *  {@literal @}Override public FooMultiset clone() {
    *    try {
    *      return (FooMultiset) super.clone();
    *    } catch (CloneNotSupportedException e) {
@@ -418,9 +418,9 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
    *
    * Since the default ({@code super}) implementation of {@code clone} performs
    * only a shallow copy, you should typically also override {@link
-   * #cloneBackingMap} to specify how the backing map is cloned.
+   * AbstractMultiset#cloneBackingMap} to specify how the backing map is cloned.
    *
-   * @see #cloneBackingMap
+   * @see AbstractMultiset#cloneBackingMap
    */
   @SuppressWarnings("unchecked")
   @Override protected AbstractMultiset<E> clone()
@@ -434,20 +434,18 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
 
   /**
    * Creates and returns a clone of the backing map. This method has the same
-   * semantics as {@link #clone}, but in regards to the backing map rather than
-   * the multiset. The default behavior is just to return a reference to the
-   * backing map.
+   * semantics as {@link Object#clone}, but in regards to the backing map rather
+   * than the multiset. The default behavior is just to return a reference to
+   * the backing map.
    *
    * <p>Override this method, <i>leaving it protected</i>, and specify the
    * correct return type. For example:
    *
-   * <pre>  @SuppressWarnings("unchecked")
-   *  @Override protected Map&lt;E, Frequency> cloneBackingMap() {
+   * <pre>  {@literal @}SuppressWarnings("unchecked")
+   *  {@literal @}Override protected Map&lt;E, Frequency> cloneBackingMap() {
    *    HashMap&lt;E, Frequency> map = (HashMap&lt;E, Frequency>) backingMap();
    *    return (Map&lt;E, Frequency>) map.clone();
    *  }</pre>
-   *
-   * @see #clone
    */
   protected Map<E, Frequency> cloneBackingMap() {
     return backingMap;

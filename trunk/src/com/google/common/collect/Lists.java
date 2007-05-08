@@ -384,7 +384,7 @@ public final class Lists {
     return new OnePlusArrayList<E>(first, rest);
   }
 
-  /** @see #asList(E, E[]) */
+  /** @see Lists#asList(Object, Object[]) */
   private static class OnePlusArrayList<E> extends AbstractList<E>
       implements Serializable, RandomAccess {
     private static final long serialVersionUID = -263507107612916621L;
@@ -424,7 +424,7 @@ public final class Lists {
     return new TwoPlusArrayList<E>(first, second, rest);
   }
 
-  /** @see #asList(E, E, E[]) */
+  /** @see Lists#asList(Object, Object, Object[]) */
   private static class TwoPlusArrayList<E> extends AbstractList<E>
       implements Serializable, RandomAccess {
     private static final long serialVersionUID = -1789891963162733178L;
