@@ -25,12 +25,10 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 /**
- * Helper class for testing whether a class is serializable.
- *
- * <p>Unlike {@link com.google.common.util.SerializationChecker}, this class
- * tests not only whether serialization succeeds, but also whether the
- * serialized form is <i>correct</i>: i.e., whether an equivalent object can be
- * reconstructed by <i>deserializing</i> the serialized form.
+ * Helper class for testing whether a class is serializable. This class tests
+ * not only whether serialization succeeds, but also whether the serialized form
+ * is <i>correct</i>: i.e., whether an equivalent object can be reconstructed by
+ * <i>deserializing</i> the serialized form.
  *
  * <p>If serialization fails, you can use {@code SerializationChecker} to
  * diagnose which referenced fields were not serializable.

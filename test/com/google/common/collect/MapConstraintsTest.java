@@ -29,7 +29,7 @@ import java.util.SortedSet;
 import junit.framework.TestCase;
 
 /**
- * Tests for {@link MapConstraints}.
+ * Tests for {@code MapConstraints}.
  *
  * @author mbostock@google.com (Mike Bostock)
  */
@@ -435,7 +435,7 @@ public class MapConstraintsTest extends TestCase {
         = MapConstraints.constrainedMultimap(map, TEST_CONSTRAINT);
     map.put("foo", 1);
     Map.Entry<String, Collection<Integer>> entry
-        = (Map.Entry) constrained.asMap().entrySet().toArray()[0];    
+        = (Map.Entry) constrained.asMap().entrySet().toArray()[0];
     try {
       entry.setValue(Collections.<Integer>emptySet());
       fail("UnsupportedOperationException expected");
@@ -444,7 +444,7 @@ public class MapConstraintsTest extends TestCase {
       entry.getValue().add(TEST_VALUE);
       fail("TestValueException expected");
     } catch (TestValueException expected) {}
-    assertFalse(map.containsValue(TEST_VALUE));    
+    assertFalse(map.containsValue(TEST_VALUE));
   }
 
   @SuppressWarnings("unchecked")
@@ -461,7 +461,7 @@ public class MapConstraintsTest extends TestCase {
     } catch (TestValueException expected) {}
     assertFalse(map.containsValue(TEST_VALUE));
   }
-  
+
   public void testMultimapEntriesContainsNefariousEntry() {
     Multimap<String, Integer> map = Multimaps.newLinkedListMultimap();
     Multimap<String, Integer> constrained

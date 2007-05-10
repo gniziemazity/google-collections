@@ -19,7 +19,7 @@ package com.google.common.base;
 import java.lang.ref.SoftReference;
 
 /**
- * Soft reference with a {@link #finalizeReferent()} method which a background
+ * Soft reference with a {@code #finalizeReferent()} method which a background
  * thread invokes after the garbage collector reclaims the referent. This is a
  * simpler alternative to using a {@link java.lang.ref.ReferenceQueue}.
  *

@@ -30,9 +30,9 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * This class contains static utility methods that operate on or return
- * objects of type {@link Iterable}.  Also see the parallel implementations in
- * {@link Iterators}.
+ * This class contains static utility methods that operate on or return objects
+ * of type {@code Iterable}.  Also see the parallel implementations in {@link
+ * Iterators}.
  *
  * @author kevinb@google.com (Kevin Bourrillion)
  * @author bonneau@google.com (Scott Bonneau)
@@ -109,23 +109,25 @@ public final class Iterables {
   }
 
   /**
-   * A convenient form of {@link Iterators#filter(Iterator,Predicate)}, which
-   * accepts and returns an Iterable instead of an Iterator.
+   * Variant of {@code Iterators.filter(Iterator, Predicate)}, which accepts and
+   * returns an iterable instead of an iterator.
+   *
+   * @see Iterators#filter
    */
   public static <T> Iterable<T> filter(final Iterable<T> unfiltered,
-                                       final Predicate<? super T> predicate) {
+      final Predicate<? super T> predicate) {
     checkNotNull(unfiltered);
     checkNotNull(predicate);
     return new AbstractIterable<T>() {
-      public Iterator<T> iterator() {
-        return Iterators.filter(unfiltered.iterator(), predicate);
-      }
-    };
+        public Iterator<T> iterator() {
+          return Iterators.filter(unfiltered.iterator(), predicate);
+        }
+      };
   }
 
   /**
    * Returns all instances of {@code type} found in {@code unfiltered}.
-   * Similar to {@link #filter(Iterable,Predicate)}.
+   * Similar to {@link #filter(Iterable, Predicate)}.
    *
    * @param unfiltered an iterable containing objects of any type
    * @param type the type of elements desired
@@ -137,10 +139,10 @@ public final class Iterables {
     checkNotNull(unfiltered);
     checkNotNull(type);
     return new AbstractIterable<T>() {
-      public Iterator<T> iterator() {
-        return Iterators.filter(unfiltered.iterator(), type);
-      }
-    };
+        public Iterator<T> iterator() {
+          return Iterators.filter(unfiltered.iterator(), type);
+        }
+      };
   }
 
   /**
@@ -149,7 +151,7 @@ public final class Iterables {
    * {@code iterable} is empty.
    */
   public static <T> boolean any(Iterable<T> iterable,
-                                Predicate<? super T> predicate) {
+      Predicate<? super T> predicate) {
     checkNotNull(iterable);
     checkNotNull(predicate);
     return Iterators.any(iterable.iterator(), predicate);
@@ -161,7 +163,7 @@ public final class Iterables {
    * {@code iterable} is empty.
    */
   public static <T> boolean all(Iterable<T> iterable,
-                                Predicate<? super T> predicate) {
+      Predicate<? super T> predicate) {
     checkNotNull(iterable);
     checkNotNull(predicate);
     return Iterators.all(iterable.iterator(), predicate);
@@ -173,10 +175,9 @@ public final class Iterables {
    *
    * @return the first matching element in {@code iterable}
    * @throws NoSuchElementException if no element in {@code iterable} matches
-   *         the given predicate
+   *     the given predicate
    */
-  public static <E> E find(Iterable<E> iterable,
-                           Predicate<? super E> predicate)
+  public static <E> E find(Iterable<E> iterable, Predicate<? super E> predicate)
       throws NoSuchElementException {
     checkNotNull(iterable);
     return Iterators.find(iterable.iterator(), predicate);
@@ -187,30 +188,32 @@ public final class Iterables {
    * {@code fromIterable}.
    */
   public static <F, T> Iterable<T> transform(final Iterable<F> fromIterable,
-                                             final Function<? super F, ? extends T> function) {
+      final Function<? super F, ? extends T> function) {
     checkNotNull(fromIterable);
     checkNotNull(function);
     return new AbstractIterable<T>() {
-      public Iterator<T> iterator() {
-        return Iterators.transform(fromIterable.iterator(), function);
-      }
-    };
+        public Iterator<T> iterator() {
+          return Iterators.transform(fromIterable.iterator(), function);
+        }
+      };
   }
 
   /**
-   * Variant of {@link Iterators#cycle} which returns an {@code Iterable}.
+   * Variant of {@code Iterators.cycle} which returns an {@code Iterable}.
+   *
+   * @see Iterators#cycle
    */
   public static <T> Iterable<T> cycle(final Iterable<T> iterable) {
     checkNotNull(iterable);
     return new AbstractIterable<T>() {
-      public Iterator<T> iterator() {
-        return Iterators.cycle(iterable);
-      }
-    };
+        public Iterator<T> iterator() {
+          return Iterators.cycle(iterable);
+        }
+      };
   }
 
   /**
-   * Variant of {@link #cycle(Iterable)} accepting varargs parameters.
+   * Variant of {@code cycle(Iterable)} accepting varargs parameters.
    */
   public static <T> Iterable<T> cycle(T... elements) {
     checkNotNull(elements);
@@ -218,7 +221,7 @@ public final class Iterables {
   }
 
   /**
-   * Variant of {@link Iterators#concat} that acts on and returns instances of
+   * Variant of {@code Iterators.concat} that acts on and returns instances of
    * {@code Iterable}.
    */
   public static <T> Iterable<T> concat(
@@ -228,7 +231,7 @@ public final class Iterables {
   }
 
   /**
-   * Variant of {@link Iterators#concat} that acts on and returns instances of
+   * Variant of {@code Iterators.concat} that acts on and returns instances of
    * {@code Iterable}.
    */
   public static <T> Iterable<T> concat(
@@ -282,7 +285,7 @@ public final class Iterables {
     return Iterators.addAll(collection, iterable.iterator());
   }
 
-  /** Variant of {@link Collections#frequency} for iterables. */
+  /** Variant of {@code Collections.frequency} for iterables. */
   public static int frequency(Iterable<?> iterable, @Nullable Object element) {
     checkNotNull(iterable);
     if ((iterable instanceof Multiset<?>)) {
@@ -457,7 +460,7 @@ public final class Iterables {
 
   /**
    * Returns a string representation of {@code iterable} in the same format as
-   * {@link Iterators#toString(java.util.Iterator)}.
+   * {@code Iterators#toString(java.util.Iterator)}.
    */
   public static String toString(Iterable<?> iterable) {
     checkNotNull(iterable);

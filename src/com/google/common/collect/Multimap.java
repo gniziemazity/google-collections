@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A collection similar to a {@link Map}, but which may associate multiple
+ * A collection similar to a {@code Map}, but which may associate multiple
  * values with a single key. If you call {@link #put} twice, with the same key
  * but different values, the multimap contains mappings from the key to both
  * values.
@@ -37,10 +37,10 @@ import java.util.Set;
  * <p>Depending on the implementation, a multimap may or may not allow duplicate
  * key-value pairs. In other words, the multimap contents after adding the same
  * key and value twice varies between implementations. In multimaps allowing
- * duplicates, the multimap will contain two mappings, and {@link #get} will
+ * duplicates, the multimap will contain two mappings, and {@code get} will
  * return a collection that includes the value twice. In multimaps not
  * supporting duplicates, the multimap will contain a single mapping from the
- * key to the value, and {@link #get} will return a collection that includes the
+ * key to the value, and {@code get} will return a collection that includes the
  * value once.
  *
  * @param <K> the type of keys maintained by this multimap
@@ -202,7 +202,7 @@ public interface Multimap<K,V> {
    * implementation. If it allows modifications, changes to it will update the
    * underlying multimap.
    *
-   * @return {@link Multiset} with keys corresponding to the distinct keys of
+   * @return a multiset with keys corresponding to the distinct keys of
    *     the multimap and frequencies corresponding to the number of values
    *     that each key maps to
    */
@@ -265,7 +265,7 @@ public interface Multimap<K,V> {
    * putAll}.
    *
    * <p>The collections returned by {@code asMap().get(Object)} have the same
-   * behavior as those returned by {@link Multimap#get}.
+   * behavior as those returned by {@link #get}.
    *
    * @return a map view from a key to its collection of values
    */
@@ -273,8 +273,8 @@ public interface Multimap<K,V> {
 
   /**
    * Compares the specified object to this multimap for equality. Two multimaps
-   * are equal if and only if their map views, as returned by
-   * {@link Multimap#asMap}, are equal.
+   * are equal if and only if their map views, as returned by {@link #asMap},
+   * are equal.
    *
    * <p>Note that two multimaps with identical key-value mappings may or may not
    * always be equal, depending on the implementation. For example, {@link

@@ -34,7 +34,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * An implementation of {@link ListMultimap} that supports deterministic
+ * An implementation of {@code ListMultimap} that supports deterministic
  * iteration order for both keys and values. The iteration order is preserved
  * across non-distinct key values. For example,
  *
@@ -210,7 +210,7 @@ public final class LinkedListMultimap<K,V>
     }
   }
 
-  /** An {@link Iterator} over all nodes. */
+  /** An {@code Iterator} over all nodes. */
   private class NodeIterator implements Iterator<Node<K,V>> {
     private Node<K,V> next = head;
     private Node<K,V> current = null;
@@ -233,7 +233,7 @@ public final class LinkedListMultimap<K,V>
     }
   }
 
-  /** An {@link Iterator} over distinct keys in key head order. */
+  /** An {@code Iterator} over distinct keys in key head order. */
   private class DistinctKeyIterator implements Iterator<K> {
     private final Set<K> seenKeys
         = new HashSet<K>(Maps.capacity(keySet().size()));
@@ -261,7 +261,7 @@ public final class LinkedListMultimap<K,V>
     }
   }
 
-  /** A {@link ListIterator} over values for a specified key. */
+  /** A {@code ListIterator} over values for a specified key. */
   private class ValueForKeyIterator implements ListIterator<V> {
     private final Object key;
     private int nextIndex;
@@ -529,8 +529,8 @@ public final class LinkedListMultimap<K,V>
   }
 
   /*
-   * This would be an anonymous class except it needs to both extend {@link
-   * AbstractCollection} and implement {@link Multiset}.
+   * This would be an anonymous class except it needs to both extend {@code
+   * AbstractCollection} and implement {@code Multiset}.
    */
   private class MultisetView extends AbstractCollection<K>
       implements Multiset<K> {

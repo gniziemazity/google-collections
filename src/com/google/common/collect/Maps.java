@@ -41,7 +41,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Provides static methods for creating mutable {@link Map} instances easily.
+ * Provides static methods for creating mutable {@code Map} instances easily.
  * You can replace code like:
  *
  * <p>{@code Map<String, Integer> map = new HashMap<String, Integer>();}
@@ -84,10 +84,10 @@ public final class Maps {
   }
 
   /**
-   * Informally deprecated; replaced by {@link #newHashMapWithExpectedSize}.
-   * <p>
    * Creates a {@code HashMap} instance.  <b>Notes:</b> if {@code K} is an
    * {@link Enum} type, use {@link #newEnumMap} instead.
+   *
+   * <p>Informally deprecated; replaced by {@link #newHashMapWithExpectedSize}.
    *
    * @param initialCapacity the initial capacity
    * @return a newly-created {@code HashMap}, initially-empty, with the
@@ -155,10 +155,10 @@ public final class Maps {
   }
 
   /**
-   * Creates a {@code TreeMap} instance using the default {@link Comparator}.
-   * <b>Note:</b> If {@code K} is an {@link Enum} type, and you don't require
-   * the map to implement {@link SortedMap} (only ordered iteration), use
-   * {@link #newEnumMap} instead.
+   * Creates a {@code TreeMap} instance using the natural-order {@code
+   * Comparator}.  <b>Note:</b> If {@code K} is an {@link Enum} type, and you
+   * don't require the map to implement {@link SortedMap} (only ordered
+   * iteration), use {@link #newEnumMap} instead.
    *
    * @return a newly-created, initially-empty {@code TreeMap}
    */
@@ -583,12 +583,11 @@ public final class Maps {
   }
 
   /**
-   * Creates a {@code Map<String, String>} from a {@link Properties}
-   * object.  Properties normally derive from {@code Map<Object,
-   * Object>}, but they typically contain strings, which is awkward.
-   * This method lets you get a plain-old-{@code Map} out of a {@code
-   * Properties}.  Note that you won't be able to save the changes to
-   * the Map the way you can with {@link
+   * Creates a {@code Map<String, String>} from a {@code Properties} instance.
+   * Properties normally derive from {@code Map<Object, Object>}, but they
+   * typically contain strings, which is awkward.  This method lets you get a
+   * plain-old-{@code Map} out of a {@code Properties}.  Note that you won't be
+   * able to save the changes to the Map the way you can with {@link
    * Properties#store(java.io.OutputStream,String)}.  Most people don't do this
    * anyway.
    *
@@ -1034,7 +1033,7 @@ public final class Maps {
   }
 
   /**
-   * Implements {@link Collection#contains} safely for forwarding collections of
+   * Implements {@code Collection.contains} safely for forwarding collections of
    * map entries. If {@code o} is an instance of {@code Map.Entry}, it is
    * wrapped using {@link #unmodifiableEntry} to protect against a possible
    * nefarious equals method.
@@ -1055,7 +1054,7 @@ public final class Maps {
   }
 
   /**
-   * Implements {@link Collection#remove} safely for forwarding collections of
+   * Implements {@code Collection.remove} safely for forwarding collections of
    * map entries. If {@code o} is an instance of {@code Map.Entry}, it is
    * wrapped using {@link #unmodifiableEntry} to protect against a possible
    * nefarious equals method.

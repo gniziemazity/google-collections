@@ -22,7 +22,7 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
 /**
- * Tests for {@link LinkedListMultiset}.
+ * Tests for {@code LinkedListMultiset}.
  *
  * @author mbostock@google.com (Mike Bostock)
  */

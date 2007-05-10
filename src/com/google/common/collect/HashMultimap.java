@@ -24,7 +24,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * Implementation of {@link Multimap} using hash tables.
+ * Implementation of {@code Multimap} using hash tables.
  *
  * <p>The multimap does not store duplicate key-value pairs. Adding a new
  * key-value pair equal to an existing key-value pair has no effect.

@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.SortedSet;
 
 /**
- * Basic implementation of the {@link SortedSetMultimap} interface. It's a
+ * Basic implementation of the {@code SortedSetMultimap} interface. It's a
  * wrapper around {@link AbstractMultimap} that converts the returned
  * collections into {@code SortedSet}s.
  *

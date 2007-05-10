@@ -20,7 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.Map;
 
 /**
- * Useful {@link Function}s.
+ * Useful {@code Function}s.
  *
  * @author mbostock
  * @author vpatryshev
@@ -30,7 +30,7 @@ public final class Functions {
   private Functions() { }
 
   /**
-   * A function that returns {@link Object#toString} of its argument.
+   * A function that returns {@code Object#toString} of its argument.
    * Note that this function is not {@literal @Nullable}: it will throw a
    * {@link NullPointerException} when applied to {@code null}.
    *

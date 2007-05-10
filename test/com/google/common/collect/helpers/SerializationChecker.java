@@ -284,7 +284,7 @@ public class SerializationChecker {
   }
 
   /**
-   * If object is an array, returns its elements as {@link
+   * If object is an array, returns its elements as {@code
    * Component}s.  Otherwise, returns its non-transient fields.
    */
   @SuppressWarnings("unchecked")
@@ -303,7 +303,7 @@ public class SerializationChecker {
   }
 
   /**
-   * Returns a {@link ComponentArrayElement} for each element of array.
+   * Returns a {@code ComponentArrayElement} for each element of array.
    */
   private static Set<Component> getAllArrayElements(
       Object[] array) {
@@ -317,8 +317,8 @@ public class SerializationChecker {
   }
 
   /**
-   * Returns a {@link ComponentArrayElement} for each element of a
-   * {@link java.util.Collection}.
+   * Returns a {@code ComponentArrayElement} for each element of a
+   * {@code java.util.Collection}.
    */
   private static Set<Component> getAllCollectionElements(
       Collection collection) {
@@ -326,8 +326,8 @@ public class SerializationChecker {
   }
 
   /**
-   * Returns an appropriate {@link ComponentMapElement} for each key
-   * and value of a {@link java.util.Map}.  If {@link
+   * Returns an appropriate {@code ComponentMapElement} for each key
+   * and value of a {@code java.util.Map}.  If {@link
    * UnsupportedOperationException} is thrown while collecting this
    * information, e.g. because {@link java.util.Map#keySet} is not
    * implemented by {@link java.util.IdentityHashMap}, return a
@@ -352,7 +352,7 @@ public class SerializationChecker {
   }
 
   /**
-   * Returns a {@link ComponentField} for each non-transient field
+   * Returns a {@code ComponentField} for each non-transient field
    * declared on the object's class and its superclasses.
    */
   private static Set<Component> getAllFields(Object object) {

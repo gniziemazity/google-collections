@@ -17,7 +17,7 @@
 package com.google.common.collect;
 
 /**
- * Unit test covering the inverse view of a {@link StandardBiMap}.
+ * Unit test covering the inverse view of a {@code StandardBiMap}.
  *
  * @author kevinb
  */

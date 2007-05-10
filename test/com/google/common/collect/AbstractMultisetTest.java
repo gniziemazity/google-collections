@@ -23,7 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Common tests for a {@link Multiset}.
+ * Common tests for a {@code Multiset}.
  *
  * @author kevinb
  */

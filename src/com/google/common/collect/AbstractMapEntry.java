@@ -21,7 +21,7 @@ import java.util.Map.Entry;
 
 /**
  * Implementation of the {@code equals}, {@code hashCode}, and {@code toString}
- * methods of {@link Entry}.
+ * methods of {@code Entry}.
  *
  * @author jlevy@google.com (Jared Levy)
  */

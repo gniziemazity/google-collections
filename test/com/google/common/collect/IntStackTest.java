@@ -22,7 +22,7 @@ import java.util.Random;
 import junit.framework.TestCase;
 
 /**
- * Unit test for {@link IntStack}.
+ * Unit test for {@code IntStack}.
  *
  * @author jjb@google.com (Josh Bloch)
  */

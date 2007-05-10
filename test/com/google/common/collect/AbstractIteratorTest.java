@@ -21,7 +21,7 @@ import java.util.NoSuchElementException;
 import junit.framework.TestCase;
 
 /**
- * Unit test for {@link AbstractIterator}.
+ * Unit test for {@code AbstractIterator}.
  *
  * @author kevinb
  */
@@ -144,9 +144,9 @@ public class AbstractIteratorTest extends TestCase {
         return 0;
       }
     };
-    
+
     assertEquals(0, (int) iter.next());
-    
+
     try {
       iter.remove();
       fail("No exception thrown");

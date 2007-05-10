@@ -21,7 +21,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 /**
- * Tests for {@link EnumHashBiMap}.
+ * Tests for {@code EnumHashBiMap}.
  *
  * @author mbostock@google.com (Mike Bostock)
  */

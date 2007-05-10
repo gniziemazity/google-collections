@@ -64,13 +64,13 @@ public class ImmutableMultimapBuilder<K,V> {
   }
 
   /**
-   * Adds a key-value mapping to the map that will be returned by
-   * {@link #getMultimap}.
+   * Adds a key-value mapping to the map that will be returned by {@code
+   * getMultimap}.
    *
    * @param key key with which the specified value is to be associated
    * @param value value to be associated with the specified key
-   * @throws IllegalStateException if {@link #getMultimap} has already been
-   * called
+   * @throws IllegalStateException if {@code getMultimap} has already been
+   *     called
    * @return this map builder (to enable call chaining)
    */
   public ImmutableMultimapBuilder<K,V> put(@Nullable K key, @Nullable V value) {
@@ -80,13 +80,13 @@ public class ImmutableMultimapBuilder<K,V> {
   }
 
   /**
-   * Stores a collection of values with the same key into the multimap that
-   * will be returned by {@link #getMultimap}.
+   * Stores a collection of values with the same key into the multimap that will
+   * be returned by {@code getMultimap}.
    *
    * @param key key to store in the multimap.
    * @param values values to store in the multimap.
-   * @throws IllegalStateException if {@link #getMultimap} has already been
-   * called
+   * @throws IllegalStateException if {@code getMultimap} has already been
+   *     called
    * @return this map builder (to enable call chaining)
    */
   public ImmutableMultimapBuilder<K,V> putAll(
@@ -97,13 +97,13 @@ public class ImmutableMultimapBuilder<K,V> {
   }
 
   /**
-   * Stores an array of values with the same key into the multimap that
-   * will be returned by {@link #getMultimap}.
+   * Stores an array of values with the same key into the multimap that will be
+   * returned by {@code getMultimap}.
    *
    * @param key key to store in the multimap.
    * @param values values to store in the multimap.
-   * @throws IllegalStateException if {@link #getMultimap} has already been
-   * called
+   * @throws IllegalStateException if {@code getMultimap} has already been
+   *     called
    * @return this map builder (to enable call chaining)
    */
   public ImmutableMultimapBuilder<K,V> putAll(@Nullable K key, V... values) {
@@ -114,11 +114,11 @@ public class ImmutableMultimapBuilder<K,V> {
 
   /**
    * Returns a newly-created, immutable Multimap instance containing the keys
-   * and values that were specified using {@link #put} and {@link #putAll}.
+   * and values that were specified using {@code put} and {@code putAll}.
    *
    * @return a new, immutable HashMap instance
-   * @throws IllegalStateException if {@link #getMultimap} has already been
-   * called
+   * @throws IllegalStateException if {@code getMultimap} has already been
+   *     called
    */
   public ListMultimap<K,V> getMultimap() {
     Preconditions.checkState(map != null, "map has already been created");

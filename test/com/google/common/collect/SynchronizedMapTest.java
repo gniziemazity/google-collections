@@ -26,7 +26,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 /**
- * Tests for {@link Synchronized#map}.
+ * Tests for {@code Synchronized#map}.
  *
  * @author mbostock@google.com (Mike Bostock)
  */

@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
@@ -26,7 +27,7 @@ import java.util.Set;
 import java.util.SortedSet;
 
 /**
- * Factory and utilities for {@link Constraint}s.
+ * Factory and utilities for {@code Constraint}s.
  *
  * <p>{@link Constraint} and {@code Collection} instances returned by this class
  * are serializable.

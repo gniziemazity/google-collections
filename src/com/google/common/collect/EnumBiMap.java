@@ -20,7 +20,7 @@ import java.util.EnumMap;
 import java.util.Map;
 
 /**
- * A {@link BiMap} backed by two {@link EnumMap} instances. Null keys and values
+ * A {@code BiMap} backed by two {@code EnumMap} instances. Null keys and values
  * are not permitted.
  *
  * @author mbostock@google.com (Mike Bostock)

@@ -93,12 +93,12 @@ public class ImmutableMapBuilder<K,V> {
   }
 
   /**
-   * Adds a key-value mapping to the map that will be returned by
-   * {@link #getMap}.
+   * Adds a key-value mapping to the map that will be returned by {@code
+   * getMap}.
    *
    * @param key key with which the specified value is to be associated
    * @param value value to be associated with the specified key
-   * @throws IllegalStateException if {@link #getMap} has already been called
+   * @throws IllegalStateException if {@code getMap} has already been called
    * @return this map builder (to enable call chaining)
    */
   public ImmutableMapBuilder<K,V> put(@Nullable K key, @Nullable V value) {
@@ -109,10 +109,10 @@ public class ImmutableMapBuilder<K,V> {
 
   /**
    * Returns a newly-created, immutable HashMap instance containing the keys and
-   * values that were specified using {@link #put}.
+   * values that were specified using {@code put}.
    *
    * @return a new, immutable HashMap instance
-   * @throws IllegalStateException if {@link #getMap} has already been called
+   * @throws IllegalStateException if {@code getMap} has already been called
    */
   public Map<K,V> getMap() {
     checkState(map != null, "map has already been created");

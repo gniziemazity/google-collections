@@ -30,7 +30,7 @@ import java.util.NoSuchElementException;
 import java.util.SortedSet;
 
 /**
- * A sorted set that keeps its elements in a sorted {@link ArrayList}. Null
+ * A sorted set that keeps its elements in a sorted {@code ArrayList}. Null
  * elements are not allowed.
  *
  * <p>This class is useful when you may have many sorted sets that only have
@@ -287,8 +287,8 @@ public final class SortedArraySet<E> extends AbstractSet<E>
   }
 
   /**
-   * Returns the comparator associated with this sorted set, or {@link
-   * Comparators#naturalOrder} if it uses its elements' natural ordering.
+   * Returns the comparator associated with this sorted set, or {@code
+   * Comparators.naturalOrder} if it uses its elements' natural ordering.
    */
   public Comparator<? super E> comparator() {
     return comparator;
@@ -364,8 +364,8 @@ public final class SortedArraySet<E> extends AbstractSet<E>
   }
 
   /**
-   * Returns the specified comparator if not null; otherwise returns {@link
-   * Comparators#naturalOrder}. This method is an abomination of generics; the
+   * Returns the specified comparator if not null; otherwise returns {@code
+   * Comparators.naturalOrder}. This method is an abomination of generics; the
    * only purpose of this method is to contain the ugly type-casting in one
    * place.
    */

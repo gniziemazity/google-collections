@@ -21,7 +21,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * Unit test for {@link StandardBiMap} when backed by two hash maps.
+ * Unit test for {@code StandardBiMap} when backed by two hash maps.
  *
  * @author kevinb
  */
@@ -31,7 +31,7 @@ public class StandardBiMapTest extends AbstractBiMapTest {
   }
 
   public void testSerialization() throws Exception {
-    BiMap<Integer,String> bimap = create();    
+    BiMap<Integer,String> bimap = create();
     bimap.put(1, "one");
     bimap.put(2, "two");
     bimap.put(3, "three");
@@ -39,7 +39,7 @@ public class StandardBiMapTest extends AbstractBiMapTest {
 
     assertTrue(SerializationChecker.canSerialize(bimap));
   }
-  
+
   private static final int N = 1000;
 
   public void testBashIt() throws Exception {

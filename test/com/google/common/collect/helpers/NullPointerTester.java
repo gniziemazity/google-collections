@@ -42,10 +42,10 @@ import java.util.regex.Pattern;
 import junit.framework.Assert;
 
 /**
- * A test utility that verifies that your methods throw
- * {@link NullPointerException} whenever any of their parameters are null.
- * To use it, you must first provide valid default values for the parameter
- * types used by the class.
+ * A test utility that verifies that your methods throw {@code
+ * NullPointerException} whenever any of their parameters are null.  To use it,
+ * you must first provide valid default values for the parameter types used by
+ * the class.
  *
  * @author kevinb
  */
@@ -93,7 +93,7 @@ public class NullPointerTester {
   }
 
   /**
-   * Runs {@link #testConstructor} on every public constructor in class {@code
+   * Runs {@code testConstructor} on every public constructor in class {@code
    * c}.
    */
   public void testAllPublicConstructors(Class<?> c) throws Exception {
@@ -105,8 +105,7 @@ public class NullPointerTester {
   }
 
   /**
-   * Runs {@link #testMethod} on every public static method in class
-   * {@code c}.
+   * Runs {@code testMethod} on every public static method in class {@code c}.
    */
   public void testAllPublicStaticMethods(Class<?> c) throws Exception {
     for (Method method : c.getDeclaredMethods()) {
@@ -117,8 +116,8 @@ public class NullPointerTester {
   }
 
   /**
-   * Runs {@link #testMethod} on every public instance method of
-   * {@code instance}.
+   * Runs {@code testMethod} on every public instance method of {@code
+   * instance}.
    */
   public void testAllPublicInstanceMethods(Object instance) throws Exception {
     Class<?> c = instance.getClass();
@@ -130,8 +129,8 @@ public class NullPointerTester {
   }
 
   /**
-   * Verifies that {@code method} produces a {@link NullPointerException}
-   * whenever <i>any</i> of its non-{@link Nullable} parameters are null.
+   * Verifies that {@code method} produces a {@code NullPointerException}
+   * whenever <i>any</i> of its non-{@code Nullable} parameters are null.
    *
    * @param instance the instance to invoke {@code method} on, or null if
    *     {@code method} is static
@@ -144,8 +143,8 @@ public class NullPointerTester {
   }
 
   /**
-   * Verifies that {@code ctor} produces a {@link NullPointerException}
-   * whenever <i>any</i> of its non-{@link Nullable} parameters are null.
+   * Verifies that {@code ctor} produces a {@code NullPointerException}
+   * whenever <i>any</i> of its non-{@code Nullable} parameters are null.
    */
   public void testConstructor(Constructor ctor) throws Exception {
     Class[] types = ctor.getParameterTypes();
@@ -155,7 +154,7 @@ public class NullPointerTester {
   }
 
   /**
-   * Verifies that {@code method} produces a {@link NullPointerException}
+   * Verifies that {@code method} produces a {@code NullPointerException}
    * when the parameter in position {@code paramIndex} is null.  If this
    * parameter is marked {@link Nullable}, this method does nothing.
    *
@@ -182,7 +181,7 @@ public class NullPointerTester {
   }
 
   /**
-   * Verifies that {@code ctor} produces a {@link NullPointerException}
+   * Verifies that {@code ctor} produces a {@code NullPointerException}
    * when the parameter in position {@code paramIndex} is null.  If this
    * parameter is marked {@link Nullable}, this method does nothing.
    */
@@ -204,7 +203,7 @@ public class NullPointerTester {
   }
 
   /**
-   * Verifies that {@code func} produces a {@link NullPointerException}
+   * Verifies that {@code func} produces a {@code NullPointerException}
    * when the parameter in position {@code paramIndex} is null.  If this
    * parameter is marked {@link Nullable}, this method does nothing.
    *

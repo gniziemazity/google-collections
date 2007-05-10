@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Basic implementation of the {@link ListMultimap} interface. It's a wrapper
+ * Basic implementation of the {@code ListMultimap} interface. It's a wrapper
  * around {@link AbstractMultimap} that converts the returned collections into
  * {@code Lists}.
  *

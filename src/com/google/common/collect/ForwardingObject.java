@@ -107,10 +107,9 @@ public abstract class ForwardingObject implements Serializable {
    *
    * Since the default ({@code super}) implementation of {@code clone} performs
    * only a shallow copy, you should typically also override {@link
-   * ForwardingObject#cloneDelegate} to specify how the backing object is
-   * cloned.
+   * #cloneDelegate} to specify how the backing object is cloned.
    *
-   * @see ForwardingObject#cloneDelegate
+   * @see #cloneDelegate
    */
   protected ForwardingObject clone() throws CloneNotSupportedException {
     ForwardingObject clone = (ForwardingObject) super.clone();

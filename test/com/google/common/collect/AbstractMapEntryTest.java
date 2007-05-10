@@ -20,7 +20,7 @@ import java.util.Map.Entry;
 import junit.framework.TestCase;
 
 /**
- * Tests for {@link AbstractMapEntry}.
+ * Tests for {@code AbstractMapEntry}.
  *
  * @author mbostock@google.com (Mike Bostock)
  */

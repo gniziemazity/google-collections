@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * Unit test for {@link Multimaps}.
+ * Unit test for {@code Multimaps}.
  *
  * @author jlevy@google.com (Jared Levy)
  */
@@ -162,7 +162,7 @@ public class MultimapsTest extends AbstractMultimapTest {
     assertEquals(multimap.toString(), unmodifiable.toString());
     assertEquals(multimap.hashCode(), unmodifiable.hashCode());
     assertEquals(multimap, unmodifiable);
-    
+
     assertContentsAnyOrder(unmodifiable.asMap().get("bar"), 5, -1);
     assertNull(unmodifiable.asMap().get("missing"));
   }

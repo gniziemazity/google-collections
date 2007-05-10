@@ -22,7 +22,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 /**
- * Tests for {@link AbstractIterable}.
+ * Tests for {@code AbstractIterable}.
  *
  * @author mbostock@google.com (Mike Bostock)
  */

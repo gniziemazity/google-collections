@@ -29,7 +29,7 @@ import java.util.SortedSet;
 import junit.framework.TestCase;
 
 /**
- * Tests for {@link Constraints}.
+ * Tests for {@code Constraints}.
  *
  * @author mbostock@google.com (Mike Bostock)
  */

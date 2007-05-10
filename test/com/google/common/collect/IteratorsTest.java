@@ -34,7 +34,7 @@ import java.util.Vector;
 import junit.framework.TestCase;
 
 /**
- * Unit test for {@link Iterators}.
+ * Unit test for {@code Iterators}.
  *
  * @author kevinb
  */
@@ -456,39 +456,39 @@ public class IteratorsTest extends TestCase {
 
   public void testAddAllWithEmptyIterator() {
     List<String> alreadyThere = Lists.newArrayList("already", "there");
-    
+
     boolean changed = Iterators.addAll(alreadyThere,
                                        Iterators.<String>emptyIterator());
     assertEquals("already there", Join.join(" ", alreadyThere));
     assertFalse(changed);
   }
-  
+
   public void testAddAllToList() {
     List<String> alreadyThere = Lists.newArrayList("already", "there");
     List<String> freshlyAdded = Lists.newArrayList("freshly", "added");
-    
+
     boolean changed = Iterators.addAll(alreadyThere, freshlyAdded.iterator());
-    
+
     String expected = "already there freshly added";
     assertEquals(expected, Join.join(" ", alreadyThere));
     assertTrue(changed);
   }
-  
+
   public void testAddAllToSet() {
     Set<String> alreadyThere = Sets.newLinkedHashSet("already", "there");
     List<String> oneMore = Lists.newArrayList("one", "more");
-    
+
     boolean changed = Iterators.addAll(alreadyThere, oneMore.iterator());
-    
+
     assertEquals("already there one more", Join.join(" ", alreadyThere));
     assertTrue(changed);
-    
+
     changed = Iterators.addAll(alreadyThere, oneMore.iterator());
 
     assertEquals("already there one more", Join.join(" ", alreadyThere));
     assertFalse(changed);
   }
-  
+
   public void testNullPointerExceptions() throws Exception {
     NullPointerTester tester = new NullPointerTester();
     tester.testAllPublicStaticMethods(Iterators.class);

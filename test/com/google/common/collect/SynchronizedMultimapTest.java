@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Tests for {@link Synchronized#multimap}.
+ * Tests for {@code Synchronized#multimap}.
  *
  * @author mbostock@google.com (Mike Bostock)
  */

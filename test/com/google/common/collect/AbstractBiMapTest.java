@@ -27,7 +27,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 /**
- * Common tests for any {@link BiMap}.
+ * Common tests for any {@code BiMap}.
  *
  * @author kevinb
  */

@@ -24,7 +24,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 /**
- * Common tests for a {@link Collection}.
+ * Common tests for a {@code Collection}.
  *
  * @author kevinb
  * @author mbostock

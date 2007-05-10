@@ -21,9 +21,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A {@link BiMap} backed by an {@link EnumMap} instance for keys-to-values, and
- * a {@link HashMap} instance for values-to-keys.
- * 
+ * A {@code BiMap} backed by an {@code EnumMap} instance for keys-to-values, and
+ * a {@code HashMap} instance for values-to-keys.
+ *
+ * @see EnumMap
+ * @see HashMap
  * @author mbostock@google.com (Mike Bostock)
  */
 public final class EnumHashBiMap<K extends Enum<K>, V>
@@ -33,7 +35,7 @@ public final class EnumHashBiMap<K extends Enum<K>, V>
   /**
    * Constructs a new empty bimap using the specified key type, sized to contain
    * an entry for every possible key.
-   * 
+   *
    * @param keyType the key type
    * @throws NullPointerException if any argument is null
    */
@@ -50,11 +52,11 @@ public final class EnumHashBiMap<K extends Enum<K>, V>
    * #EnumHashBiMap(EnumHashBiMap)} or {@link #EnumHashBiMap(EnumHashBiMap)},
    * respectively. Otherwise, the specified map must contain at least one
    * mapping (in order to determine the new enum bimap's key type).
-   * 
+   *
    * @param map the map whose mappings are to be placed in this map
    * @throws NullPointerException if the specified map is null
    * @throws IllegalArgumentException if map is not an {@code EnumBiMap} or an
-   *         {@link EnumHashBiMap} instance and contains no mappings
+   *     {@code EnumHashBiMap} instance and contains no mappings
    */
   public EnumHashBiMap(Map<K, ? extends V> map) {
     this(EnumBiMap.inferKeyType(map));
@@ -64,7 +66,7 @@ public final class EnumHashBiMap<K extends Enum<K>, V>
   /**
    * Constructs a new bimap with the same key type as the specified map,
    * initially containing the same mappings (if any).
-   * 
+   *
    * @param map the map whose mappings are to be placed in this map
    * @throws NullPointerException if the specified map is null
    */
@@ -78,16 +80,16 @@ public final class EnumHashBiMap<K extends Enum<K>, V>
    * initially containing the same mappings (if any).
    * <p>
    * Note: This constructor has been commented out to work around Eclipse bug
-   * 179902. It should be restored when the bug has been fixed. In the mean 
+   * 179902. It should be restored when the bug has been fixed. In the mean
    * time, the "(Map<K, ? extends V> map)" overload will suffice.
    * <p>
    * See: <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=179902">
-   * 
+   *
    * @param map the map whose mappings are to be placed in this map
    * @throws NullPointerException if the specified map is null
    *
   @SuppressWarnings("unchecked") // argh, my generics-fu is weak!
-  public EnumHashBiMap(EnumBiMap<K, ? extends V> map) { 
+  public EnumHashBiMap(EnumBiMap<K, ? extends V> map) {
     this(map.keyType);
     putAll((Map) map); // careful if we make this class non-final
   }*/

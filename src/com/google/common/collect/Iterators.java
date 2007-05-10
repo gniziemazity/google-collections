@@ -33,7 +33,7 @@ import java.util.NoSuchElementException;
 
 /**
  * This class contains static utility methods that operate on or return
- * objects of type {@link Iterator}. Also see the parallel implementations in
+ * objects of type {@code Iterator}. Also see the parallel implementations in
  * {@link Iterables}.
  *
  * @author kevinb@google.com (Kevin Bourrillion)
@@ -283,7 +283,7 @@ public class Iterators {
   }
 
   /**
-   * Variant of {@link #cycle(Iterable)} accepting varargs parameters.
+   * Variant of {@code #cycle(Iterable)} accepting varargs parameters.
    */
   public static <T> Iterator<T> cycle(T... elements) {
     checkNotNull(elements);
@@ -291,7 +291,7 @@ public class Iterators {
   }
 
   /**
-   * Varargs form of {@link #concat(Iterator)}.
+   * Varargs form of {@code #concat(Iterator)}.
    */
   public static <T> Iterator<T> concat(Iterator<? extends T>... iterators) {
     checkNotNull(iterators);
@@ -355,7 +355,7 @@ public class Iterators {
     return wasModified;
   }
 
-  /** Variant of {@link Collections#frequency} for iterators. */
+  /** Variant of {@code Collections#frequency} for iterators. */
   public static int frequency(Iterator<?> iterator, @Nullable Object element) {
     checkNotNull(iterator);
     int result = 0;

@@ -22,7 +22,7 @@ import java.util.Set;
 import junit.framework.TestSuite;
 
 /**
- * Tests for {@link Synchronized#biMap}.
+ * Tests for {@code Synchronized#biMap}.
  *
  * @author mbostock@google.com (Mike Bostock)
  */

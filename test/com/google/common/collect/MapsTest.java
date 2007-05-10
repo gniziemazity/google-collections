@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import junit.framework.TestCase;
 
 /**
- * Unit test for {@link Maps}.
+ * Unit test for {@code Maps}.
  *
  * @author kevinb@google.com (Kevin Bourrillion)
  * @author mbostock@google.com (Mike Bostock)

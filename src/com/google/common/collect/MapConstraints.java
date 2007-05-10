@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
@@ -26,7 +27,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * Factory and utilities for {@link MapConstraint}s.
+ * Factory and utilities for {@code MapConstraint}s.
  *
  * <p>{@link MapConstraint}, {@code Map} and {@code Multimap} instances returned
  * by this class are serializable.

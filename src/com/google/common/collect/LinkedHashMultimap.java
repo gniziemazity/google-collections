@@ -27,7 +27,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * Implementation of {@link Multimap} that does not allow duplicate key-value
+ * Implementation of {@code Multimap} that does not allow duplicate key-value
  * entries and that returns collections whose iterators follow the ordering in
  * which the data was added to the multimap.
  *
@@ -97,10 +97,10 @@ public final class LinkedHashMultimap<K,V> extends
   }
 
   /**
-   * Creates an empty {@link LinkedHashSet} for a collection of values for one
+   * Creates an empty {@code LinkedHashSet} for a collection of values for one
    * key.
    *
-   * @return A new {@link LinkedHashSet} containing a collection of values for
+   * @return a new {@code LinkedHashSet} containing a collection of values for
    *     one key
    */
   @Override protected Set<V> createCollection() {
@@ -108,11 +108,11 @@ public final class LinkedHashMultimap<K,V> extends
   }
 
   /**
-   * Creates a decorated {@link LinkedHashSet} that also keeps track of the
+   * Creates a decorated {@code LinkedHashSet} that also keeps track of the
    * order in which key-value pairs are added to the multimap.
    *
    * @param key key to associate with values in the collection
-   * @return A new decorated {@link LinkedHashSet} containing a collection of
+   * @return A new decorated {@code LinkedHashSet} containing a collection of
    *     values for one key
    */
   @Override protected Collection<V> createCollection(@Nullable K key) {
@@ -145,7 +145,7 @@ public final class LinkedHashMultimap<K,V> extends
     }
 
     /**
-     * Throws an {@link IllegalStateException} if an update operation does not
+     * Throws an {@code IllegalStateException} if an update operation does not
      * change the linked entries.
      */
     private void assertStateConsistency(boolean value) {

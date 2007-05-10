@@ -26,7 +26,7 @@ import java.util.ListIterator;
 import java.util.Map;
 
 /**
- * Tests for {@link ListMultimap} implementations.
+ * Tests for {@code ListMultimap} implementations.
  *
  * @author jlevy@google.com (Jared Levy)
  */
@@ -83,15 +83,15 @@ public abstract class AbstractListMultimapTest extends AbstractMultimapTest {
     equalMap.put(nullKey(), Arrays.asList(3));
     assertEquals(map, equalMap);
     assertEquals(equalMap, map);
-    assertEquals(equalMap.hashCode(), multimap.hashCode());    
-    
+    assertEquals(equalMap.hashCode(), multimap.hashCode());
+
     Map<String, Collection<Integer>> unequalMap = Maps.newHashMap();
     equalMap.put("foo", Arrays.asList(3, nullValue()));
     equalMap.put(nullKey(), Arrays.asList(1));
     assertFalse(map.equals(unequalMap));
-    assertFalse(unequalMap.equals(map));    
-  }  
-  
+    assertFalse(unequalMap.equals(map));
+  }
+
   /**
    * Confirm that asMap().entrySet() returns values equal to a List.
    */

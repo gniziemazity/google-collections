@@ -18,9 +18,8 @@ package com.google.common.collect;
 
 /**
  * Interface for defining a constraint on the types of keys and values that are
- * allowed to be added to a {@link java.util.Map} or {@link Multimap}. For
- * example, to enforce that a map contains no {@code null} keys or values, you
- * might say:
+ * allowed to be added to a {@code Map} or {@code Multimap}. For example, to
+ * enforce that a map contains no {@code null} keys or values, you might say:
  *
  * <pre>  public void checkKeyValue(Object key, Object value) {
  *    if (key == null) {
@@ -45,7 +44,7 @@ package com.google.common.collect;
 public interface MapConstraint<K, V> {
 
   /**
-   * Implement this method to throw a suitable {@link RuntimeException} if the
+   * Implement this method to throw a suitable {@code RuntimeException} if the
    * specified key or value is illegal. Typically this is either a {@link
    * NullPointerException}, an {@link IllegalArgumentException}, or a {@link
    * ClassCastException}, though a more application-specific exception class may

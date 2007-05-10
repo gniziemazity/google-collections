@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.Map.Entry;
 
 /**
- * Implementation of {@link Multimap} that uses an {@link ArrayList} to store
+ * Implementation of {@code Multimap} that uses an {@code ArrayList} to store
  * the values for a given key. A {@link HashMap} associates each key with an
- * {@code ArrayList} of values.
+ * {@link ArrayList} of values.
  *
  * <p>When iterating through the collections supplied by this class, the
  * ordering of values for a given key agrees with the order in which the values

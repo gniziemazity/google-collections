@@ -22,12 +22,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A {@link Multimap} that can hold duplicate key-value pairs and that maintains
+ * A {@code Multimap} that can hold duplicate key-value pairs and that maintains
  * the insertion ordering of values for a given key.
  *
  * <p>The {@link #get}, {@link #removeAll}, and {@link #replaceValues} methods
  * each return a {@link List} of values. Though the method signature doesn't say
- * so explicitly, the map returned by {@link #asMap} has {@link List} values.
+ * so explicitly, the map returned by {@link #asMap} has {@code List} values.
  *
  * @author jlevy@google.com (Jared Levy)
  */
