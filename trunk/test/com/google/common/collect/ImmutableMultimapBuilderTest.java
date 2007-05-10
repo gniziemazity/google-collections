@@ -20,7 +20,7 @@ import java.util.Arrays;
 import junit.framework.TestCase;
 
 /**
- * Unit test for {@link com.google.common.collect.ImmutableMultimapBuilder}.
+ * Unit test for {@code com.google.common.collect.ImmutableMultimapBuilder}.
  *
  * @author lwerner, based on ImmutableMapBuilderTest by kevinb
  */
@@ -53,7 +53,7 @@ public class ImmutableMultimapBuilderTest extends TestCase {
    * and using ImmutableMultimapBuilder.  Note that the builder used to
    * construct the {@code newWay} variable exercises all four ways of adding
    * items to the Multimap.
-   */ 
+   */
   public void testEquality() throws Exception {
     assertEquals(oldWay, newWay);
   }

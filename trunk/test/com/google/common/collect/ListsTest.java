@@ -32,7 +32,7 @@ import java.util.RandomAccess;
 import junit.framework.TestCase;
 
 /**
- * Unit test for {@link Lists}.
+ * Unit test for {@code Lists}.
  *
  * @author kevinb
  * @author mbostock
@@ -182,7 +182,7 @@ public class ListsTest extends TestCase {
   public void testNewArrayListWithCapacityEmpty() {
     ArrayList<Integer> list = Lists.newArrayListWithCapacity(0);
     assertEquals(Collections.emptyList(), list);
-    
+
     list = Lists.newArrayListWithCapacity(256);
     assertEquals(Collections.emptyList(), list);
   }
@@ -261,8 +261,8 @@ public class ListsTest extends TestCase {
   }
 
   /**
-   * This is just here to illustrate how {@link Arrays#asList} differs from
-   * {@link Lists#newArrayList}.
+   * This is just here to illustrate how {@code Arrays#asList} differs from
+   * {@code Lists#newArrayList}.
    */
   public void testArraysAsList() {
     List<String> ourWay = Lists.newArrayList("foo", "bar", "baz");

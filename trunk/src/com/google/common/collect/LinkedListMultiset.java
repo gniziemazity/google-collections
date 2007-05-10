@@ -31,7 +31,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * An implementation of {@link Multiset} that supports deterministic iteration
+ * An implementation of {@code Multiset} that supports deterministic iteration
  * order for elements. The iteration order is preserved across non-distinct
  * elements. For example,
  *
@@ -159,7 +159,7 @@ public final class LinkedListMultiset<E> extends ForwardingMultiset<E>
     }
   }
 
-  /** An {@link Iterator} over all nodes. */
+  /** An {@code Iterator} over all nodes. */
   private class NodeIterator implements Iterator<Node<E>> {
     private Node<E> next = head;
     private Node<E> current = null;
@@ -182,7 +182,7 @@ public final class LinkedListMultiset<E> extends ForwardingMultiset<E>
     }
   }
 
-  /** An {@link Iterator} over distinct elements in element head order. */
+  /** An {@code Iterator} over distinct elements in element head order. */
   private class DistinctElementIterator implements Iterator<E> {
     private final Set<E> seenElements
         = new HashSet<E>(Maps.capacity(elementSet().size()));

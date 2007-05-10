@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.SortedSet;
 
 /**
- * A {@link Multimap} whose values for a given are key sorted. It cannot hold
+ * A {@code Multimap} whose values for a given are key sorted. It cannot hold
  * duplicate key-value pairs; adding a key-value pair that's already in the
  * multimap has no effect. This interface does not specify the ordering of the
  * multimap's keys.
@@ -31,7 +31,7 @@ import java.util.SortedSet;
  * <p>The {@link #get}, {@link #removeAll}, and {@link #replaceValues} methods
  * each return a {@link SortedSet} of values, while {@code #entries} returns a
  * {@link Set} of map entries. Though the method signature doesn't say so
- * explicitly, the map returned by {@link #asMap} has {@link SortedSet} values.
+ * explicitly, the map returned by {@link #asMap} has {@code SortedSet} values.
  *
  * @author jlevy@google.com (Jared Levy)
  */

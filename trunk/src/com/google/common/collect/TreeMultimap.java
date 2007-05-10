@@ -27,11 +27,11 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
- * Implementation of {@link Multimap} whose keys and values are ordered by their
+ * Implementation of {@code Multimap} whose keys and values are ordered by their
  * natural ordering or by supplied comparators. When constructing a {@code
- * TreeMultimap}, you may provide a {@link Comparator} for the keys, a {@link
+ * TreeMultimap}, you may provide a {@link Comparator} for the keys, a {@code
  * Comparator} for the values, both, or neither. If the keys or values lack an
- * explicit {@link Comparator}, their natural ordering is used.
+ * explicit {@code Comparator}, their natural ordering is used.
  *
  * <p>The collections returned by {@code keySet}, {@code keys}, and {@code
  * asMap} iterate through the keys according to the key comparator
@@ -98,7 +98,7 @@ public final class TreeMultimap<K,V> extends
   }
 
   /**
-   * Constructs a {@link TreeMultimap} with the same mappings as the specified
+   * Constructs a {@code TreeMultimap} with the same mappings as the specified
    * {@code Multimap}.
    *
    * <p>If the supplied multimap is an instance of TreeMultimap, then the
@@ -123,7 +123,7 @@ public final class TreeMultimap<K,V> extends
   }
 
   /**
-   * Constructs a {@link TreeMultimap} with the same mappings as the specified
+   * Constructs a {@code TreeMultimap} with the same mappings as the specified
    * {@code Multimap}. The multimap is ordered according to the supplied {@code
    * keyComparator} and {@code valueComparator}.
    *

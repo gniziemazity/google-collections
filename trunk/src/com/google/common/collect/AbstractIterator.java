@@ -21,10 +21,10 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * An abstract Adapter that provides an Iterator interface for certain types
- * of data which are conceptually iterable, but require single-element
- * preloading (e.g. {@link java.io.BufferedReader}). Subclasses need to
- * implement only the {@link #computeNext} template method.
+ * An abstract Adapter that provides an Iterator interface for certain types of
+ * data which are conceptually iterable, but require single-element preloading
+ * (e.g., {@code java.io.BufferedReader}). Subclasses need to implement only the
+ * {@link #computeNext} template method.
  *
  * <p>Example:
  *
@@ -70,16 +70,16 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
   private T next;
 
   /**
-   * Returns the next element. <b>Note:</b> the implementor must call
-   * {@link #endOfData} when it has reached the end of the data. Failure to do
-   * so could result in an infinite loop.
+   * Returns the next element. <b>Note:</b> the implementor must call {@link
+   * #endOfData} when it has reached the end of the data. Failure to do so could
+   * result in an infinite loop.
    *
    * <p>This class invokes {@link #computeNext} during the caller's initial
    * invocation of {@link #hasNext} or {@link #next}, and on the first
-   * invocation of {@link #hasNext} or {@link #next} that follows each
-   * successful call to {@link #next}. Once the implementor either invokes
-   * {@link #endOfData} or throws any exception, {@link #computeNext} is
-   * guaranteed to never be called again.
+   * invocation of {@code hasNext} or {@code next} that follows each successful
+   * call to {@code next}. Once the implementor either invokes {@code endOfData}
+   * or throws any exception, {@code computeNext} is guaranteed to never be
+   * called again.
    *
    * <p>If this method throws an exception, it will propagate outward to the
    * {@code hasNext} or {@code next} invocation that invoked this method. Any
@@ -87,13 +87,13 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
    * {@code IllegalStateException}.
    *
    * @return the next element if there was one.  {@code null} is a valid
-   *     element value.  If {@link #endOfData} was called during execution,
+   *     element value.  If {@code endOfData} was called during execution,
    *     the return value will be ignored.
    */
   protected abstract T computeNext();
 
   /**
-   * Implementors of {@link #computeNext} <b>must</b> invoke this method when
+   * Implementors of {@code computeNext} <b>must</b> invoke this method when
    * there is no data left.
    */
   protected final void endOfData() {

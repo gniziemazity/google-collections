@@ -21,7 +21,7 @@ import java.util.Collections;
 import junit.framework.TestCase;
 
 /**
- * Tests for {@link AbstractMultisetEntry}.
+ * Tests for {@code AbstractMultisetEntry}.
  *
  * @author mbostock@google.com (Mike Bostock)
  */

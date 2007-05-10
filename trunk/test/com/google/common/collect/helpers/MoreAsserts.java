@@ -37,7 +37,7 @@ public final class MoreAsserts {
 
   /**
    * Asserts that {@code actual} is not equal {@code unexpected}, according
-   * to both {@code ==} and {@link Object#equals}.
+   * to both {@code ==} and {@code Object#equals}.
    */
   public static void assertNotEqual(
       String message, Object unexpected, Object actual) {
@@ -47,7 +47,7 @@ public final class MoreAsserts {
   }
 
   /**
-   * Variant of {@link #assertNotEqual(String,Object,Object)} using a
+   * Variant of {@code #assertNotEqual(String,Object,Object)} using a
    * generic message.
    */
   public static void assertNotEqual(Object unexpected, Object actual) {
@@ -163,8 +163,8 @@ public final class MoreAsserts {
   /**
    * Asserts that {@code expectedRegex} exactly matches {@code actual} and
    * fails with {@code message} if it does not.  The MatchResult is returned
-   * in case the test needs access to any captured groups.  Note that you can 
-   * also use this for a literal string, by wrapping your expected string in 
+   * in case the test needs access to any captured groups.  Note that you can
+   * also use this for a literal string, by wrapping your expected string in
    * {@link Pattern#quote}.
    */
   public static MatchResult assertMatchesRegex(
@@ -180,7 +180,7 @@ public final class MoreAsserts {
   }
 
   /**
-   * Variant of {@link #assertMatchesRegex(String,String,String)} using a
+   * Variant of {@code #assertMatchesRegex(String,String,String)} using a
    * generic message.
    */
   public static MatchResult assertMatchesRegex(
@@ -208,7 +208,7 @@ public final class MoreAsserts {
   }
 
   /**
-   * Variant of {@link #assertContainsRegex(String,String,String)} using a
+   * Variant of {@code #assertContainsRegex(String,String,String)} using a
    * generic message.
    */
   public static MatchResult assertContainsRegex(
@@ -231,7 +231,7 @@ public final class MoreAsserts {
   }
 
   /**
-   * Variant of {@link #assertNotMatchesRegex(String,String,String)} using a
+   * Variant of {@code #assertNotMatchesRegex(String,String,String)} using a
    * generic message.
    */
   public static void assertNotMatchesRegex(
@@ -254,7 +254,7 @@ public final class MoreAsserts {
   }
 
   /**
-   * Variant of {@link #assertNotContainsRegex(String,String,String)} using a
+   * Variant of {@code #assertNotContainsRegex(String,String,String)} using a
    * generic message.
    */
   public static void assertNotContainsRegex(
@@ -273,7 +273,7 @@ public final class MoreAsserts {
   }
 
   /**
-   * Variant of {@link #assertContentsInOrder(String,Iterable,Object...)}
+   * Variant of {@code #assertContentsInOrder(String,Iterable,Object...)}
    * using a generic message.
    */
   public static void assertContentsInOrder(
@@ -303,7 +303,7 @@ public final class MoreAsserts {
   }
 
   /**
-   * Variant of {@link #assertEmpty(String, Collection)} using a
+   * Variant of {@code #assertEmpty(String, Collection)} using a
    * generic message.
    */
   public static void assertEmpty(Collection<?> collection) {
@@ -320,7 +320,7 @@ public final class MoreAsserts {
   }
 
   /**
-   * Variant of {@link #assertEmpty(String, Map)} using a generic
+   * Variant of {@code #assertEmpty(String, Map)} using a generic
    * message.
    */
   public  static void assertEmpty(Map<?,?> map) {
@@ -337,7 +337,7 @@ public final class MoreAsserts {
   }
 
   /**
-   * Variant of {@link #assertNotEmpty(String, Collection<?>)}
+   * Variant of {@code #assertNotEmpty(String, Collection<?>)}
    * using a generic message.
    */
   public static void assertNotEmpty(Collection<?> collection) {
@@ -354,7 +354,7 @@ public final class MoreAsserts {
   }
 
   /**
-   * Variant of {@link #assertNotEmpty(String, Map)} using a generic
+   * Variant of {@code #assertNotEmpty(String, Map)} using a generic
    * message.
    */
   public static void assertNotEmpty(Map<?,?> map) {
@@ -362,7 +362,7 @@ public final class MoreAsserts {
   }
 
   /**
-   * Variant of {@link #assertContentsAnyOrder(String,Iterable,Object...)}
+   * Variant of {@code #assertContentsAnyOrder(String,Iterable,Object...)}
    * using a generic message.
    */
   public static void assertContentsAnyOrder(
@@ -417,7 +417,7 @@ public final class MoreAsserts {
 
   /**
    * Variant of
-   * {@link #checkEqualsAndHashCodeMethods(String,Object,Object,boolean...)}
+   * {@code #checkEqualsAndHashCodeMethods(String,Object,Object,boolean...)}
    * using a generic message.
    */
   public static void checkEqualsAndHashCodeMethods(Object lhs, Object rhs,

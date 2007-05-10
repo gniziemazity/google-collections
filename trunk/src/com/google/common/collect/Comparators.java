@@ -36,7 +36,7 @@ public final class Comparators {
 
   /**
    * Returns a comparator that uses the natural ordering of elements as defined
-   * by {@link Comparable}.
+   * by {@code Comparable}.
    *
    * @see Collections#reverseOrder
    */
@@ -189,7 +189,7 @@ public final class Comparators {
 
   /**
    * A comparator that compares objects by the natural ordering of their string
-   * representations as returned by {@link Object#toString}. Does not allow null
+   * representations as returned by {@code toString}. Does not allow null
    * values.
    */
   public static final Comparator<Object> STRING_FORM_ORDER

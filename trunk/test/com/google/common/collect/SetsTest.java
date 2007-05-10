@@ -36,7 +36,7 @@ import java.util.TreeSet;
 import junit.framework.TestCase;
 
 /**
- * Unit test for {@link Sets}.
+ * Unit test for {@code Sets}.
  *
  * @author kevinb
  */
@@ -592,7 +592,7 @@ public class SetsTest extends TestCase {
   }
 
   /**
-   * Simple base class for use in {@link SetsTest#testSizeOfIntersection}
+   * Simple base class for use in {@code SetsTest#testSizeOfIntersection}
    * to verify that we handle generics correctly.
    */
   private static class Base {
@@ -618,7 +618,7 @@ public class SetsTest extends TestCase {
   }
 
   /**
-   * Simple derived class for use in {@link SetsTest#testSizeOfIntersection}
+   * Simple derived class for use in {@code SetsTest#testSizeOfIntersection}
    * to verify that we handle generics correctly.
    */
   private static class Derived

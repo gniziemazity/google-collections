@@ -17,9 +17,9 @@
 package com.google.common.collect;
 
 /**
- * Interface for defining a constraint on the types of elements that are
- * allowed to be added to a {@link java.util.Collection}. For example, to
- * enforce that a collection contains no {@code null} elements, you might say:
+ * Interface for defining a constraint on the types of elements that are allowed
+ * to be added to a {@code Collection}. For example, to enforce that a
+ * collection contains no {@code null} elements, you might say:
  *
  * <pre>  public void checkElement(Object element) {
  *    if (element == null) {
@@ -45,7 +45,7 @@ package com.google.common.collect;
 public interface Constraint<E> {
 
   /**
-   * Implement this method to throw a suitable {@link RuntimeException} if the
+   * Implement this method to throw a suitable {@code RuntimeException} if the
    * specified element is illegal. Typically this is either a {@link
    * NullPointerException}, an {@link IllegalArgumentException}, or a {@link
    * ClassCastException}, though a more application-specific exception class may

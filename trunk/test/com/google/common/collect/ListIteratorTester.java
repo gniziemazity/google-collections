@@ -22,7 +22,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
 /**
- * Helper class for testing {@link ListIterator} implementations.
+ * Helper class for testing {@code ListIterator} implementations.
  *
  * @author mbostock@google.com (Mike Bostock)
  */

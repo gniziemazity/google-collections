@@ -74,7 +74,7 @@ public final class ObjectArrays {
   }
 
   /**
-   * This method implements {@link Collection#toArray(Object[])} for Collection
+   * This method implements {@code Collection.toArray(Object[])} for Collection
    * implementations to share.  Other code should never need to use it, as it
    * can call {@link Collection#toArray(Object[])}.
    *
@@ -97,7 +97,7 @@ public final class ObjectArrays {
   }
 
   /**
-   * This method implements {@link Collection#toArray()} for Collection
+   * This method implements {@code Collection.toArray()} for Collection
    * implementations to share.  Other code should never need to use it, as it
    * can call {@link Collection#toArray()}.
    *

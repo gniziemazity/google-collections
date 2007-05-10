@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.RandomAccess;
 
 /**
- * Unit tests for {@link ArrayListMultimap}.
+ * Unit tests for {@code ArrayListMultimap}.
  *
  * @author jlevy@google.com (Jared Levy)
  */

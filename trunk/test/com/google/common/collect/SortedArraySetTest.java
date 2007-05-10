@@ -27,7 +27,7 @@ import java.util.TreeSet;
 import junit.framework.TestCase;
 
 /**
- * Unit tests for {@link SortedArraySet}.
+ * Unit tests for {@code SortedArraySet}.
  *
  * @author mharris@google.com (Matthew Harris)
  */

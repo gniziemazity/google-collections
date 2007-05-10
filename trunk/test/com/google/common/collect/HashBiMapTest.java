@@ -20,7 +20,7 @@ import java.util.Map;
 
 
 /**
- * Tests for {@link HashBiMap}.
+ * Tests for {@code HashBiMap}.
  *
  * @author mbostock@google.com (Mike Bostock)
  */

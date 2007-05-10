@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Unit tests for {@link Multimap} implementations that return {@link Set}s.
+ * Unit tests for {@code Multimap} implementations that return {@code Set}s.
  *
  * @author jlevy@google.com (Jared Levy)
  */
@@ -61,14 +61,14 @@ public abstract class AbstractSetMultimapTest extends AbstractMultimapTest {
     assertEquals(map, equalMap);
     assertEquals(equalMap, map);
     assertEquals(equalMap.hashCode(), multimap.hashCode());
-    
+
     Map<String, Collection<Integer>> unequalMap = Maps.newHashMap();
     equalMap.put("foo", Sets.newHashSet(3, nullValue()));
     equalMap.put(nullKey(), Sets.newHashSet(1));
     assertFalse(map.equals(unequalMap));
     assertFalse(unequalMap.equals(map));
   }
-  
+
   public void testAsMapEntriesEquals() {
     Multimap<String, Integer> multimap = getMultimap();
     multimap.put("foo", 1);

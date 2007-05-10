@@ -19,7 +19,7 @@ package com.google.common.base;
 import java.lang.ref.PhantomReference;
 
 /**
- * Phantom reference with a {@link #finalizeReferent()} method which a
+ * Phantom reference with a {@code #finalizeReferent()} method which a
  * background thread invokes after the garbage collector reclaims the
  * referent. This is a simpler alternative to using a {@link
  * java.lang.ref.ReferenceQueue}.

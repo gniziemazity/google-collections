@@ -90,20 +90,20 @@ public class Objects {
   }
 
   /**
-   * Returns the result of invoking {@link Object#clone} on {@code object}. It
+   * Returns the result of invoking {@code Object#clone} on {@code object}. It
    * is preferable to invoke {@link Object#clone} directly, however, this is not
    * always possible. Often, your reference to an object is of an interface type
-   * which does not declare a {@link Object#clone} method, in which case you
+   * which does not declare a {@code Object#clone} method, in which case you
    * cannot clone the object without first knowing which concrete type you
    * should downcast to. This helper method provides a workaround for this
    * problem. As a bonus, you won't have to cast the result as you do with
-   * {@link Object#clone}.
+   * {@code Object#clone}.
    *
    * @throws ClassCastException if the object's clone method returns an instance
    *     of a class which is neither the same as, nor a subclass of, the
    *     original object's class
-   * @throws CloneNotSupportedException if thrown by {@link Object#clone}, or
-   *     if {@link Object#clone} has not been overridden and made public
+   * @throws CloneNotSupportedException if thrown by {@code Object#clone}, or
+   *     if {@code Object#clone} has not been overridden and made public
    */
   public static <T> T clone(T object) throws CloneNotSupportedException {
     Object clone = null;

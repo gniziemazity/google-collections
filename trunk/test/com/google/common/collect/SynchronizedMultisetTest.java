@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * Tests for {@link Multisets#synchronizedMultiset}.
+ * Tests for {@code Multisets#synchronizedMultiset}.
  *
  * @author mbostock@google.com (Mike Bostock)
  */

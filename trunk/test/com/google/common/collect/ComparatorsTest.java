@@ -25,7 +25,7 @@ import java.util.SortedSet;
 import junit.framework.TestCase;
 
 /**
- * Unit tests for {@link Comparators}.
+ * Unit tests for {@code Comparators}.
  *
  * @author jlevy@google.com (Jared Levy)
  * @author kevinb@google.com (Kevin Bourrillion)

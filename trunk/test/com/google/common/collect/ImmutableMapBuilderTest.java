@@ -22,7 +22,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 /**
- * Tests for {@link ImmutableMapBuilder}.
+ * Tests for {@code ImmutableMapBuilder}.
  *
  * @author kevinb@google.com (Kevin Bourrillion)
  */

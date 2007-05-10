@@ -45,7 +45,7 @@ public class Join {
   /**
    * Appends each of the {@code tokens} to {@code appendable}, separated by
    * {@code delimiter}.
-   * 
+   *
    * @param appendable the non-null object to append the results to
    * @param delimiter a non-null String to append between every element, but not
    *          at the beginning or end
@@ -91,7 +91,7 @@ public class Join {
   }
 
   /**
-   * Variant of {@link #join(Appendable,String,Iterator)} where {@code tokens}
+   * Variant of {@code #join(Appendable,String,Iterator)} where {@code tokens}
    * is an {@code Iterable}.
    */
   public static Appendable join(
@@ -101,7 +101,7 @@ public class Join {
   }
 
   /**
-   * Variant of {@link #join(Appendable,String,Iterator)} where {@code tokens}
+   * Variant of {@code #join(Appendable,String,Iterator)} where {@code tokens}
    * is an array.
    */
   public static Appendable join(
@@ -111,7 +111,7 @@ public class Join {
   }
 
   /**
-   * Variant of {@link #join(Appendable,String,Iterator)} for tokens given using
+   * Variant of {@code #join(Appendable,String,Iterator)} for tokens given using
    * varargs.
    */
   public static Appendable join(Appendable appendable, String delimiter,
@@ -121,7 +121,7 @@ public class Join {
   }
 
   /**
-   * Variant of {@link #join(String,Iterable)} where {@code tokens} is an
+   * Variant of {@code #join(String,Iterable)} where {@code tokens} is an
    * {@code Iterator}.
    */
   public static String join(String delimiter, Iterator<?> tokens) {
@@ -131,7 +131,7 @@ public class Join {
   }
 
   /**
-   * Variant of {@link #join(String,Iterable)} where {@code tokens} is an
+   * Variant of {@code #join(String,Iterable)} where {@code tokens} is an
    * array.
    */
   public static String join(String delimiter, Object[] tokens) {
@@ -140,7 +140,7 @@ public class Join {
   }
 
   /**
-   * Variant of {@link #join(String,Iterable)} for tokens given using varargs.
+   * Variant of {@code #join(String,Iterable)} for tokens given using varargs.
    */
   public static String join(
       String delimiter, @Nullable Object firstToken, Object... otherTokens) {
@@ -160,8 +160,8 @@ public class Join {
   }
 
   /**
-   * Thrown in response to an {@link IOException} from the supplied
-   * {@link Appendable}.  This is used because most callers won't want to
+   * Thrown in response to an {@code IOException} from the supplied
+   * {@code Appendable}.  This is used because most callers won't want to
    * worry about catching an IOException.
    */
   public static class JoinException extends RuntimeException {
@@ -171,10 +171,10 @@ public class Join {
 
     private static final long serialVersionUID = 1L;
   }
-  
+
   /**
    * Duplicate of
-   * {@link com.google.common.collect.Lists#asList(Object, Object[])}.
+   * {@code com.google.common.collect.Lists#asList(Object, Object[])}.
    * copied here to remove dependencies.
    */
   private static List<Object> asList(final Object first, final Object[] rest) {

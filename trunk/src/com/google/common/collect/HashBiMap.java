@@ -20,8 +20,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A {@link BiMap} backed by two {@link HashMap} instances.
+ * A {@code BiMap} backed by two {@code HashMap} instances.
  *
+ * @see HashMap
  * @author mbostock@google.com (Mike Bostock)
  */
 public final class HashBiMap<K,V> extends StandardBiMap<K,V>

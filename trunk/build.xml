@@ -2,6 +2,7 @@
 
 <project name="google-collections" default="compile">
 
+  <property environment="env"/>
   <property file="build.properties"/>
 
   <!-- can be overridden at the command line with -Dversion=
@@ -79,17 +80,23 @@
 
   <target name="javadoc"
       description="Generate Javadocs.">
+    <delete dir="${build.dir}/javadoc"/>
     <mkdir dir="${build.dir}/javadoc"/>
     <javadoc packagenames="${javadoc.packagenames}"
          destdir="${build.dir}/javadoc"
          author="false"
          protected="true"
-	 windowtitle="Google Collections ${version} API">
+         windowtitle="Google Collections ${version} API">
       <sourcepath>
+        <!--
+          For some unknown reason, {@inheritDoc} only appears to work when using
+          javadoc from 1.5.0_01, and pulling the source from 1.5.0_06.
+        -->
+        <!-- pathelement location="/home/build/buildtools/java/jdk1.5.0_06/src/"/ -->
+        <pathelement location="${env.JAVA_HOME}/src/"/>
         <pathelement location="${src.dir}"/>
       </sourcepath>
       <link href="http://java.sun.com/javase/6/docs/api"/>
     </javadoc>
   </target>
 </project>
-

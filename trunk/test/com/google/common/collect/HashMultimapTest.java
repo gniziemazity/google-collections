@@ -17,7 +17,7 @@
 package com.google.common.collect;
 
 /**
- * Unit tests for {@link HashMultimap}.
+ * Unit tests for {@code HashMultimap}.
  *
  * @author jlevy@google.com (Jared Levy)
  */

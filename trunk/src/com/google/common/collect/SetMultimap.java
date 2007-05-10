@@ -22,13 +22,13 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A {@link Multimap} that cannot hold duplicate key-value pairs. Adding a
+ * A {@code Multimap} that cannot hold duplicate key-value pairs. Adding a
  * key-value pair that's already in the multimap has no effect.
  *
  * <p>The {@link #get}, {@link #removeAll}, and {@link #replaceValues} methods
- * each return a {@link Set} of values, while {@link #entries} returns a {@link
+ * each return a {@link Set} of values, while {@link #entries} returns a {@code
  * Set} of map entries. Though the method signature doesn't say so explicitly,
- * the map returned by {@link #asMap} has {@link Set} values.
+ * the map returned by {@link #asMap} has {@code Set} values.
  *
  * @author jlevy@google.com (Jared Levy)
  */

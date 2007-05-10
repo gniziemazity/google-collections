@@ -22,7 +22,7 @@ import java.util.Random;
 import junit.framework.TestCase;
 
 /**
- * Unit test for {@link IntQueue}.
+ * Unit test for {@code IntQueue}.
  *
  * @author jjb@google.com (Josh Bloch)
  */

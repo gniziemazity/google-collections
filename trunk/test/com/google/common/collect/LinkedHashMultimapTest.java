@@ -23,7 +23,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Unit tests for {@link LinkedHashMultimap}.
+ * Unit tests for {@code LinkedHashMultimap}.
  *
  * @author jlevy@google.com (Jared Levy)
  */

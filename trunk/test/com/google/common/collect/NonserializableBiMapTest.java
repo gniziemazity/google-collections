@@ -20,7 +20,7 @@ import com.google.common.collect.helpers.SerializationChecker;
 import java.util.Map;
 
 /**
- * Unit test for {@link StandardBiMap} when backed by non-serializable
+ * Unit test for {@code StandardBiMap} when backed by non-serializable
  * hash maps.
  *
  * @author jlevy

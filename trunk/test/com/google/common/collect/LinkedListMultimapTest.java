@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 /**
- * Tests for {@link LinkedListMultimap}.
+ * Tests for {@code LinkedListMultimap}.
  *
  * @author mbostock
  */

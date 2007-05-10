@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A general-purpose abstract {@link BiMap} implementation using any two backing
- * {@link Map} instances. Instances of this class are not thread-safe. All
+ * A general-purpose abstract {@code BiMap} implementation using any two backing
+ * {@code Map} instances. Instances of this class are not thread-safe. All
  * methods throw {@link NullPointerException} in response to any null parameter,
  * except as noted.
  *

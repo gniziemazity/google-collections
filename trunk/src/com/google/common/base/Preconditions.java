@@ -58,7 +58,7 @@ public class Preconditions {
 
   /**
    * Ensures that {@code expression} is {@code true}.
-   * 
+   *
    * @param expression any boolean expression involving an argument to the
    *     current method
    * @throws IllegalArgumentException if {@code expression} is {@code false}
@@ -71,8 +71,8 @@ public class Preconditions {
 
   /**
    * Ensures that {@code expression} is {@code true}.
-   * 
-   * @param expression any boolean expression involving the state of the 
+   *
+   * @param expression any boolean expression involving the state of the
    *     current instance (and not involving arguments)
    * @throws IllegalStateException if {@code expression} is {@code false}
    */
@@ -84,7 +84,7 @@ public class Preconditions {
 
   /**
    * Ensures that {@code reference} is not {@code null}.
-   * 
+   *
    * @param reference an object reference that was passed as a parameter to the
    *     current method
    * @throws NullPointerException if {@code reference} is {@code null}
@@ -97,11 +97,11 @@ public class Preconditions {
 
   /**
    * Ensures that {@code expression} is {@code true}.
-   * 
+   *
    * @param expression any boolean expression involving an argument to the
    *     current method
-   * @param message a message object which will be converted using 
-   *     {@link Object#toString} and included in the exception message if the
+   * @param message a message object which will be converted using
+   *     {@code Object#toString} and included in the exception message if the
    *     check fails
    * @throws IllegalArgumentException if {@code expression} is {@code false}
    */
@@ -113,11 +113,11 @@ public class Preconditions {
 
   /**
    * Ensures that {@code expression} is {@code true}.
-   * 
-   * @param expression any boolean expression involving the state of the 
+   *
+   * @param expression any boolean expression involving the state of the
    *     current instance (and not involving arguments)
-   * @param message a message object which will be converted using 
-   *     {@link Object#toString} and included in the exception message if the
+   * @param message a message object which will be converted using
+   *     {@code Object#toString} and included in the exception message if the
    *     check fails
    * @throws IllegalStateException if {@code expression} is {@code false}
    */
@@ -129,11 +129,11 @@ public class Preconditions {
 
   /**
    * Ensures that {@code reference} is not {@code null}.
-   * 
+   *
    * @param reference an object reference that was passed as a parameter to the
    *     current method
-   * @param message a message object which will be converted using 
-   *     {@link Object#toString} and included in the exception message if the
+   * @param message a message object which will be converted using
+   *     {@code Object#toString} and included in the exception message if the
    *     check fails
    * @throws NullPointerException if {@code reference} is {@code null}
    */

@@ -23,7 +23,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 /**
- * Unit test for {@link ObjectArrays}.
+ * Unit test for {@code ObjectArrays}.
  *
  * @author kevinb
  */
@@ -87,7 +87,7 @@ public class ObjectArraysTest extends TestCase {
         = ObjectArrays.concat(new String[0], new String[0], Object.class);
     assertEquals(Object[].class, result.getClass());
   }
-  
+
   public void testToArrayImpl1() throws Exception {
     doTestToArrayImpl1(Lists.<Integer>newArrayList());
     doTestToArrayImpl1(Lists.newArrayList(1));

@@ -21,7 +21,7 @@ import java.io.Serializable;
 
 /**
  * Predicates contains static methods for creating the standard set of
- * {@link Predicate} objects.
+ * {@code Predicate} objects.
  *
  * <p>"Lispy, but good."
  *

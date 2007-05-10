@@ -23,7 +23,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 /**
- * Tests for {@link Multisets}.
+ * Tests for {@code Multisets}.
  *
  * @author mbostock@google.com (Mike Bostock)
  */

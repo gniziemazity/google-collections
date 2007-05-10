@@ -26,7 +26,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * Unit tests for {@link TreeMultimap} with natural ordering.
+ * Unit tests for {@code TreeMultimap} with natural ordering.
  *
  * @author jlevy@google.com (Jared Levy)
  */
@@ -51,7 +51,7 @@ public class TreeMultimapNaturalTest<E> extends AbstractSetMultimapTest {
   }
 
   /**
-   * Create and populate a {@link TreeMultimap} with the natural ordering of
+   * Create and populate a {@code TreeMultimap} with the natural ordering of
    * keys and values.
    */
   private TreeMultimap<String, Integer> createPopulate() {

@@ -22,9 +22,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Basic implementation of the {@link SetMultimap} interface. It's a wrapper
+ * Basic implementation of the {@code SetMultimap} interface. It's a wrapper
  * around {@link AbstractMultimap} that converts the returned collections into
- * {@code Sets}.
+ * {@code Set}s.
  *
  * @author jlevy@google.com (Jared Levy)
  */

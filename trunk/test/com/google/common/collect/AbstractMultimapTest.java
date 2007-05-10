@@ -29,7 +29,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 /**
- * Tests for {@link AbstractMultimap}. Caution: when subclassing avoid
+ * Tests for {@code AbstractMultimap}. Caution: when subclassing avoid
  * accidental naming collisions with tests in this class!
  */
 public abstract class AbstractMultimapTest extends TestCase {
@@ -420,7 +420,7 @@ public abstract class AbstractMultimapTest extends TestCase {
   }
 
 /*
- 
+
   TODO(kevinb): don't use Pair
 
 
@@ -469,7 +469,7 @@ public abstract class AbstractMultimapTest extends TestCase {
     assertTrue(map.containsKey("foo"));
     assertTrue(map.containsKey(nullKey()));
     assertFalse(multimap.containsKey("bar"));
-    
+
     MoreAsserts.assertContentsAnyOrder(map.remove("foo"), 1, nullValue());
     assertFalse(multimap.containsKey("foo"));
     assertEquals(1, multimap.size());
@@ -480,13 +480,13 @@ public abstract class AbstractMultimapTest extends TestCase {
     multimap.get(nullKey()).clear();
     assertTrue(multimap.isEmpty());
     assertEquals(0, multimap.size());
-    
+
     try {
       map.put("bar", Arrays.asList(4, 8));
       fail("Expected UnsupportedOperationException");
     } catch (UnsupportedOperationException expected) {}
   }
-  
+
   public void testAsMapEntries() {
     multimap.put("foo", 1);
     multimap.put("foo", nullValue());

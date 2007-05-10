@@ -36,7 +36,7 @@ import java.util.Set;
 import java.util.SortedSet;
 
 /**
- * Basic implementation of the {@link Multimap} interface. This class represents
+ * Basic implementation of the {@code Multimap} interface. This class represents
  * a multimap as a map that associates each key with a collection of values. All
  * methods of {@link Multimap} are supported, including those specified as
  * optional in the interface.
@@ -46,28 +46,28 @@ import java.util.SortedSet;
  *
  * <p>The multimap constructor takes a map that has a single entry for each
  * distinct key. When you insert a key-value pair with a key that isn't already
- * in the multimap, {@code AbstractMultimap} calls {@link #createCollection()}
- * to create the collection of values for that key. The subclass should not call
- * {@link #createCollection()} directly, and a new instance should be created
- * every time the method is called.
+ * in the multimap, {@code AbstractMultimap} calls {@code createCollection} to
+ * create the collection of values for that key. The subclass should not call
+ * {@code createCollection} directly, and a new instance should be created every
+ * time the method is called.
  *
  * <p>For example, the subclass could pass a {@link java.util.TreeMap} during
- * construction, and {@link #createCollection()} could return a {@link
- * java.util.TreeSet}, in which case the multimap's iterators would propagate
- * through the keys and values in sorted order.
+ * construction, and {@code createCollection} could return a {@code TreeSet}, in
+ * which case the multimap's iterators would propagate through the keys and
+ * values in sorted order.
  *
  * <p>Keys and values may be null, as long as the underlying collection classes
  * support nulls.
  *
- * <p>The collections created by {@link #createCollection()} may or may not
- * allow duplicates. If the collection, such as a {@link Set}, does not support
+ * <p>The collections created by {@code createCollection} may or may not allow
+ * duplicates. If the collection, such as a {@code Set}, does not support
  * duplicates, an added key-value pair will replace an existing pair with the
- * same key and value, if such a pair is present. With collections like {@link
+ * same key and value, if such a pair is present. With collections like {@code
  * List} that allow duplicates, the collection will keep the existing key-value
  * pairs while adding a new pair.
  *
  * <p>This class is not threadsafe when any concurrent operations update the
- * multimap, even if the underlying map and {@link #createCollection()} method
+ * multimap, even if the underlying map and {@code createCollection} method
  * return threadsafe classes. Concurrent read operations will work correctly.
  * To allow concurrent update operations, wrap your multimap with a call to
  * {@link Multimaps#synchronizedMultimap}.
@@ -143,8 +143,8 @@ public abstract class AbstractMultimap<K,V> implements Multimap<K,V>,
   /**
    * Creates the collection of values for an explicitly provided key.
    *
-   * <p>By default, it simply calls {@link AbstractMultimap#createCollection()},
-   * but subclasses such as {@link LinkedHashMultimap} override it.
+   * <p>By default, it simply calls {@link #createCollection()}, but subclasses
+   * such as {@link LinkedHashMultimap} override it.
    *
    * @param key key to associate with values in the collection
    * @return an empty collection of values
@@ -482,7 +482,7 @@ public abstract class AbstractMultimap<K,V> implements Multimap<K,V>,
     }
   }
 
-  /** Entry set for a {@link SetMultimap}. */
+  /** Entry set for a {@code SetMultimap}. */
   private class EntrySet extends Entries implements Set<Map.Entry<K,V>> {
     @Override public boolean equals(Object other) {
       if (this == other) {
@@ -761,10 +761,10 @@ public abstract class AbstractMultimap<K,V> implements Multimap<K,V>,
    * have a delegate pointing to the underlying collection class.
    *
    * <p>Full collections, identified by a null ancestor field, contain all
-   * multimap values for a given key. Its delegate is a value in {@link
-   * AbstractMultimap#map} whenever the delegate is non-empty. The {@code
-   * refreshIfEmpty}, {@code removeIfEmpty}, and {@code addToMap} methods ensure
-   * that the WrappedCollection and map remain consistent.
+   * multimap values for a given key. Its delegate is a value in {@link #map}
+   * whenever the delegate is non-empty. The {@code refreshIfEmpty}, {@code
+   * removeIfEmpty}, and {@code addToMap} methods ensure that the
+   * WrappedCollection and map remain consistent.
    *
    * <p>A subcollection, such as a sublist, contains some of the values for a
    * given key. Its ancestor field points to the full wrapped collection with

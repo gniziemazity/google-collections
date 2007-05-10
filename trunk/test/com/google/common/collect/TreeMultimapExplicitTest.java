@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Unit tests for {@link TreeMultimap} with explicit comparators.
+ * Unit tests for {@code TreeMultimap} with explicit comparators.
  *
  * @author jlevy@google.com (Jared Levy)
  */
@@ -88,7 +88,7 @@ public class TreeMultimapExplicitTest<E> extends AbstractSetMultimapTest {
   }
 
   /**
-   * Create and populate a {@link TreeMultimap} with explicit comparators.
+   * Create and populate a {@code TreeMultimap} with explicit comparators.
    */
   private TreeMultimap<String, Integer> createPopulate() {
     TreeMultimap<String, Integer> multimap = Multimaps.newTreeMultimap(

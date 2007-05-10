@@ -20,7 +20,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 /**
- * Tests for {@link ForwardingObject}.
+ * Tests for {@code ForwardingObject}.
  *
  * @author mbostock@google.com (Mike Bostock)
  */

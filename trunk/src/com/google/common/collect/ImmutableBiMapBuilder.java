@@ -20,7 +20,7 @@ import com.google.common.base.Nullable;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
- * A convenient way to populate immutable BiMap instances, especially 
+ * A convenient way to populate immutable BiMap instances, especially
  * static-final "constant BiMaps".  Code such as
  *
  * <pre>
@@ -49,9 +49,9 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public class ImmutableBiMapBuilder<K,V> {
   // TODO(dovle): move to com.google.common.collect
-  
+
   /**
-   * Temporary bimap used for holding the state of the builder before the 
+   * Temporary bimap used for holding the state of the builder before the
    * map will be created. When the map is created, it is set to {@code null}.
    */
   private BiMap<K,V> biMap;
@@ -74,12 +74,12 @@ public class ImmutableBiMapBuilder<K,V> {
   }
 
   /**
-   * Adds a key-value mapping to the map that will be returned by
-   * {@link #getBiMap}.
+   * Adds a key-value mapping to the map that will be returned by {@code
+   * getBiMap}.
    *
    * @param key key with which the specified value is to be associated
    * @param value value to be associated with the specified key
-   * @throws IllegalStateException if {@link #getBiMap} has already been called
+   * @throws IllegalStateException if {@code getBiMap} has already been called
    * @return this map builder (to enable call chaining)
    */
   public ImmutableBiMapBuilder<K,V> put(@Nullable K key, @Nullable V value) {
@@ -90,10 +90,10 @@ public class ImmutableBiMapBuilder<K,V> {
 
   /**
    * Returns a newly-created, immutable BiMap instance containing the keys and
-   * values that were specified using {@link #put}.
+   * values that were specified using {@code put}.
    *
-   * @return a new, immutable {@link BiMap} instance
-   * @throws IllegalStateException if {@link #getBiMap} has already been called
+   * @return a new, immutable {@code BiMap} instance
+   * @throws IllegalStateException if {@code getBiMap} has already been called
    */
   public BiMap<K,V> getBiMap() {
     checkState(biMap != null, "map has already been created");

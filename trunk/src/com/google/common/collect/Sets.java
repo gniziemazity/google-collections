@@ -37,7 +37,7 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Provides static methods for creating mutable {@link Set} instances easily
+ * Provides static methods for creating mutable {@code Set} instances easily
  * and other static methods for working with Sets.
  *
  * <p>You can replace code like:
@@ -135,8 +135,8 @@ public final class Sets {
   }
 
   /**
-   * Returns an empty sorted set. This is an optimization of
-   * {@link #immutableSortedSet(Object...)} for zero arguments.
+   * Returns an empty sorted set. This is an optimization of {@link
+   * #immutableSortedSet(Comparator, Object...)} for zero arguments.
    *
    * @return an immutable empty sorted set
    */
@@ -160,8 +160,8 @@ public final class Sets {
   }
 
   /**
-   * Returns a sorted set having only the given element. This is an
-   * optimization of {@link #immutableSortedSet(Object...)} for one argument.
+   * Returns a sorted set having only the given element. This is an optimization
+   * of {@link #immutableSortedSet(Comparator, Object...)} for one argument.
    *
    * @param element the lone element to be in the returned set
    * @return an immutable sorted set containing only the given element
@@ -173,9 +173,9 @@ public final class Sets {
   }
 
   /**
-   * Returns a sorted set having only the given element and the given
-   * {@code Comparator}. This is an optimization of
-   * {@link #immutableSortedSet(Comparator, Object...)} for one argument.
+   * Returns a sorted set having only the given element and the given {@code
+   * Comparator}. This is an optimization of {@link
+   * #immutableSortedSet(Comparator, Object...)} for one argument.
    *
    * @param comparator the comparator for the one-element set
    * @param element the lone element to be in the returned set
@@ -235,7 +235,7 @@ public final class Sets {
   }
 
   /**
-   * Optimization of {@link #immutableSet} for zero arguments.
+   * Optimization of {@code #immutableSet} for zero arguments.
    *
    * @return an immutable empty set
    * @see Collections#emptySet
@@ -245,7 +245,7 @@ public final class Sets {
   }
 
   /**
-   * Optimization of {@link #immutableSet} for one argument.
+   * Optimization of {@code #immutableSet} for one argument.
    *
    * @param element the lone element to be in the returned set
    * @return an immutable set containing only the given element
@@ -257,7 +257,7 @@ public final class Sets {
 
   /**
    * Returns an immutable Set instance containing the elements in the provided
-   * set. See {@link #immutableSet(E[])} for details.
+   * set. See {@link #immutableSet(Object...)} for details.
    *
    * @param collection a collection containing the elements to be in the
    *     returned set
@@ -393,7 +393,7 @@ public final class Sets {
   }
 
   /**
-   * Creates a thread-safe {@link Set} backed by a hash table, and
+   * Creates a thread-safe {@code Set} backed by a hash table, and
    * containing the given elements. The concurrency properties of this set are
    * detailed in {@link ConcurrentHashMap}.
    *
@@ -412,7 +412,7 @@ public final class Sets {
   }
 
   /**
-   * Creates a thread-safe {@link Set} backed by a hash table, and
+   * Creates a thread-safe {@code Set} backed by a hash table, and
    * containing the given elements. The concurrency properties of this set are
    * detailed in {@link ConcurrentHashMap}.
    *
@@ -427,7 +427,7 @@ public final class Sets {
   }
 
   /**
-   * Creates a thread-safe {@link Set} backed by a hash table, and
+   * Creates a thread-safe {@code Set} backed by a hash table, and
    * containing the given elements. The concurrency properties of this set are
    * detailed in {@link ConcurrentHashMap}.
    *
@@ -509,7 +509,7 @@ public final class Sets {
   // TreeSet, without Comparator
 
   /**
-   * Creates a {@code TreeSet} instance using the default {@link Comparator}.
+   * Creates a {@code TreeSet} instance using the default {@code Comparator}.
    * <b>Note:</b> If {@code E} is an {@link Enum} type, and you don't require
    * the set to implement {@link SortedSet} (only ordered iteration), use
    * {@link EnumSet#noneOf} instead.
@@ -521,7 +521,7 @@ public final class Sets {
   }
 
   /**
-   * Creates a {@code TreeSet} instance using the default {@link Comparator}
+   * Creates a {@code TreeSet} instance using the default {@code Comparator}
    * and containing the given elements.  <b>Note:</b> If {@code E} is an
    * {@link Enum} type, and you don't require the set to implement {@link
    * SortedSet} (only ordered iteration), use {@link EnumSet#of} instead.
@@ -540,7 +540,7 @@ public final class Sets {
   }
 
   /**
-   * Creates a {@code TreeSet} instance using the default {@link Comparator}
+   * Creates a {@code TreeSet} instance using the default {@code Comparator}
    * and containing the given elements.
    *
    * <p><b>Note:</b> If {@code E} is an {@link Enum} type, and you don't
@@ -558,7 +558,7 @@ public final class Sets {
   }
 
   /**
-   * Creates a {@code TreeSet} instance using the default {@link Comparator}
+   * Creates a {@code TreeSet} instance using the default {@code Comparator}
    * and containing the given elements.  <b>Note:</b> if {@code E} is an
    * {@link Enum} type, and you don't require the set to implement {@link
    * SortedSet} (only ordered iteration), you should manually create an

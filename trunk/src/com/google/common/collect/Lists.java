@@ -33,8 +33,8 @@ import java.util.ListIterator;
 import java.util.RandomAccess;
 
 /**
- * Provides static methods for creating {@link List} instances easily, and
- * other utility methods for working with Lists. You can replace code like:
+ * Provides static methods for creating {@code List} instances easily, and other
+ * utility methods for working with lists. You can replace code like:
  *
  * <p>{@code List<String> list = new ArrayList<String>();}
  * <br>{@code Collections.addAll(list, "foo", "bar", "baz");}
@@ -154,7 +154,7 @@ public final class Lists {
   }
 
   /**
-   * Optimization of {@link #immutableList} for zero arguments.
+   * Variant of {@code immutableList} for zero arguments.
    *
    * @return an immutable empty list
    * @see Collections#emptyList
@@ -164,7 +164,7 @@ public final class Lists {
   }
 
   /**
-   * Optimization of {@link #immutableList} for one argument.
+   * Variant of {@code immutableList} for one argument.
    *
    * @param element the lone element to be in the returned list
    * @return an immutable list containing only the given element
@@ -318,18 +318,17 @@ public final class Lists {
   }
 
   /**
-   * Returns a copy of the given iterable which has been sorted using
-   * {@link Collections#sort}. The input is not modified.
+   * Returns a copy of the given iterable which has been sorted using {@code
+   * Collections.sort}. The input is not modified.
    *
-   * Unlike {@link Sets#newTreeSet(Iterable)}, this method does not collapse
+   * <p>Unlike {@link Sets#newTreeSet(Iterable)}, this method does not collapse
    * elements that compare as zero, and the resulting collection does not
    * maintain its own sort order.  If you have no preference on these issues,
    * these two alternatives are equivalent, so you can choose for performance
    * factors.
    *
    * @param iterable the elements to be copied and sorted
-   * @return a new, {@link List} containing the given elements
-   *   in sorted order.
+   * @return a new list containing the given elements in sorted order
    */
   public static <E extends Comparable<? super E>> List<E> sortedCopy(
       Iterable<E> iterable) {
@@ -340,23 +339,21 @@ public final class Lists {
   }
 
   /**
-   * Returns a copy of the given iterable which has been sorted using
-   * {@link Collections#sort}. The input is not modified.
+   * Returns a copy of the given iterable which has been sorted using {@code
+   * Collections.sort}. The input is not modified.
    *
-   * Unlike {@link Sets#newTreeSet(Iterable)}, this method does not collapse
+   * <p>Unlike {@link Sets#newTreeSet(Iterable)}, this method does not collapse
    * elements that compare as zero, and the resulting collection does not
    * maintain its own sort order.  If you have no preference on these issues,
    * these two alternatives are equivalent, so you can choose for performance
    * factors.
    *
    * @param iterable the elements to be copied and sorted
-   * @param comparator a {@link Comparator} capable of sorting the given
-   *   elements.
-   * @return a new, {@link List} containing the given elements
-   *   in sorted order.
+   * @param comparator a comparator capable of sorting the given elements
+   * @return a new list containing the given elements in sorted order
    */
   public static <E> List<E> sortedCopy(Iterable<E> iterable,
-                                       Comparator<? super E> comparator) {
+      Comparator<? super E> comparator) {
     checkNotNull(iterable);
     checkNotNull(comparator);
     List<E> list = Lists.newArrayList(iterable);
@@ -544,7 +541,7 @@ public final class Lists {
   }
 
   /**
-   * Trivial subclass of {@link TransformingList} that preserves the {@link
+   * Trivial subclass of {@code TransformingList} that preserves the {@code
    * RandomAccess} interface marker.
    *
    * @see Lists#transform

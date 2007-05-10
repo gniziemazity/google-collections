@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentMap;
 import junit.framework.TestCase;
 
 /**
- * Tests for {@link ReferenceMap}.
+ * Tests for {@code ReferenceMap}.
  *
  * @author crazybob@google.com (Bob Lee)
  * @author mbostock@google.com (Mike Bostock)

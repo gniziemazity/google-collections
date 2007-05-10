@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Multiset implementation backed by a {@link HashMap}.
+ * Multiset implementation backed by a {@code HashMap}.
  *
  * @author kevinb@google.com (Kevin Bourrillion)
  */

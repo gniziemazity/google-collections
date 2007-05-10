@@ -23,7 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Tests for {@link Synchronized#set}.
+ * Tests for {@code Synchronized#set}.
  *
  * @author mbostock@google.com (Mike Bostock)
  */

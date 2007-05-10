@@ -32,7 +32,7 @@ import java.util.NoSuchElementException;
 import junit.framework.TestCase;
 
 /**
- * Unit test for {@link Iterables}.
+ * Unit test for {@code Iterables}.
  *
  * @author kevinb
  */
@@ -260,14 +260,14 @@ public class IterablesTest extends TestCase {
   public void testAddAllToList() {
     List<String> alreadyThere = Lists.newArrayList("already", "there");
     List<String> freshlyAdded = Lists.newArrayList("freshly", "added");
-    
+
     boolean changed = Iterables.addAll(alreadyThere, freshlyAdded);
-    
+
     String expected = "already there freshly added";
     assertEquals(expected, Join.join(" ", alreadyThere));
     assertTrue(changed);
   }
-  
+
   private static void assertCanIterateAgain(Iterable<?> iterable) {
     for (Object obj : iterable) {
       ;
@@ -571,6 +571,6 @@ public class IterablesTest extends TestCase {
     assertEquals("[]", Iterables.toString(list));
 
     list = Lists.newArrayList("yam", "bam", "jam", "ham");
-    assertEquals("[yam, bam, jam, ham]", Iterables.toString(list));     
+    assertEquals("[yam, bam, jam, ham]", Iterables.toString(list));
   }
 }
