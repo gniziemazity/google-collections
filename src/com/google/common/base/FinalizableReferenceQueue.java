@@ -31,22 +31,23 @@ class FinalizableReferenceQueue extends ReferenceQueue<Object> {
   private static final Logger logger =
       Logger.getLogger(FinalizableReferenceQueue.class.getName());
 
-  private FinalizableReferenceQueue() {}
-
-  void cleanUp(Reference reference) {
-    try {
-      ((FinalizableReference) reference).finalizeReferent();
-    } catch (Throwable t) {
-      deliverBadNews(t);
-    }
+  /**
+   * Returns the singleton instance.
+   */
+  public static ReferenceQueue<Object> getInstance() {
+    return LazyInstanceHolder.queue;
   }
 
-  void deliverBadNews(Throwable t) {
-    logger.log(Level.SEVERE, "Error cleaning up after reference.", t);
+  private static class LazyInstanceHolder {
+    static final ReferenceQueue<Object> queue = new FinalizableReferenceQueue();
+  }
+
+  private FinalizableReferenceQueue() {
+    start();
   }
 
   void start() {
-    Thread thread = new Thread("FinalizableReferenceQueue") {
+    Thread thread = new Thread(getClass().getSimpleName()) {
       public void run() {
         while (true) {
           try {
@@ -59,18 +60,11 @@ class FinalizableReferenceQueue extends ReferenceQueue<Object> {
     thread.start();
   }
 
-  static ReferenceQueue<Object> instance = createAndStart();
-
-  static FinalizableReferenceQueue createAndStart() {
-    FinalizableReferenceQueue queue = new FinalizableReferenceQueue();
-    queue.start();
-    return queue;
-  }
-
-  /**
-   * Gets instance.
-   */
-  public static ReferenceQueue<Object> getInstance() {
-    return instance;
+  void cleanUp(Reference reference) {
+    try {
+      ((FinalizableReference) reference).finalizeReferent();
+    } catch (Throwable t) {
+      logger.log(Level.SEVERE, "Error cleaning up after reference.", t);
+    }
   }
 }
