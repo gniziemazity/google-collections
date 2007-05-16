@@ -20,7 +20,7 @@ import static com.google.common.collect.helpers.MoreAsserts.assertContentsInOrde
 import java.util.Iterator;
 
 /**
- * Unit test for {@code LinkedHashMultiset}.
+ * Unit test for {@link LinkedHashMultiset}.
  *
  * @author kevinb
  */

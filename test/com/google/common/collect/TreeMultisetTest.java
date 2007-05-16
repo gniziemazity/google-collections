@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Unit test for {@code com.google.common.collect.TreeMultiset}.
+ * Unit test for {@link TreeMultiset}.
  *
  * @author nkanodia (Neal Kanodia)
  */

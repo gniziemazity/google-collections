@@ -31,7 +31,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * An implementation of {@code Multiset} that supports deterministic iteration
+ * An implementation of {@link Multiset} that supports deterministic iteration
  * order for elements. The iteration order is preserved across non-distinct
  * elements. For example,
  *

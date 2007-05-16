@@ -17,7 +17,7 @@
 package com.google.common.collect;
 
 /**
- * Unit test for {@code HashMultiset}.
+ * Unit test for {@link HashMultiset}.
  *
  * @author kevinb
  */

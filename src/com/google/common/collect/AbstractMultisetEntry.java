@@ -21,7 +21,7 @@ import com.google.common.collect.Multiset.Entry;
 
 /**
  * Implementation of the {@code equals}, {@code hashCode}, and {@code toString}
- * methods of {@code Entry}.
+ * methods of {@link Entry}.
  *
  * @author mbostock@google.com (Mike Bostock)
  */
