@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.Set;
 
 /**
- * An unordered collection similar to a {@code java.util.Set}, but which may
+ * An unordered collection similar to a {@link java.util.Set}, but which may
  * contain duplicate elements.
  *
  * @see Comparators#frequencyOrder

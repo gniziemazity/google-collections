@@ -30,7 +30,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * Provides static utility methods for creating and working with {@code
+ * Provides static utility methods for creating and working with {@link
  * Multiset} instances.
  *
  * @author kevinb@google.com (Kevin Bourrillion)
@@ -80,7 +80,7 @@ public final class Multisets {
   }
 
   /**
-   * Creates an empty {@code TreeMultiset} instance.
+   * Creates an empty {@link TreeMultiset} instance.
    *
    * <p>TODO(mbostock): change the type parameter to {@code <E extends
    * Comparable<? super E>}, or at least {@code <E extends Comparable<E>>}.
@@ -92,7 +92,7 @@ public final class Multisets {
   }
 
   /**
-   * Creates an empty {@code TreeMultiset} instance, sorted according to the
+   * Creates an empty {@link TreeMultiset} instance, sorted according to the
    * specified comparator.
    *
    * @return a newly-created, initially-empty TreeMultiset
