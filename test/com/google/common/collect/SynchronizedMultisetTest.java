@@ -22,9 +22,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Tests for {@code Multisets#synchronizedMultiset}.
+ * Tests for {@link Multisets#synchronizedMultiset}.
  *
  * @author mbostock@google.com (Mike Bostock)
  */
@@ -123,11 +124,12 @@ public class SynchronizedMultisetTest extends AbstractMultisetTest {
     assertEquals(1, b);
   }
 
-  private static final class TestMultiset<E> extends AbstractMultiset<E> {
+  private static final class TestMultiset<E> extends AbstractMapBasedMultiset<E>
+  {
     public Object lock;
 
     public TestMultiset() {
-      super(new HashMap<E,Frequency>());
+      super(new HashMap<E, AtomicInteger>());
     }
 
     @Override public String toString() {
@@ -233,7 +235,7 @@ public class SynchronizedMultisetTest extends AbstractMultisetTest {
     }
 
     @Override public Set<Multiset.Entry<E>> entrySet() {
-      assertTrue(Thread.holdsLock(lock));
+      assertTrue(lock == null || Thread.holdsLock(lock));
       return super.entrySet();
     }
   }
