@@ -20,13 +20,14 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Multiset implementation backed by a TreeMap.
  *
  * @author nkanodia (Neal Kanodia)
  */
-public final class TreeMultiset<E> extends AbstractMultiset<E>
+public final class TreeMultiset<E> extends AbstractMapBasedMultiset<E>
     implements Cloneable {
 
   /**
@@ -44,7 +45,7 @@ public final class TreeMultiset<E> extends AbstractMultiset<E>
    * @see java.util.TreeSet
    */
   public TreeMultiset() {
-    super(new TreeMap<E, Frequency>());
+    super(new TreeMap<E, AtomicInteger>());
   }
 
   /**
@@ -56,12 +57,12 @@ public final class TreeMultiset<E> extends AbstractMultiset<E>
    * an element to the multiset that violates this constraint, the
    * <tt>add(Object)</tt> call will throw a <tt>ClassCastException</tt>.
    *
-   * @param c the comparator that will be used to sort this multiset.  A
-   *        <tt>null</tt> value indicates that the elements' <i>natural
-   *        ordering</i> should be used.
+   * @param comparator the comparator that will be used to sort this multiset.
+   *     A {@code null} value indicates that the elements' <i>natural
+   *     ordering</i> should be used.
    */
-  public TreeMultiset(Comparator<? super E> c) {
-    super(new TreeMap<E, Frequency>(c));
+  public TreeMultiset(Comparator<? super E> comparator) {
+    super(new TreeMap<E, AtomicInteger>(comparator));
   }
 
   /**
@@ -82,8 +83,8 @@ public final class TreeMultiset<E> extends AbstractMultiset<E>
   }
 
   @SuppressWarnings("unchecked")
-  @Override protected Map<E, Frequency> cloneBackingMap() {
-    return (Map<E, Frequency>) ((TreeMap<E, Frequency>) backingMap()).clone();
+  @Override protected Map<E, AtomicInteger> cloneBackingMap() {
+    return (Map<E, AtomicInteger>) ((TreeMap<E, AtomicInteger>) backingMap()).clone();
   }
 
   private static final long serialVersionUID = 980261132547708887L;

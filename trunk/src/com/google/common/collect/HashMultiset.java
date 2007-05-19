@@ -19,13 +19,14 @@ package com.google.common.collect;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Multiset implementation backed by a {@code HashMap}.
+ * Multiset implementation backed by a {@link HashMap}.
  *
  * @author kevinb@google.com (Kevin Bourrillion)
  */
-public final class HashMultiset<E> extends AbstractMultiset<E>
+public final class HashMultiset<E> extends AbstractMapBasedMultiset<E>
     implements Serializable, Cloneable {
   private static final long serialVersionUID = 2422072640108355431L;
 
@@ -34,7 +35,7 @@ public final class HashMultiset<E> extends AbstractMultiset<E>
    * capacity (16 distinct elements) and load factor (0.75).
    */
   public HashMultiset() {
-    super(new HashMap<E, Frequency>());
+    super(new HashMap<E, AtomicInteger>());
   }
 
   /**
@@ -45,7 +46,7 @@ public final class HashMultiset<E> extends AbstractMultiset<E>
    * @throws IllegalArgumentException if {@code distinctElements} is negative
    */
   public HashMultiset(int distinctElements) {
-    super(new HashMap<E, Frequency>(Maps.capacity(distinctElements)));
+    super(new HashMap<E, AtomicInteger>(Maps.capacity(distinctElements)));
   }
 
   /**
@@ -57,7 +58,7 @@ public final class HashMultiset<E> extends AbstractMultiset<E>
    * @throws IllegalArgumentException if the initial capacity is negative
    */
   public HashMultiset(int initialCapacity, float loadFactor) {
-    super(new HashMap<E, Frequency>(initialCapacity, loadFactor));
+    super(new HashMap<E, AtomicInteger>(initialCapacity, loadFactor));
   }
 
   /**
@@ -98,8 +99,9 @@ public final class HashMultiset<E> extends AbstractMultiset<E>
   }
 
   @SuppressWarnings("unchecked")
-  @Override protected Map<E, Frequency> cloneBackingMap() {
-    return (Map<E, Frequency>) ((HashMap<E, Frequency>) backingMap()).clone();
+  @Override protected Map<E, AtomicInteger> cloneBackingMap() {
+    return (Map<E, AtomicInteger>)
+        ((HashMap<E, AtomicInteger>) backingMap()).clone();
   }
 
   /**

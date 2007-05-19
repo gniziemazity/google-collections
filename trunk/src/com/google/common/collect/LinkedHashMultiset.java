@@ -19,6 +19,7 @@ package com.google.common.collect;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A Multiset implementation with predictable iteration order.  Elements
@@ -34,14 +35,14 @@ import java.util.Map;
  * @author kevinb@google.com (Kevin Bourrillion)
  * @see LinkedListMultiset
  */
-public final class LinkedHashMultiset<E> extends AbstractMultiset<E>
+public final class LinkedHashMultiset<E> extends AbstractMapBasedMultiset<E>
     implements Cloneable {
 
   /**
    * Constructs an empty multiset with default capacity.
    */
   public LinkedHashMultiset() {
-    super(new LinkedHashMap<E, Frequency>());
+    super(new LinkedHashMap<E, AtomicInteger>());
   }
 
   /**
@@ -52,7 +53,7 @@ public final class LinkedHashMultiset<E> extends AbstractMultiset<E>
    * @throws IllegalArgumentException if distinctElements is negative
    */
   public LinkedHashMultiset(int distinctElements) {
-    super(new LinkedHashMap<E, Frequency>(distinctElements * 4 / 3));
+    super(new LinkedHashMap<E, AtomicInteger>(distinctElements * 4 / 3));
     if (distinctElements < 0) {
       throw new IllegalArgumentException();
     }
@@ -84,9 +85,9 @@ public final class LinkedHashMultiset<E> extends AbstractMultiset<E>
   }
 
   @SuppressWarnings("unchecked")
-  @Override protected Map<E, Frequency> cloneBackingMap() {
-    return (Map<E, Frequency>)
-        ((LinkedHashMap<E, Frequency>) backingMap()).clone();
+  @Override protected Map<E, AtomicInteger> cloneBackingMap() {
+    return (Map<E, AtomicInteger>)
+        ((LinkedHashMap<E, AtomicInteger>) backingMap()).clone();
   }
 
   private static final long serialVersionUID = -1489616374694050806L;

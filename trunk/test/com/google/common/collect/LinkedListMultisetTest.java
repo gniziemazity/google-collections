@@ -17,12 +17,13 @@
 package com.google.common.collect;
 
 import com.google.common.collect.helpers.MoreAsserts;
+import static com.google.common.collect.helpers.MoreAsserts.assertContentsInOrder;
 import java.util.Collections;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
 /**
- * Tests for {@code LinkedListMultiset}.
+ * Tests for {@link LinkedListMultiset}.
  *
  * @author mbostock@google.com (Mike Bostock)
  */
@@ -141,20 +142,20 @@ public class LinkedListMultisetTest extends AbstractMultisetTest {
     tester.checkIndex(0, 5);
     i.remove();
     tester.checkIndex(0, 4);
-    MoreAsserts.assertContentsInOrder(m, "b", "b", "c", "b");
-    MoreAsserts.assertContentsInOrder(m.elementSet(), "b", "c");
+    assertContentsInOrder(m, "b", "b", "c", "b");
+    assertContentsInOrder(m.elementSet(), "b", "c");
     tester.checkNext("b", "b");
     tester.checkIndex(2, 4);
     i.remove();
     tester.checkIndex(1, 3);
-    MoreAsserts.assertContentsInOrder(m, "b", "c", "b");
-    MoreAsserts.assertContentsInOrder(m.elementSet(), "b", "c");
+    assertContentsInOrder(m, "b", "c", "b");
+    assertContentsInOrder(m.elementSet(), "b", "c");
     tester.checkNext("c");
     tester.checkIndex(2, 3);
     i.remove();
     tester.checkIndex(1, 2);
-    MoreAsserts.assertContentsInOrder(m, "b", "b");
-    MoreAsserts.assertContentsInOrder(m.elementSet(), "b");
+    assertContentsInOrder(m, "b", "b");
+    assertContentsInOrder(m.elementSet(), "b");
     tester.checkPrevious("b");
     tester.checkIndex(0, 2);
     i.remove();
