@@ -19,6 +19,7 @@ package com.google.common.collect;
 import com.google.common.base.Nullable;
 import com.google.common.base.Objects;
 import static com.google.common.base.Preconditions.checkState;
+
 import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractMap;
@@ -55,51 +56,51 @@ import java.util.Set;
  * returns mutable map entries, and {@link #replaceValues} attempts to preserve
  * iteration order as much as possible.
  *
- * @author mbostock@google.com (Mike Bostock)
+ * <p>All optional multimap methods are supported, and all returned views are
+ * modifiable.
+ * 
+ * <p>The methods {@link #get}, {@link #keySet}, {@link #keys}, {@link #values},
+ * {@link #entries}, and {@link #asMap} return collections that are views of the
+ * multimap. If the multimap is modified while an iteration over any of those
+ * collections is in progress, except through the iterator's own {@code remove}
+ * operation, the results of the iteration are undefined. 
+ * 
+ * @author Mike Bostock
  */
-public final class LinkedListMultimap<K,V>
-    implements ListMultimap<K,V>, Serializable, Cloneable {
-  private static final long serialVersionUID = -2456602590668068301L;
-
-  /**
+public final class LinkedListMultimap<K, V>
+    implements ListMultimap<K, V>, Serializable {
+  /*
    * Order is maintained using a linked list containing all key-value pairs. In
    * addition, a series of disjoint linked lists of "siblings", each containing
    * the values for a specific key, is used to implement {@link
    * ValueForKeyIterator} in constant time.
    */
-  private static final class Node<K,V> implements Serializable {
-    private static final long serialVersionUID = 1620110227870214382L;
 
+  private static final class Node<K, V> implements Serializable {
     final K key;
     V value;
-    Node<K,V> next; // the next node (with any key)
-    Node<K,V> previous; // the previous node (with any key)
-    Node<K,V> nextSibling; // the next node with the same key
-    Node<K,V> previousSibling; // the previous node with the same key
+    Node<K, V> next; // the next node (with any key)
+    Node<K, V> previous; // the previous node (with any key)
+    Node<K, V> nextSibling; // the next node with the same key
+    Node<K, V> previousSibling; // the previous node with the same key
 
     Node(K key, V value) {
       this.key = key;
       this.value = value;
     }
 
-    public String toString() {
+    @Override public String toString() {
       return key + "=" + value;
     }
+
+    private static final long serialVersionUID = 1620110227870214382L;
   }
 
-  private Node<K,V> head; // the head for all keys
-  private Node<K,V> tail; // the tail for all keys
+  private Node<K, V> head; // the head for all keys
+  private Node<K, V> tail; // the tail for all keys
   private Multiset<K> keyCount; // the number of values for each key
-  private Map<K, Node<K,V>> keyToKeyHead; // the head for a given key
-  private Map<K, Node<K,V>> keyToKeyTail; // the tail for a given key
-
-  /* Lazily-initialized collection views. */
-  private transient volatile Set<K> keySet;
-  private transient volatile Multiset<K> keys;
-  private transient volatile Collection<V> values;
-  private transient volatile Collection<Map.Entry<K,V>> entries;
-  private transient volatile Set<Map.Entry<K, Collection<V>>> collectionEntries;
-  private transient volatile Map<K, Collection<V>> map;
+  private Map<K, Node<K, V>> keyToKeyHead; // the head for a given key
+  private Map<K, Node<K, V>> keyToKeyTail; // the tail for a given key
 
   /** Constructs an empty {@code LinkedListMultimap}. */
   public LinkedListMultimap() {
@@ -118,12 +119,12 @@ public final class LinkedListMultimap<K,V>
   /**
    * Adds a new node for the specified key-value pair before the specified
    * {@code nextSibling} element, or at the end of the list if {@code
-   * nextSibling} is {@code null}. Note: if {@code nextSibling} is specified,
-   * it MUST be for an node for the same {@code key}!
+   * nextSibling} is null. Note: if {@code nextSibling} is specified, it MUST be
+   * for an node for the same {@code key}!
    */
-  private Node<K,V> addNode(@Nullable K key, @Nullable V value,
-      @Nullable Node<K,V> nextSibling) {
-    Node<K,V> node = new Node<K,V>(key, value);
+  private Node<K, V> addNode(
+      @Nullable K key, @Nullable V value, @Nullable Node<K, V> nextSibling) {
+    Node<K, V> node = new Node<K, V>(key, value);
     if (head == null) { // empty list
       head = tail = node;
       keyToKeyHead.put(key, node);
@@ -131,7 +132,7 @@ public final class LinkedListMultimap<K,V>
     } else if (nextSibling == null) { // non-empty list, add to tail
       tail.next = node;
       node.previous = tail;
-      Node<K,V> keyTail = keyToKeyTail.get(key);
+      Node<K, V> keyTail = keyToKeyTail.get(key);
       if (keyTail == null) { // first for this key
         keyToKeyHead.put(key, node);
       } else {
@@ -167,7 +168,7 @@ public final class LinkedListMultimap<K,V>
    * intended to be used from the {@code Iterator} classes. See also {@link
    * LinkedListMultimap#removeAllNodes(Object)}.
    */
-  private void removeNode(Node<K,V> node) {
+  private void removeNode(Node<K, V> node) {
     if (node.previous != null) {
       node.previous.next = node.next;
     } else { // node was head
@@ -211,21 +212,19 @@ public final class LinkedListMultimap<K,V>
   }
 
   /** An {@code Iterator} over all nodes. */
-  private class NodeIterator implements Iterator<Node<K,V>> {
-    private Node<K,V> next = head;
-    private Node<K,V> current = null;
+  private class NodeIterator implements Iterator<Node<K, V>> {
+    Node<K, V> next = head;
+    Node<K, V> current;
 
     public boolean hasNext() {
       return next != null;
     }
-
-    public Node<K,V> next() {
+    public Node<K, V> next() {
       checkElement(next);
       current = next;
       next = next.next;
       return current;
     }
-
     public void remove() {
       checkState(current != null);
       removeNode(current);
@@ -235,15 +234,13 @@ public final class LinkedListMultimap<K,V>
 
   /** An {@code Iterator} over distinct keys in key head order. */
   private class DistinctKeyIterator implements Iterator<K> {
-    private final Set<K> seenKeys
-        = new HashSet<K>(Maps.capacity(keySet().size()));
-    private Node<K,V> next = head;
-    private Node<K,V> current = null;
+    final Set<K> seenKeys = new HashSet<K>(Maps.capacity(keySet().size()));
+    Node<K, V> next = head;
+    Node<K, V> current;
 
     public boolean hasNext() {
       return next != null;
     }
-
     public K next() {
       checkElement(next);
       current = next;
@@ -253,7 +250,6 @@ public final class LinkedListMultimap<K,V>
       } while ((next != null) && !seenKeys.add(next.key));
       return current.key;
     }
-
     public void remove() {
       checkState(current != null);
       removeAllNodes(current.key);
@@ -263,14 +259,14 @@ public final class LinkedListMultimap<K,V>
 
   /** A {@code ListIterator} over values for a specified key. */
   private class ValueForKeyIterator implements ListIterator<V> {
-    private final Object key;
-    private int nextIndex;
-    private Node<K,V> next;
-    private Node<K,V> current;
-    private Node<K,V> previous;
+    final Object key;
+    int nextIndex;
+    Node<K, V> next;
+    Node<K, V> current;
+    Node<K, V> previous;
 
     /** Constructs a new iterator over all values for the specified key. */
-    public ValueForKeyIterator(@Nullable Object key) {
+    ValueForKeyIterator(@Nullable Object key) {
       this.key = key;
       next = keyToKeyHead.get(key);
     }
@@ -342,7 +338,7 @@ public final class LinkedListMultimap<K,V>
 
     public void remove() {
       checkState(current != null);
-      if (current != next) { // i.e., removing next element
+      if (current != next) { // removing next element
         previous = current.previousSibling;
         nextIndex--;
       } else {
@@ -364,6 +360,8 @@ public final class LinkedListMultimap<K,V>
     }
   }
 
+  // Query Operations
+  
   public int size() {
     return keyCount.size();
   }
@@ -377,7 +375,7 @@ public final class LinkedListMultimap<K,V>
   }
 
   public boolean containsValue(@Nullable Object value) {
-    for (Iterator<Node<K,V>> i = new NodeIterator(); i.hasNext();) {
+    for (Iterator<Node<K, V>> i = new NodeIterator(); i.hasNext();) {
       if (Objects.equal(i.next().value, value)) {
         return true;
       }
@@ -394,33 +392,33 @@ public final class LinkedListMultimap<K,V>
     return false;
   }
 
+  // Modification Operations
+  
   /**
-   * {@inheritDoc}
+   * Stores a key-value pair in the multimap.
    *
-   * <p>If the multimap is modified while an iteration over the list is in
-   * progress (except through the iterator's own {@code add}, {@code set} or
-   * {@code remove} operations) the results of the iteration are undefined.
+   * @param key key to store in the multimap
+   * @param value value to store in the multimap
+   * @return {@code true} always
    */
-  public List<V> get(final @Nullable K key) {
-    return new AbstractSequentialList<V>() {
-        public int size() {
-          return keyCount.count(key);
-        }
-        public ListIterator<V> listIterator(int index) {
-          return new ValueForKeyIterator(key, index);
-        }
-      };
-  }
-
-  private List<V> getCopy(@Nullable Object key) {
-    return Lists.newLinkedList(new ValueForKeyIterator(key));
-  }
-
   public boolean put(@Nullable K key, @Nullable V value) {
     addNode(key, value, null);
     return true;
   }
 
+  public boolean remove(@Nullable Object key, @Nullable Object value) {
+    Iterator<V> values = new ValueForKeyIterator(key);
+    while (values.hasNext()) {
+      if (Objects.equal(values.next(), value)) {
+        values.remove();
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  // Bulk Operations
+  
   public void putAll(@Nullable K key, Iterable<? extends V> values) {
     for (V value : values) {
       addNode(key, value, null);
@@ -437,27 +435,27 @@ public final class LinkedListMultimap<K,V>
    * {@inheritDoc}
    *
    * <p>If any entries for the specified {@code key} already exist in the
-   * multimap, their values are changed in-place without affecting the
-   * iteration order.
+   * multimap, their values are changed in-place without affecting the iteration
+   * order.
    */
   public List<V> replaceValues(@Nullable K key, Iterable<? extends V> values) {
     List<V> oldValues = getCopy(key);
     ListIterator<V> keyValues = new ValueForKeyIterator(key);
     Iterator<? extends V> newValues = values.iterator();
 
-    /* Replace existing values, if any. */
+    // Replace existing values, if any.
     while (keyValues.hasNext() && newValues.hasNext()) {
       keyValues.next();
       keyValues.set(newValues.next());
     }
 
-    /* Remove remaining old values, if any. */
+    // Remove remaining old values, if any.
     while (keyValues.hasNext()) {
       keyValues.next();
       keyValues.remove();
     }
 
-    /* Add remaining new values, if any. */
+    // Add remaining new values, if any.
     while (newValues.hasNext()) {
       keyValues.add(newValues.next());
     }
@@ -465,17 +463,10 @@ public final class LinkedListMultimap<K,V>
     return oldValues;
   }
 
-  public boolean remove(@Nullable Object key, @Nullable Object value) {
-    Iterator<V> values = new ValueForKeyIterator(key);
-    while (values.hasNext()) {
-      if (Objects.equal(values.next(), value)) {
-        values.remove();
-        return true;
-      }
-    }
-    return false;
+  private List<V> getCopy(@Nullable Object key) {
+    return Lists.newLinkedList(new ValueForKeyIterator(key));
   }
-
+  
   public List<V> removeAll(@Nullable Object key) {
     List<V> oldValues = getCopy(key);
     removeAllNodes(key);
@@ -490,37 +481,47 @@ public final class LinkedListMultimap<K,V>
     keyToKeyTail = Maps.newHashMap();
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>If the multimap is modified while an iteration over the set is in
-   * progress (except through the iterator's own {@code remove} operation) the
-   * results of the iteration are undefined.
-   */
-  public Set<K> keySet() {
-    if (keySet == null) {
-      keySet = new AbstractSet<K>() {
-          public int size() {
-            return keyCount.elementSet().size();
-          }
-          public Iterator<K> iterator() {
-            return new DistinctKeyIterator();
-          }
-          public boolean contains(Object key) { // for performance
-            return keyCount.contains(key);
-          }
-        };
-    }
-    return keySet;
-  }
+  // Views
 
   /**
    * {@inheritDoc}
    *
-   * <p>If the multimap is modified while an iteration over the multiset is in
-   * progress (except through the iterator's own {@code remove} operation) the
-   * results of the iteration are undefined.
+   * <p>If the multimap is modified while an iteration over the list is in
+   * progress (except through the iterator's own {@code add}, {@code set} or
+   * {@code remove} operations) the results of the iteration are undefined.
    */
+  public List<V> get(final @Nullable K key) {
+    return new AbstractSequentialList<V>() {
+      public int size() {
+        return keyCount.count(key);
+      }
+      public ListIterator<V> listIterator(int index) {
+        return new ValueForKeyIterator(key, index);
+      }
+    };
+  }
+  
+  private transient volatile Set<K> keySet;
+  
+  public Set<K> keySet() {
+    if (keySet == null) {
+      keySet = new AbstractSet<K>() {
+        public int size() {
+          return keyCount.elementSet().size();
+        }
+        public Iterator<K> iterator() {
+          return new DistinctKeyIterator();
+        }
+        public boolean contains(Object key) { // for performance
+          return keyCount.contains(key);
+        }
+      };
+    }
+    return keySet;
+  }
+
+  private transient volatile Multiset<K> keys;
+  
   public Multiset<K> keys() {
     if (keys == null) {
       keys = new MultisetView();
@@ -540,18 +541,18 @@ public final class LinkedListMultimap<K,V>
     }
 
     public Iterator<K> iterator() {
-      final Iterator<Node<K,V>> nodes = new NodeIterator();
+      final Iterator<Node<K, V>> nodes = new NodeIterator();
       return new Iterator<K>() {
-          public boolean hasNext() {
-            return nodes.hasNext();
-          }
-          public K next() {
-            return nodes.next().key;
-          }
-          public void remove() {
-            nodes.remove();
-          }
-        };
+        public boolean hasNext() {
+          return nodes.hasNext();
+        }
+        public K next() {
+          return nodes.next().key;
+        }
+        public void remove() {
+          nodes.remove();
+        }
+      };
     }
 
     public int count(@Nullable Object key) {
@@ -583,32 +584,33 @@ public final class LinkedListMultimap<K,V>
 
     public Set<Entry<K>> entrySet() {
       return new AbstractSet<Entry<K>>() {
-          public int size() {
-            return keyCount.elementSet().size();
-          }
-          public Iterator<Entry<K>> iterator() {
-            final Iterator<K> keys = new DistinctKeyIterator();
-            return new Iterator<Entry<K>>() {
-                public boolean hasNext() {
-                  return keys.hasNext();
+        public int size() {
+          return keyCount.elementSet().size();
+        }
+
+        public Iterator<Entry<K>> iterator() {
+          final Iterator<K> keys = new DistinctKeyIterator();
+          return new Iterator<Entry<K>>() {
+            public boolean hasNext() {
+              return keys.hasNext();
+            }
+            public Entry<K> next() {
+              final K key = keys.next();
+              return new AbstractMultisetEntry<K>() {
+                public K getElement() {
+                  return key;
                 }
-                public Entry<K> next() {
-                  final K key = keys.next();
-                  return new Entry<K>() {
-                      public K getElement() {
-                        return key;
-                      }
-                      public int getCount() {
-                        return keyCount.count(key);
-                      }
-                    };
-                }
-                public void remove() {
-                  keys.remove();
+                public int getCount() {
+                  return keyCount.count(key);
                 }
               };
-          }
-        };
+            }
+            public void remove() {
+              keys.remove();
+            }
+          };
+        }
+      };
     }
 
     public boolean equals(@Nullable Object o) {
@@ -624,164 +626,194 @@ public final class LinkedListMultimap<K,V>
     }
   }
 
+  private transient volatile Collection<V> values;
+  
   /**
    * {@inheritDoc}
    *
-   * <p>If the multimap is modified while an iteration over the collection is
-   * in progress (except through the iterator's own {@code remove} operation)
-   * the results of the iteration are undefined.
+   * <p>The iterator generated by the returned collection traverses the values
+   * in the order they were added to the multimap.
    */
   public Collection<V> values() {
     if (values == null) {
       values = new AbstractCollection<V>() {
-          public int size() {
-            return keyCount.size();
-          }
-          public Iterator<V> iterator() {
-            final Iterator<Node<K,V>> nodes = new NodeIterator();
-            return new Iterator<V>() {
-                public boolean hasNext() {
-                  return nodes.hasNext();
-                }
-                public V next() {
-                  return nodes.next().value;
-                }
-                public void remove() {
-                  nodes.remove();
-                }
-              };
-          }
-        };
+        public int size() {
+          return keyCount.size();
+        }
+        public Iterator<V> iterator() {
+          final Iterator<Node<K, V>> nodes = new NodeIterator();
+          return new Iterator<V>() {
+            public boolean hasNext() {
+              return nodes.hasNext();
+            }
+            public V next() {
+              return nodes.next().value;
+            }
+            public void remove() {
+              nodes.remove();
+            }
+          };
+        }
+      };
     }
     return values;
   }
 
+  private transient volatile Collection<Map.Entry<K, V>> entries;
+  
   /**
    * {@inheritDoc}
    *
-   * <p>If the multimap is modified while an iteration over the collection is
-   * in progress (except through the iterator's own {@code remove} operation,
-   * or through the {@code setValue} operation on a map entry returned by the
-   * iterator) the results of the iteration are undefined.
+   * <p>The iterator generated by the returned collection traverses the entries
+   * in the order they were added to the multimap.
    */
-  public Collection<Map.Entry<K,V>> entries() {
+  public Collection<Map.Entry<K, V>> entries() {
     if (entries == null) {
-      entries = new AbstractCollection<Map.Entry<K,V>>() {
-          public int size() {
-            return keyCount.size();
-          }
-          public Iterator<Map.Entry<K,V>> iterator() {
-            final Iterator<Node<K,V>> nodes = new NodeIterator();
-            return new Iterator<Map.Entry<K,V>>() {
-                public boolean hasNext() {
-                  return nodes.hasNext();
+      entries = new AbstractCollection<Map.Entry<K, V>>() {
+        public int size() {
+          return keyCount.size();
+        }
+
+        public Iterator<Map.Entry<K, V>> iterator() {
+          final Iterator<Node<K, V>> nodes = new NodeIterator();
+          return new Iterator<Map.Entry<K, V>>() {
+            public boolean hasNext() {
+              return nodes.hasNext();
+            }
+
+            public Map.Entry<K, V> next() {
+              final Node<K, V> node = nodes.next();
+              return new AbstractMapEntry<K, V>() {
+                public K getKey() {
+                  return node.key;
                 }
-                public Map.Entry<K,V> next() {
-                  final Node<K,V> node = nodes.next();
-                  return new AbstractMapEntry<K,V>() {
-                      public K getKey() {
-                        return node.key;
-                      }
-                      public V getValue() {
-                        return node.value;
-                      }
-                      public V setValue(V value) {
-                        V oldValue = node.value;
-                        node.value = value;
-                        return oldValue;
-                      }
-                    };
+                public V getValue() {
+                  return node.value;
                 }
-                public void remove() {
-                  nodes.remove();
+                public V setValue(V value) {
+                  V oldValue = node.value;
+                  node.value = value;
+                  return oldValue;
                 }
               };
-          }
-        };
+            }
+
+            public void remove() {
+              nodes.remove();
+            }
+          };
+        }
+      };
     }
     return entries;
   }
 
-  public Set<Map.Entry<K, Collection<V>>> collectionEntries() {
-    if (collectionEntries == null) {
-      collectionEntries = new AbstractSet<Map.Entry<K, Collection<V>>>() {
-          public int size() {
-            return keyCount.elementSet().size();
-          }
-          public Iterator<Map.Entry<K, Collection<V>>> iterator() {
-            final Iterator<K> keys = new DistinctKeyIterator();
-            return new Iterator<Map.Entry<K, Collection<V>>>() {
-                public boolean hasNext() {
-                  return keys.hasNext();
-                }
-                public Map.Entry<K, Collection<V>> next() {
-                  final K key = keys.next();
-                  return new AbstractMapEntry<K, Collection<V>>() {
-                      public K getKey() {
-                        return key;
-                      }
-                      public Collection<V> getValue() {
-                        return LinkedListMultimap.this.get(key);
-                      }
-                    };
-                }
-                public void remove() {
-                  keys.remove();
-                }
-              };
-          }
-        };
+  private class AsMapEntries extends AbstractSet<Map.Entry<K, Collection<V>>> {
+    public int size() {
+      return keyCount.elementSet().size();
     }
-    return collectionEntries;
+
+    public Iterator<Map.Entry<K, Collection<V>>> iterator() {
+      final Iterator<K> keys = new DistinctKeyIterator();
+      return new Iterator<Map.Entry<K, Collection<V>>>() {
+        public boolean hasNext() {
+          return keys.hasNext();
+        }
+
+        public Map.Entry<K, Collection<V>> next() {
+          final K key = keys.next();
+          return new AbstractMapEntry<K, Collection<V>>() {
+            public K getKey() {
+              return key;
+            }
+
+            public Collection<V> getValue() {
+              return LinkedListMultimap.this.get(key);
+            }
+          };
+        }
+
+        public void remove() {
+          keys.remove();
+        }
+      };
+    }
   }
 
-  @Override public LinkedListMultimap<K,V> clone() {
-    return new LinkedListMultimap<K,V>(this); // okay because we're final
+  private transient volatile Map<K, Collection<V>> map;
+  
+  public Map<K, Collection<V>> asMap() {
+    if (map == null) {
+      map = new AbstractMap<K, Collection<V>>() {
+        volatile Set<Map.Entry<K, Collection<V>>> entrySet;
+
+        public Set<Map.Entry<K, Collection<V>>> entrySet() {
+          if (entrySet == null) {
+            entrySet = new AsMapEntries();
+          }
+          return entrySet;
+        }
+
+        // The following methods are included for performance.
+
+        @Override public boolean containsKey(@Nullable Object key) {
+          return LinkedListMultimap.this.containsKey(key);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override public Collection<V> get(@Nullable Object key) {
+          Collection<V> collection = LinkedListMultimap.this.get((K) key);
+          return collection.isEmpty() ? null : collection;
+        }
+
+        @Override public Collection<V> remove(@Nullable Object key) {
+          Collection<V> collection = removeAll(key);
+          return collection.isEmpty() ? null : collection;
+        }
+      };
+    }
+    
+    return map;
   }
 
+  // Comparison and hashing
+
+  /**
+   * Compares the specified object to this multimap for equality.
+   *
+   * <p>Two {@code ListMultimap} instances are equal if, for each key, they
+   * contain the same values in the same order. If the value orderings disagree,
+   * the multimaps will not be considered equal.
+   */
   public boolean equals(Object other) {
     if (other == this) {
       return true;
     }
-    if (!(other instanceof Multimap)) {
+    if (!(other instanceof Multimap<?, ?>)) {
       return false;
     }
-    return asMap().equals(((Multimap<?,?>) other).asMap());
+    return asMap().equals(((Multimap<?, ?>) other).asMap());
   }
-
-  public Map<K, Collection<V>> asMap() {
-    if (map == null) {
-      map = new AbstractMap<K, Collection<V>>() {
-          public Set<Map.Entry<K, Collection<V>>> entrySet() {
-            return collectionEntries();
-          }
-
-          /* The following methods are included for performance. */
-
-          @Override public boolean containsKey(@Nullable Object key) {
-            return LinkedListMultimap.this.containsKey(key);
-          }
-
-          @SuppressWarnings("unchecked")
-          @Override public Collection<V> get(@Nullable Object key) {
-            Collection<V> collection = LinkedListMultimap.this.get((K) key);
-            return collection.isEmpty() ? null : collection;
-          }
-
-          @Override public Collection<V> remove(@Nullable Object key) {
-            Collection<V> collection = removeAll(key);
-            return collection.isEmpty() ? null : collection;
-          }
-        };
-    }
-    return map;
-  }
-
+  
+  /**
+   * Returns the hash code for this multimap.
+   *
+   * <p>The hash code of a multimap is defined as the hash code of the map view,
+   * as returned by {@link Multimap#asMap}.
+   */
   @Override public int hashCode() {
     return asMap().hashCode();
   }
 
+  /**
+   * Returns a string representation of the multimap, generated by calling
+   * {@code toString} on the map returned by {@link Multimap#asMap}.
+   *
+   * @return a string representation of the multimap
+   */
   @Override public String toString() {
     return asMap().toString();
   }
+
+  private static final long serialVersionUID = -2456602590668068301L;
 }

@@ -17,12 +17,13 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkState;
+
 import java.util.Arrays;
 
 /**
  * A convenient way to populate immutable Multimap instances, especially
- * static-final "constant Multimaps".  Code such as
+ * static-final "constant Multimaps". Code such as
  *
  * <pre>
  *   static final Multimap&lt;String,Integer&gt; STRING_TO_INTEGER_MULTIMAP
@@ -45,22 +46,20 @@ import java.util.Arrays;
  *       .putAll("many", 1, 2, 3, 4, 5)
  *       .getMultimap();
  * </pre>
- * <p>
- * The implementation is a {@link ListMultimap}, which allows duplicate
+ * 
+ * <p>The implementation is a {@link ListMultimap}, which allows duplicate
  * key-value pairs and maintains the value ordering for each key.
  *
- * @author lwerner, based on ImmutableMapBuilder by kevinb
+ * @author Laura Werner
+ * @author Kevin Bourrillion
  */
-public class ImmutableMultimapBuilder<K,V> {
-
+public class ImmutableMultimapBuilder<K, V> {
   /** A place to accumulate keys and values for the immutable Multimap */
-  private ListMultimap<K,V> map;
+  private ListMultimap<K, V> map;
 
-  /**
-   * Creates a new ImmutableMultimapBuilder
-   */
+  /** Creates a new ImmutableMultimapBuilder */
   public ImmutableMultimapBuilder() {
-    map = new ArrayListMultimap<K,V>();
+    map = new ArrayListMultimap<K, V>();
   }
 
   /**
@@ -69,12 +68,13 @@ public class ImmutableMultimapBuilder<K,V> {
    *
    * @param key key with which the specified value is to be associated
    * @param value value to be associated with the specified key
+   * @return this map builder (to enable call chaining)
    * @throws IllegalStateException if {@code getMultimap} has already been
    *     called
-   * @return this map builder (to enable call chaining)
    */
-  public ImmutableMultimapBuilder<K,V> put(@Nullable K key, @Nullable V value) {
-    Preconditions.checkState(map != null, "map has already been created");
+  public ImmutableMultimapBuilder<K, V> put(@Nullable K key, @Nullable V value)
+  {
+    checkState(map != null, "map has already been created");
     map.put(key, value);
     return this;
   }
@@ -85,13 +85,13 @@ public class ImmutableMultimapBuilder<K,V> {
    *
    * @param key key to store in the multimap.
    * @param values values to store in the multimap.
+   * @return this map builder (to enable call chaining)
    * @throws IllegalStateException if {@code getMultimap} has already been
    *     called
-   * @return this map builder (to enable call chaining)
    */
-  public ImmutableMultimapBuilder<K,V> putAll(
+  public ImmutableMultimapBuilder<K, V> putAll(
       @Nullable K key, Iterable<? extends V> values) {
-    Preconditions.checkState(map != null, "map has already been created");
+    checkState(map != null, "map has already been created");
     map.putAll(key, values);
     return this;
   }
@@ -102,12 +102,12 @@ public class ImmutableMultimapBuilder<K,V> {
    *
    * @param key key to store in the multimap.
    * @param values values to store in the multimap.
+   * @return this map builder (to enable call chaining)
    * @throws IllegalStateException if {@code getMultimap} has already been
    *     called
-   * @return this map builder (to enable call chaining)
    */
-  public ImmutableMultimapBuilder<K,V> putAll(@Nullable K key, V... values) {
-    Preconditions.checkState(map != null, "map has already been created");
+  public ImmutableMultimapBuilder<K, V> putAll(@Nullable K key, V... values) {
+    checkState(map != null, "map has already been created");
     map.putAll(key, Arrays.asList(values));
     return this;
   }
@@ -120,8 +120,8 @@ public class ImmutableMultimapBuilder<K,V> {
    * @throws IllegalStateException if {@code getMultimap} has already been
    *     called
    */
-  public ListMultimap<K,V> getMultimap() {
-    Preconditions.checkState(map != null, "map has already been created");
+  public ListMultimap<K, V> getMultimap() {
+    checkState(map != null, "map has already been created");
     try {
       return Multimaps.unmodifiableListMultimap(map);
     } finally {

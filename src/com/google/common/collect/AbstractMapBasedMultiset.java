@@ -1,28 +1,43 @@
-// Copyright 2007 Google Inc. All Rights Reserved.
+/*
+ * Copyright (C) 2007 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+
 import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.Collection;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Basic implementation of {@code Multiset<E>} backed by an instance of
- * {@code Map<E, AtomicInteger>}.
+ * Basic implementation of {@code Multiset<E>} backed by an instance of {@code
+ * Map<E, AtomicInteger>}.
  *
- * @author kevinb
+ * @author Kevin Bourrillion
  */
 abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
     implements Serializable {
-  private Map<E, AtomicInteger> backingMap; // final, except for clone
+  private final Map<E, AtomicInteger> backingMap;
 
   /*
    * Cache the size for efficiency. Using a long lets us avoid the need for
@@ -40,147 +55,17 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
     return backingMap;
   }
 
-  public int count(@Nullable Object element) {
-    AtomicInteger frequency = backingMap.get(element);
-    return (frequency == null) ? 0 : frequency.get();
-  }
+  // Required Implementations
 
-  @Override public boolean add(@Nullable E element, int occurrences) {
-    checkArgument(occurrences >= 0,
-        "occurrences cannot be negative: " + occurrences);
-    if (occurrences == 0) {
-      return false;
-    }
-    AtomicInteger frequency = backingMap.get(element);
-    if (frequency == null) {
-      backingMap.put(element, new AtomicInteger(occurrences));
-    } else {
-      checkArgument(occurrences <= Integer.MAX_VALUE - frequency.get(),
-          "overflow: cannot add " + occurrences + " to " + frequency.get());
-      frequency.getAndAdd(occurrences);
-    }
-    size += occurrences;
-    assert sizeInvariant();
-    return true;
-  }
-
-  @Override public int remove(@Nullable Object element, int occurrences) {
-    checkArgument(occurrences >= 0,
-        "occurrences cannot be negative: " + occurrences);
-    if (occurrences == 0) {
-      return 0;
-    }
-    AtomicInteger frequency = backingMap.get(element);
-    if (frequency == null) {
-      return 0;
-    }
-    int numberRemoved = decrement(frequency, occurrences)
-        ? occurrences
-        : backingMap.remove(element).get();
-    size -= numberRemoved;
-    assert sizeInvariant();
-    return numberRemoved;
-  }
-
-  @Override public int removeAllOccurrences(@Nullable Object element) {
-    AtomicInteger frequency = backingMap.remove(element);
-    if (frequency == null) {
-      return 0;
-    }
-    int numberRemoved = frequency.get();
-    size -= numberRemoved;
-    assert sizeInvariant();
-    return numberRemoved;
-  }
-
-  public int size() {
-    int size = (int) Math.min(this.size, Integer.MAX_VALUE);
-    assert size == super.size();
-    return size;
-  }
+  private transient volatile EntrySet entrySet;
 
   /**
-   * Checks that we have cached the size correctly.
+   * {@inheritDoc}
+   * 
+   * <p>Invoking {@link Multiset.Entry#getCount} on an entry in the returned
+   * set always returns the current count of that element in the multiset, as
+   * opposed to the count at the time the entry was retrieved.
    */
-  private boolean sizeInvariant() {
-    size(); // this contains the assertion we want
-    return true;
-  }
-
-  // Overrides AbstractCollection
-  @Override public boolean remove(@Nullable Object element) {
-    AtomicInteger frequency = backingMap.get(element);
-    if (frequency == null) {
-      return false;
-    }
-    // TODO(kevinb): check if this works in the case that freq could be zero
-    if (!decrement(frequency, 1)) {
-      backingMap.remove(element);
-    }
-    size--;
-    assert sizeInvariant();
-    return true;
-  }
-
-  // Override AbstractMultiset to avoid infinite recursion :)
-  @Override public void clear() {
-    backingMap.clear();
-    size = 0L;
-    assert sizeInvariant();
-  }
-
-  transient volatile Set<E> elementSet;
-
-  public Set<E> elementSet() {
-    if (elementSet == null) {
-      elementSet = new ForwardingSet<E>(backingMap.keySet()) {
-        @Override public Iterator<E> iterator() {
-          final Iterator<Map.Entry<E, AtomicInteger>> entries
-              = backingMap.entrySet().iterator();
-          return new Iterator<E>() {
-            Map.Entry<E, AtomicInteger> toRemove = null;
-
-            public boolean hasNext() {
-              // TODO(kevinb): figure out what to do if 0-count entries are
-              // allowed to exist
-              return entries.hasNext();
-            }
-
-            public E next() {
-              toRemove = entries.next();
-              return toRemove.getKey();
-            }
-
-            public void remove() {
-              checkState(toRemove != null,
-                  "no calls to next() since the last call to remove()");
-              size -= toRemove.getValue().get();
-              entries.remove();
-              toRemove = null;
-              assert sizeInvariant();
-            }
-          };
-        }
-
-        @Override public boolean remove(Object element) {
-          return AbstractMapBasedMultiset.this.removeAllOccurrences(element) != 0;
-        }
-        @Override public boolean removeAll(Collection<?> elementsToRemove) {
-          return AbstractMapBasedMultiset.this.removeAll(elementsToRemove);
-        }
-        @Override public boolean retainAll(Collection<?> elementsToRetain) {
-          return AbstractMapBasedMultiset.this.retainAll(elementsToRetain);
-        }
-        @Override public void clear() {
-          AbstractMapBasedMultiset.this.clear();
-        }
-      };
-    }
-    return elementSet;
-  }
-
-  transient volatile EntrySet entrySet;
-
   public Set<Multiset.Entry<E>> entrySet() {
     if (entrySet == null) {
       entrySet = new EntrySet();
@@ -188,102 +73,88 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
     return entrySet;
   }
 
-  // Override AbstractMultiset ... why doesn't it work otherwise?
-  // TODO(kevinb): check for bug
-  @Override public boolean retainAll(Collection<?> elementsToRetain) {
-    checkNotNull(elementsToRetain);
-    Iterator<Map.Entry<E, AtomicInteger>> entries
-        = backingMap.entrySet().iterator();
-    boolean modified = false;
-    while (entries.hasNext()) {
-      Map.Entry<E, AtomicInteger> entry = entries.next();
-      if (!elementsToRetain.contains(entry.getKey())) {
-        size -= entry.getValue().get();
-        entries.remove();
-        modified = true;
-      }
-    }
-    assert sizeInvariant();
-    return modified;
-  }
-
   private class EntrySet extends AbstractSet<Multiset.Entry<E>> {
-
-    @Override
-    public int size() {
-      return backingMap.size();
-    }
-
-    @Override
-    public Iterator<Multiset.Entry<E>> iterator() {
+    @Override public Iterator<Multiset.Entry<E>> iterator() {
       final Iterator<Map.Entry<E, AtomicInteger>> backingEntries
           = backingMap.entrySet().iterator();
       return new Iterator<Multiset.Entry<E>>() {
-        Map.Entry<E, AtomicInteger> toRemove = null;
+        Map.Entry<E, AtomicInteger> toRemove;
 
         public boolean hasNext() {
           return backingEntries.hasNext();
         }
 
         public Multiset.Entry<E> next() {
-          // TODO(kevinb): figure out how to skip zero-count entries
-          toRemove = backingEntries.next();
-          return new EntryImpl<E>(toRemove);
+          final Map.Entry<E, AtomicInteger> mapEntry = backingEntries.next();
+          toRemove = mapEntry;
+          return new AbstractMultisetEntry<E>() {
+            public E getElement() {
+              return mapEntry.getKey();
+            }
+            public int getCount() {
+              int count = mapEntry.getValue().get();
+              if (count == 0) {
+                AtomicInteger frequency = backingMap.get(getElement());
+                if (frequency != null) {
+                  count = frequency.get();
+                }
+              }
+              return count;
+            }
+          };
         }
 
         public void remove() {
           checkState(toRemove != null,
               "no calls to next() since the last call to remove()");
-          size -= toRemove.getValue().get();
+          size -= toRemove.getValue().getAndSet(0);
           backingEntries.remove();
           toRemove = null;
-          assert sizeInvariant();
         }
       };
     }
 
-    // This one alone is a significant optimization
+    @Override public int size() {
+      return backingMap.size();
+    }
+
+    // This seems to be the only method worth overriding for optimization
     @Override public void clear() {
-      AbstractMapBasedMultiset.this.clear();
+      for (AtomicInteger frequency : backingMap.values()) {
+        frequency.set(0);
+      }
+      backingMap.clear();
+      size = 0L;
     }
   }
 
-  private static class EntryImpl<E> extends AbstractMultisetEntry<E> {
-    final Map.Entry<E, AtomicInteger> mapEntry;
+  // Optimizations - Query Operations
 
-    EntryImpl(Map.Entry<E, AtomicInteger> mapEntry) {
-      this.mapEntry = mapEntry;
-    }
-
-    public E getElement() {
-      return mapEntry.getKey();
-    }
-    public int getCount() {
-      return mapEntry.getValue().get();
-    }
+  @Override public int size() {
+    return (int) Math.min(this.size, Integer.MAX_VALUE);
   }
 
   @Override public Iterator<E> iterator() {
     return new MapBasedMultisetIterator();
   }
 
-  protected class MapBasedMultisetIterator implements Iterator<E> {
-    private final Iterator<Map.Entry<E, AtomicInteger>> entryIterator;
-    private Map.Entry<E, AtomicInteger> currentEntry;
-    private int occurrencesLeft;
-    private boolean canRemove;
+  // TODO: see if we can extend the superclass's iterator
+  private class MapBasedMultisetIterator implements Iterator<E> {
+    final Iterator<Map.Entry<E, AtomicInteger>> entryIterator;
+    Map.Entry<E, AtomicInteger> currentEntry;
+    int occurrencesLeft;
+    boolean canRemove;
 
     MapBasedMultisetIterator() {
       this.entryIterator = backingMap.entrySet().iterator();
     }
 
     public boolean hasNext() {
-      // TODO(kevinb): uh oh, this breaks if we allow zero-count entries
       return occurrencesLeft > 0 || entryIterator.hasNext();
     }
 
     public E next() {
-      if (occurrencesLeft == 0) { // change to while (zero-count entries)
+      if (occurrencesLeft == 0) {
         currentEntry = entryIterator.next();
         occurrencesLeft = currentEntry.getValue().get();
       }
@@ -295,7 +166,11 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
     public void remove() {
       checkState(canRemove,
           "no calls to next() since the last call to remove()");
-      if (!decrement(currentEntry.getValue(), 1)) {
+      int frequency = currentEntry.getValue().get();
+      if (frequency <= 0) { 
+        throw new ConcurrentModificationException();
+      }
+      if (currentEntry.getValue().addAndGet(-1) == 0) {
         entryIterator.remove();
       }
       size--;
@@ -303,74 +178,154 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
     }
   }
 
+  @Override public int count(@Nullable Object element) {
+    AtomicInteger frequency = backingMap.get(element);
+    return (frequency == null) ? 0 : frequency.get();
+  }
+
+  // Optional Operations - Modification Operations
+
   /**
    * {@inheritDoc}
    *
-   * <p>To implement {@link Cloneable}, override this method to make it public,
-   * drop the {@code throws} clause, and specify the correct return type. For
-   * example:
-   *
-   * <pre>  @SuppressWarnings("unchecked")
-   *  @Override public FooMultiset clone() {
-   *    try {
-   *      return (FooMultiset) super.clone();
-   *    } catch (CloneNotSupportedException e) {
-   *      throw new AssertionError(e);
-   *    }
-   *  }</pre>
-   *
-   * Since the default ({@code super}) implementation of {@code clone} performs
-   * only a shallow copy, you should typically also override {@link
-   * #cloneBackingMap} to specify how the backing map is cloned.
-   *
-   * @see #cloneBackingMap
+   * @throws IllegalArgumentException if the call would result in more than
+   *     {@link Integer#MAX_VALUE} occurrences of {@code element} in this
+   *     multiset. 
    */
-  @SuppressWarnings("unchecked")
-  @Override protected AbstractMapBasedMultiset<E> clone()
-      throws CloneNotSupportedException {
-    AbstractMapBasedMultiset<E> clone = (AbstractMapBasedMultiset<E>) super.clone();
-    clone.backingMap = clone.cloneBackingMap();
-    clone.elementSet = null;
-    clone.entrySet = null;
-    return clone;
-  }
-
-  /**
-   * Creates and returns a clone of the backing map. This method has the same
-   * semantics as {@link #clone}, but in regards to the backing map rather than
-   * the multiset. The default behavior is just to return a reference to the
-   * backing map.
-   *
-   * <p>Override this method, <i>leaving it protected</i>, and specify the
-   * correct return type. For example:
-   *
-   * <pre>  @SuppressWarnings("unchecked")
-   *  @Override protected Map&lt;E, AtomicInteger> cloneBackingMap() {
-   *    HashMap&lt;E, AtomicInteger> map = (HashMap&lt;E, AtomicInteger>) backingMap();
-   *    return (Map&lt;E, AtomicInteger>) map.clone();
-   *  }</pre>
-   *
-   * @see #clone
-   */
-  protected Map<E, AtomicInteger> cloneBackingMap() {
-    return backingMap;
-  }
-
-  private static boolean decrement(AtomicInteger count, int occurrences) {
-    assert occurrences >= 0;
-    if (count.get() - occurrences >= 1) {
-      count.getAndAdd(-occurrences);
-      return true;
+  @Override public boolean add(@Nullable E element, int occurrences) {
+    if (occurrences < 0) {
+      checkArgument(false, "occurrences cannot be negative: " + occurrences);
     }
-    return false;
+    if (occurrences == 0) {
+      return false;
+    }
+    AtomicInteger frequency = backingMap.get(element);
+    if (frequency == null) {
+      backingMap.put(element, new AtomicInteger(occurrences));
+    } else {
+      if (occurrences > Integer.MAX_VALUE - frequency.get()) {
+        checkArgument(false,
+            "overflow: cannot add " + occurrences + " to " + frequency.get());
+      }
+      frequency.getAndAdd(occurrences);
+    }
+    size += occurrences;
+    return true;
   }
 
-  /*
-   * Inheriting from AbstractMultiset: isEmpty, contains, containsAll, add,
-   * add, addAll, removeAll, equals, hashCode, toString, toArray, toArray.
-   *
-   * TODO(kevinb): check our logic in deciding to inherit these
-   */
+  @Override public int remove(@Nullable Object element, int occurrences) {
+    if (occurrences < 0) {
+      checkArgument(false, "occurrences cannot be negative: " + occurrences);
+    }
+    if (occurrences == 0) {
+      return 0;
+    }
+    AtomicInteger frequency = backingMap.get(element);
+    if (frequency == null) {
+      return 0;
+    }
 
+    int numberRemoved;
+    if (frequency.get() > occurrences) {
+      numberRemoved = occurrences;
+    } else {
+      numberRemoved = frequency.get();
+      backingMap.remove(element);
+    }
+    
+    frequency.addAndGet(-numberRemoved);
+    size -= numberRemoved;
+    return numberRemoved;
+  }
+
+  @Override public int removeAllOccurrences(@Nullable Object element) {
+    return removeAllOccurrences(element, backingMap);
+  }
+  
+  private int removeAllOccurrences(@Nullable Object element,
+      Map<E, AtomicInteger> map) {
+    AtomicInteger frequency = map.remove(element);
+    if (frequency == null) {
+      return 0;
+    }
+    int numberRemoved = frequency.getAndSet(0);
+    size -= numberRemoved;    
+    return numberRemoved;
+  }
+
+  // Views
+
+  @Override protected Set<E> createElementSet() {
+    return new MapBasedElementSet(backingMap);      
+  }
+
+  class MapBasedElementSet extends ForwardingSet<E> {
+    /**
+     * This mapping is the usually the same as {@code backingMap}, but can
+     * be a submap in some implementations.
+     */
+    private final Map<E, AtomicInteger> map;
+    
+    MapBasedElementSet(Map<E, AtomicInteger> map) {
+      super(map.keySet());
+      this.map = map;
+    }
+
+    // TODO: a way to not have to write this much code?
+
+    @Override public Iterator<E> iterator() {
+      final Iterator<Map.Entry<E, AtomicInteger>> entries
+          = map.entrySet().iterator();
+      return new Iterator<E>() {
+        Map.Entry<E, AtomicInteger> toRemove;
+
+        public boolean hasNext() {
+          return entries.hasNext();
+        }
+
+        public E next() {
+          toRemove = entries.next();
+          return toRemove.getKey();
+        }
+
+        public void remove() {
+          checkState(toRemove != null,
+              "no calls to next() since the last call to remove()");
+          size -= toRemove.getValue().getAndSet(0);
+          entries.remove();
+          toRemove = null;
+        }
+      };
+    }
+
+    @Override public boolean remove(Object element) {
+      return removeAllOccurrences(element, map) != 0;
+    }
+
+    @Override public boolean removeAll(Collection<?> elementsToRemove) {
+      return removeAllImpl(this, elementsToRemove);
+    }
+
+    @Override public boolean retainAll(Collection<?> elementsToRetain) {
+      return retainAllImpl(this, elementsToRetain);
+    }
+
+    @Override public void clear() {
+      if (map == backingMap) {
+        AbstractMapBasedMultiset.this.clear();
+      } else {
+        Iterator<E> i = iterator();
+        while (i.hasNext()) {
+          i.next();
+          i.remove();
+        }
+      }
+    }
+
+    public Map<E, AtomicInteger> getMap() {
+      return map;
+    }    
+  }
+  
   private static final long serialVersionUID = 8960755798254249671L;
 }

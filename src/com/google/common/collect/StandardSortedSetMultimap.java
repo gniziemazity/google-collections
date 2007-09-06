@@ -17,32 +17,32 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.SortedSet;
 
 /**
- * Basic implementation of the {@code SortedSetMultimap} interface. It's a
- * wrapper around {@link AbstractMultimap} that converts the returned
- * collections into {@code SortedSet}s.
+ * Basic implementation of the {@link SortedSetMultimap} interface. It's a
+ * wrapper around {@link StandardMultimap} that converts the returned
+ * collections into sorted sets. The {@link #createCollection} method
+ * must return a {@code SortedSet}.
  *
- * @author jlevy@google.com (Jared Levy)
+ * @author Jared Levy
  */
-public abstract class AbstractSortedSetMultimap<K,V>
-    extends AbstractSetMultimap<K,V>
-    implements SortedSetMultimap<K,V> {
-
+abstract class StandardSortedSetMultimap<K, V>
+    extends StandardSetMultimap<K, V> implements SortedSetMultimap<K, V> {
   /**
    * Creates a new multimap that uses the provided map.
    *
    * @param map place to store the mapping from each key to its corresponding
    *     values
    */
-  protected AbstractSortedSetMultimap(Map<K, Collection<V>> map) {
+  protected StandardSortedSetMultimap(Map<K, Collection<V>> map) {
     super(map);
   }
 
-  @Override protected abstract SortedSet<V> createCollection();
+  @Override abstract SortedSet<V> createCollection();
 
   @Override public SortedSet<V> get(@Nullable K key) {
     return (SortedSet<V>) super.get(key);
@@ -53,7 +53,17 @@ public abstract class AbstractSortedSetMultimap<K,V>
   }
 
   @Override public SortedSet<V> replaceValues(
-      @Nullable K key, Iterable<? extends V> values) {
+      K key, Iterable<? extends V> values) {
     return (SortedSet<V>) super.replaceValues(key, values);
   }
+  
+  /**
+   * {@inheritDoc}
+   *
+   * Consequently, the values do not follow their natural ordering or the
+   * ordering of the value comparator.
+   */
+  @Override public Collection<V> values() {
+    return super.values();
+  }  
 }

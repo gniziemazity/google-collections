@@ -17,31 +17,31 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * Basic implementation of the {@code SetMultimap} interface. It's a wrapper
- * around {@link AbstractMultimap} that converts the returned collections into
- * {@code Set}s.
+ * Basic implementation of the {@link SetMultimap} interface. It's a wrapper
+ * around {@link StandardMultimap} that converts the returned collections into
+ * {@code Sets}. The {@link #createCollection} method must return a {@code Set}.
  *
- * @author jlevy@google.com (Jared Levy)
+ * @author Jared Levy
  */
-public abstract class AbstractSetMultimap<K,V>
-    extends AbstractMultimap<K,V> implements SetMultimap<K,V> {
-
+abstract class StandardSetMultimap<K, V>
+    extends StandardMultimap<K, V> implements SetMultimap<K, V> {
   /**
-   * Creates a new AbstractMultimap that uses the provided map.
+   * Creates a new multimap that uses the provided map.
    *
    * @param map place to store the mapping from each key to its corresponding
    *     values
    */
-  protected AbstractSetMultimap(Map<K, Collection<V>> map) {
+  protected StandardSetMultimap(Map<K, Collection<V>> map) {
     super(map);
   }
 
-  @Override protected abstract Set<V> createCollection();
+  @Override abstract Set<V> createCollection();
 
   @Override public Set<V> get(@Nullable K key) {
     return (Set<V>) super.get(key);
@@ -63,5 +63,28 @@ public abstract class AbstractSetMultimap<K,V>
   @Override public Set<V> replaceValues(
       @Nullable K key, Iterable<? extends V> values) {
     return (Set<V>) super.replaceValues(key, values);
+  }
+  
+  /**
+   * Stores a key-value pair in the multimap.
+   *
+   * @param key key to store in the multimap
+   * @param value value to store in the multimap
+   * @return {@code true} if the method increased the size of the multimap, or
+   *     {@code false} if the multimap already contained the key-value pair
+   */
+  @Override public boolean put(K key, V value) {
+    return super.put(key, value);    
+  }
+  
+  /**
+   * Compares the specified object to this multimap for equality.
+   *
+   * <p>Two {@code SetMultimap} instances are equal if, for each key, they
+   * contain the same values. Equality does not depend on the ordering of keys
+   * or values.
+   */
+  @Override public boolean equals(@Nullable Object obj) {
+    return super.equals(obj);
   }
 }

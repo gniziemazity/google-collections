@@ -25,7 +25,7 @@ import java.util.Map;
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
  *
  * @see ForwardingObject
- * @author mbostock@google (Mike Bostock)
+ * @author Mike Bostock
  */
 public abstract class ForwardingMapEntry<K, V> extends ForwardingObject
     implements Map.Entry<K, V> {

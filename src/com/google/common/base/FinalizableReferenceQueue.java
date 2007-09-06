@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 /**
  * Starts a background thread that cleans up after reclaimed referents.
  *
- * @author Bob Lee (crazybob@google.com)
+ * @author Bob Lee
  */
 class FinalizableReferenceQueue extends ReferenceQueue<Object> {
 

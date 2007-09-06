@@ -19,6 +19,7 @@ package com.google.common.collect;
 import com.google.common.base.Function;
 import com.google.common.base.Nullable;
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.Serializable;
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -29,7 +30,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.RandomAccess;
 
 /**
@@ -43,20 +43,20 @@ import java.util.RandomAccess;
  *
  * <p>{@code List<String> list = newArrayList("foo", "bar", "baz");}
  *
- * <p>You can also create an empty {@code List}, or populate your new
- * {@code List} using any array, {@link Iterator} or {@link Iterable}.
+ * <p>You can also create an empty {@code List}, or populate your new {@code
+ * List} using any array, {@link Iterator} or {@link Iterable}.
  *
  * <p>Supported today are: {@link ArrayList} and {@link LinkedList}.
  *
  * <p>See also this class's counterparts {@link Sets} and {@link Maps}.
  *
  * <p>WARNING: These factories do not support the full variety of tuning
- * parameters available in the collection constructors.  Use them only for
+ * parameters available in the collection constructors. Use them only for
  * collections which will always remain small, or for which the cost of future
  * growth operations is not a concern.
  *
- * @author kevinb@google.com (Kevin Bourrillion)
- * @author mbostock@google.com (Mike Bostock)
+ * @author Kevin Bourrillion
+ * @author Mike Bostock
  */
 public final class Lists {
   private Lists() {}
@@ -69,15 +69,14 @@ public final class Lists {
    *
    * <p>{@code List<Base> list = Lists.immutableList(sub1, sub2);}
    *
-   * <p>where {@code sub1} and {@code sub2} are references to subtypes of
-   * {@code Base}, not of {@code Base} itself.  To get around this, you must
-   * use:
+   * <p>where {@code sub1} and {@code sub2} are references to subtypes of {@code
+   * Base}, not of {@code Base} itself. To get around this, you must use:
    *
    * <p>{@code List<Base> list = Lists.<Base>immutableList(sub1, sub2);}
    *
-   * @param elements the elements that the list should contain, in order.  If
-   *     an array is given, its contents may later be altered without affecting
-   *     the List returned by this method
+   * @param elements the elements that the list should contain, in order. If an
+   *     array is given, its contents may later be altered without affecting the
+   *     List returned by this method
    * @return an immutable {@code List} instance containing those elements
    */
   public static <E> List<E> immutableList(E... elements) {
@@ -92,21 +91,25 @@ public final class Lists {
     }
   }
 
-  private static final Class<?> SINGLETON_CLASS =
-      Collections.singletonList(1).getClass();
+  private static final Class<?> SINGLETON_CLASS
+      = Collections.singletonList(1).getClass();
 
   /**
    * Returns an immutable {@code List} instance containing the given elements.
    * Note that if the input is an immutable list, then the input itself
-   * <em>may</em> be returned.
+   * <i>may</i> be returned.
    *
    * @param iterable the elements that the list should contain, in order
    * @return an immutable {@code List} instance containing those elements
    */
   public static <E> List<E> immutableList(Iterable<? extends E> iterable) {
-    return (iterable instanceof Collection<?>)
-        ? immutableList((Collection<? extends E>) iterable)
-        : immutableList(iterable.iterator());
+    if (iterable instanceof Collection<?>) {
+      @SuppressWarnings("unchecked")
+      Collection<? extends E> collection = (Collection<? extends E>) iterable;
+      return immutableList(collection);
+    } else {
+      return immutableList(iterable.iterator());
+    }
   }
 
   /**
@@ -122,7 +125,7 @@ public final class Lists {
   /**
    * Returns an immutable {@code List} instance containing the given elements.
    * Note that if the input is an immutable list, then the input itself
-   * <em>may</em> be returned.
+   * <i>may</i> be returned.
    *
    * @param collection the elements that the list should contain, in order
    * @return an immutable {@code List} instance containing those elements
@@ -133,22 +136,28 @@ public final class Lists {
     if (size == 0) {
       return Collections.emptyList();
     } else if (SINGLETON_CLASS.isInstance(collection)
-               || collection instanceof ImmutableArrayList) {
-      // Casting away the wildcard on the generic type parameter should be safe
-      // because the result is known to be immutable so any of the methods
-      // we're exposing are unsupported anyway.
-      // XXX This assumes that the implementation of Collections.singletonList
-      // doesn't change in such a way that the class of instances returned by
-      // it are sometimes mutable. Technically, that's a bit dirty.
-      @SuppressWarnings("unchecked") List<E> result = (List<E>) collection;
+        || collection instanceof ImmutableArrayList<?>) {
+      /*
+       * Casting away the wildcard on the generic type parameter should be safe
+       * because the result is known to be immutable so any of the methods
+       * we're exposing are unsupported anyway.
+       * XXX This assumes that the implementation of Collections.singletonList
+       * doesn't change in such a way that the class of instances returned by
+       * it are sometimes mutable. Technically, that's a bit dirty.
+       */
+      @SuppressWarnings("unchecked")
+      List<E> result = (List<E>) collection;
       return result;
     } else if (size == 1) {
-      // TODO(johannes): remove <E> when Eclipse is fixed
+      // TODO: remove <E> when Eclipse is fixed
       return Collections.<E>singletonList(collection.iterator().next());
     } else {
-      // This cast is also unchecked, but because of the impedance mismatch
-      // between arrays and generics.
-      @SuppressWarnings("unchecked") E[] array = (E[]) collection.toArray();
+      /*
+       * This cast is also unchecked, but because of the impedance mismatch
+       * between arrays and generics.
+       */
+      @SuppressWarnings("unchecked")
+      E[] array = (E[]) collection.toArray();
       return new ImmutableArrayList<E>(array);
     }
   }
@@ -179,8 +188,8 @@ public final class Lists {
   /**
    * Creates an empty {@code ArrayList} instance.
    *
-   * <p><b>Note:</b> if you only need an <i>immutable</i> empty List, use
-   * {@link Collections#emptyList} instead.
+   * <p><b>Note:</b> if you only need an <i>immutable</i> empty List, use {@link
+   * Collections#emptyList} instead.
    *
    * @return a newly-created, initially-empty {@code ArrayList}
    */
@@ -192,17 +201,16 @@ public final class Lists {
    * Creates a resizable {@code ArrayList} instance containing the given
    * elements.
    *
-   * <p><b>Note:</b> if it is an immutable List you seek, you should use
-   * {@link #immutableList}.
+   * <p><b>Note:</b> if it is an immutable List you seek, you should use {@code
+   * #immutableList}.
    *
    * <p><b>Note:</b> due to a bug in javac 1.5.0_06, we cannot support the
    * following:
    *
    * <p>{@code List<Base> list = Lists.newArrayList(sub1, sub2);}
    *
-   * <p>where {@code sub1} and {@code sub2} are references to subtypes of
-   * {@code Base}, not of {@code Base} itself.  To get around this, you must
-   * use:
+   * <p>where {@code sub1} and {@code sub2} are references to subtypes of {@code
+   * Base}, not of {@code Base} itself. To get around this, you must use:
    *
    * <p>{@code List<Base> list = Lists.<Base>newArrayList(sub1, sub2);}
    *
@@ -211,12 +219,18 @@ public final class Lists {
    */
   public static <E> ArrayList<E> newArrayList(E... elements) {
     checkNotNull(elements);
-    int capacity = (elements.length * 110) / 100 + 5;
+    // Avoid integer overflow when a large array is passed in
+    int capacity = computeArrayListCapacity(elements.length);
     ArrayList<E> list = new ArrayList<E>(capacity);
     Collections.addAll(list, elements);
     return list;
   }
-
+  
+  // @VisibleForTesting
+  static int computeArrayListCapacity(int arraySize) {
+    return (int) Math.min(5L + arraySize + (arraySize / 10), Integer.MAX_VALUE);
+  }
+  
   /**
    * Creates an {@code ArrayList} instance containing the given elements.
    *
@@ -227,9 +241,13 @@ public final class Lists {
     checkNotNull(elements);
 
     // Let ArrayList's sizing logic work, if possible
-    return (elements instanceof Collection<?>)
-           ? new ArrayList<E>((Collection<? extends E>) elements)
-           : newArrayList(elements.iterator());
+    if (elements instanceof Collection<?>) {
+      @SuppressWarnings("unchecked")
+      Collection<? extends E> collection = (Collection<? extends E>) elements;
+      return new ArrayList<E>(collection);
+    } else {
+      return newArrayList(elements.iterator());
+    }
   }
 
   /**
@@ -252,9 +270,9 @@ public final class Lists {
    *
    * @param initialCapacity the initial capacity of the list
    * @return a newly-created, initially empty {@code ArrayList} with the given
-   *   initial capacity
-   * @throws IllegalArgumentException if the specified initial capacity
-   *   is negative
+   *     initial capacity
+   * @throws IllegalArgumentException if the specified initial capacity is
+   *     negative
    */
   public static <E> ArrayList<E> newArrayListWithCapacity(int initialCapacity) {
     return new ArrayList<E>(initialCapacity);
@@ -270,7 +288,7 @@ public final class Lists {
    *
    * @return a newly-created, initially-empty {@code LinkedList}
    */
-  public static <E> LinkedList <E> newLinkedList() {
+  public static <E> LinkedList<E> newLinkedList() {
     return new LinkedList<E>();
   }
 
@@ -282,7 +300,7 @@ public final class Lists {
    * @param elements the elements that the list should contain, in order
    * @return a newly-created {@code LinkedList} containing those elements
    */
-  public static <E> LinkedList <E> newLinkedList(E... elements) {
+  public static <E> LinkedList<E> newLinkedList(E... elements) {
     checkNotNull(elements);
     LinkedList<E> list = newLinkedList();
     Collections.addAll(list, elements);
@@ -295,7 +313,7 @@ public final class Lists {
    * @param elements the elements that the list should contain, in order
    * @return a newly-created {@code LinkedList} containing those elements
    */
-  public static <E> LinkedList <E> newLinkedList(
+  public static <E> LinkedList<E> newLinkedList(
       Iterable<? extends E> elements) {
     checkNotNull(elements);
     return newLinkedList(elements.iterator());
@@ -307,7 +325,7 @@ public final class Lists {
    * @param elements the elements that the list should contain, in order
    * @return a newly-created {@code LinkedList} containing those elements
    */
-  public static <E> LinkedList <E> newLinkedList(
+  public static <E> LinkedList<E> newLinkedList(
       Iterator<? extends E> elements) {
     checkNotNull(elements);
     LinkedList<E> list = newLinkedList();
@@ -318,20 +336,23 @@ public final class Lists {
   }
 
   /**
-   * Returns a copy of the given iterable which has been sorted using {@code
-   * Collections.sort}. The input is not modified.
+   * Returns a copy of the given iterable sorted by the natural ordering of its
+   * elements. The input is not modified.
    *
    * <p>Unlike {@link Sets#newTreeSet(Iterable)}, this method does not collapse
    * elements that compare as zero, and the resulting collection does not
-   * maintain its own sort order.  If you have no preference on these issues,
+   * maintain its own sort order. If you have no preference on these issues,
    * these two alternatives are equivalent, so you can choose for performance
    * factors.
    *
    * @param iterable the elements to be copied and sorted
    * @return a new list containing the given elements in sorted order
-   */
-  public static <E extends Comparable<? super E>> List<E> sortedCopy(
-      Iterable<E> iterable) {
+   * @throws ClassCastException if {@code iterable} contains elements which are
+   *     not <i>mutually comparable</i>
+   */  
+  @SuppressWarnings("unchecked")
+  public static <E extends Comparable> List<E> sortedCopy(Iterable<E> iterable)
+  {
     checkNotNull(iterable);
     List<E> list = Lists.newArrayList(iterable);
     Collections.sort(list);
@@ -339,21 +360,21 @@ public final class Lists {
   }
 
   /**
-   * Returns a copy of the given iterable which has been sorted using {@code
-   * Collections.sort}. The input is not modified.
-   *
-   * <p>Unlike {@link Sets#newTreeSet(Iterable)}, this method does not collapse
-   * elements that compare as zero, and the resulting collection does not
-   * maintain its own sort order.  If you have no preference on these issues,
-   * these two alternatives are equivalent, so you can choose for performance
-   * factors.
-   *
+   * Returns a copy of the given iterable sorted by an explicit comparator. The
+   * input is not modified.
+   * 
+   * <p>Unlike {@link Sets#newTreeSet(Comparator, Iterable)}, this method does
+   * not collapse elements that compare as zero, and the resulting collection
+   * does not maintain its own sort order. If you have no preference on these
+   * issues, these two alternatives are equivalent, so you can choose for
+   * performance factors.
+   * 
    * @param iterable the elements to be copied and sorted
    * @param comparator a comparator capable of sorting the given elements
    * @return a new list containing the given elements in sorted order
    */
-  public static <E> List<E> sortedCopy(Iterable<E> iterable,
-      Comparator<? super E> comparator) {
+  public static <E> List<E> sortedCopy(
+      Iterable<E> iterable, Comparator<? super E> comparator) {
     checkNotNull(iterable);
     checkNotNull(comparator);
     List<E> list = Lists.newArrayList(iterable);
@@ -368,7 +389,7 @@ public final class Lists {
    * Arrays#asList}, the returned list is unmodifiable.
    *
    * <p>This is useful when a varargs method needs to use a signature such as
-   * {@code (Foo firstFoo, Foo... moreFoos)}, in order to avoid overload
+   * {@code (FoofirstFoo,Foo...moreFoos)}, in order to avoid overload
    * ambiguity or to enforce a minimum argument count.
    *
    * <p>The returned list is serializable and implements {@link RandomAccess}.
@@ -381,13 +402,13 @@ public final class Lists {
     return new OnePlusArrayList<E>(first, rest);
   }
 
-  /** @see Lists#asList(Object, Object[]) */
+  /** @see Lists#asList(Object,Object[]) */
   private static class OnePlusArrayList<E> extends AbstractList<E>
       implements Serializable, RandomAccess {
-    private static final long serialVersionUID = -263507107612916621L;
-    private final E first;
-    private final E[] rest;
-    public OnePlusArrayList(@Nullable E first, E[] rest) {
+    final E first;
+    final E[] rest;
+
+    OnePlusArrayList(@Nullable E first, E[] rest) {
       checkNotNull(rest);
       this.first = first;
       this.rest = rest;
@@ -398,6 +419,7 @@ public final class Lists {
     public E get(int index) {
       return (index == 0) ? first : rest[index - 1]; // allow IOOBE to throw
     }
+    private static final long serialVersionUID = -263507107612916621L;
   }
 
   /**
@@ -407,7 +429,7 @@ public final class Lists {
    * {@link Arrays#asList}, the returned list is unmodifiable.
    *
    * <p>This is useful when a varargs method needs to use a signature such as
-   * {@code (Foo firstFoo, Foo secondFoo, Foo... moreFoos)}, in order to avoid
+   * {@code (FoofirstFoo,FoosecondFoo,Foo...moreFoos)}, in order to avoid
    * overload ambiguity or to enforce a minimum argument count.
    *
    * <p>The returned list is serializable and implements {@link RandomAccess}.
@@ -416,19 +438,19 @@ public final class Lists {
    * @param rest an array of additional elements, possibly empty
    * @return an unmodifiable list containing the specified elements
    */
-  public static <E> List<E> asList(@Nullable E first, @Nullable E second,
-      E[] rest) {
+  public static <E> List<E> asList(
+      @Nullable E first, @Nullable E second, E[] rest) {
     return new TwoPlusArrayList<E>(first, second, rest);
   }
 
-  /** @see Lists#asList(Object, Object, Object[]) */
+  /** @see Lists#asList(Object,Object,Object[]) */
   private static class TwoPlusArrayList<E> extends AbstractList<E>
       implements Serializable, RandomAccess {
-    private static final long serialVersionUID = -1789891963162733178L;
-    private final E first;
-    private final E second;
-    private final E[] rest;
-    public TwoPlusArrayList(@Nullable E first, @Nullable E second, E[] rest) {
+    final E first;
+    final E second;
+    final E[] rest;
+
+    TwoPlusArrayList(@Nullable E first, @Nullable E second, E[] rest) {
       checkNotNull(rest);
       this.first = first;
       this.second = second;
@@ -439,105 +461,82 @@ public final class Lists {
     }
     public E get(int index) {
       switch (index) {
-        case 0: return first;
-        case 1: return second;
-        default: return rest[index - 2]; // allow IOOBE to throw
+        case 0:
+          return first;
+        case 1:
+          return second;
+        default:
+          return rest[index - 2]; // allow IOOBE to throw
       }
     }
+    private static final long serialVersionUID = -1789891963162733178L;
   }
 
   /**
    * Returns a list that applies {@code function} to each element of {@code
    * fromList}. The returned list is a transformed view of {@code fromList},
-   * similar to {@link Iterators#transform}: changes to {@code fromList} will
-   * be reflected in the returned list and vice versa.
+   * similar to {@link Iterators#transform}: changes to {@code fromList} will be
+   * reflected in the returned list and vice versa.
    *
    * <p>Functions are not reversible, so the transform is one-way and new items
    * cannot be added to the returned list. The {@code add}, {@code addAll} and
    * {@code set} methods are unsupported in the returned list.
    *
-   * <p>As with {@link Iterators#transform}, the function is applied
-   * lazily. This is necessary for returned list to be a view, but also means
-   * that the function will be applied many times for bulk operations like
-   * {@link List#contains} and {@link List#hashCode}. For this to perform well,
-   * {@code function} should be fast. If you want to avoid lazy evaluation and
-   * you don't need the returned list to be a view, you can dump the returned
-   * list into a new list of your choosing. Alternatively, you can use a
-   * memoizing ("canonicalizing") function.
+   * <p>As with {@link Iterators#transform}, the function is applied lazily.
+   * This is necessary for returned list to be a view, but also means that the
+   * function will be applied many times for bulk operations like {@link
+   * List#contains} and {@link List#hashCode}. For this to perform well, {@code
+   * function} should be fast. If you want to avoid lazy evaluation and you
+   * don't need the returned list to be a view, you can dump the returned list
+   * into a new list of your choosing. Alternatively, you can use a memoizing
+   * ("canonicalizing") function.
    *
    * <p>If {@code fromList} implements {@link RandomAccess}, so will the
-   * returned list. TODO: provide similar support for
-   * {@link java.io.Serializable}.
+   * returned list. TODO: provide similar support for {@link
+   * java.io.Serializable}.
    */
-  public static <F, T> List<T> transform(List<F> fromList,
-      Function<? super F, ? extends T> function) {
+  public static <F, T> List<T> transform(
+      List<F> fromList, Function<? super F, ? extends T> function) {
     checkNotNull(fromList);
     checkNotNull(function);
     return (fromList instanceof RandomAccess)
-      ? new TransformingRandomAccessList<F, T>(fromList, function)
-      : new TransformingList<F, T>(fromList, function);
+        ? new TransformingRandomAccessList<F, T>(fromList, function)
+        : new TransformingList<F, T>(fromList, function);
   }
 
   /**
    * Implementation of a transforming list. We try to make as many of these
-   * methods pass-through to the source list as possible so that the
-   * performance characteristics of the source list and transformed list are
-   * similar.
+   * methods pass-through to the source list as possible so that the performance
+   * characteristics of the source list and transformed list are similar.
    *
    * @see Lists#transform
    */
   private static class TransformingList<F, T> extends AbstractList<T>
       implements Serializable {
-    private static final long serialVersionUID = -5874381536079320827L;
-    private final List<F> fromList;
-    private final Function<? super F, ? extends T> function;
+    final List<F> fromList;
+    final Function<? super F, ? extends T> function;
 
-    public TransformingList(List<F> fromList,
-        Function<? super F, ? extends T> function) {
+    TransformingList(
+        List<F> fromList, Function<? super F, ? extends T> function) {
       this.fromList = fromList;
       this.function = function;
     }
-
-    public boolean add(T t) {
-      throw new UnsupportedOperationException();
-    }
-
-    public boolean addAll(int index, Collection<? extends T> c) {
-      throw new UnsupportedOperationException();
-    }
-
-    public void clear() {
+    @Override public void clear() {
       fromList.clear();
     }
-
     public T get(int index) {
       return function.apply(fromList.get(index));
     }
-
-    public boolean isEmpty() {
+    @Override public boolean isEmpty() {
       return fromList.isEmpty();
     }
-
-    public Iterator<T> iterator() {
-      return Iterators.transform(fromList.iterator(), function);
-    }
-
-    public ListIterator<T> listIterator(int index) {
-      return new TransformingListIterator<F, T>(fromList.listIterator(index),
-          function);
-    }
-
-    public T remove(int index) {
+    @Override public T remove(int index) {
       return function.apply(fromList.remove(index));
     }
-
     public int size() {
       return fromList.size();
     }
-
-    public List<T> subList(int fromIndex, int toIndex) {
-      return transform(fromList.subList(fromIndex, toIndex), function);
-    }
+    private static final long serialVersionUID = -5874381536079320827L;
   }
 
   /**
@@ -548,106 +547,46 @@ public final class Lists {
    */
   private static class TransformingRandomAccessList<F, T>
       extends TransformingList<F, T> implements RandomAccess {
-    private static final long serialVersionUID = -7837562545549389035L;
-    public TransformingRandomAccessList(List<F> fromList,
-        Function<? super F, ? extends T> function) {
+    TransformingRandomAccessList(
+        List<F> fromList, Function<? super F, ? extends T> function) {
       super(fromList, function);
     }
-  }
-
-  /**
-   * Implementation of transforming list iterator. Again, as with {@link
-   * TransformingList}, we try to make as many of these methods pass through to
-   * the source list iterator as possible.
-   *
-   * @see Lists#transform
-   */
-  private static class TransformingListIterator<F, T>
-      implements ListIterator<T> {
-    private final ListIterator<F> fromIterator;
-    private final Function<? super F, ? extends T> function;
-
-    public TransformingListIterator(ListIterator<F> fromIterator,
-        Function<? super F, ? extends T> function) {
-      this.fromIterator = fromIterator;
-      this.function = function;
-    }
-
-    public void add(T o) {
-      throw new UnsupportedOperationException();
-    }
-
-    public boolean hasNext() {
-      return fromIterator.hasNext();
-    }
-
-    public boolean hasPrevious() {
-      return fromIterator.hasPrevious();
-    }
-
-    public T next() {
-      return function.apply(fromIterator.next());
-    }
-
-    public int nextIndex() {
-      return fromIterator.nextIndex();
-    }
-
-    public T previous() {
-      return function.apply(fromIterator.previous());
-    }
-
-    public int previousIndex() {
-      return fromIterator.previousIndex();
-    }
-
-    public void remove() {
-      fromIterator.remove();
-    }
-
-    public void set(T t) {
-      throw new UnsupportedOperationException();
-    }
+    private static final long serialVersionUID = -7837562545549389035L;
   }
 
   private static class ImmutableArrayList<E> extends AbstractList<E>
       implements RandomAccess, Serializable {
-
-    static final long serialVersionUID = 0x0a2ae799;
-
     final E[] array;
 
     /**
      * @param array underlying array for this ImmutableArrayList. Note that the
-     * array is <b>not</b> cloned. The caller is responsible for ensuring that
-     * the array can't "escape".
+     *     array is <b>not</b> cloned. The caller is responsible for ensuring
+     *     that the array can't "escape".
      */
     ImmutableArrayList(E[] array) {
       this.array = array;
     }
-
     public E get(int index) {
       return array[index];
     }
-
     public int size() {
       return array.length;
     }
 
-    /* override some methods just to get tiny optimizations */
+    // optimizations
 
     @Override public Object[] toArray() {
       Object[] newArray = new Object[array.length];
       System.arraycopy(array, 0, newArray, 0, array.length);
       return newArray;
     }
-
     @Override public String toString() {
       return Arrays.toString(array);
     }
-
     @Override public int hashCode() {
       return Arrays.hashCode(array);
     }
+
+    private static final long serialVersionUID = 0x0a2ae799;
   }
 }

@@ -19,6 +19,7 @@ package com.google.common.collect;
 import com.google.common.base.Nullable;
 import com.google.common.base.Objects;
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -29,7 +30,7 @@ import java.util.Iterator;
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
  *
  * @see ForwardingObject
- * @author kevinb@google.com (Kevin Bourrillion)
+ * @author Kevin Bourrillion
  */
 public abstract class ForwardingCollection<E> extends ForwardingObject
     implements Collection<E> {
@@ -105,7 +106,7 @@ public abstract class ForwardingCollection<E> extends ForwardingObject
    * to modify the returned array.
    *
    * @param c the collection for which to return an array of elements
-   * @see AbstractCollection#toArray
+   * @see java.util.AbstractCollection#toArray()
    */
   static Object[] toArrayImpl(Collection<?> c) {
     return ObjectArrays.toArrayImpl(c);
@@ -134,7 +135,7 @@ public abstract class ForwardingCollection<E> extends ForwardingObject
    * @throws ArrayStoreException if the runtime type of the specified array is
    * not a supertype of the runtime type of every element in the specified
    * collection
-   * @see AbstractCollection#toArray(T[])
+   * @see java.util.AbstractCollection#toArray(Object[])
    */
   static <T> T[] toArrayImpl(Collection<?> c, T[] array) {
     return ObjectArrays.toArrayImpl(c, array);
@@ -148,7 +149,7 @@ public abstract class ForwardingCollection<E> extends ForwardingObject
    * elements are converted to strings as by {@code String.valueOf(Object)}.
    *
    * @param c the collection for which to return a string representation
-   * @see AbstractCollection#toString
+   * @see java.util.AbstractCollection#toString
    */
   static String toStringImpl(Collection<?> c) {
     return Iterators.toString(c.iterator());
@@ -187,7 +188,7 @@ public abstract class ForwardingCollection<E> extends ForwardingObject
    *
    * @param c a collection which might contain all elements in {@code d}
    * @param d a collection whose elements might be contained by {@code c}
-   * @see AbstractCollection#containsAll
+   * @see java.util.AbstractCollection#containsAll(Collection)
    */
   static boolean containsAllImpl(Collection<?> c, Collection<?> d) {
     checkNotNull(c);
@@ -242,7 +243,7 @@ public abstract class ForwardingCollection<E> extends ForwardingObject
    * @throws UnsupportedOperationException if {@code c}'s iterator does not
    * support the {@code remove} method and {@code c} contains one or more
    * elements in common with {@code d}
-   * @see AbstractCollection#removeAll
+   * @see java.util.AbstractCollection#removeAll(Collection)
    */
   static boolean removeAllImpl(Collection<?> c, Collection<?> d) {
     checkNotNull(d);

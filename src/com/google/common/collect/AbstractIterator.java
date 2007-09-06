@@ -17,39 +17,47 @@
 package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkState;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * An abstract Adapter that provides an Iterator interface for certain types of
- * data which are conceptually iterable, but require single-element preloading
- * (e.g., {@code java.io.BufferedReader}). Subclasses need to implement only the
- * {@link #computeNext} template method.
+ * This class provides a skeletal implementation of the {@code Iterator}
+ * interface, to make this interface easier to implement for certain types of
+ * data sources.
  *
- * <p>Example:
+ * <p>{@code Iterator} requires its implementations to support querying the
+ * end-of-data status without changing the iterator's state, using the {@link
+ * #hasNext} method. But many data sources, such as {@link
+ * java.io.Reader#read()}), do not expose this information; the only way to
+ * discover whether there is any data left is by trying to retrieve it. These
+ * types of data sources are ordinarily difficult to write iterators for. But
+ * using this class, one must implement only the {@link #computeNext} method,
+ * and invoke the {@link #endOfData} method when appropriate.
  *
- * <pre>
- * public static Iterator&lt;String> readLines(final BufferedReader in) {
- *   return new AbstractIterator&lt;String>() {
- *     protected String computeNext() {
- *       try {
- *         String result = in.readLine();
- *         if (result == null) {
- *           endOfData();
- *           in.close();
+ * <p>Another example is an iterator that skips over null elements in a backing
+ * iterator. This could be implemented as:
+ *
+ * <pre>  public static Iterator&lt;String> skipNulls(
+ *       final Iterator&lt;String> in) {
+ *     return new AbstractIterator&lt;String>() {
+ *       protected String computeNext() {
+ *         while (in.hasNext()) {
+ *           String s = in.next();
+ *           if (s != null) {
+ *             return s;
+ *           }
  *         }
- *         return result;
- *       } catch (IOException e) {
- *         throw new RuntimeException(e);
+ *         endOfData();
+ *         return null; // return value ignored
  *       }
- *     }
- *   };
- * }
- * </pre>
+ *     };
+ *   }</pre>
  *
- * @author kevinb@google.com (Kevin Bourrillion)
+ * @author Kevin Bourrillion
  */
 public abstract class AbstractIterator<T> implements Iterator<T> {
+  private State state = State.NOT_READY;
 
   private enum State {
     /** We have computed the next element and haven't returned it yet. */
@@ -62,10 +70,8 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
     DONE,
 
     /** We've suffered an exception and are kaput. */
-    FAILED
+    FAILED,
   }
-
-  private State state = State.NOT_READY;
 
   private T next;
 
@@ -83,12 +89,12 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
    *
    * <p>If this method throws an exception, it will propagate outward to the
    * {@code hasNext} or {@code next} invocation that invoked this method. Any
-   * further attempts to use the iterator will result in
-   * {@code IllegalStateException}.
+   * further attempts to use the iterator will result in {@code
+   * IllegalStateException}.
    *
-   * @return the next element if there was one.  {@code null} is a valid
-   *     element value.  If {@code endOfData} was called during execution,
-   *     the return value will be ignored.
+   * @return the next element if there was one. {@code null} is a valid element
+   *     value. If {@code endOfData} was called during execution, the return
+   *     value will be ignored.
    */
   protected abstract T computeNext();
 
@@ -100,8 +106,6 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
     state = State.DONE;
   }
 
-  // Iterator interface
-
   public final boolean hasNext() {
     checkState(state != State.FAILED);
     switch (state) {
@@ -111,6 +115,16 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
         return true;
     }
     return tryToComputeNext();
+  }
+
+  private boolean tryToComputeNext() {
+    state = State.FAILED; // temporary pessimism
+    next = computeNext();
+    if (state != State.DONE) {
+      state = State.READY;
+      return true;
+    }
+    return false;
   }
 
   public final T next() {
@@ -128,18 +142,5 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
    */
   public final void remove() {
     throw new UnsupportedOperationException();
-  }
-
-  // private helpers
-
-  /** Attempts to get the next element from the implementation class. */
-  private boolean tryToComputeNext() {
-    state = State.FAILED; // temporary pessimism
-    next = computeNext();
-    if (state == State.FAILED) {
-      state = State.READY; // ok, whew
-      return true;
-    }
-    return false;
   }
 }

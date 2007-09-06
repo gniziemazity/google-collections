@@ -26,7 +26,7 @@ import java.util.SortedMap;
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
  *
  * @see ForwardingObject
- * @author mbostock@google.com (Mike Bostock)
+ * @author Mike Bostock
  */
 public abstract class ForwardingSortedMap<K, V> extends ForwardingMap<K, V>
     implements SortedMap<K, V> {

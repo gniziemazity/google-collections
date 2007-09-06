@@ -10,14 +10,6 @@
       <properties />
     </buildFile>
   </component>
-  <component name="Build editor project-level loader">
-    <settings>
-      <class-settings class="com.google.devtools.intellig.configcheck.ProjectPathChecker" />
-      <class-settings class="com.google.devtools.intellig.configcheck.PythonSdkChecker" />
-      <class-settings class="com.google.devtools.intellig.configcheck.ProjectJdkChecker" />
-      <class-settings class="com.google.devtools.intellig.configcheck.ClearOutputChecker" />
-    </settings>
-  </component>
   <component name="BuildJarProjectSettings">
     <option name="BUILD_JARS_ON_MAKE" value="false" />
   </component>
@@ -193,7 +185,7 @@
     <option name="OPTION_DOCUMENT_TAG_VERSION" value="true" />
     <option name="OPTION_DOCUMENT_TAG_DEPRECATED" value="true" />
     <option name="OPTION_DEPRECATED_LIST" value="true" />
-    <option name="OTHER_OPTIONS" value="-windowtitle &quot;Google Collections Library 1.0 BETA 1&quot; -link http://java.sun.com/javase/6/docs/api" />
+    <option name="OTHER_OPTIONS" value="-windowtitle &quot;Google Collections Library 0.5 (ALPHA)&quot; -link http://java.sun.com/javase/6/docs/api" />
     <option name="HEAP_SIZE" value="256" />
     <option name="LOCALE" />
     <option name="OPEN_IN_BROWSER" value="false" />
@@ -211,13 +203,6 @@
     <option name="FILTER_WARNINGS" value="false" />
     <option name="FILTER_INFO" value="true" />
     <option name="CUSTOM_FILTER" />
-  </component>
-  <component name="Mach integration configuration">
-    <pre-compile target="" enabled="false" />
-    <use-mach-for-java enabled="false" />
-    <mach-version version="alpha" />
-    <working-set enabled="false" targets="" />
-    <previous-paths />
   </component>
   <component name="Palette2">
     <group name="Swing">

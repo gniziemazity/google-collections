@@ -16,20 +16,15 @@
 
 package com.google.common.collect;
 
-import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Multiset implementation backed by a {@link HashMap}.
  *
- * @author kevinb@google.com (Kevin Bourrillion)
+ * @author Kevin Bourrillion
  */
-public final class HashMultiset<E> extends AbstractMapBasedMultiset<E>
-    implements Serializable, Cloneable {
-  private static final long serialVersionUID = 2422072640108355431L;
-
+public final class HashMultiset<E> extends AbstractMapBasedMultiset<E> {
   /**
    * Constructs a new empty {@code HashMultiset} using the default initial
    * capacity (16 distinct elements) and load factor (0.75).
@@ -69,10 +64,9 @@ public final class HashMultiset<E> extends AbstractMapBasedMultiset<E>
    * used.
    *
    * @param elements the elements that the multiset should contain
-   * @throws NullPointerException if {@code elements} is null
    */
   public HashMultiset(Iterable<? extends E> elements) {
-    this(inferDistinctElements(elements));
+    this(Multisets.inferDistinctElements(elements));
     Iterables.addAll(this, elements); // careful if we make this class non-final
   }
 
@@ -82,38 +76,11 @@ public final class HashMultiset<E> extends AbstractMapBasedMultiset<E>
    * capacity sufficient to hold the specified elements.
    *
    * @param elements the elements that the multiset should contain
-   * @throws NullPointerException if {@code elements} is null
    */
   public HashMultiset(Multiset<? extends E> elements) {
     this(elements.elementSet().size());
-    addAll(elements); // careful if we make this class nonfinal
+    addAll(elements); // careful if we make this class non-final
   }
 
-  @SuppressWarnings("unchecked")
-  @Override public HashMultiset<E> clone() {
-    try {
-      return (HashMultiset<E>) super.clone();
-    } catch (CloneNotSupportedException e) {
-      throw new AssertionError(e);
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override protected Map<E, AtomicInteger> cloneBackingMap() {
-    return (Map<E, AtomicInteger>)
-        ((HashMap<E, AtomicInteger>) backingMap()).clone();
-  }
-
-  /**
-   * Returns the expected number of distinct elements given the specified
-   * elements. The number of distinct elements is only computed if {@code
-   * elements} is an instance of {@code Multiset}; otherwise the default value
-   * of 11 is returned.
-   */
-  private static int inferDistinctElements(Iterable<?> elements) {
-    if (elements instanceof Multiset<?>) {
-      return ((Multiset<?>) elements).elementSet().size();
-    }
-    return 11; // initial capacity will be rounded up to 16
-  }
+  private static final long serialVersionUID = 2422072640108355431L;
 }

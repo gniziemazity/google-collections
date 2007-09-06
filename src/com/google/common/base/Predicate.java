@@ -37,7 +37,7 @@ package com.google.common.base;
  * {@code if (myPredicate.apply(myObject)) ... } to throw a
  * {@link NullPointerException}, it was decided not to make this change.
  * 
- * @author kevinb
+ * @author Kevin Bourrillion
  */
 public interface Predicate<T> {
 

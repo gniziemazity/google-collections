@@ -21,7 +21,7 @@ package com.google.common.base;
  * referent.
  *
  * @see java.lang.ref.Reference
- * @author crazybob@google.com (Bob Lee)
+ * @author Bob Lee
  */
 public enum ReferenceType {
 

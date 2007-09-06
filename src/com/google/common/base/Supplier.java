@@ -16,19 +16,13 @@
 
 package com.google.common.base;
 
-import java.lang.ref.SoftReference;
-
 /**
- * Soft reference with a {@code finalizeReferent()} method which a background
- * thread invokes after the garbage collector reclaims the referent. This is a
- * simpler alternative to using a {@link java.lang.ref.ReferenceQueue}.
+ * A class that can supply objects of a single type.  Semantically, this could
+ * be a Factory, Generator, Builder, Closure, or something else entirely. No
+ * guarantees are implied by this interface.
  *
- * @author Bob Lee
+ * @param <T> the type of object being supplied
  */
-public abstract class FinalizableSoftReference<T> extends SoftReference<T>
-    implements FinalizableReference {
-
-  protected FinalizableSoftReference(T referent) {
-    super(referent, FinalizableReferenceQueue.getInstance());
-  }
+public interface Supplier<T> {
+  public T get();
 }

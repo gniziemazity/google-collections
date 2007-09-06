@@ -16,78 +16,67 @@
 
 package com.google.common.collect;
 
-import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * A Multiset implementation with predictable iteration order.  Elements
- * appear in the iterator in order by when the <i>first</i> occurrence of the
- * element was added.  If all occurrences of an element are removed, then one
- * or more elements added again, the element will not retain its earlier
- * iteration position, but will appear at the end as if it had never been
- * present.
+ * A Multiset implementation with predictable iteration order. Elements appear
+ * in the iterator in order by when the <i>first</i> occurrence of the element
+ * was added. If all occurrences of an element are removed, then one or more
+ * elements added again, the element will not retain its earlier iteration
+ * position, but will appear at the end as if it had never been present.
  *
  * <p>To preserve iteration order across non-distinct elements, use {@link
  * LinkedListMultiset} instead.
  *
- * @author kevinb@google.com (Kevin Bourrillion)
+ * @author Kevin Bourrillion
  * @see LinkedListMultiset
  */
-public final class LinkedHashMultiset<E> extends AbstractMapBasedMultiset<E>
-    implements Cloneable {
-
+public final class LinkedHashMultiset<E> extends AbstractMapBasedMultiset<E> {
   /**
-   * Constructs an empty multiset with default capacity.
+   * Constructs a new empty {@code LinkedHashMultiset} using the default initial
+   * capacity (16 distinct elements) and load factor (0.75).
    */
   public LinkedHashMultiset() {
     super(new LinkedHashMap<E, AtomicInteger>());
   }
 
   /**
-   * Constructs an empty multiset, with a hint for the capacity.
+   * Constructs a new empty {@code LinkedHashMultiset} with the specified
+   * expected number of distinct elements and the default load factor (0.75).
    *
-   * @param distinctElements how many distinct elements the multiset should
-   *     be sized to hold comfortably
-   * @throws IllegalArgumentException if distinctElements is negative
+   * @param distinctElements the expected number of distinct elements
+   * @throws IllegalArgumentException if {@code distinctElements} is negative
    */
   public LinkedHashMultiset(int distinctElements) {
-    super(new LinkedHashMap<E, AtomicInteger>(distinctElements * 4 / 3));
-    if (distinctElements < 0) {
-      throw new IllegalArgumentException();
-    }
+    // Could use newLinkedHashMapWithExpectedSize() if it existed
+    super(new LinkedHashMap<E, AtomicInteger>(Maps.capacity(distinctElements)));
   }
 
   /**
-   * Constructs an empty multiset as a copy of an existing multiset.
+   * Constructs a new {@code LinkedHashMultiset} containing the specified
+   * elements. If the specified elements is a {@code Multiset} instance, this
+   * constructor behaves identically to {@link #LinkedHashMultiset(Multiset)}.
+   * Otherwise, the default initial capacity (16 distinct elements) and load
+   * factor (0.75) is used.
+   * 
+   * @param elements the elements that the multiset should contain
    */
-  public LinkedHashMultiset(Multiset<? extends E> initialElements) {
-    this(initialElements.elementSet().size());
-    addAll(initialElements); // careful if we ever make this class nonfinal
+  public LinkedHashMultiset(Iterable<? extends E> elements) {
+    this(Multisets.inferDistinctElements(elements));
+    Iterables.addAll(this, elements); // careful if we make this class non-final
   }
 
   /**
-   * Constructs an empty multiset containing the given initial elements.
+   * Constructs a new {@code LinkedHashMultiset} containing the specified
+   * elements. The multiset is created with the default load factor (0.75) and
+   * an initial capacity sufficient to hold the specified elements.
+   * 
+   * @param elements the elements that the multiset should contain
    */
-  public LinkedHashMultiset(Collection<? extends E> initialElements) {
-    this();
-    addAll(initialElements); // careful if we ever make this class nonfinal
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override public LinkedHashMultiset<E> clone() {
-    try {
-      return (LinkedHashMultiset<E>) super.clone();
-    } catch (CloneNotSupportedException e) {
-      throw new AssertionError(e);
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override protected Map<E, AtomicInteger> cloneBackingMap() {
-    return (Map<E, AtomicInteger>)
-        ((LinkedHashMap<E, AtomicInteger>) backingMap()).clone();
+  public LinkedHashMultiset(Multiset<? extends E> elements) {
+    this(elements.elementSet().size());
+    addAll(elements); // careful if we ever make this class non-final
   }
 
   private static final long serialVersionUID = -1489616374694050806L;

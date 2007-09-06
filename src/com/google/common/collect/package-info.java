@@ -23,7 +23,7 @@
  * <dl>
  * <dt>{@link com.google.common.collect.BiMap}
  * <dd>An extension of {@link java.util.Map} that guarantees the uniqueness of
- *     its values as well as that of its keys.  This is sometimes called an
+ *     its values as well as that of its keys. This is sometimes called an
  *     "invertible map," since the restriction on values enables it to support
  *     an {@linkplain com.google.common.collect.BiMap#inverse inverse view} --
  *     which is another instance of {@code BiMap}.
@@ -36,7 +36,7 @@
  *
  * <dt>{@link com.google.common.collect.Multimap}
  * <dd>A new type, which is similar to {@link java.util.Map}, but may contain
- *     multiple entries with the same key.  Some behaviors of
+ *     multiple entries with the same key. Some behaviors of
  *     {@link com.google.common.collect.Multimap} are left unspecified and are
  *     provided only by the two subtypes mentioned next.
  *
@@ -53,7 +53,7 @@
  * <dd>An extension of {@link com.google.common.collect.Multimap} which permits
  *     duplicate entries, supports random access of values for a particular key,
  *     and has <i>partially order-dependent equality</i> as defined by
- *     {@link com.google.common.collect.ListMultimap#equals}. {@code
+ *     {@link com.google.common.collect.ListMultimap#equals(Object)}. {@code
  *     ListMultimap} takes its name from the fact that the {@linkplain
  *     com.google.common.collect.ListMultimap#get collection of values}
  *     associated with a fixed key fulfills the {@link java.util.List} contract.
@@ -63,10 +63,6 @@
  *     the {@linkplain com.google.common.collect.SortedSetMultimap#get
  *     collection values} associated with a fixed key is a
  *     {@link java.util.SortedSet}.
- *
- * <dt>{@link com.google.common.collect.PrefixMap}
- * <dd>A very simple quasi-collection type which stores values indexed by a key
- *     <i>prefix</i> rather than by precise key values.
  * </dl>
  *
  * <h2>Collection Implementations</h2>
@@ -74,95 +70,97 @@
  * <h3>of {@link java.util.Map}</h3>
  * <dl>
  * <dt>{@link com.google.common.collect.ReferenceMap}
- * <dd>TODO
- * </dl>
+ * </ul>
  *
  * <h3>of {@link java.util.SortedSet}</h3>
  * <dl>
  * <dt>{@link com.google.common.collect.SortedArraySet}
- * <dd>TODO
  * </dl>
  *
  * <h3>of {@link com.google.common.collect.BiMap}</h3>
- * <ul>
- * <li>HashBiMap
- * <li>EnumBiMap
- * <li>EnumHashBiMap
- * </ul>
- *
- * <h3>of {@link com.google.common.collect.Multiset}</h3>
- * <ul>
- * <li>{@link com.google.common.collect.HashMultiset}
- * <li>{@link com.google.common.collect.LinkedHashMultiset}
- * <li>{@link com.google.common.collect.LinkedListMultiset}
- * <li>{@link com.google.common.collect.TreeMultiset}
- * </ul>
- *
- * <h3>of {@link com.google.common.collect.Multimap}</h3>
- * <ul>
- * <li>{@link com.google.common.collect.ArrayListMultimap}
- * <li>{@link com.google.common.collect.LinkedListMultimap}
- * <li>{@link com.google.common.collect.HashMultimap}
- * <li>{@link com.google.common.collect.LinkedHashMultimap}
- * <li>{@link com.google.common.collect.TreeMultimap}
- * </ul>
- *
- * <h3>of {@link com.google.common.collect.PrefixMap}</h3>
  * <dl>
- * <dt>{@link com.google.common.collect.PrefixTrie}
- * <dd>TODO
+ * <dt>{@link com.google.common.collect.HashBiMap}
+ * <dt>{@link com.google.common.collect.EnumBiMap}
+ * <dt>{@link com.google.common.collect.EnumHashBiMap}
  * </dl>
  *
- * <h3>For primitive integers</h3>
+ * <h3>of {@link com.google.common.collect.Multiset}</h3>
  * <dl>
- * <dt>{@link com.google.common.collect.IntQueue}
- * <dd>TODO
- * <dt>{@link com.google.common.collect.IntStack}
- * <dd>TODO
+ * <dt>{@link com.google.common.collect.EnumMultiset}
+ * <dt>{@link com.google.common.collect.HashMultiset}
+ * <dt>{@link com.google.common.collect.LinkedHashMultiset}
+ * <dt>{@link com.google.common.collect.LinkedListMultiset}
+ * <dt>{@link com.google.common.collect.TreeMultiset}
+ * </dl>
+ *
+ * <h3>of {@link com.google.common.collect.Multimap}</h3>
+ * <dl>
+ * <dt>{@link com.google.common.collect.ArrayListMultimap}
+ * <dt>{@link com.google.common.collect.LinkedListMultimap}
+ * <dt>{@link com.google.common.collect.HashMultimap}
+ * <dt>{@link com.google.common.collect.LinkedHashMultimap}
+ * <dt>{@link com.google.common.collect.TreeMultimap}
  * </dl>
  *
  * <h2>Skeletal implementations</h2>
- * <ul>
- * <li>{@link com.google.common.collect.AbstractIterator}
- * <li>{@link com.google.common.collect.AbstractIterable}
- * <li>{@link com.google.common.collect.AbstractMultiset}
- * <li>{@link com.google.common.collect.AbstractMultisetEntry}
- * <li>{@link com.google.common.collect.AbstractMultimap}
- * <li>{@link com.google.common.collect.AbstractListMultimap}
- * <li>{@link com.google.common.collect.AbstractSetMultimap}
- * <li>{@link com.google.common.collect.AbstractSortedSetMultimap}
- * <li>{@link com.google.common.collect.AbstractMapEntry}
- * </ul>
+ * <dl>
+ * <dt>{@link com.google.common.collect.AbstractIterator}
+ * <dt>{@link com.google.common.collect.AbstractIterable}
+ * <dt>{@link com.google.common.collect.AbstractMapEntry}
+ * <dt>{@link com.google.common.collect.AbstractMultiset}
+ * <dt>{@link com.google.common.collect.AbstractMultisetEntry}
+ * <dt>{@link com.google.common.collect.StandardMultimap}
+ * <dt>{@link com.google.common.collect.StandardListMultimap}
+ * <dt>{@link com.google.common.collect.StandardSetMultimap}
+ * <dt>{@link com.google.common.collect.StandardSortedSetMultimap}
+ * </dl>
  *
  * <h2>Classes of static utility methods</h2>
  *
- * <ul>
- * <li>{@link com.google.common.collect.Comparators}
- * <li>{@link com.google.common.collect.Iterators}
- * <li>{@link com.google.common.collect.Iterables}
- * <li>{@link com.google.common.collect.Lists}
- * <li>{@link com.google.common.collect.Maps}
- * <li>{@link com.google.common.collect.Sets}
- * <li>{@link com.google.common.collect.Multisets}
- * <li>{@link com.google.common.collect.Multimaps}
- * <li>{@link com.google.common.collect.ObjectArrays}
- * <li>{@link com.google.common.collect.PrimitiveArrays}
- * </ul>
+ * <dl>
+ * <dt>{@link com.google.common.collect.Comparators}
+ * <dt>{@link com.google.common.collect.Iterators}
+ * <dt>{@link com.google.common.collect.Iterables}
+ * <dt>{@link com.google.common.collect.Lists}
+ * <dt>{@link com.google.common.collect.Maps}
+ * <dt>{@link com.google.common.collect.Sets}
+ * <dt>{@link com.google.common.collect.Multisets}
+ * <dt>{@link com.google.common.collect.Multimaps}
+ * <dt>{@link com.google.common.collect.ObjectArrays}
+ * <dt>{@link com.google.common.collect.PrimitiveArrays}
+ * </dl>
  *
  * <h2>Builders</h2>
  *
  * <h2>Constraints stuff</h2>
  *
  * <h2>Forwarding objects</h2>
+ * 
+ * <dl>
+ * <dt>{@link com.google.common.collect.ForwardingCollection }
+ * <dt>{@link com.google.common.collect.ForwardingIterator }
+ * <dt>{@link com.google.common.collect.ForwardingList }
+ * <dt>{@link com.google.common.collect.ForwardingListIterator }
+ * <dt>{@link com.google.common.collect.ForwardingMap }
+ * <dt>{@link com.google.common.collect.ForwardingMapEntry }
+ * <dt>{@link com.google.common.collect.ForwardingMultimap }
+ * <dt>{@link com.google.common.collect.ForwardingMultiset }
+ * <dt>{@link com.google.common.collect.ForwardingObject }
+ * <dt>{@link com.google.common.collect.ForwardingQueue }
+ * <dt>{@link com.google.common.collect.ForwardingSet }
+ * <dt>{@link com.google.common.collect.ForwardingSortedMap }
+ * <dt>{@link com.google.common.collect.ForwardingSortedSet }
+ * </dl>
+ *
+ * <h2>Common Behavior</h2>
  *
  * <p>The methods of this package always throw {@link
- * java.lang.NullPointerException} in response to a {@code null} value for any
- * parameter that is not explicitly annotated as being {@link
+ * java.lang.NullPointerException} in response to a null value being supplied
+ * for any parameter that is not explicitly annotated as being {@link
  * com.google.common.base.Nullable @Nullable}.
  *
- * @author mbostock@google.com (Mike Bostock)
- * @author kevinb@google.com (Kevin Bourrillion)
- * @author jlevy@google.com (Jared Levy)
+ * @author Mike Bostock
+ * @author Kevin Bourrillion
+ * @author Jared Levy
  */
 package com.google.common.collect;
-

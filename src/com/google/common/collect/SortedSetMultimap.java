@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -29,22 +30,52 @@ import java.util.SortedSet;
  * multimap's keys.
  *
  * <p>The {@link #get}, {@link #removeAll}, and {@link #replaceValues} methods
- * each return a {@link SortedSet} of values, while {@code #entries} returns a
- * {@link Set} of map entries. Though the method signature doesn't say so
- * explicitly, the map returned by {@link #asMap} has {@code SortedSet} values.
+ * each return a {@link SortedSet} of values, while {@link Multimap#entries()}
+ * returns a {@link Set} of map entries. Though the method signature doesn't say
+ * so explicitly, the map returned by {@link #asMap} has {@code SortedSet}
+ * values.
  *
- * @author jlevy@google.com (Jared Levy)
+ * @author Jared Levy
  */
-public interface SortedSetMultimap<K,V> extends SetMultimap<K,V> {
-
+public interface SortedSetMultimap<K, V> extends SetMultimap<K, V> {
+  /**
+   * Returns a collection view of all values associated with a key. If no
+   * mappings in the multimap have the provided key, an empty collection is
+   * returned.
+   *
+   * <p>Changes to the returned collection will update the underlying multimap,
+   * and vice versa.
+   *
+   * <p>In SortedSetMultimap, the return type of this method is narrowed from
+   * {@link java.util.Collection} to {@code SortedSet}.
+   */
   SortedSet<V> get(@Nullable K key);
 
+  /**
+   * Removes all values associated with a given key.
+   *
+   * <p>In SortedSetMultimap, the return type of this method is narrowed from
+   * {@link java.util.Collection} to {@code SortedSet}.
+   */
   SortedSet<V> removeAll(@Nullable Object key);
 
-  SortedSet<V> replaceValues(@Nullable K key, Iterable<? extends V> values);
+  /**
+   * Stores a collection of values with the same key, replacing any existing
+   * values for that key.
+   *
+   * <p>In SortedSetMultimap, the return type of this method is narrowed from
+   * {@link java.util.Collection} to {@code SortedSet}.
+   */
+  SortedSet<V> replaceValues(K key, Iterable<? extends V> values);
 
   /**
-   * {@inheritDoc}
+   * Returns a map view that associates each key with the corresponding values
+   * in the multimap. Changes to the returned map, such as element removal,
+   * will update the underlying multimap. The map never supports
+   * {@code setValue()} on the map entries, {@code put}, or {@code putAll}.
+   *
+   * <p>The collections returned by {@code asMap().get(Object)} have the same
+   * behavior as those returned by {@link #get}.
    *
    * <p>Though the method signature doesn't say so explicitly, the returned map
    * has {@link SortedSet} values.

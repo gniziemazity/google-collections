@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -30,52 +31,57 @@ import java.util.Set;
  * Set} of map entries. Though the method signature doesn't say so explicitly,
  * the map returned by {@link #asMap} has {@code Set} values.
  *
- * @author jlevy@google.com (Jared Levy)
+ * @author Jared Levy
  */
-public interface SetMultimap<K,V> extends Multimap<K,V> {
-
+public interface SetMultimap<K, V> extends Multimap<K, V> {
+  /**
+   * {@inheritDoc}
+   *
+   * <p>In SetMultimap, the return type of this method is narrowed from {@link
+   * java.util.Collection} to {@code Set}.
+   */
   Set<V> get(@Nullable K key);
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>In SetMultimap, the return type of this method is narrowed from {@link
+   * java.util.Collection} to {@code Set}.
+   */
   Set<V> removeAll(@Nullable Object key);
 
   /**
    * {@inheritDoc}
    *
-   * <p>If the multimap previously contained a mapping for this key and value,
-   * this method has no effect.
-   */
-  boolean put(@Nullable K key, @Nullable V value);
-
-  /**
-   * {@inheritDoc}
-   *
-   * <p>If the multimap previously contained a mapping for one of the specified
-   * key-value pairs, that value is ignored.
-   */
-  void putAll(@Nullable K key, Iterable<? extends V> values);
-
-  /**
-   * {@inheritDoc}
-   *
-   * <p>If the multimap previously contained a mapping for one of the specified
-   * key-value pairs, that key-value pair is ignored.
-   */
-  void putAll(Multimap<? extends K, ? extends V> multimap);
-
-  /**
-   * {@inheritDoc}
-   *
    * <p>Any duplicates in {@code values} will be stored in the multimap once.
+   * 
+   * <p>In SetMultimap, the return type of this method is narrowed from {@link
+   * java.util.Collection} to {@code Set}.
    */
-  Set<V> replaceValues(@Nullable K key, Iterable<? extends V> values);
+  Set<V> replaceValues(K key, Iterable<? extends V> values);
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>In SetMultimap, the return type of this method is narrowed from {@link
+   * java.util.Collection} to {@code Set}.
+   */
+  Set<Map.Entry<K, V>> entries();
 
   /**
    * {@inheritDoc}
    *
    * <p>Though the method signature doesn't say so explicitly, the returned map
-   * entries have values that are {@link Set}s.
+   * has {@link Set} values.
    */
-  Set<Map.Entry<K, Collection<V>>> collectionEntries();
-
-  Set<Map.Entry<K, V>> entries();
+  Map<K, Collection<V>> asMap();
+  
+  /**
+   * Compares the specified object to this multimap for equality.
+   *
+   * <p>Two {@code SetMultimap} instances are equal if, for each key, they
+   * contain the same values. Equality does not depend on the ordering of keys
+   * or values.
+   */
+  boolean equals(@Nullable Object obj);  
 }

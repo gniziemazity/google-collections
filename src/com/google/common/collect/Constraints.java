@@ -27,32 +27,32 @@ import java.util.Set;
 import java.util.SortedSet;
 
 /**
- * Factory and utilities for {@code Constraint}s.
+ * Factory and utilities pertaining to the {@link Constraint} interface.
  *
  * <p>{@link Constraint} and {@code Collection} instances returned by this class
  * are serializable.
  *
  * @see MapConstraints
- * @author mbostock@google.com (Mike Bostock)
+ * @author Mike Bostock
  */
 public final class Constraints {
   private Constraints() {}
 
   /**
-   * A constraint that verifies that the element is not {@code null}. If the
-   * element is {@code null}, a {@link NullPointerException} is thrown.
+   * A constraint that verifies that the element is not null. If the element is
+   * null, a {@link NullPointerException} is thrown.
    */
   public static final Constraint<Object> NOT_NULL = new NotNullConstraint();
 
-  /** @see #NOT_NULL */
+  /** @see Constraints#NOT_NULL */
   static class NotNullConstraint implements Constraint<Object>, Serializable {
-    private static final long serialVersionUID = 8771569713494573120L;
     public void checkElement(Object element) {
       checkNotNull(element);
     }
     private Object readResolve() {
       return NOT_NULL; // preserve singleton property
     }
+    private static final long serialVersionUID = 8771569713494573120L;
   }
 
   /**
@@ -66,16 +66,14 @@ public final class Constraints {
     return new ClassConstraint(type);
   }
 
-  /** @see #classConstraint */
+  /** @see Constraints#classConstraint */
   static class ClassConstraint implements Constraint<Object>, Serializable {
-    private static final long serialVersionUID = -4064640599187669705L;
     private final Class<?> type;
 
     public ClassConstraint(Class<?> type) {
       checkNotNull(type);
       this.type = type;
     }
-
     public void checkElement(Object element) {
       if (!type.isInstance(element)) {
         throw new ClassCastException("Attempt to insert "
@@ -83,6 +81,7 @@ public final class Constraints {
             + "type " + type);
       }
     }
+    private static final long serialVersionUID = -4064640599187669705L;
   }
 
   /**
@@ -99,18 +98,16 @@ public final class Constraints {
     return new ConstrainedCollection<E>(collection, constraint);
   }
 
-  /** @see #constrainedCollection */
+  /** @see Constraints#constrainedCollection */
   static class ConstrainedCollection<E> extends ForwardingCollection<E> {
-    private static final long serialVersionUID = 8917285124050266452L;
     private final Constraint<? super E> constraint;
 
-    public ConstrainedCollection(Collection<E> delegate,
-        Constraint<? super E> constraint) {
+    public ConstrainedCollection(
+        Collection<E> delegate, Constraint<? super E> constraint) {
       super(delegate);
       checkNotNull(constraint);
       this.constraint = constraint;
     }
-
     @Override public boolean add(E element) {
       constraint.checkElement(element);
       return super.add(element);
@@ -118,6 +115,7 @@ public final class Constraints {
     @Override public boolean addAll(Collection<? extends E> elements) {
       return super.addAll(checkElements(elements, constraint));
     }
+    private static final long serialVersionUID = 8917285124050266452L;
   }
 
   /**
@@ -129,14 +127,13 @@ public final class Constraints {
    * @param constraint the constraint for elements in the set
    * @return a constrained view of the specified set
    */
-  public static <E> Set<E> constrainedSet(Set<E> set,
-      Constraint<? super E> constraint) {
+  public static <E> Set<E> constrainedSet(
+      Set<E> set, Constraint<? super E> constraint) {
     return new ConstrainedSet<E>(set, constraint);
   }
 
-  /** @see #constrainedSet */
+  /** @see Constraints#constrainedSet */
   static class ConstrainedSet<E> extends ForwardingSet<E> {
-    private static final long serialVersionUID = -830337517974610109L;
     private final Constraint<? super E> constraint;
 
     public ConstrainedSet(Set<E> delegate, Constraint<? super E> constraint) {
@@ -144,7 +141,6 @@ public final class Constraints {
       checkNotNull(constraint);
       this.constraint = constraint;
     }
-
     @Override public boolean add(E element) {
       constraint.checkElement(element);
       return super.add(element);
@@ -152,6 +148,7 @@ public final class Constraints {
     @Override public boolean addAll(Collection<? extends E> elements) {
       return super.addAll(checkElements(elements, constraint));
     }
+    private static final long serialVersionUID = -830337517974610109L;
   }
 
   /**
@@ -163,18 +160,17 @@ public final class Constraints {
    * @param constraint the constraint for elements in the sorted set
    * @return a constrained view of the specified sorted set
    */
-  public static <E> SortedSet<E> constrainedSortedSet(SortedSet<E> sortedSet,
-      Constraint<? super E> constraint) {
+  public static <E> SortedSet<E> constrainedSortedSet(
+      SortedSet<E> sortedSet, Constraint<? super E> constraint) {
     return new ConstrainedSortedSet<E>(sortedSet, constraint);
   }
 
-  /** @see #constrainedSortedSet */
-  static class ConstrainedSortedSet<E> extends ForwardingSortedSet<E> {
-    private static final long serialVersionUID = -286522409869875345L;
-    private final Constraint<? super E> constraint;
+  /** @see Constraints#constrainedSortedSet */
+  private static class ConstrainedSortedSet<E> extends ForwardingSortedSet<E> {
+    final Constraint<? super E> constraint;
 
-    public ConstrainedSortedSet(SortedSet<E> delegate,
-        Constraint<? super E> constraint) {
+    ConstrainedSortedSet(
+        SortedSet<E> delegate, Constraint<? super E> constraint) {
       super(delegate);
       checkNotNull(constraint);
       this.constraint = constraint;
@@ -184,8 +180,8 @@ public final class Constraints {
       return constrainedSortedSet(super.headSet(toElement), constraint);
     }
     @Override public SortedSet<E> subSet(E fromElement, E toElement) {
-      return constrainedSortedSet(super.subSet(fromElement, toElement),
-          constraint);
+      return constrainedSortedSet(
+          super.subSet(fromElement, toElement), constraint);
     }
     @Override public SortedSet<E> tailSet(E fromElement) {
       return constrainedSortedSet(super.tailSet(fromElement), constraint);
@@ -197,6 +193,7 @@ public final class Constraints {
     @Override public boolean addAll(Collection<? extends E> elements) {
       return super.addAll(checkElements(elements, constraint));
     }
+    private static final long serialVersionUID = -286522409869875345L;
   }
 
   /**
@@ -211,19 +208,18 @@ public final class Constraints {
    * @param constraint the constraint for elements in the list
    * @return a constrained view of the list
    */
-  public static <E> List<E> constrainedList(List<E> list,
-      Constraint<? super E> constraint) {
+  public static <E> List<E> constrainedList(
+      List<E> list, Constraint<? super E> constraint) {
     return (list instanceof RandomAccess)
         ? new ConstrainedRandomAccessList<E>(list, constraint)
         : new ConstrainedList<E>(list, constraint);
   }
 
-  /** @see #constrainedList */
-  static class ConstrainedList<E> extends ForwardingList<E> {
-    private static final long serialVersionUID = 771378862182031456L;
-    private final Constraint<? super E> constraint;
+  /** @see Constraints#constrainedList */
+  private static class ConstrainedList<E> extends ForwardingList<E> {
+    final Constraint<? super E> constraint;
 
-    public ConstrainedList(List<E> delegate, Constraint<? super E> constraint) {
+    ConstrainedList(List<E> delegate, Constraint<? super E> constraint) {
       super(delegate);
       checkNotNull(constraint);
       this.constraint = constraint;
@@ -240,36 +236,34 @@ public final class Constraints {
     @Override public boolean addAll(Collection<? extends E> elements) {
       return super.addAll(checkElements(elements, constraint));
     }
-    @Override public boolean addAll(int index,
-        Collection<? extends E> elements) {
+    @Override public boolean addAll(int index, Collection<? extends E> elements)
+    {
       return super.addAll(index, checkElements(elements, constraint));
     }
     @Override public ListIterator<E> listIterator() {
       return constrainedListIterator(super.listIterator(), constraint);
     }
     @Override public ListIterator<E> listIterator(int index) {
-      return constrainedListIterator(super.listIterator(index),
-          constraint);
+      return constrainedListIterator(super.listIterator(index), constraint);
     }
     @Override public E set(int index, E element) {
       constraint.checkElement(element);
       return super.set(index, element);
     }
     @Override public List<E> subList(int fromIndex, int toIndex) {
-      return constrainedList(super.subList(fromIndex, toIndex),
-          constraint);
+      return constrainedList(super.subList(fromIndex, toIndex), constraint);
     }
+    private static final long serialVersionUID = 771378862182031456L;
   }
 
-  /** @see #constrainedList */
+  /** @see Constraints#constrainedList */
   static class ConstrainedRandomAccessList<E> extends ConstrainedList<E>
       implements RandomAccess {
-    private static final long serialVersionUID = 2847441657918308440L;
-
-    public ConstrainedRandomAccessList(List<E> delegate,
-        Constraint<? super E> constraint) {
+    ConstrainedRandomAccessList(
+        List<E> delegate, Constraint<? super E> constraint) {
       super(delegate, constraint);
     }
+    private static final long serialVersionUID = 2847441657918308440L;
   }
 
   /**
@@ -281,18 +275,18 @@ public final class Constraints {
    * @param constraint the constraint for elements in the list
    * @return a constrained view of the specified iterator
    */
-  static <E> ListIterator<E> constrainedListIterator(
+  private static <E> ListIterator<E> constrainedListIterator(
       ListIterator<E> listIterator, Constraint<? super E> constraint) {
     return new ConstrainedListIterator<E>(listIterator, constraint);
   }
 
-  /** @see #constrainedListIterator */
+  /** @see Constraints#constrainedListIterator */
   static class ConstrainedListIterator<E> // not Serializable
       extends ForwardingListIterator<E> {
     private final Constraint<? super E> constraint;
 
-    public ConstrainedListIterator(ListIterator<E> delegate,
-        Constraint<? super E> constraint) {
+    public ConstrainedListIterator(
+        ListIterator<E> delegate, Constraint<? super E> constraint) {
       super(delegate);
       checkNotNull(constraint);
       this.constraint = constraint;
@@ -311,11 +305,11 @@ public final class Constraints {
   @SuppressWarnings("unchecked")
   static <E> Collection<E> constrainedTypePreservingCollection(
       Collection<E> collection, Constraint<E> constraint) {
-    if (collection instanceof SortedSet) {
+    if (collection instanceof SortedSet<?>) {
       return constrainedSortedSet((SortedSet<E>) collection, constraint);
-    } else if (collection instanceof Set) {
+    } else if (collection instanceof Set<?>) {
       return constrainedSet((Set<E>) collection, constraint);
-    } else if (collection instanceof List) {
+    } else if (collection instanceof List<?>) {
       return constrainedList((List<E>) collection, constraint);
     } else {
       return constrainedCollection(collection, constraint);
@@ -331,18 +325,17 @@ public final class Constraints {
    * @param constraint the constraint for elements in the multiset
    * @return a constrained view of the specified multiset
    */
-  public static <E> Multiset<E> constrainedMultiset(Multiset<E> multiset,
-      Constraint<? super E> constraint) {
+  public static <E> Multiset<E> constrainedMultiset(
+      Multiset<E> multiset, Constraint<? super E> constraint) {
     return new ConstrainedMultiset<E>(multiset, constraint);
   }
 
-  /** @see #constrainedMultiset */
+  /** @see Constraints#constrainedMultiset */
   static class ConstrainedMultiset<E> extends ForwardingMultiset<E> {
-    private static final long serialVersionUID = -7523018223761091862L;
     private final Constraint<? super E> constraint;
 
-    public ConstrainedMultiset(Multiset<E> delegate,
-        Constraint<? super E> constraint) {
+    public ConstrainedMultiset(
+        Multiset<E> delegate, Constraint<? super E> constraint) {
       super(delegate);
       checkNotNull(constraint);
       this.constraint = constraint;
@@ -361,12 +354,14 @@ public final class Constraints {
     }
   }
 
-  private static <E> Collection<E> checkElements(Collection<E> elements,
-      Constraint<? super E> constraint) {
+  private static <E> Collection<E> checkElements(
+      Collection<E> elements, Constraint<? super E> constraint) {
     Collection<E> copy = Lists.newArrayList(elements);
     for (E element : copy) {
       constraint.checkElement(element);
     }
     return copy;
   }
+
+  private static final long serialVersionUID = -7523018223761091862L;
 }

@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import static com.google.common.base.Objects.nonNull;
+
 import java.io.Serializable;
 
 /**
@@ -56,11 +57,11 @@ import java.io.Serializable;
  * <p>Although this class implements {@link Serializable}, instances will only
  * be serializable if the delegate is serializable.
  *
- * @author mbostock@google.com (Mike Bostock)
+ * @author Mike Bostock
  */
 public abstract class ForwardingObject implements Serializable {
   private static final long serialVersionUID = 2301990993511486937L;
-  private Object delegate; // not final to allow clone
+  private final Object delegate;
 
   /**
    * Constructs a new object which forwards all methods to the specified {@code
@@ -86,53 +87,6 @@ public abstract class ForwardingObject implements Serializable {
    * to the constructor.
    */
   protected Object delegate() {
-    return delegate;
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   * <p>To implement {@link Cloneable}, override this method to make it public,
-   * drop the {@code throws} clause, and specify the correct return type. For
-   * example:
-   *
-   * <pre>  {@literal @}SuppressWarnings("unchecked")
-   *  {@literal @}Override public Foo clone() {
-   *    try {
-   *      return (Foo) super.clone();
-   *    } catch (CloneNotSupportedException e) {
-   *      throw new AssertionError(e);
-   *    }
-   *  }</pre>
-   *
-   * Since the default ({@code super}) implementation of {@code clone} performs
-   * only a shallow copy, you should typically also override {@link
-   * #cloneDelegate} to specify how the backing object is cloned.
-   *
-   * @see #cloneDelegate
-   */
-  protected ForwardingObject clone() throws CloneNotSupportedException {
-    ForwardingObject clone = (ForwardingObject) super.clone();
-    clone.delegate = cloneDelegate();
-    return clone;
-  }
-
-  /**
-   * Creates and returns a clone of the backing delegate object. This method has
-   * the same semantics as {@link Object#clone}, but in regards to the delegate
-   * object rather than the decorator object. The default behavior is just to
-   * return a reference to the underlying delegate.
-   *
-   * <p>Override this method, <i>leaving it protected</i>, and specify the
-   * correct return type. For example:
-   *
-   * <pre>  @Override protected Foo cloneDelegate() {
-   *    return delegate().clone();
-   *  }</pre>
-   *
-   * @see ForwardingObject#clone
-   */
-  protected Object cloneDelegate() {
     return delegate;
   }
 

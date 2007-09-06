@@ -19,7 +19,7 @@ package com.google.common.collect;
 import com.google.common.base.Nullable;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import java.io.IOException;
+
 import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -37,8 +37,8 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Provides static methods for creating mutable {@code Set} instances easily
- * and other static methods for working with Sets.
+ * Provides static methods for creating mutable {@code Set} instances easily and
+ * other static methods for working with Sets.
  *
  * <p>You can replace code like:
  *
@@ -49,21 +49,17 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <p>{@code Set<String> set = newHashSet("foo", "bar", "baz");}
  *
- * <p>You can also create an empty {@code Set}, or populate your new
- * {@code Set} using any array, {@link Iterator} or {@link Iterable}.
- *
- * <p>Supported today are: {@link HashSet}, {@link LinkedHashSet}, and
- * {@link TreeSet}.  Intentionally unsupported is {@link EnumSet}, which was
- * blessed with an excellent set of static creation methods already.
+ * <p>You can also create an empty {@code Set}, or populate your new {@code Set}
+ * using any array, {@link Iterator} or {@link Iterable}.
  *
  * <p>See also this class's counterparts {@link Lists} and {@link Maps}.
  *
  * <p>WARNING: These factories do not support the full variety of tuning
- * parameters available in the collection constructors.  Use them only for
+ * parameters available in the collection constructors. Use them only for
  * collections which will always remain small, or for which the cost of future
  * growth operations is not a concern.
  *
- * @author kevinb@google.com (Kevin Bourrillion)
+ * @author Kevin Bourrillion
  */
 public final class Sets {
   private static final SortedSet<?> EMPTY_SORTED_SET
@@ -80,23 +76,24 @@ public final class Sets {
    *
    * <p>{@code SortedSet<Base> set = Sets.immutableSortedSet(sub1, sub2);}
    *
-   * <p>where {@code sub1} and {@code sub2} are references to subtypes of
-   * {@code Base}, not of {@code Base} itself.  To get around this, you must
-   * use:
+   * <p>where {@code sub1} and {@code sub2} are references to subtypes of {@code
+   * Base}, not of {@code Base} itself. To get around this, you must use:
    *
-   * <p>{@code SortedSet<Base> set = Sets.<Base>immutableSortedSet(sub1, sub2);}
+   * <p>{@code SortedSet<Base> set = Sets.<Base>immutableSortedSet(sub1,
+   * sub2);}
    *
    * @param elements the elements that the set should contain
    * @return an immutable {@code SortedSet} instance containing those elements,
    *     minus duplicates
    */
   @SuppressWarnings("unchecked")
-  public static <E extends Comparable<E>> SortedSet<E> immutableSortedSet(
+  public static <E extends Comparable> SortedSet<E> immutableSortedSet(
       E... elements) {
     checkNotNull(elements);
     switch (elements.length) {
       case 0:
-        return (SortedSet<E>) EMPTY_SORTED_SET;
+        SortedSet<E> result = (SortedSet<E>) EMPTY_SORTED_SET;
+        return result;
       default:
         return Collections.unmodifiableSortedSet(newSortedArraySet(elements));
     }
@@ -111,11 +108,11 @@ public final class Sets {
    *
    * <p>{@code SortedSet<Base> set = Sets.immutableSortedSet(sub1, sub2);}
    *
-   * <p>where {@code sub1} and {@code sub2} are references to subtypes of
-   * {@code Base}, not of {@code Base} itself.  To get around this, you must
-   * use:
+   * <p>where {@code sub1} and {@code sub2} are references to subtypes of {@code
+   * Base}, not of {@code Base} itself. To get around this, you must use:
    *
-   * <p>{@code SortedSet<Base> set = Sets.<Base>immutableSortedSet(sub1, sub2);}
+   * <p>{@code SortedSet<Base> set = Sets.<Base>immutableSortedSet(sub1,
+   * sub2);}
    *
    * @param comparator the comparator to sort the elements by
    * @param elements the elements that the set should contain
@@ -136,19 +133,19 @@ public final class Sets {
 
   /**
    * Returns an empty sorted set. This is an optimization of {@link
-   * #immutableSortedSet(Comparator, Object...)} for zero arguments.
+   * #immutableSortedSet(Comparable...)} for zero arguments.
    *
    * @return an immutable empty sorted set
    */
   @SuppressWarnings("unchecked")
-  public static <E extends Comparable<E>> SortedSet<E> immutableSortedSet() {
+  public static <E extends Comparable> SortedSet<E> immutableSortedSet() {
     return (SortedSet<E>) EMPTY_SORTED_SET;
   }
 
   /**
-   * Returns an empty sorted set having the given {@code Comparator}. This is
-   * an optimization of {@link #immutableSortedSet(Comparator, Object...)} for
-   * zero arguments.
+   * Returns an empty sorted set having the given {@code Comparator}. This is an
+   * optimization of {@link #immutableSortedSet(Comparator,Object...)} for zero
+   * arguments.
    *
    * @param comparator the comparator for the empty set
    * @return an immutable empty sorted set
@@ -161,13 +158,13 @@ public final class Sets {
 
   /**
    * Returns a sorted set having only the given element. This is an optimization
-   * of {@link #immutableSortedSet(Comparator, Object...)} for one argument.
+   * of {@link #immutableSortedSet(Comparable...)} for one argument.
    *
    * @param element the lone element to be in the returned set
    * @return an immutable sorted set containing only the given element
    */
   @SuppressWarnings("unchecked")
-  public static <E extends Comparable<E>> SortedSet<E> immutableSortedSet(
+  public static <E extends Comparable> SortedSet<E> immutableSortedSet(
       E element) {
     return Collections.unmodifiableSortedSet(newSortedArraySet(element));
   }
@@ -175,7 +172,7 @@ public final class Sets {
   /**
    * Returns a sorted set having only the given element and the given {@code
    * Comparator}. This is an optimization of {@link
-   * #immutableSortedSet(Comparator, Object...)} for one argument.
+   * #immutableSortedSet(Comparator,Object...)} for one argument.
    *
    * @param comparator the comparator for the one-element set
    * @param element the lone element to be in the returned set
@@ -183,7 +180,7 @@ public final class Sets {
    */
   @SuppressWarnings("unchecked")
   public static <E> SortedSet<E> immutableSortedSet(
-      @Nullable Comparator<? super E> comparator, E element) {
+      @Nullable Comparator<? super E> comparator, @Nullable E element) {
     return Collections.unmodifiableSortedSet(
         newSortedArraySet(comparator, element));
   }
@@ -193,15 +190,15 @@ public final class Sets {
    *
    * <p>Unlike an <i>unmodifiable</i> set such as that returned by {@code
    * Collections.unmodifiableSet()}, which provides a read-only view of an
-   * underlying set which may itself be mutable, an <i>immutable</i> set makes
-   * a copy of the original set or collection, so that changes to the original
-   * are not reflected in the immutable set.
+   * underlying set which may itself be mutable, an <i>immutable</i> set makes a
+   * copy of the original set or collection, so that changes to the original are
+   * not reflected in the immutable set.
    *
-   * <p>Immutability has two important advantages over unmodifiability.  First,
+   * <p>Immutability has two important advantages over unmodifiability. First,
    * it allows the hash code to be computed once and cached, rather than
    * computed every time it is needed, which takes O(n) time for a set of n
-   * elements.  Second, it prevents <i>any</i> inadvertent modification of the
-   * value of the set.  This is critical, for example, if the set is an element
+   * elements. Second, it prevents <i>any</i> inadvertent modification of the
+   * value of the set. This is critical, for example, if the set is an element
    * of a {@code HashSet} or a key in a {@code HashMap}.
    *
    * <p><b>Note:</b> due to a bug in javac 1.5.0_06, we cannot support the
@@ -209,18 +206,17 @@ public final class Sets {
    *
    * <p>{@code Set<Base> set = Sets.immutableSet(sub1, sub2);}
    *
-   * <p>where {@code sub1} and {@code sub2} are references to subtypes of
-   * {@code Base}, not of {@code Base} itself.  To get around this, you must
-   * use:
+   * <p>where {@code sub1} and {@code sub2} are references to subtypes of {@code
+   * Base}, not of {@code Base} itself. To get around this, you must use:
    *
    * <p>{@code Set<Base> set = Sets.<Base>immutableSet(sub1, sub2);}
    *
-   * <p><b>Note:</b> If {@code <E>} is an {@code enum} type, use
-   * {@link #immutableEnumSet} instead.
+   * <p><b>Note:</b> If {@code <E>} is an {@code enum} type, use {@link
+   * #immutableEnumSet} instead.
    *
    * @param elements the elements that the set should contain
-   * @return an immutable {@code Set} instance containing those elements,
-   *     minus duplicates
+   * @return an immutable {@code Set} instance containing those elements, minus
+   *     duplicates
    */
   public static <E> Set<E> immutableSet(E... elements) {
     checkNotNull(elements);
@@ -262,8 +258,6 @@ public final class Sets {
    * @param collection a collection containing the elements to be in the
    *     returned set
    * @return an immutable {@code Set} instance containing those elements
-   *
-   * TODO(adonovan) allow Collection instead of Set (see bug #668414).
    */
   public static <E> Set<E> immutableSet(Collection<E> collection) {
     checkNotNull(collection);
@@ -279,13 +273,13 @@ public final class Sets {
 
   /**
    * Returns an immutable {@code Set} instance containing the given elements of
-   * an enumerated type.  Internally this set will be backed by an
-   * {@link EnumSet}.
+   * an enumerated type. Internally this set will be backed by an {@link
+   * EnumSet}.
    *
    * @param anElement one of the elements the set should contain
    * @param otherElements the rest of the elements the set should contain
-   * @return an immutable {@code Set} instance containing these elements,
-   *     minus duplicates
+   * @return an immutable {@code Set} instance containing these elements, minus
+   *     duplicates
    */
   public static <E extends Enum<E>> Set<E> immutableEnumSet(
       E anElement, E... otherElements) {
@@ -299,9 +293,11 @@ public final class Sets {
   /**
    * Creates an empty {@code HashSet} instance.
    *
-   * <p><b>Notes:</b> if {@code E} is an {@link Enum} type, use {@link
-   * EnumSet#noneOf} instead. If you only need an <i>immutable</i> empty Set,
-   * use {@link Collections#emptySet} instead.
+   * <p><b>Note:</b> if {@code E} is an {@link Enum} type, use {@link
+   * EnumSet#noneOf} instead.
+   *
+   * <p><b>Note:</b> if you only need an <i>immutable</i> empty Set, use {@link
+   * Collections#emptySet} instead.
    *
    * @return a newly-created, initially-empty {@code HashSet}
    */
@@ -313,25 +309,24 @@ public final class Sets {
    * Creates a {@code HashSet} instance containing the given elements.
    *
    * <p><b>Note:</b> if {@code E} is an {@link Enum} type, use {@link
-   * EnumSet#of} instead.
+   * EnumSet#of(Enum, Enum...)} instead.
    *
-   * <p><b>Note:</b> if it is an immutable Set you seek, you should use
-   * {@link #immutableSet}.
+   * <p><b>Note:</b> if it is an immutable Set you seek, you should use {@link
+   * #immutableSet(Object...)}.
    *
    * <p><b>Note:</b> due to a bug in javac 1.5.0_06, we cannot support the
    * following:
    *
    * <p>{@code Set<Base> set = Sets.newHashSet(sub1, sub2);}
    *
-   * <p>where {@code sub1} and {@code sub2} are references to subtypes of
-   * {@code Base}, not of {@code Base} itself.  To get around this, you must
-   * use:
+   * <p>where {@code sub1} and {@code sub2} are references to subtypes of {@code
+   * Base}, not of {@code Base} itself. To get around this, you must use:
    *
    * <p>{@code Set<Base> set = Sets.<Base>newHashSet(sub1, sub2);}
    *
    * @param elements the elements that the set should contain
-   * @return a newly-created {@code HashSet} containing those elements
-   *     (minus duplicates)
+   * @return a newly-created {@code HashSet} containing those elements (minus
+   *     duplicates)
    */
   public static <E> HashSet<E> newHashSet(E... elements) {
     checkNotNull(elements);
@@ -343,28 +338,35 @@ public final class Sets {
 
   /**
    * Creates a {@code HashSet} instance containing the given elements.
-   * <b>Note:</b> if {@code E} is an {@link Enum} type, and {@code elements}
-   * is a {@link Collection}, use {@link EnumSet#copyOf} instead.
+   *
+   * <p><b>Note:</b> if {@code E} is an {@link Enum} type, and {@code elements}
+   * is a {@link Collection}, use {@link EnumSet#copyOf(Collection)} instead.
    *
    * @param elements the elements that the set should contain
-   * @return a newly-created {@code HashSet} containing those elements
-   *     (minus duplicates)
+   * @return a newly-created {@code HashSet} containing those elements (minus
+   *     duplicates)
    */
   public static <E> HashSet<E> newHashSet(Iterable<? extends E> elements) {
     checkNotNull(elements);
-    return (elements instanceof Collection<?>)
-        ? new HashSet<E>((Collection<? extends E>) elements)
-        : newHashSet(elements.iterator());
+
+    if (elements instanceof Collection<?>) {
+      @SuppressWarnings("unchecked")
+      Collection<? extends E> collection = (Collection<? extends E>) elements;
+      return new HashSet<E>(collection);
+    } else {
+      return newHashSet(elements.iterator());
+    }
   }
 
   /**
    * Creates a {@code HashSet} instance containing the given elements.
-   * <b>Note:</b> if {@code E} is an {@link Enum} type, you should manually
+   *
+   * <p><b>Note:</b> if {@code E} is an {@link Enum} type, you should manually
    * create an {@link EnumSet} instead.
    *
    * @param elements the elements that the set should contain
-   * @return a newly-created {@code HashSet} containing those elements
-   *     (minus duplicates)
+   * @return a newly-created {@code HashSet} containing those elements (minus
+   *     duplicates)
    */
   public static <E> HashSet<E> newHashSet(Iterator<? extends E> elements) {
     checkNotNull(elements);
@@ -378,13 +380,12 @@ public final class Sets {
   // ConcurrentHashSet
 
   /**
-   * Creates a thread-safe {@code Set} backed by a hash table. The {@code Set}
-   * is backed by a {@link ConcurrentHashMap} instance, and thus makes all of
-   * the same guarentees as {@link ConcurrentHashMap} in the face of concurrent
-   * operations.
+   * Creates a thread-safe set backed by a hash map. The set is backed by a
+   * {@link ConcurrentHashMap} instance, and thus carries the same concurrency
+   * guarantees.
    *
-   * Unlike {@code HashSet}, this class does NOT allow <tt>null</tt>
-   * to be used as an element.
+   * <p>Unlike {@code HashSet}, this class does NOT allow {@code null} to be
+   * used as an element.
    *
    * @return a newly-created, initially-empty thread-safe {@code Set}
    */
@@ -393,11 +394,12 @@ public final class Sets {
   }
 
   /**
-   * Creates a thread-safe {@code Set} backed by a hash table, and
-   * containing the given elements. The concurrency properties of this set are
-   * detailed in {@link ConcurrentHashMap}.
+   * Creates a thread-safe set backed by a hash map, and containing the given
+   * elements. The set is backed by a {@link ConcurrentHashMap} instance, and
+   * thus carries the same concurrency guarantees.
    *
-   * <p>Please see the caveat in {@link #newHashSet(Object...)}.
+   * <p>Please see the notice in {@link #newHashSet(Object...)} about a relevant
+   * javac bug.
    *
    * @param elements the elements that the set should contain
    * @return a newly-created thread-safe {@code Set} containing those elements
@@ -412,31 +414,31 @@ public final class Sets {
   }
 
   /**
-   * Creates a thread-safe {@code Set} backed by a hash table, and
-   * containing the given elements. The concurrency properties of this set are
-   * detailed in {@link ConcurrentHashMap}.
+   * Creates a thread-safe set backed by a hash map, and containing the given
+   * elements. The set is backed by a {@link ConcurrentHashMap} instance, and
+   * thus carries the same concurrency guarantees.
    *
    * @param elements the elements that the set should contain
    * @return a newly-created thread-safe {@code Set} containing those elements
    *     (minus duplicates)
    */
-  public static <E> Set<E>
-      newConcurrentHashSet(Iterable<? extends E> elements) {
+  public static <E> Set<E> newConcurrentHashSet(Iterable<? extends E> elements)
+  {
     checkNotNull(elements);
     return newConcurrentHashSet(elements.iterator());
   }
 
   /**
-   * Creates a thread-safe {@code Set} backed by a hash table, and
-   * containing the given elements. The concurrency properties of this set are
-   * detailed in {@link ConcurrentHashMap}.
+   * Creates a thread-safe set backed by a hash map, and containing the given
+   * elements. The set is backed by a {@link ConcurrentHashMap} instance, and
+   * thus carries the same concurrency guarantees.
    *
    * @param elements the elements that the set should contain
    * @return a newly-created thread-safe {@code Set} containing those elements
    *     (minus duplicates)
    */
-  public static <E> Set<E>
-      newConcurrentHashSet(Iterator<? extends E> elements) {
+  public static <E> Set<E> newConcurrentHashSet(Iterator<? extends E> elements)
+  {
     checkNotNull(elements);
     Set<E> set = newConcurrentHashSet();
     while (elements.hasNext()) {
@@ -459,7 +461,8 @@ public final class Sets {
   /**
    * Creates a {@code LinkedHashSet} instance containing the given elements.
    *
-   * <p>Please see the caveat in {@link #newHashSet(Object...)}.
+   * <p>Please see the notice in {@link #newHashSet(Object...)} about a relevant
+   * javac bug.
    *
    * @param elements the elements that the set should contain, in order
    * @return a newly-created {@code LinkedHashSet} containing those elements
@@ -483,10 +486,14 @@ public final class Sets {
       Iterable<? extends E> elements) {
     checkNotNull(elements);
 
-    // Use LinkedHashSet's sizing logic
-    return (elements instanceof Collection<?>)
-           ? new LinkedHashSet<E>((Collection<? extends E>) elements)
-           : newLinkedHashSet(elements.iterator());
+    if (elements instanceof Collection<?>) {
+      // Use LinkedHashSet's sizing logic
+      @SuppressWarnings("unchecked")
+      Collection<? extends E> collection = (Collection<? extends E>) elements;
+      return new LinkedHashSet<E>(collection);
+    } else {
+      return newLinkedHashSet(elements.iterator());
+    }
   }
 
   /**
@@ -510,29 +517,35 @@ public final class Sets {
 
   /**
    * Creates a {@code TreeSet} instance using the default {@code Comparator}.
-   * <b>Note:</b> If {@code E} is an {@link Enum} type, and you don't require
-   * the set to implement {@link SortedSet} (only ordered iteration), use
-   * {@link EnumSet#noneOf} instead.
+   *
+   * <p><b>Note:</b> If {@code E} is an {@link Enum} type, and you don't require
+   * the set to implement {@link SortedSet} (only ordered iteration), use {@link
+   * EnumSet#noneOf} instead.
    *
    * @return a newly-created, initially-empty {@code TreeSet}
    */
-  public static <E extends Comparable<E>> TreeSet<E> newTreeSet() {
+  @SuppressWarnings("unchecked")  // allow ungenerified Comparable types
+  public static <E extends Comparable> TreeSet<E> newTreeSet() {
     return new TreeSet<E>();
   }
 
   /**
-   * Creates a {@code TreeSet} instance using the default {@code Comparator}
-   * and containing the given elements.  <b>Note:</b> If {@code E} is an
-   * {@link Enum} type, and you don't require the set to implement {@link
-   * SortedSet} (only ordered iteration), use {@link EnumSet#of} instead.
+   * Creates a {@code TreeSet} instance using the default {@code Comparator} and
+   * containing the given elements.
    *
-   * <p>Please see the caveat in {@link #newHashSet(Object...)}.
+   * <p><b>Note:</b> If {@code E} is an {@link Enum} type, and you don't
+   * require the set to implement {@link SortedSet} (only ordered iteration),
+   * use {@link EnumSet#of(Enum, Enum...)} instead.
+   *
+   * <p>Please see the notice in {@link #newHashSet(Object...)} about a relevant
+   * javac bug.
    *
    * @param elements the elements that the set should contain
-   * @return a newly-created {@code TreeSet} containing those elements
-   *     (minus duplicates)
+   * @return a newly-created {@code TreeSet} containing those elements (minus
+   *     duplicates)
    */
-  public static <E extends Comparable<E>> TreeSet<E> newTreeSet(E... elements) {
+  @SuppressWarnings("unchecked")  // allow ungenerified Comparable types
+  public static <E extends Comparable> TreeSet<E> newTreeSet(E... elements) {
     checkNotNull(elements);
     TreeSet<E> set = newTreeSet();
     Collections.addAll(set, elements);
@@ -540,35 +553,38 @@ public final class Sets {
   }
 
   /**
-   * Creates a {@code TreeSet} instance using the default {@code Comparator}
-   * and containing the given elements.
+   * Creates a {@code TreeSet} instance using the default {@code Comparator} and
+   * containing the given elements.
    *
-   * <p><b>Note:</b> If {@code E} is an {@link Enum} type, and you don't
-   * require the set to implement {@link SortedSet} (only ordered iteration),
-   * use {@link EnumSet#copyOf} instead.
+   * <p><b>Note:</b> If {@code E} is an {@link Enum} type, and you don't require
+   * the set to implement {@link SortedSet} (only ordered iteration), use {@link
+   * EnumSet#copyOf(Collection)} instead.
    *
    * @param elements the elements that the set should contain
-   * @return a newly-created {@code TreeSet} containing those elements
-   *     (minus duplicates)
+   * @return a newly-created {@code TreeSet} containing those elements (minus
+   *     duplicates)
    */
-  public static <E extends Comparable<E>> TreeSet<E> newTreeSet(
+  @SuppressWarnings("unchecked")  // allow ungenerified Comparable types
+  public static <E extends Comparable> TreeSet<E> newTreeSet(
       Iterable<? extends E> elements) {
     checkNotNull(elements);
     return newTreeSet(elements.iterator());
   }
 
   /**
-   * Creates a {@code TreeSet} instance using the default {@code Comparator}
-   * and containing the given elements.  <b>Note:</b> if {@code E} is an
-   * {@link Enum} type, and you don't require the set to implement {@link
-   * SortedSet} (only ordered iteration), you should manually create an
-   * {@link EnumSet} instead.
+   * Creates a {@code TreeSet} instance using the default {@code Comparator} and
+   * containing the given elements.
+   *
+   * <p><b>Note:</b> if {@code E} is an {@link Enum} type, and you don't
+   * require the set to implement {@link SortedSet} (only ordered iteration),
+   * you should manually create an {@link EnumSet} instead.
    *
    * @param elements the elements that the set should contain
-   * @return a newly-created {@code TreeSet} containing those elements
-   *     (minus duplicates)
+   * @return a newly-created {@code TreeSet} containing those elements (minus
+   *     duplicates)
    */
-  public static <E extends Comparable<E>> TreeSet<E> newTreeSet(
+  @SuppressWarnings("unchecked")  // allow ungenerified Comparable types
+  public static <E extends Comparable> TreeSet<E> newTreeSet(
       Iterator<? extends E> elements) {
     checkNotNull(elements);
     TreeSet<E> set = newTreeSet();
@@ -592,15 +608,16 @@ public final class Sets {
   }
 
   /**
-   * Creates a {@code TreeSet} instance using the given {@code Comparator}
-   * and containing the given elements.
+   * Creates a {@code TreeSet} instance using the given {@code Comparator} and
+   * containing the given elements.
    *
-   * <p>Please see the caveat in {@link #newHashSet(Object...)}.
+   * <p>Please see the notice in {@link #newHashSet(Object...)} about a relevant
+   * javac bug.
    *
    * @param comparator the comparator to use to sort the set
    * @param elements the elements that the set should contain
-   * @return a newly-created {@code TreeSet} containing those elements
-   *     (minus duplicates)
+   * @return a newly-created {@code TreeSet} containing those elements (minus
+   *     duplicates)
    */
   public static <E> TreeSet<E> newTreeSet(
       @Nullable Comparator<? super E> comparator, E... elements) {
@@ -611,13 +628,13 @@ public final class Sets {
   }
 
   /**
-   * Creates a {@code TreeSet} instance using the given {@code Comparator}
-   * and containing the given elements.
+   * Creates a {@code TreeSet} instance using the given {@code Comparator} and
+   * containing the given elements.
    *
    * @param comparator the comparator to use to sort the set
    * @param elements the elements that the set should contain
-   * @return a newly-created {@code TreeSet} containing those elements
-   *     (minus duplicates)
+   * @return a newly-created {@code TreeSet} containing those elements (minus
+   *     duplicates)
    */
   public static <E> TreeSet<E> newTreeSet(
       @Nullable Comparator<? super E> comparator,
@@ -627,13 +644,13 @@ public final class Sets {
   }
 
   /**
-   * Creates a {@code TreeSet} instance using the given {@code Comparator}
-   * and containing the given elements.
+   * Creates a {@code TreeSet} instance using the given {@code Comparator} and
+   * containing the given elements.
    *
    * @param comparator the comparator to use to sort the set
    * @param elements the elements that the set should contain
-   * @return a newly-created {@code TreeSet} containing those elements
-   *     (minus duplicates)
+   * @return a newly-created {@code TreeSet} containing those elements (minus
+   *     duplicates)
    */
   public static <E> TreeSet<E> newTreeSet(
       @Nullable Comparator<? super E> comparator,
@@ -652,12 +669,12 @@ public final class Sets {
    * Creates an empty {@code SortedArraySet} instance, with an initial capacity
    * of zero.
    *
-   * <p>TODO(mbostock): change the initial capacity to the traditional default
-   * of ten.
+   * <p>TODO: change the initial capacity to the traditional default of ten.
    *
    * @return a newly-created, initially-empty {@code SortedArraySet}
    */
-  public static <E extends Comparable<E>> SortedArraySet<E>
+  @SuppressWarnings("unchecked")  // allow ungenerified Comparable types
+  public static <E extends Comparable> SortedArraySet<E>
       newSortedArraySet() {
     return new SortedArraySet<E>(0);
   }
@@ -666,8 +683,7 @@ public final class Sets {
    * Creates an empty {@code SortedArraySet} instance, with an initial capacity
    * of zero.
    *
-   * <p>TODO(mbostock): change the initial capacity to the traditional default
-   * of ten.
+   * <p>TODO: change the initial capacity to the traditional default of ten.
    *
    * @param comparator the comparator to use
    * @return a newly-created, initially-empty {@code SortedArraySet}
@@ -680,14 +696,15 @@ public final class Sets {
   /**
    * Creates a {@code SortedArraySet} instance containing the given elements.
    *
-   * <p>TODO(mbostock): change this method to preserve the ordering of the
-   * specified iterable if it is an instance of {@code SortedSet}.
+   * <p>TODO: change this method to preserve the ordering of the specified
+   * iterable if it is an instance of {@code SortedSet}.
    *
    * @param elements the elements that the set should contain
    * @return a newly-created {@code SortedArraySet} containing those elements
    *     (minus duplicates)
    */
-  public static <E extends Comparable<E>> SortedArraySet<E>
+  @SuppressWarnings("unchecked")  // allow ungenerified Comparable types
+  public static <E extends Comparable> SortedArraySet<E>
       newSortedArraySet(Iterable<? extends E> elements) {
     return newSortedArraySet(elements, Comparators.<E>naturalOrder());
   }
@@ -695,8 +712,8 @@ public final class Sets {
   /**
    * Creates a {@code SortedArraySet} instance containing the given elements.
    *
-   * <p>TODO(mbostock): change the initial capacity to the traditional default
-   * of ten, if the iterable is not a collection.
+   * <p>TODO: change the initial capacity to the traditional default of ten, if
+   * the iterable is not a collection.
    *
    * @param elements the elements that the set should contain
    * @param comparator the comparator to use
@@ -706,8 +723,8 @@ public final class Sets {
   @SuppressWarnings("unchecked")
   public static <E> SortedArraySet<E> newSortedArraySet(
       Iterable<? extends E> elements, Comparator<? super E> comparator) {
-    SortedArraySet<E> set = new SortedArraySet<E>(
-        comparator, (elements instanceof Collection<?>)
+    SortedArraySet<E> set = new SortedArraySet<E>(comparator,
+        (elements instanceof Collection<?>)
             ? ((Collection<?>) elements).size() : 0);
     for (E element : elements) {
       set.add(element);
@@ -718,7 +735,8 @@ public final class Sets {
   /**
    * Creates a {@code SortedArraySet} instance containing the given elements.
    *
-   * <p>Please see the caveat in {@link #newHashSet(Object...)}.
+   * <p>Please see the notice in {@link #newHashSet(Object...)} about a relevant
+   * javac bug.
    *
    * @param comparator the comparator to use
    * @param elements the elements that the set should contain
@@ -735,98 +753,29 @@ public final class Sets {
   /**
    * Creates a {@code SortedArraySet} instance containing the given elements.
    *
-   * <p>Please see the caveat in {@link #newHashSet(Object...)}.
+   * <p>Please see the notice in {@link #newHashSet(Object...)} about a relevant
+   * javac bug.
    *
    * @param elements the elements that the set should contain
    * @return a newly-created {@code SortedArraySet} containing those elements
    *     (minus duplicates)
    */
-  public static <E extends Comparable<E>> SortedArraySet<E>
+  @SuppressWarnings("unchecked")  // allow ungenerified Comparable types
+  public static <E extends Comparable> SortedArraySet<E>
       newSortedArraySet(E... elements) {
+    for (E element : elements) {
+      checkNotNull(element);
+    }
     return newSortedArraySet(Comparators.<E>naturalOrder(), elements);
-  }
-
-  /**
-   * Returns one of the given collections, which is smaller than, or the same
-   * size as, each of the other given collections.  If multiple collections
-   * tie for smallest, it is not guaranteed which will be returned.
-   */
-  public static <C extends Collection<?>> C smallest(
-      C aCollection, C anotherCollection, C... moreCollections) {
-    checkNotNull(aCollection);
-    checkNotNull(anotherCollection);
-    checkNotNull(moreCollections);
-    return smallest(
-        Lists.asList(aCollection, anotherCollection, moreCollections));
-  }
-
-  /**
-   * Returns one of the given collections, which is smaller than, or the same
-   * size as, each of the other given collections.  If multiple collections
-   * tie for smallest, it is not guaranteed which will be returned.
-   */
-  public static <C extends Collection<?>> C smallest(Iterable<C> collections) {
-    checkNotNull(collections);
-    C smallest = null;
-    int smallestSize = Integer.MAX_VALUE;
-    for (C collection : collections) {
-      checkNotNull(collection);
-      int thisSize = collection.size();
-      if (thisSize < smallestSize) {
-        smallestSize = thisSize;
-        smallest = collection;
-      }
-    }
-    checkArgument(smallest != null, "no collections given");
-    return smallest;
-  }
-
-  /**
-   * Returns the number of elements the given sets have in common.
-   *
-   * @param aSet one of the sets to compute the intersection size for
-   * @param anotherSet another one of the sets to compute the
-   *     intersection size for
-   * @param moreSets optionally, the rest of the sets to compute the
-   *     intersection size for
-   * @return the number of elements in the intersection of the given sets
-   */
-  public static int sizeOfIntersection(
-      Set<?> aSet, Set<?> anotherSet, Set<?>... moreSets) {
-    checkNotNull(aSet);
-    checkNotNull(anotherSet);
-    checkNotNull(moreSets);
-    return sizeOfIntersection(Lists.asList(aSet, anotherSet, moreSets));
-  }
-
-  /**
-   * Returns the number of elements the given sets have in common.
-   *
-   * @param sets the sets to compute the intersection size for
-   * @return the number of elements in the intersection of the given sets
-   */
-  public static int sizeOfIntersection(Iterable<? extends Set<?>> sets) {
-    checkNotNull(sets);
-    Set<?> smallest = smallest(sets);
-    int result = smallest.size();
-    for (Object element : smallest) {
-      for (Set<?> set : sets) {
-        if (set != smallest && !set.contains(element)) {
-          result--;
-          break;
-        }
-      }
-    }
-    return result;
   }
 
   /**
    * Creates an enum set with the given element type, initially containing all
    * the elements of this type that are <i>not</i> contained in the specified
-   * set.  If the specified collection is an {@link EnumSet} instance, this
-   * method behaves identically to {@link EnumSet#complementOf}.  Otherwise,
-   * the specified collection must contain at least one element (in order to
-   * determine the new enum set's element type).  If the collection could
+   * set. If the specified collection is an {@link EnumSet} instance, this
+   * method behaves identically to {@link EnumSet#complementOf}. Otherwise, the
+   * specified collection must contain at least one element (in order to
+   * determine the new enum set's element type). If the collection could
    * possibly be empty, use {@link #complementOf(Collection,Class)} instead of
    * this method.
    *
@@ -837,7 +786,7 @@ public final class Sets {
    * @throws IllegalArgumentException if {@code set} is not an {@code EnumSet}
    *     instance and contains no elements
    */
-  public static <E extends Enum<E>> Set<E> complementOf(
+  public static <E extends Enum<E>> EnumSet<E> complementOf(
       Collection<E> collection) {
     checkNotNull(collection);
     if (collection instanceof EnumSet<?>) {
@@ -852,8 +801,8 @@ public final class Sets {
   /**
    * Creates an enum set with the given element type, initially containing all
    * the elements of this type that are <i>not</i> contained in the specified
-   * set.  This is equivalent to {@link EnumSet#complementOf}, but can act on
-   * any type of set, so long as the elements are of enum type.
+   * set. This is equivalent to {@link EnumSet#complementOf}, but can act on any
+   * type of set, so long as the elements are of enum type.
    *
    * @param collection the collection from whose complement to initialize this
    *     enum set
@@ -861,7 +810,7 @@ public final class Sets {
    * @return a new, modifiable enum set initially containing all the values of
    *     the enum not present in the given set
    */
-  public static <E extends Enum<E>> Set<E> complementOf(
+  public static <E extends Enum<E>> EnumSet<E> complementOf(
       Collection<E> collection, Class<E> type) {
     checkNotNull(collection);
     return (collection instanceof EnumSet<?>)
@@ -869,16 +818,14 @@ public final class Sets {
         : makeComplementByHand(collection, type);
   }
 
-  private static <E extends Enum<E>> Set<E> makeComplementByHand(
+  private static <E extends Enum<E>> EnumSet<E> makeComplementByHand(
       Collection<E> collection, Class<E> type) {
-    Set<E> result = EnumSet.allOf(type);
+    EnumSet<E> result = EnumSet.allOf(type);
     result.removeAll(collection);
     return result;
   }
 
   private static class ImmutableHashSet<E> extends HashSet<E> {
-    static final long serialVersionUID = 1241522570505539952L;
-
     ImmutableHashSet(E... elements) {
       // Avoid collisions by using 2-4x as many buckets as expected entries.
       super(elements.length * 2);
@@ -899,6 +846,7 @@ public final class Sets {
       return Iterators.unmodifiableIterator(super.iterator());
     }
 
+    // TODO: should this be volatile?
     transient Integer cachedHashCode;
 
     @Override public int hashCode() {
@@ -926,104 +874,56 @@ public final class Sets {
     @Override public boolean retainAll(Collection<?> c) {
       throw up();
     }
-
     private static UnsupportedOperationException up() {
       return new UnsupportedOperationException();
     }
+
+    static final long serialVersionUID = 1241522570505539952L;
   }
 
-  private static final Iterator EMPTY_ITERATOR = new Iterator() {
-
-        public boolean hasNext() {
-          return false;
-        }
-
-        public Object next() {
-          throw new NoSuchElementException();
-        }
-
-        public void remove() {
-          throw new NoSuchElementException();
-        }
-
-    };
-
   /**
-   * Returns a set backed by the specified map.  The resulting set displays
-   * the same ordering, concurrency, and performance characteristics as the
-   * backing map.  In essence, this factory method provides a {@link Set}
-   * implementation corresponding to any {@link Map} implementation.  There
-   * is no need to use this method on a {@link Map} implementation that
-   * already has a corresponding {@link Set} implementation (such as {@link
-   * java.util.HashMap} or {@link java.util.TreeMap}).
+   * Returns a set backed by the specified map. The resulting set displays the
+   * same ordering, concurrency, and performance characteristics as the backing
+   * map. In essence, this factory method provides a {@link Set} implementation
+   * corresponding to any {@link Map} implementation. There is no need to use
+   * this method on a map implementation that already has a corresponding set
+   * implementation (such as {@link java.util.HashMap} or {@link
+   * java.util.TreeMap}).
    *
-   * <p><em>Note that this method was temporarily imported from Java 6's
-   * Collections.newSetFromMap, and will be deprecated upon Java 6's
-   * release.</em>
+   * <p>The specified map must be empty at the time this method is invoked, and
+   * should not be accessed directly after this method returns. These conditions
+   * are ensured if the map is created empty, passed directly to this method,
+   * and no reference to the map is retained, as illustrated in the following
+   * code fragment:
    *
-   *
-   * <p>Each method invocation on the set returned by this method results in
-   * exactly one method invocation on the backing map or its <tt>keySet</tt>
-   * view, with one exception.  The <tt>addAll</tt> method is implemented
-   * as a sequence of <tt>put</tt> invocations on the backing map.
-   *
-   * <p>The specified map must be empty at the time this method is invoked,
-   * and should not be accessed directly after this method returns.  These
-   * conditions are ensured if the map is created empty, passed directly
-   * to this method, and no reference to the map is retained, as illustrated
-   * in the following code fragment:
-   * <pre>
-   *    Set&lt;Object&gt; weakHashSet = Collections.newSetFromMap(
-   *        new WeakHashMap&lt;Object, Boolean&gt;());
-   * </pre>
-   *
-   * @param map the backing map
-   * @return the set backed by the map
-   * @throws IllegalArgumentException if <tt>map</tt> is not empty
+   * <pre>  Set&lt;Foo> identityHashSet = Sets.newSetFromMap(
+   *       new IdentityHashMap&lt;Foo, Boolean>());</pre>
    */
   public static <E> Set<E> newSetFromMap(Map<E, Boolean> map) {
-    return new SetFromMap<E>(map);
+    checkNotNull(map);
+    checkArgument(map.isEmpty());
+    return new MapBackedSet<E>(map);
   }
 
-  /**
-   * Temporarily imported from Java 6's Collections.newSetFromMap.
-   */
-  private static class SetFromMap<E> extends AbstractSet<E>
-    implements Set<E>, Serializable {
-    private final Map<E, Boolean> m;  // The backing map
-    private transient Set<E> s;       // Its keySet
+  private static class MapBackedSet<E> extends ForwardingSet<E>
+      implements Serializable {
+    final Map<E, Boolean> map;
 
-    SetFromMap(Map<E, Boolean> map) {
-      if (!map.isEmpty())
-        throw new IllegalArgumentException("Map is non-empty");
-      m = map;
-      s = map.keySet();
+    MapBackedSet(Map<E, Boolean> map) {
+      super(map.keySet());
+      this.map = map;
     }
-
-    public void clear()               {        m.clear(); }
-    public int size()                 { return m.size(); }
-    public boolean isEmpty()          { return m.isEmpty(); }
-    public boolean contains(Object o) { return m.containsKey(o); }
-    public boolean remove(Object o)   { return m.remove(o) != null; }
-    public boolean add(E e) { return m.put(e, Boolean.TRUE) == null; }
-    public Iterator<E> iterator()     { return s.iterator(); }
-    public Object[] toArray()         { return s.toArray(); }
-    public <T> T[] toArray(T[] a)     { return s.toArray(a); }
-    public String toString()          { return s.toString(); }
-    public int hashCode()             { return s.hashCode(); }
-    public boolean equals(Object o)   { return o == this || s.equals(o); }
-    public boolean containsAll(Collection<?> c) { return s.containsAll(c); }
-    public boolean removeAll(Collection<?> c)   { return s.removeAll(c); }
-    public boolean retainAll(Collection<?> c)   { return s.retainAll(c); }
-    // addAll is the only inherited implementation
-
-    private static final long serialVersionUID = 2454657854757543876L;
-
-    private void readObject(java.io.ObjectInputStream stream)
-      throws IOException, ClassNotFoundException {
-      stream.defaultReadObject();
-      s = m.keySet();
+    @Override public boolean add(E element) {
+      return map.put(element, Boolean.TRUE) == null;
     }
+    @Override public boolean addAll(Collection<? extends E> elementsToAdd) {
+      boolean modified = false;
+      for (E element : elementsToAdd) {
+        modified |= add(element);
+      }
+      return modified;
+    }
+    private static final long serialVersionUID = 0xF5A3D7BE61C90842L;
   }
 
   /** Returns the empty sorted set (immutable). This set is serializable. */
@@ -1032,36 +932,45 @@ public final class Sets {
     return (SortedSet<E>) EMPTY_SORTED_SET;
   }
 
-  /** @see #emptySortedSet */
+  /** @see Sets#emptySortedSet */
   private static class EmptySortedSet<E> extends AbstractSet<E>
       implements SortedSet<E>, Serializable {
-    private static final long serialVersionUID = -1674208229134945065L;
     @Override public int size() {
       return 0;
     }
+
     @Override public Iterator<E> iterator() {
       return Iterators.emptyIterator();
     }
+
     public Comparator<? super E> comparator() {
       return null;
     }
+
     public SortedSet<E> subSet(E fromElement, E toElement) {
       throw new IllegalArgumentException();
     }
+
     public SortedSet<E> headSet(E toElement) {
       throw new IllegalArgumentException();
     }
+
     public SortedSet<E> tailSet(E fromElement) {
       throw new IllegalArgumentException();
     }
+
     public E first() {
       throw new NoSuchElementException();
     }
+
     public E last() {
       throw new NoSuchElementException();
     }
+
     private Object readResolve() {
       return EMPTY_SORTED_SET; // preserve singleton property
     }
+
+    private static final long serialVersionUID = -1674208229134945065L;
   }
 }

@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
  * {@code null} is an acceptable value for that parameter.  It should not be
  * used for parameters of primitive types.
  *
- * @author kevinb
+ * @author Kevin Bourrillion
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

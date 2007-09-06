@@ -86,7 +86,7 @@
          destdir="${build.dir}/javadoc"
          author="false"
          protected="true"
-         windowtitle="Google Collections ${version} API">
+         windowtitle="Google Collections Library - ${version} (ALPHA)">
       <sourcepath>
         <!--
           For some unknown reason, {@inheritDoc} only appears to work when using

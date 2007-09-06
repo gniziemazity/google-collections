@@ -17,8 +17,9 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,7 +28,7 @@ import java.util.Set;
 
 /**
  * A convenient way to populate immutable Map instances, especially static-final
- * "constant Maps".  Code such as
+ * "constant Maps". Code such as
  *
  * <pre>
  *   static final Map&lt;String,Integer> ENGLISH_TO_INTEGER_MAP
@@ -53,31 +54,28 @@ import java.util.Set;
  * (Actually, for <i>small</i> immutable Maps, you can use the
  * even-more-convenient {@link Maps#immutableMap} methods.
  *
- * @author kevinb@google.com (Kevin Bourrillion)
+ * @author Kevin Bourrillion
  */
-public class ImmutableMapBuilder<K,V> {
-
-  private ImmutableHashMap<K,V> map;
+public class ImmutableMapBuilder<K, V> {
+  private ImmutableHashMap<K, V> map;
 
   /**
-   * @param map map to populate new builder with, cannot be null
-   * @return new ImmutableMapBuilder populated with mappings from specified map
+   * Creates a new ImmutableMapBuilder populated with the contents of {@code
+   * map}.
    */
-  public static <K, V> ImmutableMapBuilder<K,V> fromMap(Map<K,V> map) {
-    Preconditions.checkNotNull(map);
+  public static <K, V> ImmutableMapBuilder<K, V> fromMap(Map<K, V> map) {
+    checkNotNull(map);
     final ImmutableMapBuilder<K, V> builder
         = new ImmutableMapBuilder<K, V>(map.size() * 3 / 2);
 
-    for (final Map.Entry<K,V> entry : map.entrySet()) {
+    for (final Map.Entry<K, V> entry : map.entrySet()) {
       builder.put(entry.getKey(), entry.getValue());
     }
 
     return builder;
   }
 
-  /**
-   * Creates a new ImmutableMapBuilder with an unspecified expected size.
-   */
+  /** Creates a new ImmutableMapBuilder with an unspecified expected size. */
   public ImmutableMapBuilder() {
     this(8);
   }
@@ -85,11 +83,11 @@ public class ImmutableMapBuilder<K,V> {
   /**
    * Creates a new ImmutableMapBuilder with the given expected size.
    *
-   * @param expectedSize the approximate number of key-value pairs you
-   *     expect this map to contain
+   * @param expectedSize the approximate number of key-value pairs you expect
+   *     this map to contain
    */
   public ImmutableMapBuilder(int expectedSize) {
-    map = new ImmutableHashMap<K,V>(expectedSize);
+    map = new ImmutableHashMap<K, V>(expectedSize);
   }
 
   /**
@@ -98,10 +96,10 @@ public class ImmutableMapBuilder<K,V> {
    *
    * @param key key with which the specified value is to be associated
    * @param value value to be associated with the specified key
-   * @throws IllegalStateException if {@code getMap} has already been called
    * @return this map builder (to enable call chaining)
+   * @throws IllegalStateException if {@code getMap} has already been called
    */
-  public ImmutableMapBuilder<K,V> put(@Nullable K key, @Nullable V value) {
+  public ImmutableMapBuilder<K, V> put(@Nullable K key, @Nullable V value) {
     checkState(map != null, "map has already been created");
     map.secretPut(key, value);
     return this;
@@ -114,7 +112,7 @@ public class ImmutableMapBuilder<K,V> {
    * @return a new, immutable HashMap instance
    * @throws IllegalStateException if {@code getMap} has already been called
    */
-  public Map<K,V> getMap() {
+  public Map<K, V> getMap() {
     checkState(map != null, "map has already been created");
     try {
       return map;
@@ -123,10 +121,7 @@ public class ImmutableMapBuilder<K,V> {
     }
   }
 
-  private static class ImmutableHashMap<K,V> extends HashMap<K,V> {
-
-    private static final long serialVersionUID = -5187626034923451074L;
-
+  private static class ImmutableHashMap<K, V> extends HashMap<K, V> {
     ImmutableHashMap(int expectedSize) {
       // avoid collisions by using 2-4x as many buckets as expected entries
       super(expectedSize * 2);
@@ -150,7 +145,7 @@ public class ImmutableMapBuilder<K,V> {
       return values;
     }
 
-    transient volatile Set<Map.Entry<K,V>> entrySet;
+    transient volatile Set<Map.Entry<K, V>> entrySet;
 
     @Override public Set<Map.Entry<K, V>> entrySet() {
       if (entrySet == null) {
@@ -159,14 +154,13 @@ public class ImmutableMapBuilder<K,V> {
       return entrySet;
     }
 
+    // TODO: why not volatile?
     transient Integer cachedHashCode;
 
     /*
-     * It is very important that no one call hashCode() until after all the
-     * calls to secretPut() are finished... luckily this is impossible, but be
-     * very careful if you are changing this code.
+     * This works because no one can call hashCode() until after all the calls
+     * to secretPut() are finished.
      */
-
     @Override public int hashCode() {
       if (cachedHashCode == null) {
         cachedHashCode = super.hashCode();
@@ -191,8 +185,10 @@ public class ImmutableMapBuilder<K,V> {
       throw up();
     }
 
-    private static UnsupportedOperationException up() {
+    static UnsupportedOperationException up() {
       return new UnsupportedOperationException();
     }
+
+    private static final long serialVersionUID = -5187626034923451074L;
   }
 }

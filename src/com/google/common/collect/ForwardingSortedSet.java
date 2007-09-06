@@ -26,7 +26,7 @@ import java.util.SortedSet;
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
  *
  * @see ForwardingObject
- * @author mbostock@google.com (Mike Bostock)
+ * @author Mike Bostock
  */
 public abstract class ForwardingSortedSet<E> extends ForwardingSet<E>
     implements SortedSet<E> {
