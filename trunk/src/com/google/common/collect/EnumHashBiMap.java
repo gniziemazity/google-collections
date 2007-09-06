@@ -16,6 +16,8 @@
 
 package com.google.common.collect;
 
+import com.google.common.base.Nullable;
+
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,10 +28,10 @@ import java.util.Map;
  *
  * @see EnumMap
  * @see HashMap
- * @author mbostock@google.com (Mike Bostock)
+ * @author Mike Bostock
  */
 public final class EnumHashBiMap<K extends Enum<K>, V>
-    extends StandardBiMap<K,V> implements Cloneable {
+    extends StandardBiMap<K, V> {
   final Class<K> keyType;
 
   /**
@@ -40,8 +42,8 @@ public final class EnumHashBiMap<K extends Enum<K>, V>
    * @throws NullPointerException if any argument is null
    */
   public EnumHashBiMap(Class<K> keyType) {
-    super(new EnumMap<K,V>(keyType),
-        new HashMap<V,K>(keyType.getEnumConstants().length * 3 / 2));
+    super(new EnumMap<K, V>(keyType),
+        new HashMap<V, K>(keyType.getEnumConstants().length * 3 / 2));
     this.keyType = keyType;
   }
 
@@ -54,7 +56,6 @@ public final class EnumHashBiMap<K extends Enum<K>, V>
    * mapping (in order to determine the new enum bimap's key type).
    *
    * @param map the map whose mappings are to be placed in this map
-   * @throws NullPointerException if the specified map is null
    * @throws IllegalArgumentException if map is not an {@code EnumBiMap} or an
    *     {@code EnumHashBiMap} instance and contains no mappings
    */
@@ -68,7 +69,6 @@ public final class EnumHashBiMap<K extends Enum<K>, V>
    * initially containing the same mappings (if any).
    *
    * @param map the map whose mappings are to be placed in this map
-   * @throws NullPointerException if the specified map is null
    */
   public EnumHashBiMap(EnumHashBiMap<K, ? extends V> map) {
     this(map.keyType);
@@ -78,33 +78,31 @@ public final class EnumHashBiMap<K extends Enum<K>, V>
   /**
    * Constructs a new bimap with the same key type as the specified map,
    * initially containing the same mappings (if any).
-   * <p>
-   * Note: This constructor has been commented out to work around Eclipse bug
-   * 179902. It should be restored when the bug has been fixed. In the mean
-   * time, the "(Map<K, ? extends V> map)" overload will suffice.
-   * <p>
-   * See: <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=179902">
    *
-   * @param map the map whose mappings are to be placed in this map
-   * @throws NullPointerException if the specified map is null
-   *
-  @SuppressWarnings("unchecked") // argh, my generics-fu is weak!
-  public EnumHashBiMap(EnumBiMap<K, ? extends V> map) {
-    this(map.keyType);
-    putAll((Map) map); // careful if we make this class non-final
-  }*/
+   * <p>Note: This constructor has been commented out to work around Eclipse bug
+   * 179902. It should be restored when the bug has been fixed. In the meantime,
+   * the "(Map<K, ? extends V> map)" overload will suffice. See:
+   * <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=179902">bug
+   * report</a>.
+   */
+//  @SuppressWarnings("unchecked")
+//  public EnumHashBiMap(EnumBiMap<K, ? extends V> map) {
+//    this(map.keyType);
+//    putAll((Map) map); // careful if we make this class non-final
+//  }
+
+  // Override these two methods to show that values may be null (but not keys)
+
+  @Override public V put(K key, @Nullable V value) {
+    return super.put(key, value);
+  }
+
+  @Override public V forcePut(K key, @Nullable V value) {
+    return super.forcePut(key, value);
+  }
 
   /** Returns the associated key type. */
   public Class<K> keyType() {
     return keyType;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override public EnumHashBiMap<K,V> clone() {
-    try {
-      return (EnumHashBiMap<K,V>) super.clone();
-    } catch (CloneNotSupportedException e) {
-      throw new AssertionError(e);
-    }
   }
 }

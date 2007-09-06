@@ -19,6 +19,7 @@ package com.google.common.collect;
 import com.google.common.base.Nullable;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.ArrayList;
@@ -31,7 +32,8 @@ import java.util.SortedSet;
 
 /**
  * A sorted set that keeps its elements in a sorted {@code ArrayList}. Null
- * elements are not allowed.
+ * elements are allowed when the {@code SortedArraySet} is constructed with an
+ * explicit comparator that supports nulls.
  *
  * <p>This class is useful when you may have many sorted sets that only have
  * zero or one elements each. The performance of this implementation does not
@@ -54,14 +56,14 @@ import java.util.SortedSet;
  * SortedArraySet} instance concurrently and at least one adds or deletes any
  * elements.
  *
- * @author mharris@google.com (Matthew Harris)
- * @author mbostock@google.com (Mike Bostock)
+ * @author Matthew Harris
+ * @author Mike Bostock
  */
 public final class SortedArraySet<E> extends AbstractSet<E>
-    implements SortedSet<E>, Serializable, Cloneable {
-  private ArrayList<E> contents; // initialized lazily, and cloned
+    implements SortedSet<E>, Serializable {
+  private ArrayList<E> contents; // initialized lazily
   private final Comparator<? super E> comparator;
-
+  
   /**
    * Constructs a new empty sorted set, sorted according to the element's
    * natural order, with an initial capacity of ten. All elements inserted into
@@ -84,7 +86,7 @@ public final class SortedArraySet<E> extends AbstractSet<E>
    * Constructs a new empty sorted set, sorted according to the element's
    * natural order, with the specified initial capacity. All elements inserted
    * into the set must implement the {@code Comparable} interface. Furthermore,
-   * all such elements must be <i>mutally comparable</i>: {@code
+   * all such elements must be <i>mutually comparable</i>: {@code
    * e1.compareTo(e2)} must not throw a {@code ClassCastException} for any
    * elements {@code e1} and {@code e2} in the set. If the user attempts to add
    * an element to the set that violates this constraint (for example, the user
@@ -107,13 +109,12 @@ public final class SortedArraySet<E> extends AbstractSet<E>
    * Creates a new empty sorted set, sorted according to the specified
    * comparator, with the initial capacity of ten. All elements inserted into
    * the set must be <i>mutually comparable</i> by the specified comparator:
-   * {@code comparator.compare(e1, e2)} must not throw a {@code
-   * ClassCastException} for any elements {@code e1} and {@code e2} in the
-   * set. If the user attempts to add an element to the set that violates this
+   * {@code comparator.compare(e1,e2)} must not throw a {@code
+   * ClassCastException} for any elements {@code e1} and {@code e2} in the set.
+   * If the user attempts to add an element to the set that violates this
    * constraint, the {@code add} method may throw a {@code ClassCastException}.
    *
    * @param comparator the comparator used to sort elements in this set
-   * @throws NullPointerException if {@code comparator} is null
    */
   public SortedArraySet(Comparator<? super E> comparator) {
     this(comparator, 10);
@@ -123,16 +124,14 @@ public final class SortedArraySet<E> extends AbstractSet<E>
    * Creates a new empty sorted set, sorted according to the specified
    * comparator, with the specified initial capacity. All elements inserted into
    * the set must be <i>mutually comparable</i> by the specified comparator:
-   * {@code comparator.compare(e1, e2)} must not throw a {@code
-   * ClassCastException} for any elements {@code e1} and {@code e2} in the
-   * set. If the user attempts to add an element to the set that violates this
+   * {@code comparator.compare(e1,e2)} must not throw a {@code
+   * ClassCastException} for any elements {@code e1} and {@code e2} in the set.
+   * If the user attempts to add an element to the set that violates this
    * constraint, the {@code add} method may throw a {@code ClassCastException}.
    *
    * @param comparator the comparator used to sort elements in this set
-   * @throws NullPointerException if {@code comparator} is null
    */
-  public SortedArraySet(Comparator<? super E> comparator,
-      int initialCapacity) {
+  public SortedArraySet(Comparator<? super E> comparator, int initialCapacity) {
     checkNotNull(comparator);
     this.comparator = comparator;
     if (initialCapacity > 0) {
@@ -144,13 +143,12 @@ public final class SortedArraySet<E> extends AbstractSet<E>
    * Creates a new sorted set with the same elements as the specified
    * collection. If the specified collection is a {@code SortedSet} instance,
    * this constructor behaves identically to {@link #SortedArraySet(SortedSet)}.
-   * Otherwise, the the elements are sorted according to the elements' natural
+   * Otherwise, the elements are sorted according to the elements' natural
    * order; see {@link #SortedArraySet()}.
    *
    * @param collection the elements that will comprise the new set
-   * @throws ClassCastException if the keys in the specified collection are not
-   * comparable, or are not mutually comparable
-   * @throws NullPointerException if {@code collection} is null or contains null
+   * @throws ClassCastException if the elements in the specified collection are
+   *     not mutually comparable
    */
   @SuppressWarnings("unchecked")
   public SortedArraySet(Collection<? extends E> collection) {
@@ -167,25 +165,10 @@ public final class SortedArraySet<E> extends AbstractSet<E>
    * the specified sorted set.
    *
    * @param set the set whose elements will comprise the new set
-   * @throws NullPointerException if {@code set} is null or contains null
    */
   public SortedArraySet(SortedSet<E> set) {
     comparator = orNaturalOrder(set.comparator());
     addAll(set); // careful if we make this class non-final
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override public SortedArraySet<E> clone() {
-    SortedArraySet<E> clone;
-    try {
-      clone = (SortedArraySet<E>) super.clone();
-    } catch (CloneNotSupportedException e) {
-      throw new AssertionError(e);
-    }
-    if (contents != null) {
-      clone.contents = (ArrayList<E>) contents.clone();
-    }
-    return clone;
   }
 
   /**
@@ -207,7 +190,8 @@ public final class SortedArraySet<E> extends AbstractSet<E>
 
   /**
    * Trims the capacity of this sorted set to be the set's current size. An
-   * application can use this operation to minimize the storage of a sorted set.
+   * application can use this operation to minimize the storage of a sorted
+   * set.
    */
   public void trimToSize() {
     if (size() == 0) {
@@ -218,7 +202,6 @@ public final class SortedArraySet<E> extends AbstractSet<E>
   }
 
   @Override public boolean add(E o) {
-    checkNotNull(o);
     if (contents == null) {
       contents = new ArrayList<E>(1);
       contents.add(o);
@@ -233,15 +216,20 @@ public final class SortedArraySet<E> extends AbstractSet<E>
   }
 
   @Override public boolean addAll(Collection<? extends E> c) {
-    /* optimize the case where c is sorted and we're empty */
+    // optimize the case where c is sorted and we're empty
     if (((contents == null) || contents.isEmpty())
         && !c.isEmpty() && (c instanceof SortedSet<?>)) {
-      if (contents == null) {
-        contents = new ArrayList<E>(c);
-      } else {
-        contents.addAll(c);
+      Comparator<?> comparator2 = ((SortedSet<? extends E>) c).comparator();
+      if (((comparator == Comparators.naturalOrder())
+          && (comparator2 == null)) ||
+          (comparator == comparator2)) {
+        if (contents == null) {
+          contents = new ArrayList<E>(c);
+        } else {
+          contents.addAll(c);
+        }
+        return true;
       }
-      return true;
     }
     return super.addAll(c);
   }
@@ -260,9 +248,11 @@ public final class SortedArraySet<E> extends AbstractSet<E>
     }
     if (o instanceof SortedArraySet<?>) {
       SortedArraySet<?> set = (SortedArraySet<?>) o;
-      int n = size();
-      return (n == set.size()) // beware of null contents
-          && ((n == 0) || contents.equals(set.contents));
+      if (comparator == set.comparator) {
+        int n = size();
+        return (n == set.size()) // beware of null contents
+            && ((n == 0) || contents.equals(set.contents));
+      }
     }
     return super.equals(o);
   }
@@ -273,7 +263,6 @@ public final class SortedArraySet<E> extends AbstractSet<E>
   }
 
   @Override public boolean remove(Object o) {
-    checkNotNull(o);
     int pos = binarySearch(o);
     if (pos < 0) {
       return false;
@@ -295,55 +284,59 @@ public final class SortedArraySet<E> extends AbstractSet<E>
   }
 
   public SortedSet<E> subSet(E fromElement, E toElement) {
-    checkNotNull(fromElement);
-    checkNotNull(toElement);
     checkArgument(comparator.compare(toElement, fromElement) >= 0);
-    return new SubSet(fromElement, toElement);
+    return new SubSet(fromElement, toElement, true, true);
   }
 
   public SortedSet<E> headSet(E toElement) {
-    checkNotNull(toElement);
-    return new SubSet(null, toElement);
+    return new SubSet(null, toElement, false, true);
   }
 
   public SortedSet<E> tailSet(E fromElement) {
-    checkNotNull(fromElement);
-    return new SubSet(fromElement, null);
+    return new SubSet(fromElement, null, true, false);
   }
 
   public E first() {
+    if (isEmpty()) {
+      throw new NoSuchElementException();
+    }
     return get(0);
   }
 
   public E last() {
+    if (isEmpty()) {
+      throw new NoSuchElementException();
+    }
     return get(size() - 1);
   }
 
   /**
    * Searches the backing list of the specified object using the binary search
-   * algorithm. If the list contains multiple elements equal to the specified
-   * object, there is no guarantee which one will be found.
+   * algorithm.
    *
    * <p>This method runs in O(lg n) time.
    *
    * @param o the object to be searched for
    * @return the index of the found object, if it is contained in the list;
-   * otherwise, {@code (-(insertion point) - 1)}. The <i>insertion point</i> is
-   * defined as the point at which the object would be inserted into the list:
-   * the index of the first element greater than the key, or {@code
-   * list.size()}, if all elements in the list are less than the specified
-   * key. Note that this guarantees that the return value will be &gt;= 0 if and
-   * only if the key is found.
+   *     otherwise, {@code (-(insertionpoint) - 1)}. The <i>insertion point</i>
+   *     is defined as the point at which the object would be inserted into the
+   *     list: the index of the first element greater than the key, or {@code
+   *     list.size()}, if all elements in the list are less than the specified
+   *     key. Note that this guarantees that the return value will be &gt;= 0 if
+   *     and only if the key is found.
    * @throws ClassCastException if the list contains elements that are not
-   * <i>mutually comparable</i> (for example, strings and integers), or the
-   * specified object is not mutually comparable with the elements of the list
-   * @see Collections#binarySearch
+   *     <i>mutually comparable</i> (for example, strings and integers), or the
+   *     specified object is not mutually comparable with the elements of the
+   *     list
+   * @see Collections#binarySearch(java.util.List, Object, Comparator)
    */
-  @SuppressWarnings("unchecked")
   private int binarySearch(Object o) {
-    checkNotNull(o);
-    return (contents == null)
-        ? -1 : Collections.binarySearch(contents, (E) o, comparator);
+    if (contents == null) {
+      return -1;
+    }
+    @SuppressWarnings("unchecked")
+    E e = (E) o;
+    return Collections.binarySearch(contents, e, comparator);
   }
 
   /**
@@ -375,31 +368,40 @@ public final class SortedArraySet<E> extends AbstractSet<E>
     if (comparator != null) { // can't use ? : because of javac bug 5080917
       return comparator;
     }
-    return (Comparator<E>) Comparators.<Comparable<Object>>naturalOrder();
+    return (Comparator<E>) Comparators.naturalOrder();
   }
 
   /** @see #subSet */
   private class SubSet extends AbstractSet<E> implements SortedSet<E> {
-    private final E head;
-    private final E tail;
+    final E head;
+    final E tail;
+    final boolean hasHead;
+    final boolean hasTail;
 
     /**
      * Constructs a subset view into the SortedArraySet.
      *
-     * @param fromElement the low endpoint (inclusive) of the subset, or null
-     * @param toElement the high endpoint (exclusive) of the subset, or null
+     * @param fromElement the low endpoint (inclusive) of the subset, or
+     *     {@code null}
+     * @param toElement the high endpoint (exclusive) of the subset, or
+     *     {@code null}
+     * @param hasHead whether this subset has a lower bound
+     * @param hasTail whether this subset has an upper bound 
      */
-    public SubSet(@Nullable E fromElement, @Nullable E toElement) {
+    SubSet(@Nullable E fromElement, @Nullable E toElement,
+        boolean hasHead, boolean hasTail) {
       this.head = fromElement;
       this.tail = toElement;
+      this.hasHead = hasHead;
+      this.hasTail = hasTail;
     }
 
     /**
      * Returns the index of the low endpoint (inclusive) of the subset, or zero
      * if the low endpoint is undefined.
      */
-    private int headIndex() {
-      if (head == null) {
+    int headIndex() {
+      if (!hasHead) {
         return 0;
       }
       int pos = binarySearch(head);
@@ -410,8 +412,11 @@ public final class SortedArraySet<E> extends AbstractSet<E>
      * Returns the position of the high endpoint (exclusive) of the subset, or
      * the size of the list if the high endpoint is undefined.
      */
-    private int tailIndex() {
-      if (tail == null) {
+    int tailIndex() {
+      if (contents == null) {
+        return 0;
+      }
+      if (!hasTail) {
         return contents.size();
       }
       int pos = binarySearch(tail);
@@ -424,8 +429,8 @@ public final class SortedArraySet<E> extends AbstractSet<E>
      *
      * @param fromElement the element to compare to the head
      */
-    private void checkHead(E fromElement) {
-      if (head != null) {
+    void checkHead(E fromElement) {
+      if (hasHead) {
         checkArgument(comparator.compare(fromElement, head) >= 0);
       }
     }
@@ -436,8 +441,8 @@ public final class SortedArraySet<E> extends AbstractSet<E>
      *
      * @param toElement the element to compare to the tail
      */
-    private void checkTail(E toElement) {
-      if (tail != null) {
+    void checkTail(E toElement) {
+      if (hasTail) {
         checkArgument(comparator.compare(tail, toElement) > 0);
       }
     }
@@ -451,46 +456,43 @@ public final class SortedArraySet<E> extends AbstractSet<E>
     }
 
     public Iterator<E> iterator() {
-      return contents.subList(headIndex(), tailIndex()).iterator();
+      return (contents == null) ?
+          Iterators.<E>emptyIterator() :
+          contents.subList(headIndex(), tailIndex()).iterator();
     }
 
-    @SuppressWarnings("unchecked") // throws ClassCastException
     public boolean contains(Object o) {
-      checkNotNull(o);
+      @SuppressWarnings("unchecked") // throws ClassCastException
       E e = (E) o;
-      if (((head != null) && (comparator.compare(e, head) < 0))
-          || ((tail != null) && (comparator.compare(tail, e) <= 0))) {
+      if ((hasHead && (comparator.compare(e, head) < 0))
+          || (hasTail && (comparator.compare(tail, e) <= 0))) {
         return false;
       }
       return SortedArraySet.this.contains(o);
     }
 
     public SortedSet<E> subSet(E fromElement, E toElement) {
-      checkNotNull(fromElement);
-      checkNotNull(toElement);
       checkArgument(comparator.compare(toElement, fromElement) >= 0);
       checkHead(fromElement);
       checkTail(toElement);
-      return new SubSet(fromElement, toElement);
+      return new SubSet(fromElement, toElement, true, true);
     }
 
     public SortedSet<E> headSet(E toElement) {
-      checkNotNull(toElement);
       checkHead(toElement);
       checkTail(toElement);
-      return new SubSet(head, toElement);
+      return new SubSet(head, toElement, hasHead, true);
     }
 
     public SortedSet<E> tailSet(E fromElement) {
-      checkNotNull(fromElement);
       checkHead(fromElement);
       checkTail(fromElement);
-      return new SubSet(fromElement, tail);
+      return new SubSet(fromElement, tail, true, hasTail);
     }
 
     public E first() {
       E o = get(headIndex());
-      if ((tail != null) && (comparator.compare(tail, o) <= 0)) {
+      if (hasTail && (comparator.compare(tail, o) <= 0)) {
         throw new NoSuchElementException();
       }
       return o;
@@ -498,10 +500,12 @@ public final class SortedArraySet<E> extends AbstractSet<E>
 
     public E last() {
       E o = get(tailIndex() - 1);
-      if ((head != null) && (comparator.compare(o, head) < 0)) {
+      if (hasHead && (comparator.compare(o, head) < 0)) {
         throw new NoSuchElementException();
       }
       return o;
     }
   }
+  
+  private static final long serialVersionUID = -296929484947694088L;  
 }

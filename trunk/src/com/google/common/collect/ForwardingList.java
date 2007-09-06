@@ -26,7 +26,7 @@ import java.util.ListIterator;
  * desired per the <a
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
  *
- * @author mbostock@google.com (Mike Bostock)
+ * @author Mike Bostock
  */
 public abstract class ForwardingList<E> extends ForwardingCollection<E>
     implements List<E> {

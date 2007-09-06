@@ -25,7 +25,7 @@ import java.util.Set;
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
  *
  * @see ForwardingObject
- * @author kevinb@google.com (Kevin Bourrillion)
+ * @author Kevin Bourrillion
  */
 public abstract class ForwardingSet<E> extends ForwardingCollection<E>
     implements Set<E> {
@@ -62,7 +62,7 @@ public abstract class ForwardingSet<E> extends ForwardingCollection<E>
    * @param s the set to be compared for equality with the specified object
    * @param o the object to be compared for equality with the specified set
    * @return true if the object {@code o} is equal to the set {@code s}
-   * @see AbstractSet#equals
+   * @see java.util.AbstractSet#equals(Object)
    */
   @SuppressWarnings("unchecked")
   static boolean equalsImpl(Set<?> s, Object o) {

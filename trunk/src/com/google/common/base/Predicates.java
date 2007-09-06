@@ -17,6 +17,7 @@
 package com.google.common.base;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.Serializable;
 
 /**
@@ -25,15 +26,13 @@ import java.io.Serializable;
  *
  * <p>"Lispy, but good."
  *
- * <p>TODO(kevinb): considering having these implement a
- *   {@code VisitablePredicate} interface which specifies an
- *   {@code accept(PredicateVisitor)} method.
+ * <p>TODO: considering having these implement a {@code VisitablePredicate}
+ * interface which specifies an {@code accept(PredicateVisitor)} method.
  *
- * @author kevinb
+ * @author Kevin Bourrillion
  */
-public class Predicates {
-
-  private Predicates() { }
+public final class Predicates {
+  private Predicates() {}
 
   /*
    * For constant Predicates a single instance will suffice; we'll cast it to

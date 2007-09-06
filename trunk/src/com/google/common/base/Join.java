@@ -17,6 +17,7 @@
 package com.google.common.base;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.IOException;
 import java.util.AbstractList;
 import java.util.Arrays;
@@ -38,9 +39,10 @@ import java.util.List;
  * null -- these will be represented in the output with the string
  * {@code "null"}.
  *
- * @author kevinb@google.com (Kevin Bourillion)
+ * @author Kevin Bourillion
  */
-public class Join {
+public final class Join {
+  private Join() {}
 
   /**
    * Appends each of the {@code tokens} to {@code appendable}, separated by
@@ -91,7 +93,7 @@ public class Join {
   }
 
   /**
-   * Variant of {@code #join(Appendable,String,Iterator)} where {@code tokens}
+   * Variant of {@link #join(Appendable,String,Iterator)} where {@code tokens}
    * is an {@code Iterable}.
    */
   public static Appendable join(
@@ -101,7 +103,7 @@ public class Join {
   }
 
   /**
-   * Variant of {@code #join(Appendable,String,Iterator)} where {@code tokens}
+   * Variant of {@link #join(Appendable,String,Iterator)} where {@code tokens}
    * is an array.
    */
   public static Appendable join(
@@ -111,7 +113,7 @@ public class Join {
   }
 
   /**
-   * Variant of {@code #join(Appendable,String,Iterator)} for tokens given using
+   * Variant of {@link #join(Appendable,String,Iterator)} for tokens given using
    * varargs.
    */
   public static Appendable join(Appendable appendable, String delimiter,
@@ -121,7 +123,7 @@ public class Join {
   }
 
   /**
-   * Variant of {@code #join(String,Iterable)} where {@code tokens} is an
+   * Variant of {@link #join(String,Iterable)} where {@code tokens} is an
    * {@code Iterator}.
    */
   public static String join(String delimiter, Iterator<?> tokens) {
@@ -131,7 +133,7 @@ public class Join {
   }
 
   /**
-   * Variant of {@code #join(String,Iterable)} where {@code tokens} is an
+   * Variant of {@link #join(String,Iterable)} where {@code tokens} is an
    * array.
    */
   public static String join(String delimiter, Object[] tokens) {
@@ -140,7 +142,7 @@ public class Join {
   }
 
   /**
-   * Variant of {@code #join(String,Iterable)} for tokens given using varargs.
+   * Variant of {@link #join(String,Iterable)} for tokens given using varargs.
    */
   public static String join(
       String delimiter, @Nullable Object firstToken, Object... otherTokens) {
@@ -160,8 +162,8 @@ public class Join {
   }
 
   /**
-   * Thrown in response to an {@code IOException} from the supplied
-   * {@code Appendable}.  This is used because most callers won't want to
+   * Thrown in response to an {@link IOException} from the supplied
+   * {@link Appendable}.  This is used because most callers won't want to
    * worry about catching an IOException.
    */
   public static class JoinException extends RuntimeException {
@@ -174,7 +176,7 @@ public class Join {
 
   /**
    * Duplicate of
-   * {@code com.google.common.collect.Lists#asList(Object, Object[])}.
+   * {@link com.google.common.collect.Lists#asList(Object, Object[])}.
    * copied here to remove dependencies.
    */
   private static List<Object> asList(final Object first, final Object[] rest) {

@@ -17,13 +17,14 @@
 package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.lang.reflect.Array;
 import java.util.Collection;
 
 /**
  * Static utility methods pertaining to object arrays.
  *
- * @author kevinb@google.com (Kevin Bourrillion)
+ * @author Kevin Bourrillion
  */
 public final class ObjectArrays {
   private ObjectArrays() {}
@@ -75,8 +76,8 @@ public final class ObjectArrays {
 
   /**
    * This method implements {@code Collection.toArray(Object[])} for Collection
-   * implementations to share.  Other code should never need to use it, as it
-   * can call {@link Collection#toArray(Object[])}.
+   * implementations to share. Other code should never need to use it, as it can
+   * call {@link Collection#toArray(Object[])}.
    *
    * @param self the collection for which to return an array of elements
    * @param array the array in which to place the collection elements
@@ -98,8 +99,8 @@ public final class ObjectArrays {
 
   /**
    * This method implements {@code Collection.toArray()} for Collection
-   * implementations to share.  Other code should never need to use it, as it
-   * can call {@link Collection#toArray()}.
+   * implementations to share. Other code should never need to use it, as it can
+   * call {@link Collection#toArray()}.
    *
    * @param self the collection for which to return an array of elements
    */

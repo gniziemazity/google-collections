@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -29,18 +30,19 @@ import java.util.Set;
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
  *
  * @see ForwardingObject
- * @author konigsberg@google.com (Robert Konigsberg)
+ * @author Robert Konigsberg
  */
-public abstract class ForwardingMultimap<K,V> extends ForwardingObject
-    implements Multimap<K,V> {
+public abstract class ForwardingMultimap<K, V> extends ForwardingObject
+    implements Multimap<K, V> {
 
-  protected ForwardingMultimap(Multimap<K,V> delegate) {
+  /** Constructs a forwarding multimap from a delegate. */
+  protected ForwardingMultimap(Multimap<K, V> delegate) {
     super(delegate);
   }
 
   @SuppressWarnings("unchecked")
-  @Override protected Multimap<K,V> delegate() {
-    return (Multimap<K,V>) super.delegate();
+  @Override protected Multimap<K, V> delegate() {
+    return (Multimap<K, V>) super.delegate();
   }
 
   public Map<K, Collection<V>> asMap() {
@@ -49,10 +51,6 @@ public abstract class ForwardingMultimap<K,V> extends ForwardingObject
 
   public void clear() {
     delegate().clear();
-  }
-
-  public Set<Entry<K, Collection<V>>> collectionEntries() {
-    return delegate().collectionEntries();
   }
 
   public boolean containsEntry(@Nullable Object key, @Nullable Object value) {
@@ -67,7 +65,7 @@ public abstract class ForwardingMultimap<K,V> extends ForwardingObject
     return delegate().containsValue(value);
   }
 
-  public Collection<Entry<K,V>> entries() {
+  public Collection<Entry<K, V>> entries() {
     return delegate().entries();
   }
 
@@ -87,7 +85,7 @@ public abstract class ForwardingMultimap<K,V> extends ForwardingObject
     return delegate().keySet();
   }
 
-  public boolean put(@Nullable K key, @Nullable V value) {
+  public boolean put(K key, V value) {
     return delegate().put(key, value);
   }
 
@@ -107,8 +105,7 @@ public abstract class ForwardingMultimap<K,V> extends ForwardingObject
     return delegate().removeAll(key);
   }
 
-  public Collection<V> replaceValues(@Nullable K key,
-      Iterable<? extends V> values) {
+  public Collection<V> replaceValues(K key, Iterable<? extends V> values) {
     return delegate().replaceValues(key, values);
   }
 
@@ -126,5 +123,5 @@ public abstract class ForwardingMultimap<K,V> extends ForwardingObject
 
   @Override public int hashCode() {
     return delegate().hashCode();
-  }
+  }  
 }

@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Comparator;
@@ -24,7 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.RandomAccess;
 import java.util.Set;
 import java.util.SortedSet;
@@ -40,14 +40,13 @@ import java.util.SortedSet;
  *
  * @see Multimaps#synchronizedMultimap
  * @see Multisets#synchronizedMultiset
- * @author mbostock@google.com (Mike Bostock)
+ * @author Mike Bostock
  */
 final class Synchronized {
   private Synchronized() {}
 
   /** Abstract base class for synchronized views. */
   static class SynchronizedObject implements Serializable {
-    private static final long serialVersionUID = -5880321047335989868L;
     private final Object delegate;
     protected final Object lock;
 
@@ -57,13 +56,15 @@ final class Synchronized {
       this.lock = (lock == null) ? this : lock;
     }
 
-    /* No equals and hashCode; see ForwardingObject for details. */
+    // No equals and hashCode; see ForwardingObject for details.
 
     @Override public String toString() {
       synchronized (lock) {
         return delegate.toString();
       }
     }
+
+    private static final long serialVersionUID = -5880321047335989868L;
   }
 
   /**
@@ -90,15 +91,13 @@ final class Synchronized {
    * @param collection the collection to be wrapped in a synchronized view
    * @return a sychronized view of the specified collection
    */
-  public static <E> Collection<E> collection(Collection<E> collection,
-      Object lock) {
+  static <E> Collection<E> collection(Collection<E> collection, Object lock) {
     return new SynchronizedCollection<E>(collection, lock);
   }
 
-  /** @see #collection */
+  /** @see Synchronized#collection */
   static class SynchronizedCollection<E> extends SynchronizedObject
       implements Collection<E> {
-    private static final long serialVersionUID = 184628707078353613L;
     private final Collection<E> delegate;
 
     public SynchronizedCollection(Collection<E> delegate, Object lock) {
@@ -181,6 +180,8 @@ final class Synchronized {
         return delegate.toArray(a);
       }
     }
+
+    private static final long serialVersionUID = 184628707078353613L;
   }
 
   /**
@@ -210,10 +211,9 @@ final class Synchronized {
     return new SynchronizedSet<E>(set, lock);
   }
 
-  /** @see #set */
+  /** @see Synchronized#set */
   static class SynchronizedSet<E> extends SynchronizedCollection<E>
       implements Set<E> {
-    private static final long serialVersionUID = -1182284868190508661L;
     private final Set<E> delegate;
 
     public SynchronizedSet(Set<E> delegate, Object lock) {
@@ -232,6 +232,8 @@ final class Synchronized {
         return delegate.hashCode();
       }
     }
+
+    private static final long serialVersionUID = -1182284868190508661L;
   }
 
   /**
@@ -258,14 +260,13 @@ final class Synchronized {
    * @param set the sorted set to be wrapped in a synchronized view
    * @return a sychronized view of the specified sorted set
    */
-  public static <E> SortedSet<E> sortedSet(SortedSet<E> set, Object lock) {
+  static <E> SortedSet<E> sortedSet(SortedSet<E> set, Object lock) {
     return new SynchronizedSortedSet<E>(set, lock);
   }
 
-  /** @see #sortedSet */
+  /** @see Synchronized#sortedSet */
   static class SynchronizedSortedSet<E> extends SynchronizedSet<E>
       implements SortedSet<E> {
-    private static final long serialVersionUID = 257153630837525973L;
     private final SortedSet<E> delegate;
 
     public SynchronizedSortedSet(SortedSet<E> delegate, Object lock) {
@@ -308,6 +309,8 @@ final class Synchronized {
         return delegate.last();
       }
     }
+
+    private static final long serialVersionUID = 257153630837525973L;
   }
 
   /**
@@ -336,16 +339,15 @@ final class Synchronized {
    * @param list the list to be wrapped in a synchronized view
    * @return a sychronized view of the specified list
    */
-  public static <E> List<E> list(List<E> list, Object lock) {
+  static <E> List<E> list(List<E> list, Object lock) {
     return (list instanceof RandomAccess)
         ? new SynchronizedRandomAccessList<E>(list, lock)
         : new SynchronizedList<E>(list, lock);
   }
 
-  /** @see #list */
+  /** @see Synchronized#list */
   static class SynchronizedList<E> extends SynchronizedCollection<E>
       implements List<E> {
-    private static final long serialVersionUID = -774310967040756161L;
     private final List<E> delegate;
 
     public SynchronizedList(List<E> delegate, Object lock) {
@@ -420,15 +422,17 @@ final class Synchronized {
         return delegate.hashCode();
       }
     }
+
+    private static final long serialVersionUID = -774310967040756161L;
   }
 
-  /** @see #list */
+  /** @see Synchronized#list */
   static class SynchronizedRandomAccessList<E> extends SynchronizedList<E>
       implements RandomAccess {
-    private static final long serialVersionUID = 700333540904833406L;
     public SynchronizedRandomAccessList(List<E> list, Object lock) {
       super(list, lock);
     }
+    private static final long serialVersionUID = 700333540904833406L;
   }
 
   /**
@@ -459,10 +463,9 @@ final class Synchronized {
     return new SynchronizedMultiset<E>(multiset, lock);
   }
 
-  /** @see #multiset */
+  /** @see Synchronized#multiset */
   static class SynchronizedMultiset<E> extends SynchronizedCollection<E>
       implements Multiset<E> {
-    private static final long serialVersionUID = -1644906276741825553L;
     private final Multiset<E> delegate;
 
     private transient volatile Set<E> elementSet;
@@ -526,6 +529,8 @@ final class Synchronized {
         return delegate.hashCode();
       }
     }
+
+    private static final long serialVersionUID = -1644906276741825553L;
   }
 
   /**
@@ -554,26 +559,24 @@ final class Synchronized {
    * @param multimap the multimap to be wrapped in a synchronized view
    * @return a sychronized view of the specified multimap
    */
-  public static <K,V> Multimap<K,V> multimap(Multimap<K,V> multimap,
-      Object lock) {
-    return new SynchronizedMultimap<K,V>(multimap, lock);
+  public static <K, V> Multimap<K, V> multimap(
+      Multimap<K, V> multimap, Object lock) {
+    return new SynchronizedMultimap<K, V>(multimap, lock);
   }
 
-  /** @see #multimap */
-  static class SynchronizedMultimap<K,V>
-      implements Multimap<K,V>, Serializable {
-    private static final long serialVersionUID = 7083631791577112787L;
-    private final Multimap<K,V> delegate;
-    protected final Object lock;
+  /** @see Synchronized#multimap */
+  private static class SynchronizedMultimap<K, V>
+      implements Multimap<K, V>, Serializable {
+    final Multimap<K, V> delegate;
+    final Object lock;
 
-    private transient volatile Set<K> keySet;
-    private transient volatile Collection<V> values;
-    private transient volatile Collection<Entry<K,V>> entries;
-    private transient volatile Map<K, Collection<V>> asMap;
-    private transient volatile Set<Entry<K, Collection<V>>> collectionEntries;
-    private transient volatile Multiset<K> keys;
+    transient volatile Set<K> keySet;
+    transient volatile Collection<V> values;
+    transient volatile Collection<Map.Entry<K, V>> entries;
+    transient volatile Map<K, Collection<V>> asMap;
+    transient volatile Multiset<K> keys;
 
-    public SynchronizedMultimap(Multimap<K,V> delegate, Object lock) {
+    SynchronizedMultimap(Multimap<K, V> delegate, Object lock) {
       checkNotNull(delegate);
       this.delegate = delegate;
       this.lock = (lock == null) ? this : lock;
@@ -675,7 +678,7 @@ final class Synchronized {
       }
     }
 
-    public Collection<Entry<K,V>> entries() {
+    public Collection<Map.Entry<K, V>> entries() {
       synchronized (lock) {
         if (entries == null) {
           entries = typePreservingCollection(delegate.entries(), lock);
@@ -687,19 +690,9 @@ final class Synchronized {
     public Map<K, Collection<V>> asMap() {
       synchronized (lock) {
         if (asMap == null) {
-          asMap = new SynchronizedAsMap<K,V>(delegate.asMap(), lock);
+          asMap = new SynchronizedAsMap<K, V>(delegate.asMap(), lock);
         }
         return asMap;
-      }
-    }
-
-    public Set<Entry<K, Collection<V>>> collectionEntries() {
-      synchronized (lock) {
-        if (collectionEntries == null) {
-          collectionEntries = new SynchronizedCollectionEntries<K,V>(
-              delegate.collectionEntries(), lock);
-        }
-        return collectionEntries;
       }
     }
 
@@ -723,6 +716,8 @@ final class Synchronized {
         return delegate.hashCode();
       }
     }
+
+    private static final long serialVersionUID = 7083631791577112787L;
   }
 
   /**
@@ -754,7 +749,7 @@ final class Synchronized {
    * @return a sychronized view of the specified collection
    */
   @SuppressWarnings("unchecked")
-  public static <E> Collection<E> typePreservingCollection(
+  private static <E> Collection<E> typePreservingCollection(
       Collection<E> collection, Object lock) {
     if (collection instanceof SortedSet<?>) {
       return sortedSet((SortedSet<E>) collection, lock);
@@ -768,10 +763,10 @@ final class Synchronized {
   }
 
   /**
-   * Returns a synchronized (thread-safe) set backed by the specified
-   * set using the specified lock (mutex). In order to guarantee serial
-   * access, it is critical that <b>all</b> access to the backing collection is
-   * accomplished through the returned collection.
+   * Returns a synchronized (thread-safe) set backed by the specified set using
+   * the specified lock (mutex). In order to guarantee serial access, it is
+   * critical that <b>all</b> access to the backing collection is accomplished
+   * through the returned collection.
    *
    * <p>It is imperative that the user manually synchronize on the specified
    * lock when iterating over the returned collection:
@@ -803,32 +798,33 @@ final class Synchronized {
     }
   }
 
-  /** @see SynchronizedMultimap#collectionEntries */
-  static class SynchronizedCollectionEntries<K,V>
-      extends SynchronizedSet<Entry<K, Collection<V>>> {
-    private static final long serialVersionUID = 794109514199117015L;
-    private final Set<Entry<K, Collection<V>>> delegate;
+  /** @see Synchronized#multimap */
+  static class SynchronizedAsMapEntries<K, V>
+      extends SynchronizedSet<Map.Entry<K, Collection<V>>> {
+    private final Set<Map.Entry<K, Collection<V>>> delegate;
 
-    public SynchronizedCollectionEntries(Set<Entry<K, Collection<V>>> delegate,
-        Object lock) {
+    public SynchronizedAsMapEntries(
+        Set<Map.Entry<K, Collection<V>>> delegate, Object lock) {
       super(delegate, lock);
       this.delegate = delegate;
     }
 
-    @Override public Iterator<Entry<K, Collection<V>>> iterator() {
-      /* The iterator and entry aren't synchronized, but the entry value is. */
-      return new ForwardingIterator<Entry<K, Collection<V>>>(super.iterator()) {
-          @Override public Entry<K, Collection<V>> next() {
-            return new ForwardingMapEntry<K, Collection<V>>(super.next()) {
-                @Override public Collection<V> getValue() {
-                  return typePreservingCollection(super.getValue(), lock);
-                }
-              };
-          }
-        };
+    @Override public Iterator<Map.Entry<K, Collection<V>>> iterator() {
+      // The iterator and entry aren't synchronized, but the entry value is.
+      return new ForwardingIterator<Map.Entry<K, Collection<V>>>(
+          super.iterator()) {
+        @Override public Map.Entry<K, Collection<V>> next() {
+          return new ForwardingMapEntry<K, Collection<V>>(super.next()) {
+            @Override public Collection<V> getValue() {
+              return typePreservingCollection(super.getValue(), lock);
+            }
+          };
+        }
+      };
     }
 
-    /* See java.util.Collections.CheckedEntrySet for details on attacks. */
+    // See java.util.Collections.CheckedEntrySet for details on attacks.
+
     @Override public Object[] toArray() {
       synchronized (lock) {
         return ForwardingCollection.toArrayImpl(this);
@@ -869,6 +865,8 @@ final class Synchronized {
         return ForwardingCollection.retainAllImpl(this, c);
       }
     }
+
+    private static final long serialVersionUID = 794109514199117015L;
   }
 
   /**
@@ -897,21 +895,20 @@ final class Synchronized {
    * @param map the map to be wrapped in a synchronized view
    * @return a sychronized view of the specified map
    */
-  public static <K,V> Map<K,V> map(Map<K,V> map, Object lock) {
-    return new SynchronizedMap<K,V>(map, lock);
+  public static <K, V> Map<K, V> map(Map<K, V> map, Object lock) {
+    return new SynchronizedMap<K, V>(map, lock);
   }
 
-  /** @see #map */
-  static class SynchronizedMap<K,V> implements Map<K,V>, Serializable {
-    private static final long serialVersionUID = -2739593476673006162L;
-    private final Map<K,V> delegate;
+  /** @see Synchronized#map */
+  static class SynchronizedMap<K, V> implements Map<K, V>, Serializable {
+    private final Map<K, V> delegate;
     protected final Object lock;
 
     private transient volatile Set<K> keySet;
     private transient volatile Collection<V> values;
-    private transient volatile Set<Entry<K,V>> entrySet;
+    private transient volatile Set<Map.Entry<K, V>> entrySet;
 
-    public SynchronizedMap(Map<K,V> delegate, Object lock) {
+    public SynchronizedMap(Map<K, V> delegate, Object lock) {
       checkNotNull(delegate);
       this.delegate = delegate;
       this.lock = (lock == null) ? this : lock;
@@ -935,7 +932,7 @@ final class Synchronized {
       }
     }
 
-    public Set<Entry<K,V>> entrySet() {
+    public Set<Map.Entry<K, V>> entrySet() {
       synchronized (lock) {
         if (entrySet == null) {
           entrySet = set(delegate.entrySet(), lock);
@@ -1015,6 +1012,8 @@ final class Synchronized {
         return delegate.hashCode();
       }
     }
+
+    private static final long serialVersionUID = -2739593476673006162L;
   }
 
   /**
@@ -1043,21 +1042,20 @@ final class Synchronized {
    * @param bimap the bimap to be wrapped in a synchronized view
    * @return a sychronized view of the specified bimap
    */
-  public static <K,V> BiMap<K,V> biMap(BiMap<K,V> bimap, Object lock) {
-    return new SynchronizedBiMap<K,V>(bimap, lock, null);
+  public static <K, V> BiMap<K, V> biMap(BiMap<K, V> bimap, Object lock) {
+    return new SynchronizedBiMap<K, V>(bimap, lock, null);
   }
 
-  /** @see #biMap */
-  static class SynchronizedBiMap<K,V> extends SynchronizedMap<K,V>
-      implements BiMap<K,V>, Serializable {
-    private static final long serialVersionUID = -8892589047022295017L;
-    private final BiMap<K,V> delegate;
+  /** @see Synchronized#biMap */
+  static class SynchronizedBiMap<K, V> extends SynchronizedMap<K, V>
+      implements BiMap<K, V>, Serializable {
+    private final BiMap<K, V> delegate;
 
     private transient volatile Set<V> values;
-    private transient volatile BiMap<V,K> inverse;
+    private transient volatile BiMap<V, K> inverse;
 
-    public SynchronizedBiMap(BiMap<K,V> delegate, Object lock,
-        BiMap<V,K> inverse) {
+    public SynchronizedBiMap(
+        BiMap<K, V> delegate, Object lock, BiMap<V, K> inverse) {
       super(delegate, lock);
       this.delegate = delegate;
       this.inverse = inverse;
@@ -1078,23 +1076,24 @@ final class Synchronized {
       }
     }
 
-    public BiMap<V,K> inverse() {
+    public BiMap<V, K> inverse() {
       synchronized (lock) {
         if (inverse == null) {
-          inverse = new SynchronizedBiMap<V,K>(delegate.inverse(), lock, this);
+          inverse = new SynchronizedBiMap<V, K>(delegate.inverse(), lock, this);
         }
         return inverse;
       }
     }
+
+    private static final long serialVersionUID = -8892589047022295017L;
   }
 
   /** @see SynchronizedMultimap#asMap */
-  static class SynchronizedAsMap<K,V>
+  static class SynchronizedAsMap<K, V>
       extends SynchronizedMap<K, Collection<V>> {
-    private static final long serialVersionUID = 794109514199117015L;
     private final Map<K, Collection<V>> delegate;
 
-    private transient volatile Set<Entry<K, Collection<V>>> entrySet;
+    private transient volatile Set<Map.Entry<K, Collection<V>>> entrySet;
     private transient volatile Collection<Collection<V>> values;
 
     public SynchronizedAsMap(Map<K, Collection<V>> delegate, Object lock) {
@@ -1110,9 +1109,9 @@ final class Synchronized {
       }
     }
 
-    @Override public Set<Entry<K, Collection<V>>> entrySet() {
+    @Override public Set<Map.Entry<K, Collection<V>>> entrySet() {
       if (entrySet == null) {
-        entrySet = new SynchronizedCollectionEntries<K,V>(
+        entrySet = new SynchronizedAsMapEntries<K, V>(
             delegate.entrySet(), lock);
       }
       return entrySet;
@@ -1128,30 +1127,28 @@ final class Synchronized {
     @Override public boolean containsValue(Object o) {
       return values().contains(o);
     }
+
+    private static final long serialVersionUID = 794109514199117015L;
   }
 
   /** @see SynchronizedMultimap#asMap */
   static class SynchronizedAsMapValues<V>
       extends SynchronizedCollection<Collection<V>> {
-    private static final long serialVersionUID = 794109514199117015L;
-    private final Collection<Collection<V>> delegate;
-
-    public SynchronizedAsMapValues(
-        Collection<Collection<V>> delegate, Object lock) {
+    SynchronizedAsMapValues(Collection<Collection<V>> delegate, Object lock) {
       super(delegate, lock);
-      this.delegate = delegate;
     }
 
     @Override public Iterator<Collection<V>> iterator() {
-      /* The iterator isn't synchronized, but its value is. */
+      // The iterator isn't synchronized, but its value is.
       return new ForwardingIterator<Collection<V>>(super.iterator()) {
-          @Override public Collection<V> next() {
-             return typePreservingCollection(super.next(), lock);
-          }
-        };
+        @Override public Collection<V> next() {
+          return typePreservingCollection(super.next(), lock);
+        }
+      };
     }
 
-    /* See java.util.Collections.CheckedEntrySet for details on attacks. */
+    // See java.util.Collections.CheckedEntrySet for details on attacks.
+    
     @Override public Object[] toArray() {
       synchronized (lock) {
         return ForwardingCollection.toArrayImpl(this);
@@ -1187,5 +1184,7 @@ final class Synchronized {
         return ForwardingCollection.retainAllImpl(this, c);
       }
     }
+
+    private static final long serialVersionUID = 794109514199117015L;
   }
 }

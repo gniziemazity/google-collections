@@ -25,7 +25,7 @@ import java.util.Queue;
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
  *
  * @see ForwardingObject
- * @author mbostock@google.com (Mike Bostock)
+ * @author Mike Bostock
  */
 public abstract class ForwardingQueue<E> extends ForwardingCollection<E>
     implements Queue<E> {

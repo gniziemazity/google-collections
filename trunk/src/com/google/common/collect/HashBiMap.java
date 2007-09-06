@@ -16,24 +16,24 @@
 
 package com.google.common.collect;
 
+import com.google.common.base.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A {@code BiMap} backed by two {@code HashMap} instances.
+ * A {@link BiMap} backed by two {@link HashMap} instances. This implementation
+ * allows null keys and values.
  *
- * @see HashMap
- * @author mbostock@google.com (Mike Bostock)
+ * @author Mike Bostock
  */
-public final class HashBiMap<K,V> extends StandardBiMap<K,V>
-    implements Cloneable {
-
+public final class HashBiMap<K, V> extends StandardBiMap<K, V> {
   /**
-   * Constructs a new empty bimap with the default initial capacity (16) and
-   * the default load factor (0.75).
+   * Constructs a new empty bimap with the default initial capacity (16) and the
+   * default load factor (0.75).
    */
   public HashBiMap() {
-    super(new HashMap<K,V>(), new HashMap<V,K>());
+    super(new HashMap<K, V>(), new HashMap<V, K>());
   }
 
   /**
@@ -41,11 +41,12 @@ public final class HashBiMap<K,V> extends StandardBiMap<K,V>
    * default load factor (0.75).
    *
    * @param expectedSize the expected number of entries
-   * @throws IllegalArgumentException if the specified expected size is negative
+   * @throws IllegalArgumentException if the specified expected size is
+   *     negative
    */
   public HashBiMap(int expectedSize) {
-    super(new HashMap<K,V>(Maps.capacity(expectedSize)),
-        new HashMap<V,K>(Maps.capacity(expectedSize)));
+    super(new HashMap<K, V>(Maps.capacity(expectedSize)),
+        new HashMap<V, K>(Maps.capacity(expectedSize)));
   }
 
   /**
@@ -55,32 +56,30 @@ public final class HashBiMap<K,V> extends StandardBiMap<K,V>
    * @param initialCapacity the initial capacity
    * @param loadFactor the load factor
    * @throws IllegalArgumentException if the initial capacity is negative or the
-   * load factor is nonpositive
+   *     load factor is nonpositive
    */
   public HashBiMap(int initialCapacity, float loadFactor) {
-    super(new HashMap<K,V>(initialCapacity, loadFactor),
-        new HashMap<V,K>(initialCapacity, loadFactor));
+    super(new HashMap<K, V>(initialCapacity, loadFactor),
+        new HashMap<V, K>(initialCapacity, loadFactor));
   }
 
   /**
-   * Constructs a new bimap with the same mappings as the specified map. The
+   * Constructs a new bimap containing initial values from {@code map}. The
    * bimap is created with the default load factor (0.75) and an initial
    * capacity sufficient to hold the mappings in the specified map.
-   *
-   * @param map the map whose mappings are to be placed in this map
-   * @throws NullPointerException if the specified map is null
    */
   public HashBiMap(Map<? extends K, ? extends V> map) {
     this(map.size());
     putAll(map); // careful if we make this class non-final
   }
 
-  @SuppressWarnings("unchecked")
-  @Override public HashBiMap<K,V> clone() {
-    try {
-      return (HashBiMap<K,V>) super.clone();
-    } catch (CloneNotSupportedException e) {
-      throw new AssertionError(e);
-    }
+  // Override these two methods to show that keys and values may be null
+
+  @Override public V put(@Nullable K key, @Nullable V value) {
+    return super.put(key, value);
+  }
+
+  @Override public V forcePut(@Nullable K key, @Nullable V value) {
+    return super.forcePut(key, value);
   }
 }

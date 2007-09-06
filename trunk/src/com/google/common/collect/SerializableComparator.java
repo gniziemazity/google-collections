@@ -16,24 +16,15 @@
 
 package com.google.common.collect;
 
+import java.io.Serializable;
+import java.util.Comparator;
+
 /**
- * Throws an exception as unchecked. Chances are you shouldn't use this.
+ * A serializable comparator. Comparator implementations may implement this
+ * interface instead of {@code Comparator<T>} directly, so that collections
+ * using the comparator can be serializable.
  *
- * @author crazybob@google.com (Bob Lee)
+ * @author Kevin Bourrillion
  */
-class UncheckedThrower<T extends Throwable> {
-
-  @SuppressWarnings("unchecked")
-  private void throwAsUnchecked2(Throwable t) throws T {
-    // This cast is erased at runtime, so it won't throw ClassCastException.
-    throw (T) t;
-  }
-
-  /**
-   * This hack enables us to pass exceptions from the creation method through
-   * sans wrapping. Thanks to Java Puzzlers for the idea. ;)
-   */
-  static void throwAsUnchecked(Throwable t) {
-    new UncheckedThrower<Error>().throwAsUnchecked2(t);
-  }
+public interface SerializableComparator<T> extends Comparator<T>, Serializable {
 }

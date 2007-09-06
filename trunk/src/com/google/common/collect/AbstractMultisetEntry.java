@@ -23,10 +23,9 @@ import com.google.common.collect.Multiset.Entry;
  * Implementation of the {@code equals}, {@code hashCode}, and {@code toString}
  * methods of {@link Entry}.
  *
- * @author mbostock@google.com (Mike Bostock)
+ * @author Mike Bostock
  */
 public abstract class AbstractMultisetEntry<E> implements Entry<E> {
-
   @Override public boolean equals(Object o) {
     if (o == this) {
       return true;
@@ -45,7 +44,9 @@ public abstract class AbstractMultisetEntry<E> implements Entry<E> {
   }
 
   /**
-   * Returns a string representation of this multiset entry. The string
+   * {@inheritDoc}
+   *
+   * <p>Returns a string representation of this multiset entry. The string
    * representation consists of the associated element if the associated count
    * is one, and otherwise the associated element followed by the characters " x
    * " (space, x and space) followed by the count. Elements and counts are
@@ -56,5 +57,4 @@ public abstract class AbstractMultisetEntry<E> implements Entry<E> {
     int n = getCount();
     return (n == 1) ? text : (text + " x " + n);
   }
-
 }

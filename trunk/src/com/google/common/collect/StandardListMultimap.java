@@ -17,31 +17,32 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Basic implementation of the {@code ListMultimap} interface. It's a wrapper
- * around {@link AbstractMultimap} that converts the returned collections into
- * {@code Lists}.
+ * Basic implementation of the {@link ListMultimap} interface. It's a wrapper
+ * around {@link StandardMultimap} that converts the returned collections into
+ * {@code Lists}. The {@link #createCollection} method must return a {@code
+ * List}.
  *
- * @author jlevy@google.com (Jared Levy)
+ * @author Jared Levy
  */
-public abstract class AbstractListMultimap<K,V>
-    extends AbstractMultimap<K,V> implements ListMultimap<K,V> {
-
+abstract class StandardListMultimap<K, V>
+    extends StandardMultimap<K, V> implements ListMultimap<K, V> {
   /**
-   * Creates a new AbstractMultimap that uses the provided map.
+   * Creates a new multimap that uses the provided map.
    *
    * @param map place to store the mapping from each key to its corresponding
    *     values
    */
-  protected AbstractListMultimap(Map<K, Collection<V>> map) {
+  protected StandardListMultimap(Map<K, Collection<V>> map) {
     super(map);
   }
 
-  @Override protected abstract List<V> createCollection();
+  @Override abstract List<V> createCollection();
 
   @Override public List<V> get(@Nullable K key) {
     return (List<V>) super.get(key);
@@ -55,4 +56,26 @@ public abstract class AbstractListMultimap<K,V>
       @Nullable K key, Iterable<? extends V> values) {
     return (List<V>) super.replaceValues(key, values);
   }
+  
+  /**
+   * Stores a key-value pair in the multimap.
+   *
+   * @param key key to store in the multimap
+   * @param value value to store in the multimap
+   * @return {@code true} always
+   */
+  @Override public boolean put(@Nullable K key, @Nullable V value) {
+    return super.put(key, value);
+  }
+  
+  /**
+   * Compares the specified object to this multimap for equality.
+   *
+   * <p>Two {@code ListMultimap} instances are equal if, for each key, they
+   * contain the same values in the same order. If the value orderings disagree,
+   * the multimaps will not be considered equal.
+   */
+  @Override public boolean equals(@Nullable Object obj) {
+    return super.equals(obj);
+  }  
 }

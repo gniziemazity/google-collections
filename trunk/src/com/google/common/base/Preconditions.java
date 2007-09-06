@@ -50,11 +50,10 @@ package com.google.common.base;
  * (Again, the above is only the exception <i>message</i>, and the full stack
  * trace is kept intact.)
  *
- * @author kevinb
+ * @author Kevin Bourrillion
  */
-public class Preconditions {
-
-  private Preconditions() { }
+public final class Preconditions {
+  private Preconditions() {}
 
   /**
    * Ensures that {@code expression} is {@code true}.
@@ -110,7 +109,7 @@ public class Preconditions {
       failArgument(message);
     }
   }
-
+  
   /**
    * Ensures that {@code expression} is {@code true}.
    *
@@ -140,6 +139,66 @@ public class Preconditions {
   public static void checkNotNull(Object reference, Object message) {
     if (reference == null) {
       failNotNull(message);
+    }
+  }
+
+  /**
+   * Ensures that {@code expression} is {@code true}.
+   *
+   * @param expression any boolean expression involving an argument to the
+   *     current method
+   * @param errorFormat format of error message to produce if the check fails
+   * @param args the arguments for {@code errorFormat}
+   * @throws IllegalArgumentException if {@code expression} is {@code false}
+   * 
+   * @see <a href=
+   *   "http://java.sun.com/javase/6/docs/api/java/util/Formatter.html#syntax">
+   *   Format string syntax</a>
+   */
+  public static void checkArgument(
+      boolean expression, String errorFormat, Object... args) {
+    if (!expression) {
+      failArgument(String.format(errorFormat, args));
+    }
+  }
+  
+  /**
+   * Ensures that {@code expression} is {@code true}.
+   *
+   * @param expression any boolean expression involving the state of the
+   *     current instance (and not involving arguments)
+   * @param errorFormat format of error message to produce if the check fails
+   * @param args the arguments for {@code errorFormat}
+   * @throws IllegalStateException if {@code errorFormat} is {@code false}
+   * 
+   * @see <a href=
+   *   "http://java.sun.com/javase/6/docs/api/java/util/Formatter.html#syntax">
+   *   Format string syntax</a>
+   */
+  public static void checkState(
+      boolean expression, String errorFormat, Object... args) {
+    if (!expression) {
+      failState(String.format(errorFormat, args));
+    }
+  }
+  
+  /**
+   * Ensures that {@code reference} is not {@code null}.
+   *
+   * @param reference an object reference that was passed as a parameter to the
+   *     current method
+   * @param errorFormat format of error message to produce if the check fails
+   * @param args the arguments for {@code errorFormat}
+   * @throws NullPointerException if {@code reference} is {@code null}
+   * 
+   * @see <a href=
+   *   "http://java.sun.com/javase/6/docs/api/java/util/Formatter.html#syntax">
+   *   Format string syntax</a>
+   */
+  public static void checkNotNull(
+      Object reference, String errorFormat, Object... args) {
+    if (reference == null) {
+      failNotNull(String.format(errorFormat, args));
     }
   }
 

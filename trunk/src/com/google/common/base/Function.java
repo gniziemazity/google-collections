@@ -30,8 +30,8 @@ package com.google.common.base;
  * <p>Implementors of Function which may cause side effects upon evaluation are
  * strongly encouraged to state this fact clearly in their API documentation.
  *
- * @author kevinb
- * @author bonneau
+ * @author Kevin Bourrillion
+ * @author Scott Bonneau
  */
 public interface Function<F,T> {
 

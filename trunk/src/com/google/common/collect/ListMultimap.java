@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -29,21 +30,47 @@ import java.util.Map;
  * each return a {@link List} of values. Though the method signature doesn't say
  * so explicitly, the map returned by {@link #asMap} has {@code List} values.
  *
- * @author jlevy@google.com (Jared Levy)
+ * @author Jared Levy
  */
-public interface ListMultimap<K,V> extends Multimap<K,V> {
-
+public interface ListMultimap<K, V> extends Multimap<K, V> {
+  /**
+   * {@inheritDoc}
+   *
+   * <p>In ListMultimap, the return type of this method is narrowed from {@link
+   * java.util.Collection} to {@code List}.
+   */
   List<V> get(@Nullable K key);
-
-  List<V> removeAll(@Nullable Object key);
-
-  List<V> replaceValues(@Nullable K key, Iterable<? extends V> values);
 
   /**
    * {@inheritDoc}
    *
-   * <p> Though the method signature doesn't say so explicitly, the returned map
+   * <p>In ListMultimap, the return type of this method is narrowed from {@link
+   * java.util.Collection} to {@code List}.
+   */
+  List<V> removeAll(@Nullable Object key);
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>In ListMultimap, the return type of this method is narrowed from {@link
+   * java.util.Collection} to {@code List}.
+   */
+  List<V> replaceValues(K key, Iterable<? extends V> values);
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>Though the method signature doesn't say so explicitly, the returned map
    * has {@link List} values.
    */
   Map<K, Collection<V>> asMap();
+
+  /**
+   * Compares the specified object to this multimap for equality.
+   *
+   * <p>Two {@code ListMultimap} instances are equal if, for each key, they
+   * contain the same values in the same order. If the value orderings disagree,
+   * the multimaps will not be considered equal.
+   */
+  boolean equals(@Nullable Object obj);
 }
