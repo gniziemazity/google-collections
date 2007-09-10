@@ -41,19 +41,19 @@ In general, our methods do not require a `Collection` to be passed in when an `I
 
 An -Iterator- represents a one-way scrollable "stream" of elements, and an -Iterable- is anything which can spawn independent iterators. A -Collection- is much, much more than this, so we only require it when we need to.
 
-== Why do the non-Collection iterables you return implement -toString()- but not -equals()- or -hashCode()-? ==
+== Why do the non-Collection iterables you return implement `toString()` but not `equals()` or `hashCode()`? ==
 
-It's hard to imagine any -equals()- implementation that would be useful, given that it must return false when given any -List- or -Set- in order to maintain the transitive property.
+It's hard to imagine any `equals()` implementation that would be useful, given that it must return false when given any `List` or `Set` in order to maintain the transitive property.
 
-It's possible -hashCode()- would be safe to implement, but it seems pointless. If you have an iterable you want to store inside some other collection, you should really copy the contents into a real collection of their own first.
+It's possible `hashCode()` would be safe to implement, but it seems pointless. If you have an iterable you want to store inside some other collection, you should really copy the contents into a real collection of their own first.
 
--toString()- is potentially harmful as it will not perform as anyone expects; it could take arbitrarily long to run if the data set is large.
+`toString()` is potentially harmful as it will not perform as anyone expects; it could take arbitrarily long to run if the data set is large.
 
-== Why is -AbstractIterator.remove()- unsupported, and worse, final? ==
+== Why is `AbstractIterator.remove()` unsupported, and worse, final? ==
 
 It is impossible to implement correctly without making this simple utility horribly complicated, and even then it would not work for many purposes.
 
-== Why are so many implementation classes marked -final-? ==
+== Why are so many implementation classes marked `final`? ==
 
 Designing and documenting classes of a public API to be extended safely is hard, and time-consuming. And in most cases when you'd be interested in extending a collection, you can just write a decorator for it instead. We've even provided the "forwarding collections" to make writing decorators easy.
 
@@ -65,7 +65,7 @@ Because "multiset" is a single, unhyphenated word, and we don't capitalize rando
 
 == Aha, but "bimap" is also a single word!  So why is it `BiMap`, not `Bimap`? ==
 
-Well, because we had a good reason to!  :)  A `BiMap` is also a `Map`; it extends the `Map` interface, and we felt it was important to make that connection clear. This is not the case for `Multimap`, nor does `Multiset` extend `Set`.
+This case seems analogous but is slightly different. A `BiMap` is also a `Map`; it extends the `Map` interface, and we felt it was important to make that connection clear. This is not the case for `Multimap`, which emphatically does _not_ extend `Map`, nor does `Multiset` extend `Set`.
 
 == Why does `BiMap.put(newKey, existingValue)` throw an exception instead of just remapping the value? ==
 
