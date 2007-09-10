@@ -5,7 +5,7 @@
 
 == Does "alpha" mean that it's not safe to use? ==
 
-We don't think so! We already use this library extensively in production for services like AdWords, !GMail, Reader, Blogger, Docs & Spreadsheets, and dozens more. We consider it to be pretty safe. However, during the alpha period, we do reserve the right to make changes of any kind to it at any time. So if you use it, when you want to upgrade to the official version you may find that you have some work to do.
+We don't think so! We already use this library extensively in production for services like !GMail, Reader, Blogger, Docs & Spreadsheets, !AdWords, !AdSense and dozens more. We consider it to be pretty safe. However, during the alpha period, we do reserve the right to make changes of any kind to it at any time. So if you use it, when you want to upgrade to the official version you may find that you have some work to do.
 
 == Should I use it in my own library which I release publicly? ==
 
