@@ -5,15 +5,15 @@
 
 == Does "alpha" mean that it's not safe to use? ==
 
-We don't think so! We already use this library extensively in production for services like AdWords, GMail, Google Reader, Blogger, Docs & Spreadsheets, and dozens more. We consider it to be pretty safe. However, during the alpha period, we do reserve the right to make changes of any kind to it at any time. So if you use it, when you want to upgrade to the official version you may find that you have some work to do.
+We don't think so! We already use this library extensively in production for services like AdWords, !GMail, Reader, Blogger, Docs & Spreadsheets, and dozens more. We consider it to be pretty safe. However, during the alpha period, we do reserve the right to make changes of any kind to it at any time. So if you use it, when you want to upgrade to the official version you may find that you have some work to do.
 
 == Should I use it in my own library which I release publicly? ==
 
-Sure!  But during the alpha period, be very careful. Use it only in the internals of your implementation; don't expose it in your public API. Use [http://tonicsystems.com/products/jarjar/ Jar Jar Links] or a similar tool to make sure your users won't have any conflicts.
+Sure! But during the alpha period, be very careful. Use it only in the internals of your implementation; don't expose it in your public API. Use [http://tonicsystems.com/products/jarjar/ Jar Jar Links] or a similar tool to make sure your users won't have any conflicts.
 
 Once 1.0 is released, you should be safe to do just about anything with it.
 
-== Why did Google build all this, when it could have tried to improve the Apache Commons Collections instead? ==
+== Why did Google build all this, when it could have tried to improve the [http://commons.apache.org/collections/ Apache Commons Collections] instead? ==
 
 The Apache library very clearly did not meet our needs. It does not use generics, which is a problem for us as we hate to get compilation warnings from our code. It has also been in a "holding pattern" for a long time. We could see that it would require a pretty major investment from us to fix it up until we were happy to use it, and in the meantime, our own library was already growing organically.
 
