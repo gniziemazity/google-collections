@@ -37,19 +37,19 @@ Don't worry, the tests are coming over shortly.
 
 == Why so much emphasis on Iterators and Iterables? ==
 
-In general, our methods do not require a Collection to be passed in when an Iterable or Iterator would suffice. This distinction is important to us, as sometimes at Google we work with very large quantities of data, which may be too large to fit in memory, but which can be traversed from beginning to end in the course of some computation. Such data structures can be implemented as Collections that throw exceptions or return wrong answers for most of their methods, but it is a very poor fit, a square peg in a round hole.
+In general, our methods do not require a `Collection` to be passed in when an `Iterable` or `Iterator` would suffice. This distinction is important to us, as sometimes at Google we work with very large quantities of data, which may be too large to fit in memory, but which can be traversed from beginning to end in the course of some computation. Such data structures _can_ be implemented as collections, but most of their methods would have to either throw an exception, return a wrong answer, or perform abysmally. For these situations, `Collection` is a very poor fit; a square peg in a round hole.
 
-An Iterator represents a one-way scrollable stream of elements, and an Iterable is anything which can spawn independent Iterators. A Collection is much, much more than this, so we only require it when we need to.
+An -Iterator- represents a one-way scrollable "stream" of elements, and an -Iterable- is anything which can spawn independent iterators. A -Collection- is much, much more than this, so we only require it when we need to.
 
-== Why do the non-Collection Iterables you return implement toString() but not equals() or hashCode()? ==
+== Why do the non-Collection iterables you return implement -toString()- but not -equals()- or -hashCode()-? ==
 
-It's hard to imagine any equals() implementation that would be useful, given that it must return false when given any List or Set (by the transitive property), and would then interfere with the ability of other collection types to define their equals() behavior in a similar way.
+It's hard to imagine any -equals()- implementation that would be useful, given that it must return false when given any -List- or -Set- in order to maintain the transitive property.
 
-It's possible hashCode() would be safe to implement, but it seems pointless. If you have a non-Collection Iterable you want to store in a collection and keep, you want to copy it into a real collection first.
+It's possible -hashCode()- would be safe to implement, but it seems pointless. If you have an iterable you want to store inside some other collection, you should really copy the contents into a real collection of their own first.
 
-toString() is harmless, though it could take arbitrarily long to run if the data set is huge.
+-toString()- is potentially harmful as it will not perform as anyone expects; it could take arbitrarily long to run if the data set is large.
 
-== Why is !AbstractIterator.remove() unsupported, and worse, final? ==
+== Why is -AbstractIterator.remove()- unsupported, and worse, final? ==
 
 It is impossible to implement correctly without making this simple utility horribly complicated, and even then it would not work for many purposes.
 
@@ -67,9 +67,9 @@ Because "multiset" is a single, unhyphenated word, and we don't capitalize rando
 
 Well, because we had a good reason to!  :)  A `BiMap` is also a `Map`; it extends the `Map` interface, and we felt it was important to make that connection clear. This is not the case for `Multimap`, nor does `Multiset` extend `Set`.
 
-== Why does `BiMap.put()` throw an exception when the value is already present, instead of just remapping the value? ==
+== Why does `BiMap.put(newKey, existingValue)` throw an exception instead of just remapping the value? ==
 
-Because this method comes from the Map interface, and such behavior on a `Map` would violate the principle of least surprise. We added the method `BiMap.forcePut()` to offer the behavior described.
+Because this method comes from the Map interface, and such behavior on a `Map` would violate the principle of least surprise. If this is the behavior you want, just use `BiMap.forcePut()` instead.
 
 == Why is `BiMap.putAll()` is allowed to leave the bimap in an indeterminate state if it throws an exception? ==
 
