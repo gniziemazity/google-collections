@@ -1,4 +1,5 @@
 #summary Frequently anticipated questions
+#labels Featured
 
 = General =
 
@@ -78,7 +79,7 @@ In general, a method that throws an exception ought to leave the instance with i
 
 We did think about it (Doug Lea even half-jokingly suggested naming it -teg()-!). But you don't really need it; just call -inverse().get()-. If this method did exist, every implementor of the interface would have to write it over again, and would probably do it exactly like that.
 
-== -!ClassToInstanceMap- is interesting, but I need to map a type -T- to a -Foo&lt;T>- / I need a !ClassToInstanceMultimap / etc. How? ==
+== -!ClassToInstanceMap- is interesting, but I need to map a type -T- to a -Foo<T>- / I need a !ClassToInstanceMultimap / etc. How? ==
 
 If your goal is to maintain type-safety and avoid casts when using the API "normally", but you don't care to go to great lengths to _prevent_ the wrong types of objects being added, it's always been easy to do this yourself:
 
@@ -96,13 +97,13 @@ If your goal is to maintain type-safety and avoid casts when using the API "norm
 
 If you want the added protection, you can extend !ForwardingMap and use it in conjunction with -Constraints.constrainedMap()-.
 
-== Why do you use the type -&lt;E extends Comparable>- in various APIs, which is not "fully generified"?  Shouldn't it be -&lt;E extends Comparable&lt;?>>-, -&lt;E extends Comparable&lt;E>>- or -&lt;E extends Comparable&lt;? super E>>- ? ==
+== Why do you use the type -<E extends Comparable>- in various APIs, which is not "fully generified"?  Shouldn't it be -<E extends Comparable<?>>-, -<E extends Comparable<E>>- or -<E extends Comparable<? super E>>- ? ==
 
 Many reasons. For one, if we used any of these constructs, you would not be able to use our API with pre-Java-5 objects, like Joda-Time's !DateTime (which we use heavily here). No cast can fix that. Secondly, the "correct" syntax (the last one) does not play nicely with javac's type inference capabilities in certain cases.
 
 The only difference between our type and the "correct" type is that the "correct" construct would not be assignable from a deviant type which was comparable to something, but not comparable to itself, for example -Foo implements Comparable<String>-. In our opinion, creating such a type in the first place is already asking for trouble, as most APIs that accept a -Comparable- elements expect those elements to be mutually comparable.
 
-== Why does -Multimap- have no -putAll(K, Iterable&lt;V>)- or -putAll(Map&lt;K,V>)- methods? ==
+== Why does -Multimap- have no -putAll(K, Iterable<V>)- or -putAll(Map<K,V>)- methods? ==
 
 These operations can be performed rather simply. First, it's important to realize that the -get(key)- method of -Multimap- returns a "live view" of the collection corresponding to that key. So, -multimap.get(myKey).putAll(myValues)- accomplishes the first task.
 
