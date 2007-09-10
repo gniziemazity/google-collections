@@ -13,11 +13,11 @@ Sure! But during the alpha period, be very careful. Use it only in the internals
 
 Once 1.0 is released, you should be safe to do just about anything with it.
 
-== Why did Google build all this, when it could have tried to improve the [http://commons.apache.org/collections/ Apache Commons Collections] instead? ==
+== Why did Google build all this, when it could have tried to improve the Apache Commons Collections instead? ==
 
-The Apache library very clearly did not meet our needs. It does not use generics, which is a problem for us as we hate to get compilation warnings from our code. It has also been in a "holding pattern" for a long time. We could see that it would require a pretty major investment from us to fix it up until we were happy to use it, and in the meantime, our own library was already growing organically.
+The [http://commons.apache.org/collections/ Apache Commons Collections] very clearly did not meet our needs. It does not use generics, which is a problem for us as we hate to get compilation warnings from our code. It has also been in a "holding pattern" for a long time. We could see that it would require a pretty major investment from us to fix it up until we were happy to use it, and in the meantime, our own library was already growing organically.
 
-An important difference between Apache Commons Collections and the Google Collections Library is that our collections very faithfully adhere to the contracts specified by the JDK interfaces they implement. If you review the Apache documentation, you'll find countless examples of violations. Deviating from standard collection behavior is risky!  You must be careful what you do with such a collection; bugs are always just waiting to happen.
+An important difference between the Apache library and ours is that our collections very faithfully adhere to the contracts specified by the JDK interfaces they implement. If you review the Apache documentation, you'll find countless examples of violations. They deserve credit for pointing these out so clearly, but still, deviating from standard collection behavior is risky! You must be careful what you do with such a collection; bugs are always just waiting to happen.
 
 Our collections are fully generified and never violate their contracts (with isolated exceptions, where JDK implementations have set a strong precedent for acceptable violations). This means you can pass one of our collections to any method that expects a `Collection` and feel pretty confident that things will work exactly as they should.
 
