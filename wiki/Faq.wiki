@@ -33,10 +33,6 @@ Because we hate Java 1.4. Just kidding (but we do). Basically, at Google we simp
 
 Don't worry, the tests are coming over shortly.
 
-== Why is Google releasing this code? ==
-
-Why not?
-
 = Design =
 
 == Why so much emphasis on Iterators and Iterables? ==
