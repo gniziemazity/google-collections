@@ -59,23 +59,23 @@ It is impossible to implement correctly without making this simple utility horri
 
 Because "multiset" is a single, unhyphenated word, and we don't capitalize random letters inside those unless we have a good reason to.
 
-== Aha, but "bimap" is also a single word!  So why is it `!BiMap`, not `Bimap`? ==
+== Aha, but "bimap" is also a single word!  So why is it `BiMap`, not `Bimap`? ==
 
-Well, because we had a good reason to!  :)  A `!BiMap` is also a `Map`; it extends the `Map` interface, and we felt it was important to make that connection clear. This is not the case for `Multimap`, nor does `Multiset` extend `Set`.
+Well, because we had a good reason to!  :)  A `BiMap` is also a `Map`; it extends the `Map` interface, and we felt it was important to make that connection clear. This is not the case for `Multimap`, nor does `Multiset` extend `Set`.
 
-== Why does `!BiMap.put()` throw an exception when the value is already present, instead of just remapping the value? ==
+== Why does `BiMap.put()` throw an exception when the value is already present, instead of just remapping the value? ==
 
 Because this method comes from the Map interface, and such behavior on a `Map` would violate the principle of least surprise. We added the method `BiMap.forcePut()` to offer the behavior described.
 
-== Why is `!BiMap.putAll()` is allowed to leave the bimap in an indeterminate state if it throws an exception? ==
+== Why is `BiMap.putAll()` is allowed to leave the bimap in an indeterminate state if it throws an exception? ==
 
 In general, a method that throws an exception ought to leave the instance with its state unchanged. However, this is not always feasible. For a typical bimap implementation, it would be downright ugly, and slow. Note that this is no different from the regular behavior of `Map.putAll()`, `Collection.addAll()`, etc.
 
-== Why does `!BiMap` have no `getKeyForValue()` method? ==
+== Why does `BiMap` have no `getKeyForValue()` method? ==
 
 We did think about it (Doug Lea even half-jokingly suggested naming it `teg()`!). But you don't really need it; just call `inverse().get()`. If this method did exist, every implementor of the interface would have to write it over again, and would probably do it exactly like that.
 
-== `!ClassToInstanceMap` is interesting, but I need to map a type `T` to a `Foo<T>` / I need a !ClassToInstanceMultimap / etc. How? ==
+== `ClassToInstanceMap` is interesting, but I need to map a type `T` to a `Foo<T>` / I need a !ClassToInstanceMultimap / etc. How? ==
 
 If your goal is to maintain type-safety and avoid casts when using the API "normally", but you don't care to go to great lengths to _prevent_ the wrong types of objects being added, it's always been easy to do this yourself:
 
