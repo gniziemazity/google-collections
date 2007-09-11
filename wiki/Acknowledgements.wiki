@@ -1,0 +1,9 @@
+#summary Acknowledgements
+
+Primary authors: Kevin Bourrillion, Jared Levy, Mike Bostock.
+
+Google is a _very_ collaborative environment, and the "long tail" of Googlers who have contributed in a meaningful way to the library that you see here goes a long, long way.  If I tried to count every person who helped with a random bug fix, speedup, warning cleanup, new utility method, code review, or participating in the debate over the thorny design issue of the week -- I think I would probably hit three digits.
+
+We appreciate the contributions of every one of these individuals even inasmuch as we could never attempt to list them all!
+
+Special thanks are due to:
