@@ -1,9 +1,9 @@
-#summary Acknowledgements
-
 Primary authors: Kevin Bourrillion, Jared Levy, Mike Bostock.
 
-Google is a _very_ collaborative environment, and the "long tail" of Googlers who have contributed in a meaningful way to this library goes on as far as the eye can see. It's this collaboration, together with the meticulous oversight of the primary authors, that has made this library so damn good.
+Google is a very collaborative environment, and the "long tail" of Googlers who have contributed in a meaningful way to this library goes on as far as the eye can see. It's this collaboration, together with the meticulous oversight of the primary authors, that has made this library so damn good.
 
-If we tried to name every person who helped with a random bug report, bug fix, speedup, warning cleanup, new utility method, code review, code review, code review, or participating helpfully in the debate over the thorny design issue of the week -- I think we would end up listing close to a hundred people!
+If we tried to name every person who contributed with a random bug report, bug fix, speedup, warning cleanup, new utility method, code review, code review, code review, or by participating helpfully in the debate over the thorny design issue of the week -- we would end up listing close to a hundred people!  So please forgive us for not being able to thank you individually; we thank you nonetheless.
 
-We clearly cannot list everyone by name, but we are very thankful for their help!
+Special thanks to: Rob Konigsberg, who has selflessly donated reviews and fixes since the earliest days; Bob Lee, whose `ReferenceMap` is a jewel, and who has lent us his expertise on more issues than I can count; and Joshua Bloch, whose generosity in the form of answers, advice, reviews and overall mentoring has been our lifeblood.
+
+Thanks everyone!
