@@ -6,4 +6,4 @@ Google is a _very_ collaborative environment, and the "long tail" of Googlers wh
 
 If we tried to name every person who helped with a random bug report, bug fix, speedup, warning cleanup, new utility method, code review, code review, code review, or participating helpfully in the debate over the thorny design issue of the week -- I think we would end up listing close to a hundred people!
 
-We clearly cannot list everyone by name, but we are very thankful for their help.
+We clearly cannot list everyone by name, but we are very thankful for their help!
