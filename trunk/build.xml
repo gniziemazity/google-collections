@@ -65,12 +65,17 @@
     </jar>
   </target>
 
-  <target name="dist" depends="jar, javadoc"
+  <target name="jarsrc" description="Build jar of source.">
+    <jar jarfile="${build.dir}/dist/google-collect-${version}-src.zip">
+      <fileset dir="${src.dir}"/>
+    </jar>
+  </target>
+
+  <target name="dist" depends="jar, jarsrc, javadoc"
        description="Build entire distribution.">
 
     <copy toDir="${build.dir}/dist" file="COPYING"/>
     <copy toDir="${build.dir}/dist">
-      <fileset dir="${lib.dir}" includes="*.jar"/>
       <fileset dir="${build.dir}" includes="javadoc/**/*"/>
     </copy>
 
@@ -84,7 +89,7 @@
     <mkdir dir="${build.dir}/javadoc"/>
     <javadoc packagenames="${javadoc.packagenames}"
          destdir="${build.dir}/javadoc"
-         author="false"
+         author="true"
          protected="true"
          windowtitle="Google Collections Library - ${version} (ALPHA)">
       <sourcepath>
@@ -92,7 +97,6 @@
           For some unknown reason, {@inheritDoc} only appears to work when using
           javadoc from 1.5.0_01, and pulling the source from 1.5.0_06.
         -->
-        <!-- pathelement location="/home/build/buildtools/java/jdk1.5.0_06/src/"/ -->
         <pathelement location="${env.JAVA_HOME}/src/"/>
         <pathelement location="${src.dir}"/>
       </sourcepath>
