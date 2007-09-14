@@ -35,25 +35,28 @@ import java.util.Map;
 public interface ListMultimap<K, V> extends Multimap<K, V> {
   /**
    * {@inheritDoc}
-   *
-   * <p>In ListMultimap, the return type of this method is narrowed from {@link
-   * java.util.Collection} to {@code List}.
+   * 
+   * <p>Because the values for a given key may have duplicates and follow the
+   * insertion ordering, this method returns a {@link List}, instead of the
+   * {@link java.util.Collection} specified in the {@link Multimap} interface.
    */
   List<V> get(@Nullable K key);
 
   /**
    * {@inheritDoc}
-   *
-   * <p>In ListMultimap, the return type of this method is narrowed from {@link
-   * java.util.Collection} to {@code List}.
+   * 
+   * <p>Because the values for a given key may have duplicates and follow the
+   * insertion ordering, this method returns a {@link List}, instead of the
+   * {@link java.util.Collection} specified in the {@link Multimap} interface.
    */
   List<V> removeAll(@Nullable Object key);
 
   /**
    * {@inheritDoc}
-   *
-   * <p>In ListMultimap, the return type of this method is narrowed from {@link
-   * java.util.Collection} to {@code List}.
+   * 
+   * <p>Because the values for a given key may have duplicates and follow the
+   * insertion ordering, this method returns a {@link List}, instead of the
+   * {@link java.util.Collection} specified in the {@link Multimap} interface.
    */
   List<V> replaceValues(K key, Iterable<? extends V> values);
 

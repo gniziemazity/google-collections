@@ -39,7 +39,7 @@ import java.util.List;
  * null -- these will be represented in the output with the string
  * {@code "null"}.
  *
- * @author Kevin Bourillion
+ * @author Kevin Bourrillion
  */
 public final class Join {
   private Join() {}

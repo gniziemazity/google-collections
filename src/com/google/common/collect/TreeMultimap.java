@@ -161,8 +161,9 @@ public final class TreeMultimap<K, V> extends StandardSortedSetMultimap<K, V> {
   /**
    * {@inheritDoc}
    *
-   * <p>In SortedSetMultimap, the return type of this method is narrowed from
-   * {@link Set} to {@code SortedSet}.
+   * <p>Because a {@code TreeMultimap} has unique sorted keys, this method
+   * returns a {@link SortedSet}, instead of the {@link Set} specified in the
+   * {@link Multimap} interface.
    */
   @Override public SortedSet<K> keySet() {
     return (SortedSet<K>) super.keySet();

@@ -48,7 +48,7 @@ public interface BiMap<K, V> extends Map<K, V> {
    *
    * <p><b>Warning</b>: If an existing entry with this value is removed, the key
    * for this entry is discarded and not returned.
-   *
+   * 
    * @param key the key with which the specified value is to be associated
    * @param value the value to be associated with the specified key
    * @return the value which was previously associated with the key, which may
@@ -74,9 +74,10 @@ public interface BiMap<K, V> extends Map<K, V> {
 
   /**
    * {@inheritDoc}
-   *
-   * <p>In BiMap, the return type of this method is narrowed from {@link
-   * java.util.Collection} to {@code Set}.
+   * 
+   * <p>Because a bimap has unique values, this method returns a {@link Set},
+   * instead of the {@link java.util.Collection} specified in the {@link Map}
+   * interface.
    */
   Set<V> values();
 

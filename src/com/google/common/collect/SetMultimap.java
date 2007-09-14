@@ -36,35 +36,39 @@ import java.util.Set;
 public interface SetMultimap<K, V> extends Multimap<K, V> {
   /**
    * {@inheritDoc}
-   *
-   * <p>In SetMultimap, the return type of this method is narrowed from {@link
-   * java.util.Collection} to {@code Set}.
+   * 
+   * <p>Because a {@code SetMultimap} has unique values for a given key, this
+   * method returns a {@link Set}, instead of the {@link java.util.Collection}
+   * specified in the {@link Multimap} interface.
    */
   Set<V> get(@Nullable K key);
 
   /**
    * {@inheritDoc}
-   *
-   * <p>In SetMultimap, the return type of this method is narrowed from {@link
-   * java.util.Collection} to {@code Set}.
+   * 
+   * <p>Because a {@code SetMultimap} has unique values for a given key, this
+   * method returns a {@link Set}, instead of the {@link java.util.Collection}
+   * specified in the {@link Multimap} interface.
    */
   Set<V> removeAll(@Nullable Object key);
 
   /**
    * {@inheritDoc}
+   * 
+   * <p>Because a {@code SetMultimap} has unique values for a given key, this
+   * method returns a {@link Set}, instead of the {@link java.util.Collection}
+   * specified in the {@link Multimap} interface.
    *
    * <p>Any duplicates in {@code values} will be stored in the multimap once.
-   * 
-   * <p>In SetMultimap, the return type of this method is narrowed from {@link
-   * java.util.Collection} to {@code Set}.
    */
   Set<V> replaceValues(K key, Iterable<? extends V> values);
 
   /**
    * {@inheritDoc}
-   *
-   * <p>In SetMultimap, the return type of this method is narrowed from {@link
-   * java.util.Collection} to {@code Set}.
+   * 
+   * <p>Because a {@code SetMultimap} has unique values for a given key, this
+   * method returns a {@link Set}, instead of the {@link java.util.Collection}
+   * specified in the {@link Multimap} interface.
    */
   Set<Map.Entry<K, V>> entries();
 
