@@ -4,6 +4,7 @@ Google is a very collaborative environment, and the "long tail" of Googlers who 
 
 If we tried to name every person who contributed with a random bug report, bug fix, speedup, warning cleanup, new utility method, code review, code review, code review, or by participating helpfully in the debate over the thorny design issue of the week -- we would end up listing close to a hundred people!  So please forgive us for not being able to thank you individually; we thank you nonetheless.
 
-Special thanks to: Rob Konigsberg, who has selflessly donated reviews and fixes since the earliest days; Bob Lee, whose `ReferenceMap` is a jewel, and who has lent us his expertise on more issues than I can count; and Joshua Bloch, whose generosity in the form of answers, advice, reviews and overall mentoring has been our lifeblood.
+Special thanks to: Robert Konigsberg, who has selflessly donated reviews and fixes since the earliest days; Bob Lee, whose `ReferenceMap` is a jewel, and who has lent us his expertise on more issues than I can count; and Joshua Bloch, whose generosity in the form of answers, advice, reviews and overall mentoring has been our lifeblood.
 
 Thanks everyone!
+ 
