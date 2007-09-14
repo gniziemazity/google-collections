@@ -24,10 +24,11 @@ import java.util.Set;
 import java.util.SortedSet;
 
 /**
- * A {@code Multimap} whose values for a given are key sorted. It cannot hold
- * duplicate key-value pairs; adding a key-value pair that's already in the
- * multimap has no effect. This interface does not specify the ordering of the
- * multimap's keys.
+ * A {@code SetMultimap} whose set of values for a given key are kept sorted;
+ * that is, they comprise a {@link SortedSet}. It cannot hold duplicate
+ * key-value pairs; adding a key-value pair that's already in the multimap has
+ * no effect. This interface does not specify the ordering of the multimap's
+ * keys.
  *
  * <p>The {@link #get}, {@link #removeAll}, and {@link #replaceValues} methods
  * each return a {@link SortedSet} of values, while {@link Multimap#entries()}
@@ -46,16 +47,18 @@ public interface SortedSetMultimap<K, V> extends SetMultimap<K, V> {
    * <p>Changes to the returned collection will update the underlying multimap,
    * and vice versa.
    *
-   * <p>In SortedSetMultimap, the return type of this method is narrowed from
-   * {@link java.util.Collection} to {@code SortedSet}.
+   * <p>Because a {@code SortedSetMultimap} has unique sorted values for a given
+   * key, this method returns a {@link SortedSet}, instead of the
+   * {@link java.util.Collection} specified in the {@link Multimap} interface.
    */
   SortedSet<V> get(@Nullable K key);
 
   /**
    * Removes all values associated with a given key.
    *
-   * <p>In SortedSetMultimap, the return type of this method is narrowed from
-   * {@link java.util.Collection} to {@code SortedSet}.
+   * <p>Because a {@code SortedSetMultimap} has unique sorted values for a given
+   * key, this method returns a {@link SortedSet}, instead of the
+   * {@link java.util.Collection} specified in the {@link Multimap} interface.
    */
   SortedSet<V> removeAll(@Nullable Object key);
 
@@ -63,8 +66,11 @@ public interface SortedSetMultimap<K, V> extends SetMultimap<K, V> {
    * Stores a collection of values with the same key, replacing any existing
    * values for that key.
    *
-   * <p>In SortedSetMultimap, the return type of this method is narrowed from
-   * {@link java.util.Collection} to {@code SortedSet}.
+   * <p>Because a {@code SortedSetMultimap} has unique sorted values for a given
+   * key, this method returns a {@link SortedSet}, instead of the
+   * {@link java.util.Collection} specified in the {@link Multimap} interface.
+   *
+   * <p>Any duplicates in {@code values} will be stored in the multimap once.
    */
   SortedSet<V> replaceValues(K key, Iterable<? extends V> values);
 

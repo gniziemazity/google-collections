@@ -19,6 +19,7 @@ package com.google.common.base;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * Predicates contains static methods for creating the standard set of
@@ -81,12 +82,43 @@ public final class Predicates {
    * Returns a Predicate that evaluates to true iff each of its components
    * evaluates to true.  The components are evaluated in order, and evaluation
    * will be "short-circuited" as soon as the answer is determined.  Does not
+   * defensively copy the iterable passed in, so future changes to it will alter
+   * the behavior of this Predicate. If components is empty, the returned
+   * Predicate will always evaluate to true.
+   */
+  public static <T> Predicate<T> and(
+      Iterable<? extends Predicate<? super T>> components) {
+
+    checkNotNull(components);
+    return new AndPredicate<T>(components);
+  }
+
+  /**
+   * Returns a Predicate that evaluates to true iff each of its components
+   * evaluates to true.  The components are evaluated in order, and evaluation
+   * will be "short-circuited" as soon as the answer is determined.  Does not
    * defensively copy the array passed in, so future changes to it will alter
-   * the behavior of this Predicate.
+   * the behavior of this Predicate. If components is empty, the returned
+   * Predicate will always evaluate to true.
    */
   public static <T> Predicate<T> and(Predicate<? super T>... components) {
     checkNotNull(components);
-    return new AndPredicate<T>(components);
+    return and(Arrays.asList(components));
+  }
+
+  /**
+   * Returns a Predicate that evaluates to true iff any one of its components
+   * evaluates to true.  The components are evaluated in order, and evaluation
+   * will be "short-circuited" as soon as the answer is determined.  Does not
+   * defensively copy the iterable passed in, so future changes to it will alter
+   * the behavior of this Predicate. If components is empty, the returned
+   * Predicate will always evaluate to false.
+   */
+  public static <T> Predicate<T> or(
+      Iterable<? extends Predicate<? super T>> components) {
+    
+    checkNotNull(components);
+    return new OrPredicate<T>(components);
   }
 
   /**
@@ -94,11 +126,12 @@ public final class Predicates {
    * evaluates to true.  The components are evaluated in order, and evaluation
    * will be "short-circuited" as soon as the answer is determined.  Does not
    * defensively copy the array passed in, so future changes to it will alter
-   * the behavior of this Predicate.
+   * the behavior of this Predicate. If components is empty, the returned
+   * Predicate will always evaluate to false.
    */
   public static <T> Predicate<T> or(Predicate<? super T>... components) {
     checkNotNull(components);
-    return new OrPredicate<T>(components);
+    return or(Arrays.asList(components));
   }
 
   /**
@@ -145,9 +178,9 @@ public final class Predicates {
   /** @see Predicates#and */
   private static class AndPredicate<T> implements Predicate<T>, Serializable {
     private static final long serialVersionUID = 1022358602593297546L;
-    private final Predicate<? super T>[] components;
+    private final Iterable<? extends Predicate<? super T>> components;
 
-    private AndPredicate(Predicate<? super T>... components) {
+    private AndPredicate(Iterable<? extends Predicate<? super T>> components) {
       this.components = components;
     }
     public boolean apply(T t) {
@@ -163,9 +196,9 @@ public final class Predicates {
   /** @see Predicates#or */
   private static class OrPredicate<T> implements Predicate<T>, Serializable {
     private static final long serialVersionUID = -7942366790698074803L;
-    private final Predicate<? super T>[] components;
+    private final Iterable<? extends Predicate<? super T>> components;
 
-    private OrPredicate(Predicate<? super T>... components) {
+    private OrPredicate(Iterable<? extends Predicate<? super T>> components) {
       this.components = components;
     }
     public boolean apply(T t) {

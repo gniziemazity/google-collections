@@ -109,10 +109,6 @@
  * <dt>{@link com.google.common.collect.AbstractMapEntry}
  * <dt>{@link com.google.common.collect.AbstractMultiset}
  * <dt>{@link com.google.common.collect.AbstractMultisetEntry}
- * <dt>{@link com.google.common.collect.StandardMultimap}
- * <dt>{@link com.google.common.collect.StandardListMultimap}
- * <dt>{@link com.google.common.collect.StandardSetMultimap}
- * <dt>{@link com.google.common.collect.StandardSortedSetMultimap}
  * </dl>
  *
  * <h2>Classes of static utility methods</h2>
