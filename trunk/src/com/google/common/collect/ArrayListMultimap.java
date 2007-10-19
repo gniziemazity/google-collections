@@ -84,7 +84,7 @@ public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
    * Creates a new empty {@code ArrayList} to hold the collection of values for
    * an arbitrary key.
    */
-  List<V> createCollection() {
+  @Override List<V> createCollection() {
     return new ArrayList<V>(initialListCapacity);
   }
 

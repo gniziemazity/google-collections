@@ -278,6 +278,19 @@ public final class Lists {
     return new ArrayList<E>(initialCapacity);
   }
 
+  /**
+   * Creates an {@code ArrayList} instance with the given expected size.
+   *
+   * @param expectedSize the expected size of the list
+   * @return a newly-created, initially empty {@code ArrayList} with enough
+   *     capacity for the given expected size
+   * @throws IllegalArgumentException if the specified expected size is negative
+   */
+  public static <E> ArrayList<E> newArrayListWithExpectedSize(int expectedSize)
+  {
+    return new ArrayList<E>(computeArrayListCapacity(expectedSize));
+  }
+
   // LinkedList
 
   /**
@@ -413,10 +426,10 @@ public final class Lists {
       this.first = first;
       this.rest = rest;
     }
-    public int size() {
+    @Override public int size() {
       return rest.length + 1;
     }
-    public E get(int index) {
+    @Override public E get(int index) {
       return (index == 0) ? first : rest[index - 1]; // allow IOOBE to throw
     }
     private static final long serialVersionUID = -263507107612916621L;
@@ -456,10 +469,10 @@ public final class Lists {
       this.second = second;
       this.rest = rest;
     }
-    public int size() {
+    @Override public int size() {
       return rest.length + 2;
     }
-    public E get(int index) {
+    @Override public E get(int index) {
       switch (index) {
         case 0:
           return first;
@@ -524,7 +537,7 @@ public final class Lists {
     @Override public void clear() {
       fromList.clear();
     }
-    public T get(int index) {
+    @Override public T get(int index) {
       return function.apply(fromList.get(index));
     }
     @Override public boolean isEmpty() {
@@ -533,7 +546,7 @@ public final class Lists {
     @Override public T remove(int index) {
       return function.apply(fromList.remove(index));
     }
-    public int size() {
+    @Override public int size() {
       return fromList.size();
     }
     private static final long serialVersionUID = -5874381536079320827L;
@@ -566,10 +579,10 @@ public final class Lists {
     ImmutableArrayList(E[] array) {
       this.array = array;
     }
-    public E get(int index) {
+    @Override public E get(int index) {
       return array[index];
     }
-    public int size() {
+    @Override public int size() {
       return array.length;
     }
 

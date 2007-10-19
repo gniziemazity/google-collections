@@ -18,6 +18,7 @@ package com.google.common.base;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -53,7 +54,8 @@ public final class Functions {
    * the right parameterized type on demand.
    */
 
-  private static final Function<?,?> IDENTITY = new IdentityFunction();
+  private static final Function<Object, Object> IDENTITY =
+      new IdentityFunction();
 
   /**
    * Returns the identity Function.
@@ -66,9 +68,9 @@ public final class Functions {
   /**
    * @see Functions#identity
    */
-  private static class IdentityFunction<E> implements Function<E,E> {
+  private static class IdentityFunction implements Function<Object, Object> {
     // TODO: serialVersionUID?
-    public E apply(E e) {
+    public Object apply(Object e) {
       return e;
     }
   }
@@ -139,4 +141,69 @@ public final class Functions {
     };
   }
 
+  /**
+   * Returns a boolean-valued function that evaluates to the same result as the
+   * given predicate.
+   */
+  public static <T> Function<T, Boolean> forPredicate(
+      Predicate<? super T> predicate) {
+    checkNotNull(predicate);
+    return new PredicateFunction<T>(predicate);
+  }
+
+  /** @see Functions#forPredicate */
+  private static class PredicateFunction<T>
+      implements Function<T, Boolean>, Serializable {
+    private final Predicate<? super T> predicate;
+
+    private PredicateFunction(Predicate<? super T> predicate) {
+      this.predicate = predicate;
+    }
+
+    public Boolean apply(T t) {
+      return predicate.apply(t);
+    }
+
+    private static final long serialVersionUID = 7159925838099303368L;
+  }
+
+  /**
+   * Returns a {@link Function} that returns {@code value} for any input.
+   *
+   * @param value the constant value for the {@code Function} to return
+   * @return a {@code Function} that always returns {@code value}.
+   */
+  public static <E> Function<Object, E> constant(@Nullable final E value) {
+    return new Function<Object, E>() {
+      public E apply(Object from) {
+        return value;
+      }
+    };
+  }
+
+  /**
+   * Casts a {@link Function} to a more restrictive type for use with methods
+   * requiring unnecessarily specific {@code Function} types.
+   * <p>
+   * If you find that a {@code Function} (such as
+   * {@link Functions#constant(Object)}, a {@code Function<Object, Bar>}) does
+   * not work with your code because you require a {@code Function<Foo, Bar>} to
+   * pass to a method, then that method should require a
+   * {@code Function<? super Foo, ? extends Bar>}.  Any such {@code Function} is
+   * capable of taking a {@code Foo} as an argument and returning a {@code Bar}.
+   * <p>
+   * If the code you are calling is part of a third-party library and cannot be
+   * fixed, you can, as a last resort, use this method to cast the returned
+   * {@code Function} to the required type.
+   *
+   * @param function the original {@code Function}
+   * @return a {@code Function} with the same behavior but more restrictive type
+   *     parameters
+   */
+  @SuppressWarnings("unchecked")
+  public static <A, B> Function<A, B> narrow(
+      @Nullable Function<? super A, ? extends B> function) {
+    Function<?, ?> intermediate = function;
+    return (Function<A, B>) intermediate;
+  }
 }

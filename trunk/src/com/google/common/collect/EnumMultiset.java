@@ -29,12 +29,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class EnumMultiset<E extends Enum<E>>
     extends AbstractMapBasedMultiset<E> {
-  private final Class<E> type;
-
   /** Creates an empty {@code EnumMultiset}. */
   public EnumMultiset(Class<E> type) {
     super(new EnumMap<E, AtomicInteger>(type));
-    this.type = type;
   }
 
   /**

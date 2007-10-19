@@ -28,7 +28,7 @@ package com.google.common.base;
  * 
  * <p>
  * <b>NOTE:</b> This interface <i>could</i> technically extend
- * {@link Function}, since a predicate is just a special case of a fuction (one
+ * {@link Function}, since a predicate is just a special case of a function (one
  * that returns a boolean). However, since implementing this would entail
  * changing the signature of the {@link #apply} method to return a
  * {@link Boolean} instead of a {@code boolean}, which would in turn allow

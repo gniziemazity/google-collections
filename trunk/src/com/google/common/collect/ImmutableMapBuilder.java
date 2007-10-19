@@ -51,8 +51,8 @@ import java.util.Set;
  *       .put("three", 3)
  *       .getMap();
  * </pre>
- * (Actually, for <i>small</i> immutable Maps, you can use the
- * even-more-convenient {@link Maps#immutableMap} methods.
+ * (Actually, for <i>small</i> immutable Maps, you can use members of the
+ * even-more-convenient {@link Maps#immutableMap()} family of methods.)
  *
  * @author Kevin Bourrillion
  */

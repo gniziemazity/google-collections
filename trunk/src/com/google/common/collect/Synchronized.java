@@ -89,7 +89,7 @@ final class Synchronized {
    * Failure to follow this advice may result in non-deterministic behavior.
    *
    * @param collection the collection to be wrapped in a synchronized view
-   * @return a sychronized view of the specified collection
+   * @return a synchronized view of the specified collection
    */
   static <E> Collection<E> collection(Collection<E> collection, Object lock) {
     return new SynchronizedCollection<E>(collection, lock);
@@ -98,6 +98,7 @@ final class Synchronized {
   /** @see Synchronized#collection */
   static class SynchronizedCollection<E> extends SynchronizedObject
       implements Collection<E> {
+    @SuppressWarnings("hiding")
     private final Collection<E> delegate;
 
     public SynchronizedCollection(Collection<E> delegate, Object lock) {
@@ -205,7 +206,7 @@ final class Synchronized {
    * Failure to follow this advice may result in non-deterministic behavior.
    *
    * @param set the set to be wrapped in a synchronized view
-   * @return a sychronized view of the specified set
+   * @return a synchronized view of the specified set
    */
   public static <E> Set<E> set(Set<E> set, Object lock) {
     return new SynchronizedSet<E>(set, lock);
@@ -214,6 +215,7 @@ final class Synchronized {
   /** @see Synchronized#set */
   static class SynchronizedSet<E> extends SynchronizedCollection<E>
       implements Set<E> {
+    @SuppressWarnings("hiding")
     private final Set<E> delegate;
 
     public SynchronizedSet(Set<E> delegate, Object lock) {
@@ -258,7 +260,7 @@ final class Synchronized {
    * Failure to follow this advice may result in non-deterministic behavior.
    *
    * @param set the sorted set to be wrapped in a synchronized view
-   * @return a sychronized view of the specified sorted set
+   * @return a synchronized view of the specified sorted set
    */
   static <E> SortedSet<E> sortedSet(SortedSet<E> set, Object lock) {
     return new SynchronizedSortedSet<E>(set, lock);
@@ -267,6 +269,7 @@ final class Synchronized {
   /** @see Synchronized#sortedSet */
   static class SynchronizedSortedSet<E> extends SynchronizedSet<E>
       implements SortedSet<E> {
+    @SuppressWarnings("hiding")
     private final SortedSet<E> delegate;
 
     public SynchronizedSortedSet(SortedSet<E> delegate, Object lock) {
@@ -337,7 +340,7 @@ final class Synchronized {
    * implements {@code RandomAccess}.
    *
    * @param list the list to be wrapped in a synchronized view
-   * @return a sychronized view of the specified list
+   * @return a synchronized view of the specified list
    */
   static <E> List<E> list(List<E> list, Object lock) {
     return (list instanceof RandomAccess)
@@ -348,6 +351,7 @@ final class Synchronized {
   /** @see Synchronized#list */
   static class SynchronizedList<E> extends SynchronizedCollection<E>
       implements List<E> {
+    @SuppressWarnings("hiding")
     private final List<E> delegate;
 
     public SynchronizedList(List<E> delegate, Object lock) {
@@ -457,7 +461,7 @@ final class Synchronized {
    * Failure to follow this advice may result in non-deterministic behavior.
    *
    * @param multiset the multiset to be wrapped
-   * @return a sychronized view of the specified multiset
+   * @return a synchronized view of the specified multiset
    */
   public static <E> Multiset<E> multiset(Multiset<E> multiset, Object lock) {
     return new SynchronizedMultiset<E>(multiset, lock);
@@ -466,6 +470,7 @@ final class Synchronized {
   /** @see Synchronized#multiset */
   static class SynchronizedMultiset<E> extends SynchronizedCollection<E>
       implements Multiset<E> {
+    @SuppressWarnings("hiding")
     private final Multiset<E> delegate;
 
     private transient volatile Set<E> elementSet;
@@ -557,7 +562,7 @@ final class Synchronized {
    * Failure to follow this advice may result in non-deterministic behavior.
    *
    * @param multimap the multimap to be wrapped in a synchronized view
-   * @return a sychronized view of the specified multimap
+   * @return a synchronized view of the specified multimap
    */
   public static <K, V> Multimap<K, V> multimap(
       Multimap<K, V> multimap, Object lock) {
@@ -746,9 +751,8 @@ final class Synchronized {
    * {@link #set} or {@link #list} respectively, in that order of specificity.
    *
    * @param collection the collection to be wrapped in a synchronized view
-   * @return a sychronized view of the specified collection
+   * @return a synchronized view of the specified collection
    */
-  @SuppressWarnings("unchecked")
   private static <E> Collection<E> typePreservingCollection(
       Collection<E> collection, Object lock) {
     if (collection instanceof SortedSet<?>) {
@@ -787,9 +791,8 @@ final class Synchronized {
    * behave identically to {@link #sortedSet}.
    *
    * @param set the set to be wrapped in a synchronized view
-   * @return a sychronized view of the specified set
+   * @return a synchronized view of the specified set
    */
-  @SuppressWarnings("unchecked")
   public static <E> Set<E> typePreservingSet(Set<E> set, Object lock) {
     if (set instanceof SortedSet<?>) {
       return sortedSet((SortedSet<E>) set, lock);
@@ -801,6 +804,7 @@ final class Synchronized {
   /** @see Synchronized#multimap */
   static class SynchronizedAsMapEntries<K, V>
       extends SynchronizedSet<Map.Entry<K, Collection<V>>> {
+    @SuppressWarnings("hiding")
     private final Set<Map.Entry<K, Collection<V>>> delegate;
 
     public SynchronizedAsMapEntries(
@@ -893,7 +897,7 @@ final class Synchronized {
    * Failure to follow this advice may result in non-deterministic behavior.
    *
    * @param map the map to be wrapped in a synchronized view
-   * @return a sychronized view of the specified map
+   * @return a synchronized view of the specified map
    */
   public static <K, V> Map<K, V> map(Map<K, V> map, Object lock) {
     return new SynchronizedMap<K, V>(map, lock);
@@ -1040,7 +1044,7 @@ final class Synchronized {
    * Failure to follow this advice may result in non-deterministic behavior.
    *
    * @param bimap the bimap to be wrapped in a synchronized view
-   * @return a sychronized view of the specified bimap
+   * @return a synchronized view of the specified bimap
    */
   public static <K, V> BiMap<K, V> biMap(BiMap<K, V> bimap, Object lock) {
     return new SynchronizedBiMap<K, V>(bimap, lock, null);
@@ -1049,8 +1053,10 @@ final class Synchronized {
   /** @see Synchronized#biMap */
   static class SynchronizedBiMap<K, V> extends SynchronizedMap<K, V>
       implements BiMap<K, V>, Serializable {
+    @SuppressWarnings("hiding")
     private final BiMap<K, V> delegate;
 
+    @SuppressWarnings("hiding")
     private transient volatile Set<V> values;
     private transient volatile BiMap<V, K> inverse;
 
@@ -1091,9 +1097,12 @@ final class Synchronized {
   /** @see SynchronizedMultimap#asMap */
   static class SynchronizedAsMap<K, V>
       extends SynchronizedMap<K, Collection<V>> {
+    @SuppressWarnings("hiding")
     private final Map<K, Collection<V>> delegate;
 
+    @SuppressWarnings("hiding")
     private transient volatile Set<Map.Entry<K, Collection<V>>> entrySet;
+    @SuppressWarnings("hiding")
     private transient volatile Collection<Collection<V>> values;
 
     public SynchronizedAsMap(Map<K, Collection<V>> delegate, Object lock) {

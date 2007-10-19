@@ -66,7 +66,7 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
    * set always returns the current count of that element in the multiset, as
    * opposed to the count at the time the entry was retrieved.
    */
-  public Set<Multiset.Entry<E>> entrySet() {
+  @Override public Set<Multiset.Entry<E>> entrySet() {
     if (entrySet == null) {
       entrySet = new EntrySet();
     }

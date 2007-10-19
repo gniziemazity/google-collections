@@ -72,7 +72,7 @@ public final class LinkedListMultiset<E> extends ForwardingMultiset<E> {
     Node(@Nullable E element) {
       this.element = element;
     }
-    public String toString() {
+    @Override public String toString() {
       return String.valueOf(element);
     }
     private static final long serialVersionUID = 7506018249774377845L;
@@ -359,10 +359,10 @@ public final class LinkedListMultiset<E> extends ForwardingMultiset<E> {
 
   /** @see LinkedListMultiset#elementSet */
   private class ElementSet extends AbstractSet<E> {
-    public int size() {
+    @Override public int size() {
       return LinkedListMultiset.super.elementSet().size();
     }
-    public Iterator<E> iterator() {
+    @Override public Iterator<E> iterator() {
       return new DistinctElementIterator();
     }
 
@@ -395,10 +395,10 @@ public final class LinkedListMultiset<E> extends ForwardingMultiset<E> {
   }
 
   private class EntrySet extends AbstractSet<Entry<E>> {
-    public int size() {
+    @Override public int size() {
       return LinkedListMultiset.super.elementSet().size();
     }
-    public Iterator<Entry<E>> iterator() {
+    @Override public Iterator<Entry<E>> iterator() {
       return new EntryIterator();
     }
 

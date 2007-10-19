@@ -137,7 +137,7 @@ public final class TreeMultimap<K, V> extends StandardSortedSetMultimap<K, V> {
    * @return a new {@code TreeSet} containing a collection of values for one
    *     key
    */
-  SortedSet<V> createCollection() {
+  @Override SortedSet<V> createCollection() {
     return (valueComparator == null)
         ? new TreeSet<V>() : new TreeSet<V>(valueComparator);
   }

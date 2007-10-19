@@ -219,7 +219,7 @@ public final class SortedArraySet<E> extends AbstractSet<E>
     // optimize the case where c is sorted and we're empty
     if (((contents == null) || contents.isEmpty())
         && !c.isEmpty() && (c instanceof SortedSet<?>)) {
-      Comparator<?> comparator2 = ((SortedSet<? extends E>) c).comparator();
+      Comparator<?> comparator2 = ((SortedSet<?>) c).comparator();
       if (((comparator == Comparators.naturalOrder())
           && (comparator2 == null)) ||
           (comparator == comparator2)) {
@@ -257,7 +257,7 @@ public final class SortedArraySet<E> extends AbstractSet<E>
     return super.equals(o);
   }
 
-  public Iterator<E> iterator() {
+  @Override public Iterator<E> iterator() {
     return (contents == null)
         ? Iterators.<E>emptyIterator() : contents.iterator();
   }
@@ -271,7 +271,7 @@ public final class SortedArraySet<E> extends AbstractSet<E>
     return true;
   }
 
-  public int size() {
+  @Override public int size() {
     return (contents == null) ? 0 : contents.size();
   }
 
@@ -447,7 +447,7 @@ public final class SortedArraySet<E> extends AbstractSet<E>
       }
     }
 
-    public int size() {
+    @Override public int size() {
       return tailIndex() - headIndex();
     }
 
@@ -455,13 +455,13 @@ public final class SortedArraySet<E> extends AbstractSet<E>
       return comparator;
     }
 
-    public Iterator<E> iterator() {
+    @Override public Iterator<E> iterator() {
       return (contents == null) ?
           Iterators.<E>emptyIterator() :
           contents.subList(headIndex(), tailIndex()).iterator();
     }
 
-    public boolean contains(Object o) {
+    @Override public boolean contains(Object o) {
       @SuppressWarnings("unchecked") // throws ClassCastException
       E e = (E) o;
       if ((hasHead && (comparator.compare(e, head) < 0))

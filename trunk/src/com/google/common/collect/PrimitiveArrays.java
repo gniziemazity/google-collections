@@ -73,11 +73,11 @@ public final class PrimitiveArrays {
       this.array = array;
     }
 
-    public Short get(int index) {
+    @Override public Short get(int index) {
       return array[index];
     }
 
-    public int size() {
+    @Override public int size() {
       return array.length;
     }
 
@@ -160,11 +160,11 @@ public final class PrimitiveArrays {
       this.array = array;
     }
 
-    public Integer get(int index) {
+    @Override public Integer get(int index) {
       return array[index];
     }
 
-    public int size() {
+    @Override public int size() {
       return array.length;
     }
 
@@ -247,11 +247,11 @@ public final class PrimitiveArrays {
       this.array = array;
     }
 
-    public Double get(int index) {
+    @Override public Double get(int index) {
       return array[index];
     }
 
-    public int size() {
+    @Override public int size() {
       return array.length;
     }
 
@@ -334,11 +334,11 @@ public final class PrimitiveArrays {
       this.array = array;
     }
 
-    public Float get(int index) {
+    @Override public Float get(int index) {
       return array[index];
     }
 
-    public int size() {
+    @Override public int size() {
       return array.length;
     }
 
@@ -421,11 +421,11 @@ public final class PrimitiveArrays {
       this.array = array;
     }
 
-    public Long get(int index) {
+    @Override public Long get(int index) {
       return array[index];
     }
 
-    public int size() {
+    @Override public int size() {
       return array.length;
     }
 
@@ -508,11 +508,11 @@ public final class PrimitiveArrays {
       this.array = array;
     }
 
-    public Character get(int index) {
+    @Override public Character get(int index) {
       return array[index];
     }
 
-    public int size() {
+    @Override public int size() {
       return array.length;
     }
 
@@ -595,11 +595,11 @@ public final class PrimitiveArrays {
       this.array = array;
     }
 
-    public Boolean get(int index) {
+    @Override public Boolean get(int index) {
       return array[index];
     }
 
-    public int size() {
+    @Override public int size() {
       return array.length;
     }
 
@@ -682,11 +682,11 @@ public final class PrimitiveArrays {
       this.array = array;
     }
 
-    public Byte get(int index) {
+    @Override public Byte get(int index) {
       return array[index];
     }
 
-    public int size() {
+    @Override public int size() {
       return array.length;
     }
 

@@ -226,6 +226,15 @@ public final class Iterators {
     return cycle(Lists.newArrayList(elements));
   }
 
+  /** Two-argument form of {@code #concat(Iterator)}. */
+  @SuppressWarnings("unchecked")
+  public static <T> Iterator<T> concat(Iterator<? extends T> a,
+      Iterator<? extends T> b) {
+    checkNotNull(a);
+    checkNotNull(b);
+    return concat(Arrays.asList(a, b).iterator());
+  }
+
   /** Varargs form of {@code #concat(Iterator)}. */
   public static <T> Iterator<T> concat(Iterator<? extends T>... iterators) {
     checkNotNull(iterators);

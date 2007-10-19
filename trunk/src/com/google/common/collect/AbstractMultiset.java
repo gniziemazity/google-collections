@@ -54,12 +54,16 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
    * <p>This implementation iterates across {@link Multiset#entrySet()} and
    * sums the counts of the entries.
    */
-  public int size() {
+  @Override public int size() {
     long sum = 0L;
     for (Entry<E> entry : entrySet()) {
       sum += entry.getCount();
     }
     return (int) Math.min(sum, Integer.MAX_VALUE);
+  }
+
+  @Override public boolean isEmpty() {
+    return entrySet().isEmpty();
   }
 
   /**
@@ -68,7 +72,7 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
    * <p>This implementation checks whether {@link #elementSet} contains the
    * element.
    */
-  public boolean contains(@Nullable Object element) {
+  @Override public boolean contains(@Nullable Object element) {
     return elementSet().contains(element);
   }
 
@@ -79,7 +83,7 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
    * {@link Multiset#entrySet()} iterator. As the only exception, the iterator's
    * {@code remove} method sometimes calls the multiset's {@code remove}.
    */
-  public Iterator<E> iterator() {
+  @Override public Iterator<E> iterator() {
     return new MultisetIterator();
   }
 
@@ -147,7 +151,7 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
    *
    * <p>This implementation calls {@link #add(Object, int)} with one occurrence.
    */
-  public boolean add(@Nullable E element) {
+  @Override public boolean add(@Nullable E element) {
     add(element, 1);
     return true;
   }
@@ -168,7 +172,7 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
    *
    * <p>This implementation calls {@link #remove(Object,int)} with 1 occurrence.
    */
-  public boolean remove(Object element) {
+  @Override public boolean remove(Object element) {
     return remove(element, 1) == 1;
   }
 
@@ -201,7 +205,7 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
    * <p>This implementation checks whether {@link #elementSet} contains the
    * elements.
    */
-  public boolean containsAll(Collection<?> elements) {
+  @Override public boolean containsAll(Collection<?> elements) {
     checkNotNull(elements);
     return elementSet().containsAll(elements);
   }
@@ -214,7 +218,7 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
    * occurrences of each of its elements to this multiset. Otherwise, it calls
    * {@link AbstractCollection#addAll}.
    */
-  public boolean addAll(Collection<? extends E> elementsToAdd) {
+  @Override public boolean addAll(Collection<? extends E> elementsToAdd) {
     if (elementsToAdd.isEmpty()) {
       return false;
     }
@@ -276,7 +280,7 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
    *
    * <p>This implementation calls {@code clear} on {@link Multiset#entrySet()}.
    */
-  public void clear() {
+  @Override public void clear() {
     entrySet().clear();
   }
 
@@ -306,7 +310,7 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
   }
 
   private class ElementSet extends AbstractSet<E> {
-    public Iterator<E> iterator() {
+    @Override public Iterator<E> iterator() {
       final Iterator<Entry<E>> entryIterator = entrySet().iterator();
       return new Iterator<E>() {
         public boolean hasNext() {
@@ -320,7 +324,7 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
         }
       };
     }
-    public int size() {
+    @Override public int size() {
       return entrySet().size();
     }
   }
@@ -334,7 +338,7 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
    * of the same size and if, for each element, the two multisets have the same
    * count.
    */
-  public boolean equals(@Nullable Object other) {
+  @Override public boolean equals(@Nullable Object other) {
     if (other instanceof Multiset<?>) {
       Multiset<?> that = (Multiset<?>) other;
       /*
@@ -368,7 +372,7 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
    * <p>This implementation returns the hash code of {@link
    * Multiset#entrySet()}.
    */
-  public int hashCode() {
+  @Override public int hashCode() {
     return entrySet().hashCode();
   }
 
@@ -378,7 +382,7 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
    * <p>This implementation returns the result of invoking {@code toString} on
    * {@link Multiset#entrySet()}.
    */
-  public String toString() {
+  @Override public String toString() {
     return entrySet().toString();
   }
 }

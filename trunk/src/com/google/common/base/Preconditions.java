@@ -86,12 +86,14 @@ public final class Preconditions {
    *
    * @param reference an object reference that was passed as a parameter to the
    *     current method
+   * @return the non-null reference that was validated
    * @throws NullPointerException if {@code reference} is {@code null}
    */
-  public static void checkNotNull(Object reference) {
+  public static <T> T checkNotNull(T reference) {
     if (reference == null) {
       failNotNull(null);
     }
+    return reference;
   }
 
   /**
@@ -134,12 +136,35 @@ public final class Preconditions {
    * @param message a message object which will be converted using
    *     {@code Object#toString} and included in the exception message if the
    *     check fails
+   * @return the non-null reference that was validated
    * @throws NullPointerException if {@code reference} is {@code null}
    */
-  public static void checkNotNull(Object reference, Object message) {
+  public static <T> T checkNotNull(T reference, Object message) {
     if (reference == null) {
       failNotNull(message);
     }
+    return reference;
+  }
+
+  /**
+   * Ensures that {@code iterable} is not {@code null} and that it contains no
+   * null elements.
+   *
+   * @param iterable the {@code Iterable} to check for nullness
+   * @return {@code iterable} if not null
+   * @throws NullPointerException if {@code iterable} is null, or if it contains
+   *     any null elements
+   */
+  public static <T extends Iterable<?>> T checkContentsNotNull(T iterable) {
+    if (iterable == null) {
+      failNotNull(null);
+    }
+    for (Object element : iterable) {
+      if (element == null) {
+        failNotNull(null);
+      }
+    }
+    return iterable;
   }
 
   /**
@@ -189,17 +214,19 @@ public final class Preconditions {
    *     current method
    * @param errorFormat format of error message to produce if the check fails
    * @param args the arguments for {@code errorFormat}
+   * @return the non-null reference that was validated
    * @throws NullPointerException if {@code reference} is {@code null}
    * 
    * @see <a href=
    *   "http://java.sun.com/javase/6/docs/api/java/util/Formatter.html#syntax">
    *   Format string syntax</a>
    */
-  public static void checkNotNull(
-      Object reference, String errorFormat, Object... args) {
+  public static <T> T checkNotNull(
+      T reference, String errorFormat, Object... args) {
     if (reference == null) {
       failNotNull(String.format(errorFormat, args));
     }
+    return reference;
   }
 
   private static void failArgument(final Object description) {

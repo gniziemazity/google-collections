@@ -210,6 +210,8 @@ public final class Objects {
   }
 
   /**
+   * Checks that the specified object is not {@code null}.
+   *
    * @param o the object to check for nullness.
    * @return {@code o} if not null.
    * @throws NullPointerException if {@code o} is null.

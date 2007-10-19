@@ -492,10 +492,10 @@ public final class LinkedListMultimap<K, V>
    */
   public List<V> get(final @Nullable K key) {
     return new AbstractSequentialList<V>() {
-      public int size() {
+      @Override public int size() {
         return keyCount.count(key);
       }
-      public ListIterator<V> listIterator(int index) {
+      @Override public ListIterator<V> listIterator(int index) {
         return new ValueForKeyIterator(key, index);
       }
     };
@@ -506,13 +506,13 @@ public final class LinkedListMultimap<K, V>
   public Set<K> keySet() {
     if (keySet == null) {
       keySet = new AbstractSet<K>() {
-        public int size() {
+        @Override public int size() {
           return keyCount.elementSet().size();
         }
-        public Iterator<K> iterator() {
+        @Override public Iterator<K> iterator() {
           return new DistinctKeyIterator();
         }
-        public boolean contains(Object key) { // for performance
+        @Override public boolean contains(Object key) { // for performance
           return keyCount.contains(key);
         }
       };
@@ -536,11 +536,11 @@ public final class LinkedListMultimap<K, V>
   private class MultisetView extends AbstractCollection<K>
       implements Multiset<K> {
 
-    public int size() {
+    @Override public int size() {
       return keyCount.size();
     }
 
-    public Iterator<K> iterator() {
+    @Override public Iterator<K> iterator() {
       final Iterator<Node<K, V>> nodes = new NodeIterator();
       return new Iterator<K>() {
         public boolean hasNext() {
@@ -584,11 +584,11 @@ public final class LinkedListMultimap<K, V>
 
     public Set<Entry<K>> entrySet() {
       return new AbstractSet<Entry<K>>() {
-        public int size() {
+        @Override public int size() {
           return keyCount.elementSet().size();
         }
 
-        public Iterator<Entry<K>> iterator() {
+        @Override public Iterator<Entry<K>> iterator() {
           final Iterator<K> keys = new DistinctKeyIterator();
           return new Iterator<Entry<K>>() {
             public boolean hasNext() {
@@ -613,15 +613,15 @@ public final class LinkedListMultimap<K, V>
       };
     }
 
-    public boolean equals(@Nullable Object o) {
+    @Override public boolean equals(@Nullable Object o) {
       return keyCount.equals(o);
     }
 
-    public int hashCode() {
+    @Override public int hashCode() {
       return keyCount.hashCode();
     }
 
-    public String toString() {
+    @Override public String toString() {
       return keyCount.toString(); // XXX observe order?
     }
   }
@@ -637,10 +637,10 @@ public final class LinkedListMultimap<K, V>
   public Collection<V> values() {
     if (values == null) {
       values = new AbstractCollection<V>() {
-        public int size() {
+        @Override public int size() {
           return keyCount.size();
         }
-        public Iterator<V> iterator() {
+        @Override public Iterator<V> iterator() {
           final Iterator<Node<K, V>> nodes = new NodeIterator();
           return new Iterator<V>() {
             public boolean hasNext() {
@@ -670,11 +670,11 @@ public final class LinkedListMultimap<K, V>
   public Collection<Map.Entry<K, V>> entries() {
     if (entries == null) {
       entries = new AbstractCollection<Map.Entry<K, V>>() {
-        public int size() {
+        @Override public int size() {
           return keyCount.size();
         }
 
-        public Iterator<Map.Entry<K, V>> iterator() {
+        @Override public Iterator<Map.Entry<K, V>> iterator() {
           final Iterator<Node<K, V>> nodes = new NodeIterator();
           return new Iterator<Map.Entry<K, V>>() {
             public boolean hasNext() {
@@ -684,13 +684,13 @@ public final class LinkedListMultimap<K, V>
             public Map.Entry<K, V> next() {
               final Node<K, V> node = nodes.next();
               return new AbstractMapEntry<K, V>() {
-                public K getKey() {
+                @Override public K getKey() {
                   return node.key;
                 }
-                public V getValue() {
+                @Override public V getValue() {
                   return node.value;
                 }
-                public V setValue(V value) {
+                @Override public V setValue(V value) {
                   V oldValue = node.value;
                   node.value = value;
                   return oldValue;
@@ -709,11 +709,11 @@ public final class LinkedListMultimap<K, V>
   }
 
   private class AsMapEntries extends AbstractSet<Map.Entry<K, Collection<V>>> {
-    public int size() {
+    @Override public int size() {
       return keyCount.elementSet().size();
     }
 
-    public Iterator<Map.Entry<K, Collection<V>>> iterator() {
+    @Override public Iterator<Map.Entry<K, Collection<V>>> iterator() {
       final Iterator<K> keys = new DistinctKeyIterator();
       return new Iterator<Map.Entry<K, Collection<V>>>() {
         public boolean hasNext() {
@@ -723,11 +723,11 @@ public final class LinkedListMultimap<K, V>
         public Map.Entry<K, Collection<V>> next() {
           final K key = keys.next();
           return new AbstractMapEntry<K, Collection<V>>() {
-            public K getKey() {
+            @Override public K getKey() {
               return key;
             }
 
-            public Collection<V> getValue() {
+            @Override public Collection<V> getValue() {
               return LinkedListMultimap.this.get(key);
             }
           };
@@ -747,7 +747,7 @@ public final class LinkedListMultimap<K, V>
       map = new AbstractMap<K, Collection<V>>() {
         volatile Set<Map.Entry<K, Collection<V>>> entrySet;
 
-        public Set<Map.Entry<K, Collection<V>>> entrySet() {
+        @Override public Set<Map.Entry<K, Collection<V>>> entrySet() {
           if (entrySet == null) {
             entrySet = new AsMapEntries();
           }
@@ -785,7 +785,7 @@ public final class LinkedListMultimap<K, V>
    * contain the same values in the same order. If the value orderings disagree,
    * the multimaps will not be considered equal.
    */
-  public boolean equals(Object other) {
+  @Override public boolean equals(Object other) {
     if (other == this) {
       return true;
     }
