@@ -40,9 +40,12 @@ public final class Predicates {
    * the right parameterized type on demand.
    */
 
-  private static final Predicate<?> ALWAYS_TRUE = new AlwaysTruePredicate();
-  private static final Predicate<?> ALWAYS_FALSE = new AlwaysFalsePredicate();
-  private static final Predicate<?> IS_NULL = new IsNullPredicate();
+  private static final Predicate<Object> ALWAYS_TRUE =
+      new AlwaysTruePredicate();
+  private static final Predicate<Object> ALWAYS_FALSE =
+      new AlwaysFalsePredicate();
+  private static final Predicate<Object> IS_NULL =
+      new IsNullPredicate();
 
   /**
    * Returns a Predicate that always evaluates to true.
@@ -145,19 +148,19 @@ public final class Predicates {
   }
 
   /** @see Predicates#alwaysTrue */
-  private static class AlwaysTruePredicate<T> implements Predicate<T>,
+  private static class AlwaysTruePredicate implements Predicate<Object>,
       Serializable {
     private static final long serialVersionUID = 8759914710239461322L;
-    public boolean apply(T t) {
+    public boolean apply(Object o) {
       return true;
     }
   }
 
   /** @see Predicates#alwaysFalse */
-  private static class AlwaysFalsePredicate<T> implements Predicate<T>,
+  private static class AlwaysFalsePredicate implements Predicate<Object>,
       Serializable {
     private static final long serialVersionUID = -565481022115659695L;
-    public boolean apply(T t) {
+    public boolean apply(Object o) {
       return false;
     }
   }
@@ -175,7 +178,7 @@ public final class Predicates {
     }
   }
 
-  /** @see Predicates#and */
+  /** @see Predicates#and(Iterable) */
   private static class AndPredicate<T> implements Predicate<T>, Serializable {
     private static final long serialVersionUID = 1022358602593297546L;
     private final Iterable<? extends Predicate<? super T>> components;
@@ -193,7 +196,7 @@ public final class Predicates {
     }
   }
 
-  /** @see Predicates#or */
+  /** @see Predicates#or(Iterable) */
   private static class OrPredicate<T> implements Predicate<T>, Serializable {
     private static final long serialVersionUID = -7942366790698074803L;
     private final Iterable<? extends Predicate<? super T>> components;
@@ -230,11 +233,11 @@ public final class Predicates {
    * @see Predicates#isNull
    * @see Predicates#isEqualTo
    */
-  private static class IsNullPredicate<T> implements Predicate<T>,
+  private static class IsNullPredicate implements Predicate<Object>,
       Serializable {
     private static final long serialVersionUID = -2507344851931204908L;
-    public boolean apply(T t) {
-      return t == null;
+    public boolean apply(Object o) {
+      return o == null;
     }
   }
 }

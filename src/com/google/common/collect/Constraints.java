@@ -52,6 +52,9 @@ public final class Constraints {
     private Object readResolve() {
       return NOT_NULL; // preserve singleton property
     }
+    @Override public String toString() {
+      return "Not null";
+    }
     private static final long serialVersionUID = 8771569713494573120L;
   }
 
@@ -80,6 +83,9 @@ public final class Constraints {
             + element.getClass() + " element into collection with element "
             + "type " + type);
       }
+    }
+    @Override public String toString() {
+      return "Instance of " + type;
     }
     private static final long serialVersionUID = -4064640599187669705L;
   }

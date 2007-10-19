@@ -30,7 +30,7 @@ public abstract class AbstractIterable<E> implements Iterable<E> {
    * elements are separated by the characters ", " (comma and space). Elements
    * are converted to strings as by {@link String#valueOf(Object)}.
    */
-  public String toString() {
+  @Override public String toString() {
     return Iterables.toString(this);
   }
 }

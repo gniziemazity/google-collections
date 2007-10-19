@@ -52,4 +52,10 @@ public interface Constraint<E> {
    * be used as appropriate.
    */
   void checkElement(E element);
+
+  /**
+   * Returns a brief human readable description of this constraint, such as
+   * "Not null" or "Positive number".
+   */
+  String toString();
 }

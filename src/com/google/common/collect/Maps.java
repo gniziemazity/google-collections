@@ -172,8 +172,13 @@ public final class Maps {
    * @param comparator the Comparator to sort the keys with
    * @return a newly-created, initially-empty {@code TreeMap}
    */
-  public static <K, V> TreeMap<K, V> newTreeMap(
-      @Nullable Comparator<? super K> comparator) {
+  public static <C, K extends C, V> TreeMap<K, V> newTreeMap(
+      @Nullable Comparator<C> comparator) {
+    // Ideally, the extra type parameter "C" shouldn't be necessary. It is a
+    // work-around of a compiler type inference quirk that prevents the
+    // following code from being compiled:
+    // Comparator<Class<?>> comparator = null;
+    // Map<Class<? extends Throwable>, String> map = newTreeMap(comparator);
     return new TreeMap<K, V>(comparator);
   }
 
@@ -625,10 +630,10 @@ public final class Maps {
       this.key = key;
       this.value = value;
     }
-    public K getKey() {
+    @Override public K getKey() {
       return key;
     }
-    public V getValue() {
+    @Override public V getValue() {
       return value;
     }
     private static final long serialVersionUID = 8715539841043489689L;
@@ -662,10 +667,10 @@ public final class Maps {
   private static <K, V> Entry<K, V> unmodifiableEntry(final Entry<K, V> entry) {
     checkNotNull(entry);
     return new AbstractMapEntry<K, V>() {
-      public K getKey() {
+      @Override public K getKey() {
         return entry.getKey();
       }
-      public V getValue() {
+      @Override public V getValue() {
         return entry.getValue();
       }
     };

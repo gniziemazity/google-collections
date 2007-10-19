@@ -181,10 +181,10 @@ public final class Join {
    */
   private static List<Object> asList(final Object first, final Object[] rest) {
     return new AbstractList<Object>() {
-      public int size() {
+      @Override public int size() {
         return rest.length + 1;
       }
-      public Object get(int index) {
+      @Override public Object get(int index) {
         return (index == 0) ? first : rest[index - 1];
       }
     };

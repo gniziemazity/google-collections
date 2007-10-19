@@ -93,7 +93,7 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
    * @return a new {@code LinkedHashSet} containing a collection of values for
    *     one key
    */
-  Set<V> createCollection() {
+  @Override Set<V> createCollection() {
     return new LinkedHashSet<V>();
   }
 

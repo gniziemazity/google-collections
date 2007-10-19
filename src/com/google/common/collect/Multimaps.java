@@ -219,7 +219,7 @@ public final class Multimaps {
   public static <K, V> Multimap<K, V> newMultimap(Map<K, Collection<V>> map,
       final Supplier<? extends Collection<V>> factory) {
     return new StandardMultimap<K, V>(map) {
-      protected Collection<V> createCollection() {
+      @Override protected Collection<V> createCollection() {
         return factory.get();
       }
     };
@@ -246,7 +246,7 @@ public final class Multimaps {
   public static <K, V> ListMultimap<K, V> newListMultimap(
       Map<K, Collection<V>> map, final Supplier<? extends List<V>> factory) {
     return new StandardListMultimap<K, V>(map) {
-      protected List<V> createCollection() {
+      @Override protected List<V> createCollection() {
         return factory.get();
       }
     };
@@ -273,7 +273,7 @@ public final class Multimaps {
   public static <K, V> SetMultimap<K, V> newSetMultimap(
       Map<K, Collection<V>> map, final Supplier<? extends Set<V>> factory) {
     return new StandardSetMultimap<K, V>(map) {
-      protected Set<V> createCollection() {
+      @Override protected Set<V> createCollection() {
         return factory.get();
       }
     };
@@ -301,7 +301,7 @@ public final class Multimaps {
       Map<K, Collection<V>> map,
       final Supplier<? extends SortedSet<V>> factory) {
     return new StandardSortedSetMultimap<K, V>(map) {
-      protected SortedSet<V> createCollection() {
+      @Override protected SortedSet<V> createCollection() {
         return factory.get();
       }
     };
@@ -489,6 +489,7 @@ public final class Multimaps {
         final Map<K, Collection<V>> unmodifiableMap
             = Collections.unmodifiableMap(delegate().asMap());
         map = new ForwardingMap<K, Collection<V>>(unmodifiableMap) {
+          @SuppressWarnings("hiding")
           volatile Collection<Collection<V>> values;
           volatile Set<Entry<K, Collection<V>>> entrySet;
 
@@ -816,11 +817,11 @@ public final class Multimaps {
       final Map.Entry<K, Collection<V>> entry) {
     checkNotNull(entry);
     return new AbstractMapEntry<K, Collection<V>>() {
-      public K getKey() {
+      @Override public K getKey() {
         return entry.getKey();
       }
 
-      public Collection<V> getValue() {
+      @Override public Collection<V> getValue() {
         return unmodifiableValueCollection(entry.getValue());
       }
     };
@@ -870,7 +871,7 @@ public final class Multimaps {
 
     @Override public Iterator<Entry<K, Collection<V>>> iterator() {
       return new ForwardingIterator<Entry<K, Collection<V>>>(super.iterator()) {
-        public Entry<K, Collection<V>> next() {
+        @Override public Entry<K, Collection<V>> next() {
           return unmodifiableAsMapEntry(super.next());
         }
       };
@@ -951,7 +952,7 @@ public final class Multimaps {
 
     public Set<V> get(final K key) {
       return new AbstractSet<V>() {
-        public Iterator<V> iterator() {
+        @Override public Iterator<V> iterator() {
           return new Iterator<V>() {
             int i;
 
@@ -977,7 +978,7 @@ public final class Multimaps {
           };
         }
 
-        public int size() {
+        @Override public int size() {
           return map.containsKey(key) ? 1 : 0;
         }
       };
@@ -1077,11 +1078,11 @@ public final class Multimaps {
 
     /** @see MapMultimap#asMap */
     class AsMapEntries extends AbstractSet<Entry<K, Collection<V>>> {
-      public int size() {
+      @Override public int size() {
         return map.size();
       }
 
-      public Iterator<Entry<K, Collection<V>>> iterator() {
+      @Override public Iterator<Entry<K, Collection<V>>> iterator() {
         return new Iterator<Entry<K, Collection<V>>>() {
           final Iterator<K> keys = map.keySet().iterator();
 
@@ -1091,10 +1092,10 @@ public final class Multimaps {
           public Entry<K, Collection<V>> next() {
             final K key = keys.next();
             return new AbstractMapEntry<K, Collection<V>>() {
-              public K getKey() {
+              @Override public K getKey() {
                 return key;
               }
-              public Collection<V> getValue() {
+              @Override public Collection<V> getValue() {
                 return get(key);
               }
             };
@@ -1111,7 +1112,7 @@ public final class Multimaps {
     class AsMap extends AbstractMap<K, Collection<V>> {
       private volatile Set<Entry<K, Collection<V>>> entries;
 
-      public Set<Map.Entry<K, Collection<V>>> entrySet() {
+      @Override public Set<Map.Entry<K, Collection<V>>> entrySet() {
         if (entries == null) {
           entries = new AsMapEntries();
         }

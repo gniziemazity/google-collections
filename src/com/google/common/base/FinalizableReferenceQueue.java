@@ -48,7 +48,7 @@ class FinalizableReferenceQueue extends ReferenceQueue<Object> {
 
   void start() {
     Thread thread = new Thread(getClass().getSimpleName()) {
-      public void run() {
+      @Override public void run() {
         while (true) {
           try {
             cleanUp(remove());
@@ -60,7 +60,7 @@ class FinalizableReferenceQueue extends ReferenceQueue<Object> {
     thread.start();
   }
 
-  void cleanUp(Reference reference) {
+  void cleanUp(Reference<?> reference) {
     try {
       ((FinalizableReference) reference).finalizeReferent();
     } catch (Throwable t) {

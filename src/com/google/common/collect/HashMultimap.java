@@ -65,7 +65,7 @@ public final class HashMultimap<K, V> extends StandardSetMultimap<K, V> {
    *
    * @return a new {@code HashSet} containing a collection of values for one key
    */
-  Set<V> createCollection() {
+  @Override Set<V> createCollection() {
     return new HashSet<V>();
   }
 

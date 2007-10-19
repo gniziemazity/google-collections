@@ -907,11 +907,11 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
       return occurrences;
     }
 
-    public Set<K> elementSet() {
+    @Override public Set<K> elementSet() {
       return StandardMultimap.this.keySet();
     }
 
-    public Set<Multiset.Entry<K>> entrySet() {
+    @Override public Set<Multiset.Entry<K>> entrySet() {
       if (entrySet == null) {
         entrySet = new AbstractSet<Multiset.Entry<K>>() {
           @Override public Iterator<Multiset.Entry<K>> iterator() {
@@ -1045,10 +1045,10 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
   public Collection<V> values() {
     if (values == null) {
       values = new AbstractCollection<V>() {
-        public Iterator<V> iterator() {
+        @Override public Iterator<V> iterator() {
           return new ValueIterator();
         }
-        public int size() {
+        @Override public int size() {
           return totalSize;
         }
 
@@ -1101,10 +1101,10 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
 
   /** Entries for multimap. */
   private class Entries extends AbstractCollection<Map.Entry<K, V>> {
-    public Iterator<Map.Entry<K, V>> iterator() {
+    @Override public Iterator<Map.Entry<K, V>> iterator() {
       return createEntryIterator();
     }
-    public int size() {
+    @Override public int size() {
       return totalSize;
     }
 
@@ -1205,13 +1205,13 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
       this.value = iterator.next();
       this.iterator = iterator;
     }
-    public K getKey() {
+    @Override public K getKey() {
       return key;
     }
-    public V getValue() {
+    @Override public V getValue() {
       return value;
     }
-    public V setValue(V newValue) {
+    @Override public V setValue(V newValue) {
       V oldValue = this.value;
       iterator.set(newValue);
       this.value = newValue;
@@ -1248,7 +1248,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
       asMap = new AbstractMap<K, Collection<V>>() {
         volatile Set<Map.Entry<K, Collection<V>>> entrySet;
 
-        public Set<Map.Entry<K, Collection<V>>> entrySet() {
+        @Override public Set<Map.Entry<K, Collection<V>>> entrySet() {
           if (entrySet == null) {
             entrySet = new AsMapEntries();
           }

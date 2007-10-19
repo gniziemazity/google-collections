@@ -106,7 +106,7 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
     state = State.DONE;
   }
 
-  public final boolean hasNext() {
+  public boolean hasNext() {
     checkState(state != State.FAILED);
     switch (state) {
       case DONE:
@@ -127,7 +127,7 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
     return false;
   }
 
-  public final T next() {
+  public T next() {
     if (!hasNext()) {
       throw new NoSuchElementException();
     }
@@ -135,12 +135,7 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
     return next;
   }
 
-  /**
-   * Unsupported.
-   *
-   * @throws UnsupportedOperationException always
-   */
-  public final void remove() {
+  public void remove() {
     throw new UnsupportedOperationException();
   }
 }

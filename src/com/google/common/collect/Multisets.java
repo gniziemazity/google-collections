@@ -228,6 +228,9 @@ public final class Multisets {
    *
    * Failure to follow this advice may result in non-deterministic behavior.
    *
+   * <p>For a greater degree of concurrency, you may wish to use a {@link
+   * ConcurrentMultiset}.
+   *
    * @param multiset the multiset to be wrapped
    * @return a synchronized view of the specified multiset
    */
@@ -388,15 +391,15 @@ public final class Multisets {
       return entrySet;
     }
 
-    public boolean add(E o) {
+    @Override public boolean add(E o) {
       throw new UnsupportedOperationException();
     }
 
-    public boolean addAll(Collection<? extends E> c) {
+    @Override public boolean addAll(Collection<? extends E> c) {
       throw new UnsupportedOperationException();
     }
 
-    public boolean equals(Object o) {
+    @Override public boolean equals(Object o) {
       if (o == this) {
         return true;
       }
@@ -407,7 +410,7 @@ public final class Multisets {
       return size() == m.size() && delegate().equals(m.elementSet());
     }
 
-    public int hashCode() {
+    @Override public int hashCode() {
       int sum = 0;
       for (E e : this) {
         sum += ((e == null) ? 0 : e.hashCode()) ^ 1;
@@ -432,10 +435,10 @@ public final class Multisets {
 
     /** @see SetMultiset#entrySet */
     class EntrySet extends AbstractSet<Entry<E>> {
-      public int size() {
+      @Override public int size() {
         return delegate().size();
       }
-      public Iterator<Entry<E>> iterator() {
+      @Override public Iterator<Entry<E>> iterator() {
         return new Iterator<Entry<E>>() {
           final Iterator<E> elements = delegate().iterator();
 

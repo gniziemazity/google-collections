@@ -18,8 +18,9 @@ package com.google.common.collect;
 
 import com.google.common.base.FinalizableSoftReference;
 import com.google.common.base.FinalizableWeakReference;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.ReferenceType;
-import static com.google.common.base.ReferenceType.STRONG;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -29,102 +30,100 @@ import java.lang.ref.Reference;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Concurrent hash map that wraps keys and/or values in soft or weak references.
- * Does not support null keys or values. Uses identity equality for weak and
- * soft keys.
+ * A {@code ConcurrentMap} implementation that internally utilizes your choice
+ * of strong, soft or weak references for its keys and for its values. As soon
+ * as any key or value is reclaimed by the garbage collector, the corresponding
+ * entry automatically disappears from the map.
  *
- * <p>The concurrent semantics of {@link ConcurrentHashMap} combined with the
- * fact that the garbage collector can asynchronously reclaim and clean up
- * keys and values at any time can lead to some racy semantics. For example,
- * {@link #size()} returns an upper bound on the size; that is, the actual size
- * may be smaller in cases where the key or value has been reclaimed but the map
- * entry has not been cleaned up yet.
+ * <p>All nine possible combinations of reference types are supported, although
+ * using strong keys with strong values provides no benefit over using a {@code
+ * Map} or {@code ConcurrentMap} directly.
+ *
+ * <p><b>Note:</b> because garbage collection happens concurrently to your
+ * program, it follows that this map is always subject to concurrent
+ * modifications, whether or not the caller exposes it to multiple application
+ * threads. The usual caveats about the reliability of methods such as {@link
+ * #size} and {@link #equals} apply; for example, {@link #size} may be observed
+ * to remain unchanged for a short time after an entry was reclaimed.
+ *
+ * <p>This implementation does not permit null keys or values. To determine
+ * equality to a key or value, this implementation uses {@link Object#equals}
+ * for strong references, and identity-based equality for soft and weak
+ * references.
+ *
+ * <p><b>Note:</b> {@code new ReferenceMap(WEAK, STRONG)} is very nearly a
+ * drop-in replacement for {@link WeakHashMap}, but improves upon this by using
+ * only identity-based equality for keys. When possible, {@code ReferenceMap}
+ * should be preferred over the JDK collection, for its concurrency and greater
+ * flexibility.
  *
  * @author Bob Lee
- * @author Charles Fry
+ * @author Kevin Bourrillion
  */
-@SuppressWarnings("unchecked")
-public class ReferenceMap<K, V> extends AbstractMap<K, V>
+public final class ReferenceMap<K, V> extends AbstractMap<K, V>
     implements ConcurrentMap<K, V>, Serializable {
+  private final ReferenceStrategy keyStrategy;
+  private final ReferenceStrategy valueStrategy;
 
-  transient ConcurrentMap<Object, Object> delegate;
-
-  private final ReferenceType keyReferenceType;
-  private final ReferenceType valueReferenceType;
+  /*
+   * The keys in this map are either of type K, SoftReference<K>, or
+   * WeakReference<K>, depending on the chosen keyReferenceType; and likewise
+   * for the values.
+   */
+  private transient ConcurrentMap<Object, Object> delegate;
 
   /**
-   * Concurrent hash map that wraps keys and/or values based on specified
-   * reference types.
-   *
-   * @param keyReferenceType key reference type
-   * @param valueReferenceType value reference type
+   * Constructs an empty instance, using the given reference types for keys and
+   * values.
    */
   public ReferenceMap(
       ReferenceType keyReferenceType, ReferenceType valueReferenceType) {
-    ensureNotNull(keyReferenceType, valueReferenceType);
-
-    if (keyReferenceType == ReferenceType.PHANTOM
-        || valueReferenceType == ReferenceType.PHANTOM) {
-      throw new IllegalArgumentException("Phantom references not supported.");
-    }
-
-    this.delegate = new ConcurrentHashMap<Object, Object>();
-    this.keyReferenceType = keyReferenceType;
-    this.valueReferenceType = valueReferenceType;
+    this(keyReferenceType, valueReferenceType,
+        new ConcurrentHashMap<Object, Object>());
   }
 
-  V internalGet(K key) {
-    Object valueReference = delegate.get(makeKeyReferenceAware(key));
-    return dereferenceValue(valueReference);
+  /**
+   * Constructs an empty instance, using the given backing map and the given
+   * reference types for keys and values.
+   */
+  public ReferenceMap(ReferenceType keyReferenceType, ReferenceType
+      valueReferenceType, ConcurrentMap<Object, Object> backingMap) {
+    checkArgument(keyReferenceType != ReferenceType.PHANTOM,
+        "Phantom references are not supported.");
+    checkArgument(valueReferenceType != ReferenceType.PHANTOM,
+        "Phantom references are not supported.");
+    checkArgument(backingMap.isEmpty(), "The backing map must be empty.");
+    
+    keyStrategy = ReferenceStrategy.forType(keyReferenceType);
+    valueStrategy = ReferenceStrategy.forType(valueReferenceType);
+    delegate = backingMap;
   }
 
-  public V get(final Object key) {
-    ensureNotNull(key);
-    return internalGet((K) key);
-  }
+  // Query Operations
 
-  private V execute(Strategy strategy, K key, V value) {
-    ensureNotNull(key, value);
-    Object keyReference = referenceKey(key);
-    return (V) strategy.execute(
-        this, keyReference, referenceValue(keyReference, value)
-    );
-  }
-
-  public V put(K key, V value) {
-    return execute(putStrategy(), key, value);
-  }
-
-  public V remove(Object key) {
-    ensureNotNull(key);
-    Object referenceAwareKey = makeKeyReferenceAware(key);
-    Object valueReference = delegate.remove(referenceAwareKey);
-    return dereferenceValue(valueReference);
-  }
-
-  public int size() {
+  @Override public int size() {
     return delegate.size();
   }
 
-  public boolean isEmpty() {
+  @Override public boolean isEmpty() {
     return delegate.isEmpty();
   }
 
-  public boolean containsKey(Object key) {
-    ensureNotNull(key);
-    Object referenceAwareKey = makeKeyReferenceAware(key);
-    return delegate.containsKey(referenceAwareKey);
+  @Override public boolean containsKey(Object key) {
+    Object keyDummy = keyStrategy.getDummyFor(key);
+    return delegate.containsKey(keyDummy);
   }
 
-  public boolean containsValue(Object value) {
-    ensureNotNull(value);
+  @Override public boolean containsValue(Object value) {
+    checkNotNull(value);
     for (Object valueReference : delegate.values()) {
       if (value.equals(dereferenceValue(valueReference))) {
         return true;
@@ -133,160 +132,78 @@ public class ReferenceMap<K, V> extends AbstractMap<K, V>
     return false;
   }
 
-  public void putAll(Map<? extends K, ? extends V> t) {
-    for (Map.Entry<? extends K, ? extends V> entry : t.entrySet()) {
-      put(entry.getKey(), entry.getValue());
-    }
+  @Override public V get(Object key) {
+    Object keyDummy = keyStrategy.getDummyFor(key);
+    Object valueReference = delegate.get(keyDummy);
+    return dereferenceValue(valueReference);
   }
 
-  public void clear() {
-    delegate.clear();
+  // Modification Operations
+
+  @Override public V put(K key, V value) {
+    Object keyReference = referenceKey(key);
+    Object valueReference = referenceValue(keyReference, value);
+    return dereferenceValue(delegate.put(keyReference, valueReference));
   }
 
   public V putIfAbsent(K key, V value) {
-    return execute(putIfAbsentStrategy(), key, value);
-  }
-
-  public boolean remove(Object key, Object value) {
-    ensureNotNull(key, value);
-    Object referenceAwareKey = makeKeyReferenceAware(key);
-    Object referenceAwareValue = makeValueReferenceAware(value);
-    return delegate.remove(referenceAwareKey, referenceAwareValue);
-  }
-
-  public boolean replace(K key, V oldValue, V newValue) {
-    ensureNotNull(key, oldValue, newValue);
     Object keyReference = referenceKey(key);
+    Object valueReference = referenceValue(keyReference, value);
 
-    Object referenceAwareOldValue = makeValueReferenceAware(oldValue);
-    return delegate.replace(keyReference, referenceAwareOldValue,
-        referenceValue(keyReference, newValue)
-    );
+    Object existingValueReference;
+    V existingValue;
+    do {
+      existingValueReference
+          = delegate.putIfAbsent(keyReference, valueReference);
+      existingValue = dereferenceValue(existingValueReference);
+    } while (isPartiallyReclaimed(existingValueReference, existingValue));
+
+    return existingValue;
   }
 
   public V replace(K key, V value) {
-    return execute(replaceStrategy(), key, value);
-  }
+    Object keyReference = referenceKey(key);
+    Object valueReference = referenceValue(keyReference, value);
 
-  private transient volatile Set<Map.Entry<K, V>> entrySet = null;
+    // Ensure that the existing value is not collected.
+    do {
+      Object existingValueReference;
+      V existingValue;
+      do {
+        existingValueReference = delegate.get(keyReference);
 
-  public Set<Map.Entry<K, V>> entrySet() {
-    if (entrySet == null) {
-      entrySet = new EntrySet();
-    }
-    return entrySet;
-  }
+        /*
+         * This method as a side-effect will proactively call
+         * finalizeReference() as necessary, which prevents this loop from
+         * spinning for a long time.
+         */
+        existingValue = dereferenceValue(existingValueReference);
+      } while (isPartiallyReclaimed(existingValueReference, existingValue));
 
-  /** Dereferences an entry. Returns null if the key or value has been gc'ed. */
-  private Entry dereferenceEntry(Map.Entry<Object, Object> entry) {
-    K key = dereferenceKey(entry.getKey());
-    V value = dereferenceValue(entry.getValue());
-    return (key == null || value == null)
-        ? null
-        : new Entry(key, value);
-  }
-
-  /** Creates a reference for a key. */
-  Object referenceKey(K key) {
-    switch (keyReferenceType) {
-      case STRONG:
-        return key;
-      case SOFT:
-        return new SoftKeyReference(key);
-      case WEAK:
-        return new WeakKeyReference(key);
-      default:
-        throw new AssertionError();
-    }
-  }
-
-  /** Converts a reference to a key. */
-  private K dereferenceKey(Object o) {
-    return (K) dereference(keyReferenceType, o);
-  }
-
-  /** Converts a reference to a value. */
-  V dereferenceValue(Object o) {
-    if (o == null) {
-      return null;
-    }
-    Object value = dereference(valueReferenceType, o);
-    if (o instanceof InternalReference) {
-      InternalReference ref = (InternalReference) o;
-      if (value == null) {
-        // old value was garbage collected
-        ref.finalizeReferent();
-      }
-    }
-    return (V) value;
-  }
-
-  /** Returns the refererent for reference given its reference type. */
-  private Object dereference(ReferenceType referenceType, Object reference) {
-    return referenceType == STRONG ? reference : ((Reference) reference).get();
-  }
-
-  /** Creates a reference for a value. */
-  Object referenceValue(Object keyReference, Object value) {
-    switch (valueReferenceType) {
-      case STRONG:
-        return value;
-      case SOFT:
-        return new SoftValueReference(keyReference, value);
-      case WEAK:
-        return new WeakValueReference(keyReference, value);
-      default:
-        throw new AssertionError();
-    }
-  }
-
-  /**
-   * Wraps key so it can be compared to a referenced key for equality.
-   */
-  private Object makeKeyReferenceAware(Object o) {
-    return keyReferenceType == STRONG ? o : new KeyReferenceAwareWrapper(o);
-  }
-
-  /** Wraps value so it can be compared to a referenced value for equality. */
-  private Object makeValueReferenceAware(Object o) {
-    return valueReferenceType == STRONG ? o : new ReferenceAwareWrapper(o);
-  }
-
-  /**
-   * Marker interface to differentiate external and internal references. Also
-   * duplicates FinalizableReference and Reference.get for internal use.
-   */
-  interface InternalReference {
-    void finalizeReferent();
-
-    Object get();
-  }
-
-  private static int keyHashCode(Object key) {
-    return System.identityHashCode(key);
-  }
-
-  /*
-   * Tests weak and soft references for identity equality. Compares references
-   * to other references and wrappers. If o is a reference, this returns true if
-   * r == o or if r and o reference the same non-null object. If o is a wrapper,
-   * this returns true if r's referent is identical to the wrapped object.
-   */
-  private static boolean referenceEquals(Reference r, Object o) {
-    // compare reference to reference.
-    if (o instanceof InternalReference) {
-      // are they the same reference? used in cleanup.
-      if (o == r) {
-        return true;
+      if (existingValueReference == null) {
+        return null; // nothing to replace
       }
 
-      // do they reference identical values? used in conditional puts.
-      Object referent = ((Reference) o).get();
-      return referent != null && referent == r.get();
-    }
+      if (delegate.replace(
+          keyReference, existingValueReference, valueReference)) {
+        // existingValue didn't expire since we still have a reference to it
+        return existingValue;
+      }
+    } while (true);
+  }
 
-    // is the wrapped object identical to the referent? used in lookups.
-    return ((ReferenceAwareWrapper) o).unwrap() == r.get();
+  public boolean replace(K key, V oldValue, V newValue) {
+    /*
+     * It's surprising how much simpler this, the "more-discriminating" form of
+     * replace(), is to implement than the other, "less-discriminating" form.
+     * The difference is that, because we have a strong reference to
+     * 'oldValue', we know that it can't have been garbage collected and so we
+     * can skip all the logic that handles that case.
+     */
+    Object keyReference = referenceKey(key);
+    Object oldValueDummy = valueStrategy.getDummyFor(oldValue);
+    Object newValueReference = referenceValue(keyReference, newValue);
+    return delegate.replace(keyReference, oldValueDummy, newValueReference);
   }
 
   /**
@@ -295,364 +212,453 @@ public class ReferenceMap<K, V> extends AbstractMap<K, V>
    * queried inside this method, to ensure that the return statement of this
    * method will still hold true after it has returned (that is, a value
    * reference exists outside of this method which will prevent that value from
-   * being garbage collected).
+   * being garbage collected). A {@code false} result may indicate either that
+   * the value has been fully reclaimed, or that it has not been reclaimed at
+   * all.
    *
    * @param valueReference the value reference to be tested
    * @param value the object referenced by {@code valueReference}
    * @return {@code true} if {@code valueReference} is non-null and {@code
    *     value} is null
    */
-  private static boolean isExpired(Object valueReference, Object value) {
+  private static boolean isPartiallyReclaimed(
+      Object valueReference, Object value) {
     return (valueReference != null) && (value == null);
   }
 
+  @Override public V remove(Object key) {
+    Object keyDummy = keyStrategy.getDummyFor(key);
+    Object valueReference = delegate.remove(keyDummy);
+    return dereferenceValue(valueReference);
+  }
+
+  public boolean remove(Object key, Object value) {
+    Object keyDummy = keyStrategy.getDummyFor(key);
+    Object valueDummy = valueStrategy.getDummyFor(value);
+    return delegate.remove(keyDummy, valueDummy);
+  }
+
+  // Bulk Operations
+
+  // Inherit putAll() from AbstractMap
+
+  @Override public void clear() {
+    delegate.clear();
+  }
+
+  // Views
+
+  // Inherit keySet() and values() from AbstractMap
+
+  private transient EntrySet entrySet;
+
   /**
-   * Big hack. Used to compare keys and values to referenced keys and values
-   * without creating more references.
+   * {@inheritDoc}
+   *
+   * <p><b>Note:</b> Regardless of the choice of key and value reference types,
+   * an entry in the entry set always has strong references to both key and
+   * value. You should avoid any lingering strong references to Entry objects.
    */
-  static class ReferenceAwareWrapper {
-    final Object wrapped;
-
-    ReferenceAwareWrapper(Object wrapped) {
-      this.wrapped = wrapped;
-    }
-
-    Object unwrap() {
-      return wrapped;
-    }
-
-    public int hashCode() {
-      return wrapped.hashCode();
-    }
-
-    public boolean equals(Object obj) {
-      // defer to reference's equals() logic.
-      return obj.equals(this);
-    }
-  }
-
-  /** Used for keys. Overrides hash code to use identity hash code. */
-  static class KeyReferenceAwareWrapper extends ReferenceAwareWrapper {
-    public KeyReferenceAwareWrapper(Object wrapped) {
-      super(wrapped);
-    }
-
-    public int hashCode() {
-      return System.identityHashCode(wrapped);
-    }
-  }
-
-  class SoftKeyReference extends FinalizableSoftReference<Object>
-      implements InternalReference {
-    final int hashCode;
-
-    public SoftKeyReference(Object key) {
-      super(key);
-      this.hashCode = keyHashCode(key);
-    }
-
-    public void finalizeReferent() {
-      delegate.remove(this);
-    }
-
-    @Override public int hashCode() {
-      return this.hashCode;
-    }
-
-    @Override public boolean equals(Object o) {
-      return referenceEquals(this, o);
-    }
-  }
-
-  class WeakKeyReference extends FinalizableWeakReference<Object>
-      implements InternalReference {
-    final int hashCode;
-
-    public WeakKeyReference(Object key) {
-      super(key);
-      this.hashCode = keyHashCode(key);
-    }
-
-    public void finalizeReferent() {
-      delegate.remove(this);
-    }
-
-    @Override public int hashCode() {
-      return this.hashCode;
-    }
-
-    @Override public boolean equals(Object o) {
-      return referenceEquals(this, o);
-    }
-  }
-
-  class SoftValueReference extends FinalizableSoftReference<Object>
-      implements InternalReference {
-    final Object keyReference;
-
-    public SoftValueReference(Object keyReference, Object value) {
-      super(value);
-      this.keyReference = keyReference;
-    }
-
-    public void finalizeReferent() {
-      delegate.remove(keyReference, this);
-    }
-
-    @Override public boolean equals(Object obj) {
-      return referenceEquals(this, obj);
-    }
-  }
-
-  class WeakValueReference extends FinalizableWeakReference<Object>
-      implements InternalReference {
-    final Object keyReference;
-
-    public WeakValueReference(Object keyReference, Object value) {
-      super(value);
-      this.keyReference = keyReference;
-    }
-
-    public void finalizeReferent() {
-      delegate.remove(keyReference, this);
-    }
-
-    @Override public boolean equals(Object obj) {
-      return referenceEquals(this, obj);
-    }
-  }
-
-  protected interface Strategy {
-    public Object execute(
-        ReferenceMap map, Object keyReference, Object valueReference);
-  }
-
-  // TODO: a getter called put() is probably a bad idea
-  protected Strategy putStrategy() {
-    return PutStrategy.PUT;
-  }
-
-  protected Strategy putIfAbsentStrategy() {
-    return PutStrategy.PUT_IF_ABSENT;
-  }
-
-  protected Strategy replaceStrategy() {
-    return PutStrategy.REPLACE;
-  }
-
-  private enum PutStrategy implements Strategy {
-    PUT {
-      public Object execute(
-          ReferenceMap map, Object keyReference, Object valueReference) {
-        return map.dereferenceValue(
-            map.delegate.put(keyReference, valueReference));
-      }
-    },
-
-    REPLACE {
-      public Object execute(
-          ReferenceMap map, Object keyReference, Object valueReference) {
-        // ensure that the existing value is not collected
-        do {
-          Object existingValueReference;
-          Object existingValue;
-          do {
-            existingValueReference = map.delegate.get(keyReference);
-            existingValue = map.dereferenceValue(existingValueReference);
-          } while (isExpired(existingValueReference, existingValue));
-
-          if (existingValueReference == null) {
-            // nothing to replace
-            return false;
-          }
-
-          if (map.delegate.replace(
-              keyReference, existingValueReference, valueReference)) {
-            // existingValue didn't expire since we still have a reference to it
-            return existingValue;
-          }
-        } while (true);
-      }
-    },
-
-    PUT_IF_ABSENT {
-      public Object execute(
-          ReferenceMap map, Object keyReference, Object valueReference) {
-        Object existingValueReference;
-        Object existingValue;
-        do {
-          existingValueReference
-              = map.delegate.putIfAbsent(keyReference, valueReference);
-          existingValue = map.dereferenceValue(existingValueReference);
-        } while (isExpired(existingValueReference, existingValue));
-        return existingValue;
-      }
-    },
-  }
-
-  private static PutStrategy defaultPutStrategy;
-
-  protected PutStrategy getPutStrategy() {
-    return defaultPutStrategy;
-  }
-
-  class Entry implements Map.Entry<K, V> {
-    final K key;
-    V value;
-
-    public Entry(K key, V value) {
-      this.key = key;
-      this.value = value;
-    }
-
-    public K getKey() {
-      return this.key;
-    }
-
-    public V getValue() {
-      return this.value;
-    }
-
-    public V setValue(V newValue) {
-      value = newValue;
-      return put(key, newValue);
-    }
-
-    public int hashCode() {
-      return key.hashCode() * 31 + value.hashCode();
-    }
-
-    public boolean equals(Object o) {
-      if (!(o instanceof ReferenceMap.Entry)) {
-        return false;
-      }
-
-      Entry entry = (Entry) o;
-      return key.equals(entry.key) && value.equals(entry.value);
-    }
-
-    public String toString() {
-      return key + "=" + value;
-    }
-  }
-
-  private class ReferenceIterator implements Iterator<Map.Entry<K, V>> {
-    private Iterator<Map.Entry<Object, Object>> i =
-        delegate.entrySet().iterator();
-    private Map.Entry<K, V> nextEntry;
-    private Map.Entry<K, V> lastReturned;
-
-    public ReferenceIterator() {
-      advance();
-    }
-
-    private void advance() {
-      while (i.hasNext()) {
-        Map.Entry<K, V> entry = dereferenceEntry(i.next());
-        if (entry != null) {
-          nextEntry = entry;
-          return;
-        }
-      }
-
-      // nothing left
-      nextEntry = null;
-    }
-
-    public boolean hasNext() {
-      return nextEntry != null;
-    }
-
-    public Map.Entry<K, V> next() {
-      if (nextEntry == null) {
-        throw new NoSuchElementException();
-      }
-      lastReturned = nextEntry;
-      advance();
-      return lastReturned;
-    }
-
-    public void remove() {
-      ReferenceMap.this.remove(lastReturned.getKey());
-    }
+  @Override public Set<Map.Entry<K, V>> entrySet() {
+    EntrySet es = entrySet;
+    return (es == null) ? (entrySet = new EntrySet()) : es;
   }
 
   private class EntrySet extends AbstractSet<Map.Entry<K, V>> {
-    public Iterator<Map.Entry<K, V>> iterator() {
-      return new ReferenceIterator();
+    @Override public int size() {
+      return ReferenceMap.this.size();
     }
 
-    public int size() {
-      return delegate.size();
+    @Override public boolean isEmpty() {
+      return ReferenceMap.this.isEmpty();
     }
 
-    public boolean contains(Object o) {
-      if (!(o instanceof Map.Entry)) {
+    @Override public boolean contains(Object object) {
+      checkNotNull(object);
+      if (!(object instanceof Map.Entry<?, ?>)) {
         return false;
       }
-      Map.Entry<K, V> e = (Map.Entry<K, V>) o;
-      V v = ReferenceMap.this.get(e.getKey());
-      return v != null && v.equals(e.getValue());
+      Map.Entry<?, ?> entry = (Map.Entry<?, ?>) object;
+      Object key = entry.getKey();
+      Object value = entry.getValue();
+      return key != null && value != null && value.equals(get(key));
     }
 
-    public boolean remove(Object o) {
-      if (!(o instanceof Map.Entry)) {
-        return false;
+    @Override public Iterator<Map.Entry<K, V>> iterator() {
+      return new EntryIterator();
+    }
+
+    /*
+     * Note: the superclass toArray() methods assume that size() gives a correct
+     * answer, which ours does not.
+     */
+
+    @Override public Object[] toArray() {
+      return snapshot().toArray();
+    }
+
+    @Override public <T> T[] toArray(T[] array) {
+      checkNotNull(array);
+      return snapshot().toArray(array);
+    }
+
+    /*
+     * We'd love to use 'new ArrayList(this)' or 'list.addAll(this)', but either
+     * of these would recurse back to us again!
+     */
+    private List<Map.Entry<K, V>> snapshot() {
+      List<Map.Entry<K, V>> list = Lists.newArrayListWithExpectedSize(size());
+      for (Map.Entry<K, V> entry : this) {
+        list.add(entry);
       }
-      Map.Entry<K, V> e = (Map.Entry<K, V>) o;
-      return ReferenceMap.this.remove(e.getKey(), e.getValue());
+      return list;
     }
 
-    public void clear() {
-      delegate.clear();
+    @Override public boolean remove(Object object) {
+      checkNotNull(object);
+      if (object instanceof Map.Entry<?, ?>) {
+        Map.Entry<?, ?> entry = (Map.Entry<?, ?>) object;
+        return ReferenceMap.this.remove(entry.getKey(), entry.getValue());
+      }
+      return false;
     }
-  };
 
-  // TODO: use preconditions
-  static void ensureNotNull(Object o) {
-    if (o == null) {
-      throw new NullPointerException();
+    @Override public void clear() {
+      ReferenceMap.this.clear();
     }
   }
 
-  static void ensureNotNull(Object... array) {
-    for (int i = 0; i < array.length; i++) {
-      if (array[i] == null) {
-        throw new NullPointerException("Argument #" + i + " is null.");
+  private class EntryIterator extends AbstractRemovableIterator<Map.Entry<K, V>>
+  {
+    Iterator<Map.Entry<Object, Object>> delegateEntries
+        = delegate.entrySet().iterator();
+
+    @Override protected Map.Entry<K, V> computeNext() {
+      while (delegateEntries.hasNext()) {
+        Map.Entry<Object, Object> entry = delegateEntries.next();
+        Object reference = entry.getKey();
+
+        @SuppressWarnings("unchecked")
+        final K key = (K) keyStrategy.dereferenceKey(reference);
+
+        if (key != null) {
+          final V value = dereferenceValue(entry.getValue());
+          if (value != null) {
+            return new AbstractMapEntry<K, V>() {
+              V currentValue = value;
+              @Override public K getKey() {
+                return key;
+              }
+              @Override public V getValue() {
+                return currentValue;
+              }
+              @Override public V setValue(V newValue) {
+                put(key, newValue);
+                try {
+                  return currentValue;
+                } finally {
+                  currentValue = newValue;
+                }
+              }
+            };
+          }
+        }
+        // Otherwise, skip over this partially-GC'ed entry.
       }
+      endOfData();
+      return null;
+    }
+
+    /*
+     * On a typical Map this would produce a ConcurrentModificationException,
+     * but we're using a ConcurrentMap, which of course has no problem.
+     */
+    @Override public void remove(Map.Entry<K, V> entry) {
+      ReferenceMap.this.remove(entry.getKey(), entry.getValue());
     }
   }
+
+  // Serialization
+
+  /*
+   * "Override" default serialization so that we serialize the wrapped values
+   * themselves (of type K and V), since serializing References would be absurd.
+   */
 
   private void writeObject(ObjectOutputStream out) throws IOException {
-    out.defaultWriteObject();
+    out.defaultWriteObject(); // referenceType fields
     out.writeInt(size());
-    for (Map.Entry<Object, Object> entry : delegate.entrySet()) {
-      Object key = dereferenceKey(entry.getKey());
-      Object value = dereferenceValue(entry.getValue());
-
-      // don't persist gc'ed entries.
-      if (key != null && value != null) {
-        out.writeObject(key);
-        out.writeObject(value);
-      }
+    for (Map.Entry<K, V> entry : entrySet()) {
+      out.writeObject(entry.getKey());
+      out.writeObject(entry.getValue());
     }
     out.writeObject(null);
   }
 
   private void readObject(ObjectInputStream in)
       throws IOException, ClassNotFoundException {
-    in.defaultReadObject();
-    int size = in.readInt();
-    this.delegate = new ConcurrentHashMap<Object, Object>(size);
+    in.defaultReadObject(); // sets the referenceType fields
+    int approximateSize = in.readInt();
+    delegate = new ConcurrentHashMap<Object, Object>(
+        Maps.capacity(approximateSize));
     while (true) {
+      @SuppressWarnings("unchecked") // see writeObject()
       K key = (K) in.readObject();
       if (key == null) {
         break;
       }
+      @SuppressWarnings("unchecked") // see writeObject()
       V value = (V) in.readObject();
       put(key, value);
     }
   }
 
-  private static final long serialVersionUID = 0;
+  // The rest of the file is all private machinery
+
+  private enum ReferenceStrategy {
+    DIRECT {
+      @Override Object referenceKey(ReferenceMap<?, ?> map, Object key) {
+        return key;
+      }
+      @Override Object referenceValue(
+          ReferenceMap<?, ?> map, Object keyReference, Object value) {
+        return value;
+      }
+      @Override Object dereferenceKey(Object reference) {
+        return reference;
+      }
+      @Override Object dereferenceValue(Object object) {
+        return object;
+      }
+      @Override Object getDummyFor(Object object) {
+        return object;
+      }
+    },
+
+    WRAP_IN_SOFT {
+      @Override Object referenceKey(ReferenceMap<?, ?> map, Object key) {
+        return map.new SoftKeyReference(key);
+      }
+      @Override Object referenceValue(
+          ReferenceMap<?, ?> map, Object keyReference, Object value) {
+        return map.new SoftValueReference(keyReference, value);
+      }
+    },
+
+    WRAP_IN_WEAK {
+      @Override Object referenceKey(ReferenceMap<?, ?> map, Object key) {
+        return map.new WeakKeyReference(key);
+      }
+      @Override Object referenceValue(
+          ReferenceMap<?, ?> map, Object keyReference, Object value) {
+        return map.new WeakValueReference(keyReference, value);
+      }
+    };
+
+    abstract Object referenceKey(ReferenceMap<?, ?> map, Object key);
+
+    abstract Object referenceValue(
+        ReferenceMap<?, ?> map, Object keyReference, Object value);
+
+    Object dereferenceKey(Object reference) {
+      return ((Reference<?>) reference).get();
+    }
+
+    Object dereferenceValue(Object object) {
+      InternalReference reference = (InternalReference) object;
+      Object value = reference.get();
+
+      /*
+       * It's important that we proactively try to finalize the referent, rather
+       * rather than waiting on the queue, in particular because of the
+       * do/while loop in replace().
+       */
+      if (value == null) {
+        reference.finalizeReferent(); // The old value was garbage collected.
+      }
+      return value;
+    }
+
+    Object getDummyFor(Object object) {
+      return new DummyReference(checkNotNull(object));
+    }
+
+    static ReferenceStrategy forType(ReferenceType type) {
+      switch (checkNotNull(type)) {
+        case STRONG:
+          return ReferenceStrategy.DIRECT;
+        case SOFT:
+          return ReferenceStrategy.WRAP_IN_SOFT;
+        case WEAK:
+          return ReferenceStrategy.WRAP_IN_WEAK;
+        default:
+          throw new AssertionError();
+      }
+    }
+  }
+
+  /*
+   * Marker interface to differentiate external and internal references. Also
+   * duplicates finalizeReferent() and Reference.get() for internal use.
+   */
+  private interface InternalReference {
+    void finalizeReferent();
+    Object get();
+  }
+
+  private class SoftKeyReference extends FinalizableSoftReference<Object>
+      implements InternalReference {
+    final int hashCode;
+
+    SoftKeyReference(Object key) {
+      super(key);
+      hashCode = System.identityHashCode(key);
+    }
+    public void finalizeReferent() {
+      delegate.remove(this);
+    }
+    @Override public int hashCode() {
+      return hashCode;
+    }
+    @Override public boolean equals(Object object) {
+      return referenceEquals(this, object);
+    }
+  }
+
+  private class SoftValueReference extends FinalizableSoftReference<Object>
+      implements InternalReference {
+    final Object keyReference;
+
+    SoftValueReference(Object keyReference, Object value) {
+      super(value);
+      this.keyReference = keyReference;
+    }
+    public void finalizeReferent() {
+      delegate.remove(keyReference, this);
+    }
+    @Override public int hashCode() {
+      // It's hard to define a useful hash code, so we're careful not to use it.
+      throw new AssertionError("don't hash me");
+    }
+    @Override public boolean equals(Object obj) {
+      return referenceEquals(this, obj);
+    }
+  }
+
+  /*
+   * WeakKeyReference/WeakValueReference are absolutely identical to
+   * SoftKeyReference/SoftValueReference except for which classes they extend.
+   */
+
+  private class WeakKeyReference extends FinalizableWeakReference<Object>
+      implements InternalReference {
+    final int hashCode;
+
+    WeakKeyReference(Object key) {
+      super(key);
+      hashCode = System.identityHashCode(key);
+    }
+    public void finalizeReferent() {
+      delegate.remove(this);
+    }
+    @Override public int hashCode() {
+      return hashCode;
+    }
+    @Override public boolean equals(Object object) {
+      return referenceEquals(this, object);
+    }
+  }
+
+  private class WeakValueReference extends FinalizableWeakReference<Object>
+      implements InternalReference {
+    final Object keyReference;
+
+    WeakValueReference(Object keyReference, Object value) {
+      super(value);
+      this.keyReference = keyReference;
+    }
+    public void finalizeReferent() {
+      delegate.remove(keyReference, this);
+    }
+    @Override public int hashCode() {
+      // It's hard to define a useful hash code, so we're careful not to use it.
+      throw new AssertionError("don't hash me");
+    }
+    @Override public boolean equals(Object obj) {
+      return referenceEquals(this, obj);
+    }
+  }
+
+  /*
+   * A short-lived object that is contrived for the purpose of passing to
+   * methods of the backing map such as get(), remove(), containsKey(), and
+   * replace() (all parameters but the last). That is, it's an object suitable
+   * only for use with the backing map, and only for _comparison_ purposes. This
+   * is a hack that lets us compare keys and values to referenced keys and
+   * values without creating more references.
+   */
+  private static class DummyReference {
+    final Object wrapped;
+    DummyReference(Object wrapped) {
+      this.wrapped = wrapped;
+    }
+    Object unwrap() {
+      return wrapped;
+    }
+    @Override public int hashCode() {
+      return System.identityHashCode(wrapped);
+    }
+    @Override public boolean equals(Object object) {
+      return object.equals(this); // Defer to the reference's equals() logic.
+    }
+  }
+
+  /*
+   * Tests weak and soft references for identity equality. Compares references
+   * to other references and wrappers. If o is a reference, this returns true if
+   * r == o or if r and o reference the same non-null object. If o is a wrapper,
+   * this returns true if r's referent is identical to the wrapped object.
+   */
+  private static boolean referenceEquals(Reference<?> reference, Object object)
+  {
+    // Are they the same reference? Used in cleanup.
+    if (object == reference) {
+      return true;
+    }
+    if (object instanceof InternalReference) {
+      /*
+       * Do they reference identical values? Used in conditional puts. We can
+       * assume it's of type InternalReference now, as no one outside
+       * ReferenceMap can be invoking equals().
+       */
+      Object referent = ((InternalReference) object).get();
+      return referent != null && referent == reference.get();
+    }
+
+    // Is the wrapped object identical to the referent? Used in lookups.
+    return ((DummyReference) object).unwrap() == reference.get();
+  }
+
+  private Object referenceKey(K key) {
+    return keyStrategy.referenceKey(this, checkNotNull(key));
+  }
+
+  private Object referenceValue(Object keyReference, V value) {
+    return valueStrategy.referenceValue(
+        this, keyReference, checkNotNull(value));
+  }
+
+  /*
+   * Converts a reference to a value. Do not call this method without being
+   * certain that the object is a reference to a value type (V).
+   */
+  @SuppressWarnings("unchecked")
+  private V dereferenceValue(Object object) {
+    if (object == null) {
+      return null;
+    }
+    return (V) valueStrategy.dereferenceValue(object);
+  }
+
+  private static final long serialVersionUID = 0L;
 }

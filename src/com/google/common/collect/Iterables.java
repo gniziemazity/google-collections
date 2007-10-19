@@ -180,6 +180,18 @@ public final class Iterables {
    * Variant of {@code Iterators.concat} that acts on and returns instances of
    * {@code Iterable}.
    */
+  @SuppressWarnings("unchecked")
+  public static <T> Iterable<T> concat(
+      Iterable<? extends T> firstElements, Iterable<? extends T> nextElements) {
+    checkNotNull(firstElements);
+    checkNotNull(nextElements);
+    return concat(Arrays.asList(firstElements, nextElements));
+  }
+
+  /**
+   * Variant of {@code Iterators.concat} that acts on and returns instances of
+   * {@code Iterable}.
+   */
   public static <T> Iterable<T> concat(Iterable<? extends T>... iterables) {
     checkNotNull(iterables);
     return concat(Arrays.asList(iterables));
