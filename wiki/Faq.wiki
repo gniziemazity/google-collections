@@ -49,15 +49,11 @@ It's possible `hashCode()` would be safe to implement, but it seems pointless. I
 
 `toString()` is potentially harmful as it will not perform as anyone expects; it could take arbitrarily long to run if the data set is large.
 
-== Why is `AbstractIterator.remove()` unsupported, and worse, final? ==
-
-It is impossible to implement correctly without making this simple utility horribly complicated, and even then it would not work for many purposes.
-
 == Why are so many implementation classes marked `final`? ==
 
-Designing and documenting classes of a public API to be extended safely is hard, and time-consuming. And in most cases when you'd be interested in extending a collection, you can just write a decorator for it instead. We've even provided the "forwarding collections" to make writing decorators easy.
+Designing and documenting classes of a public API is hard stuff, and designing and documented to be safely extended is a hundred times harder. We decided that in most cases when we're interested in extending a collection, we'd really be fine with just writing a decorator for it instead. So, we've provided the full complement of "forwarding collections", to make writing decorators easy, and we're advocating that approach.
 
-If there are final classes that you have a valid need to subclass, we'll consider these on a case-by-case basis.
+If there are final classes that you have a very compelling reason to subclass, we'll hear your case.
 
 == Why are the names `Multiset` and `Multimap`, not `MultiSet` and `MultiMap`? ==
 
