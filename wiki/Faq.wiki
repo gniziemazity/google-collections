@@ -27,11 +27,11 @@ Sometime between now and the release of 1.0, we will upgrade to 6. When we do th
 
 == Why build on Java 5, instead of 1.4? ==
 
-Because we hate Java 1.4. Just kidding (but we do). Basically, at Google we simply don't use Java 1.4 anymore, and haven't for years. If you're using it, please try feeding our library into [http://retrotranslator.sourceforge.net/ Retrotranslator]. Try out the results, tell us how it goes, and please kindly send us any patches you needed to make to our code to get it working.
+Because we hate Java 1.4. Just kidding (but we do). Basically, at Google we simply don't use Java 1.4 anymore, and haven't for years [http://code.google.com/webtoolkit/overview.html GWT] excepted). If you're using 1.4, please try feeding our library into [http://retrotranslator.sourceforge.net/ Retrotranslator]. Try out the results, tell us how it goes, and please kindly send us any patches you needed to make to our code to get it working.
 
 == Why won't you let us see your tests? ==
 
-Don't worry, the tests are coming over shortly.
+Don't worry, the tests are coming over shortly. If it eases your mind at all, YES, we do have them.  :-)  We have about 2000 of them and our coverage is around 85%.  (Both these numbers will have to get much better before 1.0.)
 
 = Design =
 
