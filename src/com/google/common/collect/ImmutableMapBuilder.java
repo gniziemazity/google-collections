@@ -17,7 +17,6 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import java.util.Collection;
@@ -64,11 +63,9 @@ public class ImmutableMapBuilder<K, V> {
    * map}.
    */
   public static <K, V> ImmutableMapBuilder<K, V> fromMap(Map<K, V> map) {
-    checkNotNull(map);
-    final ImmutableMapBuilder<K, V> builder
+    ImmutableMapBuilder<K, V> builder
         = new ImmutableMapBuilder<K, V>(map.size() * 3 / 2);
-
-    for (final Map.Entry<K, V> entry : map.entrySet()) {
+    for (Map.Entry<K, V> entry : map.entrySet()) {
       builder.put(entry.getKey(), entry.getValue());
     }
 

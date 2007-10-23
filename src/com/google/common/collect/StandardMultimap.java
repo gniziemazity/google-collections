@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
+import static com.google.common.base.Preconditions.checkArgument;
 
 import java.io.Serializable;
 import java.util.AbstractCollection;
@@ -105,12 +106,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
    * @throws IllegalArgumentException if {@code map} is not empty
    */
   protected StandardMultimap(Map<K, Collection<V>> map) {
-    if (map == null) {
-      throw new NullPointerException();
-    }
-    if (!map.isEmpty()) {
-      throw new IllegalArgumentException("map parameter must be empty");
-    }
+    checkArgument(map.isEmpty());
     this.map = map;
   }
 
@@ -235,9 +231,6 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
 
   public Collection<V> replaceValues(
       @Nullable K key, Iterable<? extends V> values) {
-    if (values == null) {
-      throw new NullPointerException();
-    }
     Iterator<? extends V> iterator = values.iterator();
     if (!iterator.hasNext()) {
       return removeAll(key);

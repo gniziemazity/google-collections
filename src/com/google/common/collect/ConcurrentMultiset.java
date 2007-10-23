@@ -18,15 +18,14 @@ package com.google.common.collect;
 
 import com.google.common.base.Nullable;
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.Serializable;
 import java.util.AbstractSet;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -40,7 +39,7 @@ import java.util.concurrent.ConcurrentMap;
  * when using the default {@link ConcurrentHashMap}, this implementation cannot
  * contain {@code null}.
  *
- * @author cbiffle@google.com (Cliff L. Biffle)
+ * @author Cliff L. Biffle
  */
 public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
     implements Serializable {
@@ -92,8 +91,7 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
    * @throws IllegalArgumentException if {@code countMap} is not empty
    */
   public ConcurrentMultiset(ConcurrentMap<E, Integer> countMap) {
-    checkNotNull(countMap);
-    checkArgument(countMap.isEmpty(), "countMap must be empty.");
+    checkArgument(countMap.isEmpty());
     this.countMap = countMap;
   }
 
@@ -119,7 +117,6 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
   }
 
   @Override public <T> T[] toArray(T[] array) {
-    checkNotNull(array);
     return snapshot().toArray(array);
   }
 
@@ -252,8 +249,6 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
    * Adds or removes occurrences of {@code element} such that the {@link #count}
    * of the element becomes {@code count}.
    *
-   * <p>TODO(cbiffle): this method belongs in Multiset.
-   *
    * @return the count of {@code element} in the multiset before this call
    * @throws IllegalArgumentException if {@code count} is negative
    */
@@ -269,8 +264,6 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
    * does {@link #setCount(Object,int)}, but only if the count is currently
    * {@code oldCount}. If {@code element} does not appear in the multiset
    * exactly {@code oldCount} times, no changes will be made.
-   *
-   * <p>TODO(cbiffle): this method belongs in Multiset.
    *
    * @return {@code true} if the change was successful. This usually indicates
    *     that the multiset has been modified, but not always: in the case that
@@ -302,9 +295,7 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
    * makes no change if this is not possible.
    *
    * <p>This method differs from {@link #remove(Object, int)} in that it has no
-   * effect when the element count is smaller than {@occurrences}.
-   *
-   * <p>TODO(cbiffle): this method belongs in Multiset.
+   * effect when the element count is smaller than {@code occurrences}.
    *
    * @param element the element to remove
    * @param occurrences the number of occurrences of {@code element} to remove
@@ -399,7 +390,6 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
     }
 
     @Override public <T> T[] toArray(T[] array) {
-      checkNotNull(array);
       return snapshot().toArray(array);
     }
 

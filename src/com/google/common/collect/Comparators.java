@@ -178,9 +178,8 @@ public final class Comparators {
   static class CompoundOrder<T> implements SerializableComparator<T> {
     private final List<? extends Comparator<? super T>> comparators;
 
-    public CompoundOrder(List<? extends Comparator<? super T>> comparators) {
-      checkNotNull(comparators);
-      this.comparators = comparators;
+    CompoundOrder(List<? extends Comparator<? super T>> comparators) {
+      this.comparators = checkNotNull(comparators);
     }
 
     public int compare(T left, T right) {
@@ -227,13 +226,12 @@ public final class Comparators {
 
   /** @see Comparators#fromFunction(Function) */
   @SuppressWarnings("unchecked")
-  static class TransformingNaturalOrder<F, T extends Comparable>
+  private static class TransformingNaturalOrder<F, T extends Comparable>
       implements Comparator<F>, Serializable {
     private final Function<F, T> function;
 
-    public TransformingNaturalOrder(Function<F, T> function) {
-      checkNotNull(function);
-      this.function = function;
+    TransformingNaturalOrder(Function<F, T> function) {
+      this.function = checkNotNull(function);
     }
 
     public int compare(F left, F right) {
@@ -283,12 +281,10 @@ public final class Comparators {
     private final Function<F, T> function;
     private final Comparator<? super T> comparator;
 
-    public TransformingOrder(
+    TransformingOrder(
         Function<F, T> function, Comparator<? super T> comparator) {
-      checkNotNull(function);
-      checkNotNull(comparator);
-      this.function = function;
-      this.comparator = comparator;
+      this.function = checkNotNull(function);
+      this.comparator = checkNotNull(comparator);
     }
 
     public int compare(F left, F right) {
@@ -341,9 +337,6 @@ public final class Comparators {
    */
   @SuppressWarnings("unchecked")
   public static <T extends Comparable> T min(T a, T b) {
-    checkNotNull(a);
-    checkNotNull(b);
-
     /*
      * Let this throw a ClassCastException if T is a bizarre Comparable that
      * can't be compared to itself, as documented.
@@ -364,9 +357,6 @@ public final class Comparators {
    */
   @SuppressWarnings("unchecked")
   public static <T extends Comparable> T max(T a, T b) {
-    checkNotNull(a);
-    checkNotNull(b);
-
     /*
      * Let this throw a ClassCastException if T is a bizarre Comparable that
      * can't be compared to itself, as documented.
@@ -386,6 +376,7 @@ public final class Comparators {
    *     comparable</i> using the specified comparator.
    */
   public static <T> T min(Comparator<? super T> comparator, T a, T b) {
+    // TODO: allow null?
     checkNotNull(a);
     checkNotNull(b);
     return comparator.compare(a, b) <= 0 ? a : b;
@@ -401,6 +392,7 @@ public final class Comparators {
    *     comparable</i> using the specified comparator.
    */
   public static <T> T max(Comparator<? super T> comparator, T a, T b) {
+    // TODO: allow null?
     checkNotNull(a);
     checkNotNull(b);
     return comparator.compare(a, b) >= 0 ? a : b;
@@ -420,7 +412,6 @@ public final class Comparators {
    *     duplicate values (according to {@link Object#equals})
    */
   public static <T> Comparator<T> givenOrder(List<T> valuesInOrder) {
-    checkNotNull(valuesInOrder);
     return new GivenOrder<T>(valuesInOrder);
   }
 
@@ -667,7 +658,7 @@ public final class Comparators {
     final Comparator<T> comparator;
 
     public NullHandlingComparator(Comparator<T> comparator) {
-      this.comparator = comparator;
+      this.comparator = checkNotNull(comparator);
     }
 
     public int compare(T left, T right) {

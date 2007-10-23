@@ -24,7 +24,7 @@ import static com.google.common.base.Preconditions.checkState;
  * must implement both the {@link AbstractIterator#computeNext} and {@link
  * #remove(Object)} methods.
  *
- * @author kevinb@google.com (Kevin Bourrillion)
+ * @author Kevin Bourrillion
  */
 public abstract class AbstractRemovableIterator<T> extends AbstractIterator<T> {
   private T elementToRemove;
@@ -41,7 +41,7 @@ public abstract class AbstractRemovableIterator<T> extends AbstractIterator<T> {
   }
 
   @Override public void remove() {
-    checkState(canRemove);
+    checkState(canRemove, "no calls to next() since the last call to remove()");
     try {
       remove(elementToRemove);
     } finally {

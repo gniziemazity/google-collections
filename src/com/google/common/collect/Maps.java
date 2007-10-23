@@ -189,7 +189,6 @@ public final class Maps {
    * @return a newly-created, initially-empty {@code EnumMap}
    */
   public static <K extends Enum<K>, V> EnumMap<K, V> newEnumMap(Class<K> type) {
-    checkNotNull(type);
     return new EnumMap<K, V>(type);
   }
 
@@ -209,7 +208,6 @@ public final class Maps {
    */
   public static boolean containsEntry(
       Map<?, ?> map, @Nullable Object key, @Nullable Object value) {
-    checkNotNull(map);
     Object valueForKey = map.get(key);
     return (valueForKey == null)
         ? value == null && map.containsKey(key)
@@ -564,15 +562,12 @@ public final class Maps {
   private static <K, V> Map<K, V> uniqueIndex(
       Map<K, V> map, Iterator<? extends V> values,
       Function<? super V, ? extends K> keyFunction) {
-    checkNotNull(keyFunction, "function cannot be null");
+    checkNotNull(keyFunction);
     while (values.hasNext()) {
-      V value = values.next();
-      checkNotNull(value, "null index values not allowed");
-      K key = keyFunction.apply(value);
-      checkNotNull(key, "null index keys not allowed");
-      if (map.put(key, value) != null) {
-        throw new IllegalArgumentException("Duplicate key: " + key);
-      }
+      V value = checkNotNull(values.next(), "null index values not allowed");
+      K key = checkNotNull(keyFunction.apply(value),
+          "null index keys not allowed");
+      checkArgument(map.put(key, value) == null, "Duplicate key: %s", key);
     }
     return map;
   }
@@ -592,7 +587,6 @@ public final class Maps {
    *     or value to be null.
    */
   public static Map<String, String> fromProperties(Properties prop) {
-    checkNotNull(prop);
     Map<String, String> ret = newHashMapWithExpectedSize(prop.size());
     for (Enumeration<?> e = prop.propertyNames(); e.hasMoreElements();) {
       Object k = e.nextElement();
@@ -649,7 +643,6 @@ public final class Maps {
    */
   static <K, V> Set<Entry<K, V>> unmodifiableEntrySet(
       final Set<Entry<K, V>> entrySet) {
-    checkNotNull(entrySet);
     return new UnmodifiableEntrySet<K, V>(Collections.unmodifiableSet(
         entrySet));
   }
@@ -787,7 +780,6 @@ public final class Maps {
    * @return an unmodifiable view of the specified bimap
    */
   public static <K, V> BiMap<K, V> unmodifiableBiMap(BiMap<K, V> bimap) {
-    checkNotNull(bimap);
     return new UnmodifiableBiMap<K, V>(bimap, null);
   }
 
@@ -832,7 +824,6 @@ public final class Maps {
    */
   public static <B> ClassToInstanceMap<B> newClassToInstanceMap(
       Map<Class<? extends B>, B> backingMap) {
-    checkNotNull(backingMap);
     return new SimpleClassToInstanceMap<B>(backingMap);
   }
 

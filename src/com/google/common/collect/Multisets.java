@@ -58,7 +58,6 @@ public final class Multisets {
    * @param elements the elements that the multiset should contain
    */
   public static <E> HashMultiset<E> newHashMultiset(E... elements) {
-    checkNotNull(elements);
     HashMultiset<E> multiset = new HashMultiset<E>();
     Collections.addAll(multiset, elements);
     return multiset;
@@ -121,7 +120,6 @@ public final class Multisets {
    */
   public static <E extends Enum<E>> EnumMultiset<E> newEnumMultiset(
       E... elements) {
-    checkNotNull(elements);
     checkArgument(elements.length > 0,
         "newEnumMultiset requires at least one element");
     EnumMultiset<E> multiset = newEnumMultiset(elements[0].getDeclaringClass());
@@ -369,8 +367,11 @@ public final class Multisets {
     }
 
     public int remove(Object element, int occurrences) {
-      checkArgument(occurrences >= 0);
-      return (occurrences > 0) ? removeAllOccurrences(element) : 0;
+      if (occurrences == 0) {
+        return 0;
+      }
+      checkArgument(occurrences > 0);
+      return removeAllOccurrences(element);
     }
 
     public int removeAllOccurrences(Object element) {
@@ -529,8 +530,7 @@ public final class Multisets {
     final Multiset<?> multiset;
 
     FrequencyOrder(Multiset<?> multiset) {
-      checkNotNull(multiset);
-      this.multiset = multiset;
+      this.multiset = checkNotNull(multiset);
     }
 
     public int compare(T left, T right) {

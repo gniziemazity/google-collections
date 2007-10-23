@@ -17,7 +17,6 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
-import com.google.common.base.Objects;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -81,7 +80,7 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
    */
   public LinkedHashMultimap(Multimap<? extends K, ? extends V> multimap) {
     this();
-    putAll(Objects.nonNull(multimap));
+    putAll(multimap);
   }
 
   /**
@@ -134,17 +133,10 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
       return entries;
     }
 
-    void assertStateConsistency(boolean value) {
-      if (!value) {
-        throw new IllegalStateException(
-            "LinkedHashMultimap entries are inconsistent");
-      }
-    }
-
     @Override public boolean add(@Nullable V value) {
       boolean changed = super.add(value);
       if (changed) {
-        assertStateConsistency(linkedEntries.add(createEntry(value)));
+        linkedEntries.add(createEntry(value));
       }
       return changed;
     }
@@ -152,7 +144,7 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
     @Override public boolean addAll(Collection<? extends V> values) {
       boolean changed = super.addAll(values);
       if (changed) {
-        assertStateConsistency(linkedEntries.addAll(createEntries(delegate())));
+        linkedEntries.addAll(createEntries(delegate()));
       }
       return changed;
     }
@@ -196,7 +188,7 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
     @Override public boolean removeAll(Collection<?> values) {
       boolean changed = super.removeAll(values);
       if (changed) {
-        assertStateConsistency(linkedEntries.removeAll(createEntries(values)));
+        linkedEntries.removeAll(createEntries(values));
       }
       return changed;
     }

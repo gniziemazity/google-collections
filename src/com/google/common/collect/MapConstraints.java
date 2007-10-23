@@ -81,21 +81,13 @@ public final class MapConstraints {
     final Class<?> valueType;
 
     ClassMapConstraint(Class<?> keyType, Class<?> valueType) {
-      checkNotNull(keyType);
-      checkNotNull(valueType);
-      this.keyType = keyType;
-      this.valueType = valueType;
+      this.keyType = checkNotNull(keyType);
+      this.valueType = checkNotNull(valueType);
     }
 
     public void checkKeyValue(Object key, Object value) {
-      if (!keyType.isInstance(key)) {
-        throw new ClassCastException("Attempt to insert " + key.getClass()
-            + " key into collection with key type " + keyType);
-      }
-      if (!valueType.isInstance(value)) {
-        throw new ClassCastException("Attempt to insert " + value.getClass()
-            + " value into collection with value type " + valueType);
-      }
+      keyType.cast(checkNotNull(key));
+      valueType.cast(checkNotNull(value));
     }
     static final long serialVersionUID = 5170999662998754707L;
   }
@@ -290,8 +282,7 @@ public final class MapConstraints {
     ConstrainedMap(
         Map<K, V> delegate, MapConstraint<? super K, ? super V> constraint) {
       super(delegate);
-      checkNotNull(constraint);
-      this.constraint = constraint;
+      this.constraint = checkNotNull(constraint);
     }
     @Override public Set<Entry<K, V>> entrySet() {
       if (entrySet == null) {
@@ -363,8 +354,7 @@ public final class MapConstraints {
     final MapConstraint<? super V, ? super K> constraint;
 
     public InverseConstraint(MapConstraint<? super V, ? super K> constraint) {
-      checkNotNull(constraint);
-      this.constraint = constraint;
+      this.constraint = checkNotNull(constraint);
     }
     public void checkKeyValue(K key, V value) {
       constraint.checkKeyValue(value, key);

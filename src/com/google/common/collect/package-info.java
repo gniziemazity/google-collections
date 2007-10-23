@@ -89,7 +89,6 @@
  * <dt>{@link com.google.common.collect.EnumMultiset}
  * <dt>{@link com.google.common.collect.HashMultiset}
  * <dt>{@link com.google.common.collect.LinkedHashMultiset}
- * <dt>{@link com.google.common.collect.LinkedListMultiset}
  * <dt>{@link com.google.common.collect.TreeMultiset}
  * </dl>
  *

@@ -26,11 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * elements added again, the element will not retain its earlier iteration
  * position, but will appear at the end as if it had never been present.
  *
- * <p>To preserve iteration order across non-distinct elements, use {@link
- * LinkedListMultiset} instead.
- *
  * @author Kevin Bourrillion
- * @see LinkedListMultiset
  */
 public final class LinkedHashMultiset<E> extends AbstractMapBasedMultiset<E> {
   /**

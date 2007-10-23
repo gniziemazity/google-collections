@@ -16,39 +16,42 @@
 
 package com.google.common.base;
 
+import java.util.NoSuchElementException;
+
 /**
- * Contains static methods that can be called at the start of your methods
- * to verify correct arguments and state.  Note that the standard Java idiom
- * is to use the following directly:
+ * Contains simple static methods to be called at the start of your own methods
+ * to verify correct arguments and state. This allows constructs such as
  * <pre>
- *   if (!<i>argumentAssumption</i>) {
- *     throw new IllegalArgumentException();
- *   }
- *   if (!<i>stateAssumption</i>) {
- *     throw new IllegalStateException();
- *   }
- *   if (<i>requiredArgument</i> == null) {
- *     throw new NullPointerException();
- *   }
- * </pre>
- * It is perfectly acceptable to stick to the standard idiom. There are two
- * primary reasons you might prefer to use this class instead. First, it is
- * significantly more compact (especially if you use static import, but even if
- * you don't).
- * <p>
- * Moreover, Preconditions goes to a little extra effort to highlight for you
- * what it thinks (heuristically) are the two key frames of the stack trace.
- * First is the line that identifies which precondition check failed.  Second
- * is the line of the most likely "offender", which is defined as the first
- * frame in the stack trace that comes from a different class from the class
- * checking the precondition.  Example message:
+ *     if (count <= 0) {
+ *       throw new IllegalArgumentException("must be positive: " + count);
+ *     }</pre>
+ *
+ * to be replaced with the more compact
  * <pre>
- * java.lang.IllegalArgumentException: precondition failed: (your message here)
- *     failed check:   at somepackage.SomeClass.someMethod(SomeClass.java:101)
- *     offending call: at otherpackage.Caller.callingMethod(Caller.java:99)
- * </pre>
- * (Again, the above is only the exception <i>message</i>, and the full stack
- * trace is kept intact.)
+ *     checkArgument(count > 0, "must be positive: %s", count);</pre>
+ *
+ * Note that the sense of the expression is inverted; with {@code Preconditions}
+ * you declare what you expect to be <i>true</i>, just as you do with an
+ * <a href="http://java.sun.com/j2se/1.4.2/docs/guide/lang/assert.html">
+ * {@code assert}</a> or a JUnit {@code assertTrue()} call.
+ *
+ * <p>Take care not to confuse precondition checking with other similar types
+ * of checks! Precondition exceptions -- including those provided here, but also
+ * {@link IndexOutOfBoundsException}, {@link NoSuchElementException}, {@link
+ * UnsupportedOperationException} and others -- are used to signal that the
+ * <i>calling method</i> has made an error. This tells the caller that it should
+ * not have invoked the method when it did, with the arguments it did, or
+ * perhaps <i>ever</i>. Postcondition or other invariant failures should not
+ * throw these types of exceptions, perhaps using {@link AssertionError}
+ * instead.
+ *
+ * <p><b>Note:</b> The methods of the {@code Preconditions} class are highly
+ * unusual in one way: they are <i>supposed to</i> throw exceptions, and promise
+ * in their specifications to do so even when given perfectly valid input. That
+ * is, {@code null} is a valid parameter to the method {@link
+ * #checkNotNull(Object)} -- and technically this parameter could be even marked
+ * as {@link Nullable}! -- yet the method will still throw an exception anyway,
+ * because that's what its contract says to do.
  *
  * @author Kevin Bourrillion
  */
@@ -56,239 +59,219 @@ public final class Preconditions {
   private Preconditions() {}
 
   /**
-   * Ensures that {@code expression} is {@code true}.
+   * Ensures the truth of an expression involving one or more parameters to the
+   * calling method.
    *
-   * @param expression any boolean expression involving an argument to the
-   *     current method
-   * @throws IllegalArgumentException if {@code expression} is {@code false}
+   * @param expression a boolean expression
+   * @throws IllegalArgumentException if {@code expression} is false
    */
   public static void checkArgument(boolean expression) {
     if (!expression) {
-      failArgument(null);
+      throw new IllegalArgumentException();
     }
   }
 
   /**
-   * Ensures that {@code expression} is {@code true}.
+   * Ensures the truth of an expression involving one or more parameters to the
+   * calling method.
    *
-   * @param expression any boolean expression involving the state of the
-   *     current instance (and not involving arguments)
-   * @throws IllegalStateException if {@code expression} is {@code false}
+   * @param expression a boolean expression
+   * @param errorMessage the exception message to use if the check fails; will
+   *     be converted to a string using {@link String#valueOf} only if needed
+   * @throws IllegalArgumentException if {@code expression} is false
+   */
+  public static void checkArgument(boolean expression, Object errorMessage) {
+    if (!expression) {
+      throw new IllegalArgumentException(String.valueOf(errorMessage));
+    }
+  }
+
+  /**
+   * Ensures the truth of an expression involving one or more parameters to the
+   * calling method.
+   *
+   * @param expression a boolean expression
+   * @param errorMessageFormat the {@link java.util.Formatter format string} for
+   *     the desired error message
+   * @param errorMessageArgs the arguments referenced by the format specifiers
+   *     in {@code errorMessageFormat}.
+   * @throws IllegalArgumentException if {@code expression} is false
+   * @throws NullPointerException if the check fails and either {@code
+   *     errorMessageFormat} or {@code errorMessageArgs} is null (don't let this
+   *     happen)
+   */
+  public static void checkArgument(boolean expression,
+      String errorMessageFormat, Object... errorMessageArgs) {
+    if (!expression) {
+      throw new IllegalArgumentException(
+          String.format(errorMessageFormat, errorMessageArgs));
+    }
+  }
+
+  /**
+   * Ensures the truth of an expression involving the state of the calling
+   * instance, but not involving any parameters to the calling method.
+   *
+   * @param expression a boolean expression
+   * @throws IllegalStateException if {@code expression} is false
    */
   public static void checkState(boolean expression) {
     if (!expression) {
-      failState(null);
+      throw new IllegalStateException();
     }
   }
 
   /**
-   * Ensures that {@code reference} is not {@code null}.
+   * Ensures the truth of an expression involving the state of the calling
+   * instance, but not involving any parameters to the calling method.
    *
-   * @param reference an object reference that was passed as a parameter to the
-   *     current method
+   * @param expression a boolean expression
+   * @param errorMessage the exception message to use if the check fails; will
+   *     be converted to a string using {@link String#valueOf} only if needed
+   * @throws IllegalStateException if {@code expression} is false
+   */
+  public static void checkState(boolean expression, Object errorMessage) {
+    if (!expression) {
+      throw new IllegalStateException(String.valueOf(errorMessage));
+    }
+  }
+
+  /**
+   * Ensures the truth of an expression involving the state of the calling
+   * instance, but not involving any parameters to the calling method.
+   *
+   * @param expression a boolean expression
+   * @param errorMessageFormat the {@link java.util.Formatter format string} for
+   *     the desired error message
+   * @param errorMessageArgs the arguments referenced by the format specifiers
+   *     in {@code errorMessageFormat}.
+   * @throws IllegalStateException if {@code expression} is false
+   * @throws NullPointerException if the check fails and either {@code
+   *     errorMessageFormat} or {@code errorMessageArgs} is null (don't let this
+   *     happen)
+   */
+  public static void checkState(boolean expression,
+      String errorMessageFormat, Object... errorMessageArgs) {
+    if (!expression) {
+      throw new IllegalStateException(
+          String.format(errorMessageFormat, errorMessageArgs));
+    }
+  }
+
+  /**
+   * Ensures that an object reference passed as a parameter to the calling
+   * method is not null, throwing a {@code NullPointerException} if it is.
+   *
+   * @param reference an object reference
    * @return the non-null reference that was validated
-   * @throws NullPointerException if {@code reference} is {@code null}
+   * @throws NullPointerException if {@code reference} is null
    */
   public static <T> T checkNotNull(T reference) {
     if (reference == null) {
-      failNotNull(null);
+      throw new NullPointerException();
     }
     return reference;
   }
 
   /**
-   * Ensures that {@code expression} is {@code true}.
+   * Ensures that an object reference passed as a parameter to the calling
+   * method is not null, throwing a {@code NullPointerException} if it is.
    *
-   * @param expression any boolean expression involving an argument to the
-   *     current method
-   * @param message a message object which will be converted using
-   *     {@code Object#toString} and included in the exception message if the
-   *     check fails
-   * @throws IllegalArgumentException if {@code expression} is {@code false}
-   */
-  public static void checkArgument(boolean expression, Object message) {
-    if (!expression) {
-      failArgument(message);
-    }
-  }
-  
-  /**
-   * Ensures that {@code expression} is {@code true}.
-   *
-   * @param expression any boolean expression involving the state of the
-   *     current instance (and not involving arguments)
-   * @param message a message object which will be converted using
-   *     {@code Object#toString} and included in the exception message if the
-   *     check fails
-   * @throws IllegalStateException if {@code expression} is {@code false}
-   */
-  public static void checkState(boolean expression, Object message) {
-    if (!expression) {
-      failState(message);
-    }
-  }
-
-  /**
-   * Ensures that {@code reference} is not {@code null}.
-   *
-   * @param reference an object reference that was passed as a parameter to the
-   *     current method
-   * @param message a message object which will be converted using
-   *     {@code Object#toString} and included in the exception message if the
-   *     check fails
+   * @param reference an object reference
+   * @param errorMessage the exception message to use if the check fails; will
+   *     be converted to a string using {@link String#valueOf} only if needed
    * @return the non-null reference that was validated
-   * @throws NullPointerException if {@code reference} is {@code null}
+   * @throws NullPointerException if {@code reference} is null
    */
-  public static <T> T checkNotNull(T reference, Object message) {
+  public static <T> T checkNotNull(T reference, Object errorMessage) {
     if (reference == null) {
-      failNotNull(message);
+      throw new NullPointerException(String.valueOf(errorMessage));
     }
     return reference;
   }
 
   /**
-   * Ensures that {@code iterable} is not {@code null} and that it contains no
-   * null elements.
+   * Ensures that an object reference passed as a parameter to the calling
+   * method is not null, throwing a {@code NullPointerException} if it is.
    *
-   * @param iterable the {@code Iterable} to check for nullness
-   * @return {@code iterable} if not null
-   * @throws NullPointerException if {@code iterable} is null, or if it contains
-   *     any null elements
+   * @param reference an object reference
+   * @param errorMessageFormat the {@link java.util.Formatter format string} for
+   *     the desired error message
+   * @param errorMessageArgs the arguments referenced by the format specifiers
+   *     in {@code errorMessageFormat}.
+   * @return the non-null reference that was validated
+   * @throws NullPointerException if {@code reference} is null
+   */
+  public static <T> T checkNotNull(T reference, String errorMessageFormat,
+      Object... errorMessageArgs) {
+    if (reference == null) {
+      // If either of these parameters is null, the right thing happens anyway
+      throw new NullPointerException(
+          String.format(errorMessageFormat, errorMessageArgs));
+    }
+    return reference;
+  }
+
+  /**
+   * Ensures that an {@code Iterable} object passed as a parameter to the
+   * calling method is not null and contains no null elements.
+   *
+   * @param iterable any {@code Iterable} object
+   * @return the non-null {@code iterable} reference just validated
+   * @throws NullPointerException if {@code iterable} is null or contains at
+   *     least one null element
    */
   public static <T extends Iterable<?>> T checkContentsNotNull(T iterable) {
-    if (iterable == null) {
-      failNotNull(null);
-    }
+    // TODO: call Iterables.containsNull()
     for (Object element : iterable) {
-      if (element == null) {
-        failNotNull(null);
-      }
+      checkNotNull(element);
     }
     return iterable;
   }
 
   /**
-   * Ensures that {@code expression} is {@code true}.
+   * Ensures that an {@code Iterable} object passed as a parameter to the
+   * calling method is not null and contains no null elements.
    *
-   * @param expression any boolean expression involving an argument to the
-   *     current method
-   * @param errorFormat format of error message to produce if the check fails
-   * @param args the arguments for {@code errorFormat}
-   * @throws IllegalArgumentException if {@code expression} is {@code false}
-   * 
-   * @see <a href=
-   *   "http://java.sun.com/javase/6/docs/api/java/util/Formatter.html#syntax">
-   *   Format string syntax</a>
+   * @param iterable any {@code Iterable} object
+   * @param errorMessage the exception message to use if the check fails; will
+   *     be converted to a string using {@link String#valueOf} only if needed
+   * @return the non-null {@code iterable} reference just validated
+   * @throws NullPointerException if {@code iterable} is null or contains at
+   *     least one null element
    */
-  public static void checkArgument(
-      boolean expression, String errorFormat, Object... args) {
-    if (!expression) {
-      failArgument(String.format(errorFormat, args));
+  public static <T extends Iterable<?>> T checkContentsNotNull(
+      T iterable, Object errorMessage) {
+    checkNotNull(iterable, errorMessage);
+
+    // TODO: call Iterables.containsNull()
+    for (Object element : iterable) {
+      checkNotNull(element, errorMessage);
     }
+    return iterable;
   }
-  
+
   /**
-   * Ensures that {@code expression} is {@code true}.
+   * Ensures that an {@code Iterable} object passed as a parameter to the
+   * calling method is not null and contains no null elements.
    *
-   * @param expression any boolean expression involving the state of the
-   *     current instance (and not involving arguments)
-   * @param errorFormat format of error message to produce if the check fails
-   * @param args the arguments for {@code errorFormat}
-   * @throws IllegalStateException if {@code errorFormat} is {@code false}
-   * 
-   * @see <a href=
-   *   "http://java.sun.com/javase/6/docs/api/java/util/Formatter.html#syntax">
-   *   Format string syntax</a>
+   * @param iterable any {@code Iterable} object
+   * @param errorMessageFormat the {@link java.util.Formatter format string} for
+   *     the desired error message
+   * @param errorMessageArgs the arguments referenced by the format specifiers
+   *     in {@code errorMessageFormat}.
+   * @return the non-null {@code iterable} reference just validated
+   * @throws NullPointerException if {@code iterable} is null or contains at
+   *     least one null element
    */
-  public static void checkState(
-      boolean expression, String errorFormat, Object... args) {
-    if (!expression) {
-      failState(String.format(errorFormat, args));
+  public static <T extends Iterable<?>> T checkContentsNotNull(T iterable,
+      String errorMessageFormat, Object... errorMessageArgs) {
+    checkNotNull(iterable, errorMessageFormat, errorMessageArgs);
+
+    // TODO: call Iterables.containsNull()
+    for (Object element : iterable) {
+      checkNotNull(element, errorMessageFormat, errorMessageArgs);
     }
-  }
-  
-  /**
-   * Ensures that {@code reference} is not {@code null}.
-   *
-   * @param reference an object reference that was passed as a parameter to the
-   *     current method
-   * @param errorFormat format of error message to produce if the check fails
-   * @param args the arguments for {@code errorFormat}
-   * @return the non-null reference that was validated
-   * @throws NullPointerException if {@code reference} is {@code null}
-   * 
-   * @see <a href=
-   *   "http://java.sun.com/javase/6/docs/api/java/util/Formatter.html#syntax">
-   *   Format string syntax</a>
-   */
-  public static <T> T checkNotNull(
-      T reference, String errorFormat, Object... args) {
-    if (reference == null) {
-      failNotNull(String.format(errorFormat, args));
-    }
-    return reference;
-  }
-
-  private static void failArgument(final Object description) {
-    throw new IllegalArgumentException() {
-      private static final long serialVersionUID = 1L;
-      @Override public String getMessage() {
-        return buildMessage(this, description);
-      }
-      @Override public String toString() {
-        return buildString(this);
-      }
-    };
-  }
-
-  private static void failState(final Object description) {
-    throw new IllegalStateException() {
-      private static final long serialVersionUID = 1L;
-      @Override public String getMessage() {
-        return buildMessage(this, description);
-      }
-      @Override public String toString() {
-        return buildString(this);
-      }
-    };
-  }
-
-  private static void failNotNull(final Object description) {
-    throw new NullPointerException() {
-      private static final long serialVersionUID = 1L;
-      @Override public String getMessage() {
-        return buildMessage(this, description);
-      }
-      @Override public String toString() {
-        return buildString(this);
-      }
-    };
-  }
-
-  private static final int STACK_INDEX = 2;
-  private static final String NL = System.getProperty("line.separator");
-
-  private static String buildMessage(RuntimeException e, Object description) {
-    StringBuilder sb = new StringBuilder(300).append("precondition failed");
-    StackTraceElement[] trace = e.getStackTrace();
-    StackTraceElement failedAt = trace[STACK_INDEX];
-
-    if (description != null) {
-      sb.append(": ").append(description);
-    }
-    sb.append(NL).append("    failed check:   at ").append(failedAt);
-
-    for (int i = STACK_INDEX + 1; i < trace.length; i++) {
-      if (!trace[i].getClassName().equals(failedAt.getClassName())) {
-        sb.append(NL).append("    offending call: at ").append(trace[i]);
-        break;
-      }
-    }
-    return sb.toString();
-  }
-
-  private static String buildString(Exception e) {
-    Class<?> superclass = e.getClass().getSuperclass();
-    return superclass.getName() + ": " + e.getMessage();
+    return iterable;
   }
 }

@@ -365,8 +365,7 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
         }
         // Otherwise, skip over this partially-GC'ed entry.
       }
-      endOfData();
-      return null;
+      return endOfData();
     }
 
     /*

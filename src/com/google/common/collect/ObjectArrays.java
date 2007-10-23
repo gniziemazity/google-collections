@@ -16,8 +16,6 @@
 
 package com.google.common.collect;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.lang.reflect.Array;
 import java.util.Collection;
 
@@ -37,7 +35,6 @@ public final class ObjectArrays {
    */
   @SuppressWarnings("unchecked")
   public static <T> T[] newArray(Class<T> type, int length) {
-    checkNotNull(type);
     return (T[]) Array.newInstance(type, length);
   }
 
@@ -49,7 +46,6 @@ public final class ObjectArrays {
    */
   @SuppressWarnings("unchecked")
   public static <T> T[] emptyArray(T[] array) {
-    checkNotNull(array);
     if (array.length == 0) {
       return array;
     }
@@ -65,9 +61,6 @@ public final class ObjectArrays {
    * @param type the component type of the returned concatenated array
    */
   public static <T> T[] concat(T[] first, T[] second, Class<T> type) {
-    checkNotNull(first);
-    checkNotNull(second);
-    checkNotNull(type);
     T[] result = newArray(type, first.length + second.length);
     System.arraycopy(first, 0, result, 0, first.length);
     System.arraycopy(second, 0, result, first.length, second.length);

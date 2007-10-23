@@ -80,7 +80,6 @@ public final class Lists {
    * @return an immutable {@code List} instance containing those elements
    */
   public static <E> List<E> immutableList(E... elements) {
-    checkNotNull(elements);
     switch (elements.length) {
       case 0:
         return Collections.emptyList();
@@ -131,7 +130,6 @@ public final class Lists {
    * @return an immutable {@code List} instance containing those elements
    */
   public static <E> List<E> immutableList(Collection<? extends E> collection) {
-    checkNotNull(collection);
     int size = collection.size();
     if (size == 0) {
       return Collections.emptyList();
@@ -218,7 +216,6 @@ public final class Lists {
    * @return a newly-created {@code ArrayList} containing those elements
    */
   public static <E> ArrayList<E> newArrayList(E... elements) {
-    checkNotNull(elements);
     // Avoid integer overflow when a large array is passed in
     int capacity = computeArrayListCapacity(elements.length);
     ArrayList<E> list = new ArrayList<E>(capacity);
@@ -238,8 +235,6 @@ public final class Lists {
    * @return a newly-created {@code ArrayList} containing those elements
    */
   public static <E> ArrayList<E> newArrayList(Iterable<? extends E> elements) {
-    checkNotNull(elements);
-
     // Let ArrayList's sizing logic work, if possible
     if (elements instanceof Collection<?>) {
       @SuppressWarnings("unchecked")
@@ -257,7 +252,6 @@ public final class Lists {
    * @return a newly-created {@code ArrayList} containing those elements
    */
   public static <E> ArrayList<E> newArrayList(Iterator<? extends E> elements) {
-    checkNotNull(elements);
     ArrayList<E> list = newArrayList();
     while (elements.hasNext()) {
       list.add(elements.next());
@@ -314,7 +308,6 @@ public final class Lists {
    * @return a newly-created {@code LinkedList} containing those elements
    */
   public static <E> LinkedList<E> newLinkedList(E... elements) {
-    checkNotNull(elements);
     LinkedList<E> list = newLinkedList();
     Collections.addAll(list, elements);
     return list;
@@ -328,7 +321,6 @@ public final class Lists {
    */
   public static <E> LinkedList<E> newLinkedList(
       Iterable<? extends E> elements) {
-    checkNotNull(elements);
     return newLinkedList(elements.iterator());
   }
 
@@ -340,7 +332,6 @@ public final class Lists {
    */
   public static <E> LinkedList<E> newLinkedList(
       Iterator<? extends E> elements) {
-    checkNotNull(elements);
     LinkedList<E> list = newLinkedList();
     while (elements.hasNext()) {
       list.add(elements.next());
@@ -366,7 +357,6 @@ public final class Lists {
   @SuppressWarnings("unchecked")
   public static <E extends Comparable> List<E> sortedCopy(Iterable<E> iterable)
   {
-    checkNotNull(iterable);
     List<E> list = Lists.newArrayList(iterable);
     Collections.sort(list);
     return list;
@@ -388,10 +378,8 @@ public final class Lists {
    */
   public static <E> List<E> sortedCopy(
       Iterable<E> iterable, Comparator<? super E> comparator) {
-    checkNotNull(iterable);
-    checkNotNull(comparator);
     List<E> list = Lists.newArrayList(iterable);
-    Collections.sort(list, comparator);
+    Collections.sort(list, checkNotNull(comparator));
     return list;
   }
 
@@ -422,9 +410,8 @@ public final class Lists {
     final E[] rest;
 
     OnePlusArrayList(@Nullable E first, E[] rest) {
-      checkNotNull(rest);
       this.first = first;
-      this.rest = rest;
+      this.rest = checkNotNull(rest);
     }
     @Override public int size() {
       return rest.length + 1;
@@ -464,10 +451,9 @@ public final class Lists {
     final E[] rest;
 
     TwoPlusArrayList(@Nullable E first, @Nullable E second, E[] rest) {
-      checkNotNull(rest);
       this.first = first;
       this.second = second;
-      this.rest = rest;
+      this.rest = checkNotNull(rest);
     }
     @Override public int size() {
       return rest.length + 2;
@@ -510,8 +496,6 @@ public final class Lists {
    */
   public static <F, T> List<T> transform(
       List<F> fromList, Function<? super F, ? extends T> function) {
-    checkNotNull(fromList);
-    checkNotNull(function);
     return (fromList instanceof RandomAccess)
         ? new TransformingRandomAccessList<F, T>(fromList, function)
         : new TransformingList<F, T>(fromList, function);
@@ -531,8 +515,8 @@ public final class Lists {
 
     TransformingList(
         List<F> fromList, Function<? super F, ? extends T> function) {
-      this.fromList = fromList;
-      this.function = function;
+      this.fromList = checkNotNull(fromList);
+      this.function = checkNotNull(function);
     }
     @Override public void clear() {
       fromList.clear();

@@ -16,6 +16,8 @@
 
 package com.google.common.collect;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -75,9 +77,7 @@ public final class EnumBiMap<K extends Enum<K>, V extends Enum<V>>
     if (map instanceof EnumHashBiMap<?, ?>) {
       return ((EnumHashBiMap<K, ?>) map).keyType;
     }
-    if (map.isEmpty()) {
-      throw new IllegalArgumentException("specified map is empty");
-    }
+    checkArgument(!map.isEmpty());
     return map.keySet().iterator().next().getDeclaringClass();
   }
 
@@ -85,9 +85,7 @@ public final class EnumBiMap<K extends Enum<K>, V extends Enum<V>>
     if (map instanceof EnumBiMap<?, ?>) {
       return ((EnumBiMap<?, V>) map).valueType;
     }
-    if (map.isEmpty()) {
-      throw new IllegalArgumentException("specified map is empty");
-    }
+    checkArgument(!map.isEmpty());
     return map.values().iterator().next().getDeclaringClass();
   }
 

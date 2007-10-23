@@ -118,7 +118,8 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
     }
 
     public void remove() {
-      checkState(canRemove);
+      checkState(canRemove,
+          "no calls to next() since the last call to remove()");
       if (totalCount == 1) {
         entryIterator.remove();
       } else {
@@ -206,7 +207,6 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
    * elements.
    */
   @Override public boolean containsAll(Collection<?> elements) {
-    checkNotNull(elements);
     return elementSet().containsAll(elements);
   }
 
@@ -242,7 +242,6 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
    * approach has better performance than {@link AbstractCollection#removeAll}.
    */
   @Override public boolean removeAll(Collection<?> elementsToRemove) {
-    checkNotNull(elementsToRemove);
     boolean modified = false;
     for (Object element : elementsToRemove) {
       if (removeAllOccurrences(element) != 0) {

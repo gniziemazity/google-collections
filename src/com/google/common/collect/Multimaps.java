@@ -17,8 +17,9 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
-import com.google.common.base.Supplier;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import com.google.common.base.Supplier;
 
 import java.io.Serializable;
 import java.util.AbstractMap;
@@ -477,7 +478,6 @@ public final class Multimaps {
 
     public UnmodifiableMultimap(final Multimap<K, V> delegate) {
       super(delegate);
-      checkNotNull(delegate);
     }
 
     @Override public void clear() {
@@ -926,8 +926,7 @@ public final class Multimaps {
     transient volatile Map<K, Collection<V>> asMap;
 
     MapMultimap(Map<K, V> map) {
-      checkNotNull(map);
-      this.map = map;
+      this.map = checkNotNull(map);
     }
 
     public int size() {
@@ -969,9 +968,7 @@ public final class Multimaps {
             }
 
             public void remove() {
-              if (i != 1) {
-                throw new IllegalStateException();
-              }
+              checkState(i == 1);
               i = -1;
               map.remove(key);
             }
