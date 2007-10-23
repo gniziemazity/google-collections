@@ -78,7 +78,6 @@ public final class Iterables {
    * {@code Iterators#toString(java.util.Iterator)}.
    */
   public static String toString(Iterable<?> iterable) {
-    checkNotNull(iterable);
     return Iterators.toString(iterable.iterator());
   }
 
@@ -90,7 +89,6 @@ public final class Iterables {
    *     elements
    */
   public static <T> T getOnlyElement(Iterable<T> iterable) {
-    checkNotNull(iterable);
     return Iterators.getOnlyElement(iterable.iterator());
   }
 
@@ -103,7 +101,6 @@ public final class Iterables {
    */
   public static <T> T getOnlyElement(
       Iterable<T> iterable, @Nullable T defaultValue) {
-    checkNotNull(iterable);
     return Iterators.getOnlyElement(iterable.iterator(), defaultValue);
   }
 
@@ -116,8 +113,6 @@ public final class Iterables {
    *     have been copied. May be empty but never null.
    */
   public static <T> T[] newArray(Iterable<T> iterable, Class<T> type) {
-    checkNotNull(iterable);
-    checkNotNull(type);
     Collection<T> collection = (iterable instanceof Collection<?>)
         ? (Collection<T>) iterable
         : Lists.newArrayList(iterable);
@@ -133,8 +128,6 @@ public final class Iterables {
    */
   public static <T> boolean addAll(
       Collection<T> collection, Iterable<? extends T> iterable) {
-    checkNotNull(collection);
-    checkNotNull(iterable);
     if (iterable instanceof Collection<?>) {
       @SuppressWarnings("unchecked")
       Collection<? extends T> c = (Collection<? extends T>) iterable;
@@ -145,7 +138,6 @@ public final class Iterables {
 
   /** Variant of {@code Collections.frequency} for iterables. */
   public static int frequency(Iterable<?> iterable, @Nullable Object element) {
-    checkNotNull(iterable);
     if ((iterable instanceof Multiset<?>)) {
       return ((Multiset<?>) iterable).count(element);
     }
@@ -172,7 +164,6 @@ public final class Iterables {
 
   /** Variant of {@code cycle(Iterable)} accepting varargs parameters. */
   public static <T> Iterable<T> cycle(T... elements) {
-    checkNotNull(elements);
     return cycle(Lists.newArrayList(elements));
   }
 
@@ -193,7 +184,6 @@ public final class Iterables {
    * {@code Iterable}.
    */
   public static <T> Iterable<T> concat(Iterable<? extends T>... iterables) {
-    checkNotNull(iterables);
     return concat(Arrays.asList(iterables));
   }
 
@@ -265,8 +255,7 @@ public final class Iterables {
           @Override protected Iterable<T> computeNext() {
             howFarIn++;
             if (!iterator.hasNext()) {
-              endOfData();
-              return null;
+              return endOfData();
             }
             return new AbstractIterable<T>() {
               Iterator<T> innerIter = iterator.next();
@@ -336,8 +325,6 @@ public final class Iterables {
    */
   public static <T> boolean any(
       Iterable<T> iterable, Predicate<? super T> predicate) {
-    checkNotNull(iterable);
-    checkNotNull(predicate);
     return Iterators.any(iterable.iterator(), predicate);
   }
 
@@ -348,8 +335,6 @@ public final class Iterables {
    */
   public static <T> boolean all(
       Iterable<T> iterable, Predicate<? super T> predicate) {
-    checkNotNull(iterable);
-    checkNotNull(predicate);
     return Iterators.all(iterable.iterator(), predicate);
   }
 
@@ -362,7 +347,6 @@ public final class Iterables {
    */
   public static <E> E find(Iterable<E> iterable,
       Predicate<? super E> predicate) {
-    checkNotNull(iterable);
     return Iterators.find(iterable.iterator(), predicate);
   }
 

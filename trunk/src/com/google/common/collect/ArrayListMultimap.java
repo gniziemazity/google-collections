@@ -16,7 +16,6 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Objects;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import java.util.ArrayList;
@@ -77,7 +76,7 @@ public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
    */
   public ArrayListMultimap(Multimap<? extends K, ? extends V> multimap) {
     this(); // TODO: preserve capacity
-    putAll(Objects.nonNull(multimap));
+    putAll(multimap);
   }
 
   /**

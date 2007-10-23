@@ -48,8 +48,7 @@ import java.util.NoSuchElementException;
  *             return s;
  *           }
  *         }
- *         endOfData();
- *         return null; // return value ignored
+ *         return endOfData();
  *       }
  *     };
  *   }</pre>
@@ -101,9 +100,13 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
   /**
    * Implementors of {@code computeNext} <b>must</b> invoke this method when
    * there is no data left.
+   *
+   * @return {@code null}; a convenience so your {@link #computeNext}
+   *     implementation can use the simple statement {@code return endOfData();}
    */
-  protected final void endOfData() {
+  protected final T endOfData() {
     state = State.DONE;
+    return null;
   }
 
   public boolean hasNext() {

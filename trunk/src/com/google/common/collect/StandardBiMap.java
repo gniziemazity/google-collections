@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.base.Objects;
+import static com.google.common.base.Preconditions.checkArgument;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -34,12 +35,8 @@ class StandardBiMap<K, V> extends ForwardingMap<K, V> implements BiMap<K, V> {
   /** Package-private constructor for creating a map-backed bimap. */
   StandardBiMap(Map<K, V> forward, Map<V, K> backward) {
     super(forward);
-    if (!forward.isEmpty()) {
-      throw new IllegalArgumentException("forward map must be empty");
-    }
-    if (!backward.isEmpty()) {
-      throw new IllegalArgumentException("backward map must be empty");
-    }
+    checkArgument(forward.isEmpty());
+    checkArgument(backward.isEmpty());
     inverse = new StandardBiMap<V, K>(backward, this);
   }
 
@@ -72,9 +69,8 @@ class StandardBiMap<K, V> extends ForwardingMap<K, V> implements BiMap<K, V> {
     }
     if (force) {
       inverse().remove(value);
-    } else if (containsValue(value)) {
-      throw new IllegalArgumentException(
-          "value already present: " + value);
+    } else {
+      checkArgument(!containsValue(value), "value already present: %s", value);
     }
     V oldValue = super.put(key, value);
     updateInverseMap(key, containedKey, oldValue, value);
@@ -267,10 +263,8 @@ class StandardBiMap<K, V> extends ForwardingMap<K, V> implements BiMap<K, V> {
               if (Objects.equal(value, getValue())) {
                 return value;
               }
-              if (containsValue(value)) {
-                throw new IllegalArgumentException(
-                    "value already present: " + value);
-              }
+              checkArgument(!containsValue(value),
+                  "value already present: %s", value);
               V oldValue = super.setValue(value);
               updateInverseMap(getKey(), true, oldValue, value);
               return oldValue;

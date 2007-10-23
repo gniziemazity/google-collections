@@ -74,8 +74,7 @@ public final class Constraints {
     private final Class<?> type;
 
     public ClassConstraint(Class<?> type) {
-      checkNotNull(type);
-      this.type = type;
+      this.type = checkNotNull(type);
     }
     public void checkElement(Object element) {
       if (!type.isInstance(element)) {
@@ -111,8 +110,7 @@ public final class Constraints {
     public ConstrainedCollection(
         Collection<E> delegate, Constraint<? super E> constraint) {
       super(delegate);
-      checkNotNull(constraint);
-      this.constraint = constraint;
+      this.constraint = checkNotNull(constraint);
     }
     @Override public boolean add(E element) {
       constraint.checkElement(element);
@@ -144,8 +142,7 @@ public final class Constraints {
 
     public ConstrainedSet(Set<E> delegate, Constraint<? super E> constraint) {
       super(delegate);
-      checkNotNull(constraint);
-      this.constraint = constraint;
+      this.constraint = checkNotNull(constraint);
     }
     @Override public boolean add(E element) {
       constraint.checkElement(element);
@@ -178,8 +175,7 @@ public final class Constraints {
     ConstrainedSortedSet(
         SortedSet<E> delegate, Constraint<? super E> constraint) {
       super(delegate);
-      checkNotNull(constraint);
-      this.constraint = constraint;
+      this.constraint = checkNotNull(constraint);
     }
 
     @Override public SortedSet<E> headSet(E toElement) {
@@ -227,8 +223,7 @@ public final class Constraints {
 
     ConstrainedList(List<E> delegate, Constraint<? super E> constraint) {
       super(delegate);
-      checkNotNull(constraint);
-      this.constraint = constraint;
+      this.constraint = checkNotNull(constraint);
     }
 
     @Override public boolean add(E element) {
@@ -294,8 +289,7 @@ public final class Constraints {
     public ConstrainedListIterator(
         ListIterator<E> delegate, Constraint<? super E> constraint) {
       super(delegate);
-      checkNotNull(constraint);
-      this.constraint = constraint;
+      this.constraint = checkNotNull(constraint);
     }
 
     @Override public void add(E element) {
@@ -343,8 +337,7 @@ public final class Constraints {
     public ConstrainedMultiset(
         Multiset<E> delegate, Constraint<? super E> constraint) {
       super(delegate);
-      checkNotNull(constraint);
-      this.constraint = constraint;
+      this.constraint = checkNotNull(constraint);
     }
 
     @Override public boolean add(E element) {

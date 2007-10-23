@@ -95,7 +95,6 @@ public final class Iterators {
    * format "{@code [e1, e2, ..., en]}".
    */
   public static String toString(Iterator<?> iterator) {
-    checkNotNull(iterator);
     StringBuilder builder = new StringBuilder().append('[');
     Join.join(builder, ", ", iterator);
     return builder.append(']').toString();
@@ -109,7 +108,6 @@ public final class Iterators {
    *     elements
    */
   public static <T> T getOnlyElement(Iterator<T> iterator) {
-    checkNotNull(iterator);
     if (!iterator.hasNext()) {
       throw new NoSuchElementException();
     }
@@ -130,7 +128,6 @@ public final class Iterators {
    */
   public static <T> T getOnlyElement(
       Iterator<T> iterator, @Nullable T defaultValue) {
-    checkNotNull(iterator);
     return iterator.hasNext() ? getOnlyElement(iterator) : defaultValue;
   }
 
@@ -143,8 +140,6 @@ public final class Iterators {
    *     have been copied. May be empty but never null.
    */
   public static <T> T[] newArray(Iterator<T> iterator, Class<T> type) {
-    checkNotNull(iterator);
-    checkNotNull(type);
     List<T> list = Lists.newArrayList(iterator);
     return Iterables.newArray(list, type);
   }
@@ -158,7 +153,6 @@ public final class Iterators {
   public static <T> boolean addAll(
       Collection<T> collection, Iterator<? extends T> iterator) {
     checkNotNull(collection);
-    checkNotNull(iterator);
     boolean wasModified = false;
     while (iterator.hasNext()) {
       wasModified |= collection.add(iterator.next());
@@ -168,7 +162,6 @@ public final class Iterators {
 
   /** Variant of {@code Collections#frequency} for iterators. */
   public static int frequency(Iterator<?> iterator, @Nullable Object element) {
-    checkNotNull(iterator);
     int result = 0;
     if (element == null) {
       while (iterator.hasNext()) {
@@ -222,7 +215,6 @@ public final class Iterators {
 
   /** Variant of {@code #cycle(Iterable)} accepting varargs parameters. */
   public static <T> Iterator<T> cycle(T... elements) {
-    checkNotNull(elements);
     return cycle(Lists.newArrayList(elements));
   }
 
@@ -237,7 +229,6 @@ public final class Iterators {
 
   /** Varargs form of {@code #concat(Iterator)}. */
   public static <T> Iterator<T> concat(Iterator<? extends T>... iterators) {
-    checkNotNull(iterators);
     return concat(Arrays.asList(iterators).iterator());
   }
 
@@ -307,16 +298,14 @@ public final class Iterators {
           }
         }
         if (!iterator.hasNext()) {
-          endOfData();
-          return null;
+          return endOfData();
         }
         currentRow = new AbstractIterator<T>() {
           int count = partitionSize;
 
           @Override protected T computeNext() {
             if (count == 0) {
-              endOfData();
-              return null;
+              return endOfData();
             }
             count--;
             if (iterator.hasNext()) {
@@ -351,8 +340,7 @@ public final class Iterators {
             return element;
           }
         }
-        endOfData();
-        return null;
+        return endOfData();
       }
     };
   }
@@ -369,7 +357,6 @@ public final class Iterators {
   @SuppressWarnings("unchecked")
   public static <T> Iterator<T> filter(
       Iterator<?> unfiltered, final Class<T> type) {
-    checkNotNull(unfiltered);
     checkNotNull(type);
     Predicate<Object> predicate = new Predicate<Object>() {
       public boolean apply(Object object) {
@@ -386,7 +373,6 @@ public final class Iterators {
    */
   public static <T> boolean any(
       Iterator<T> iterator, Predicate<? super T> predicate) {
-    checkNotNull(iterator);
     checkNotNull(predicate);
     while (iterator.hasNext()) {
       T element = iterator.next();
@@ -404,7 +390,6 @@ public final class Iterators {
    */
   public static <T> boolean all(
       Iterator<T> iterator, Predicate<? super T> predicate) {
-    checkNotNull(iterator);
     checkNotNull(predicate);
     while (iterator.hasNext()) {
       T element = iterator.next();
@@ -428,8 +413,6 @@ public final class Iterators {
    */
   public static <E> E find(Iterator<E> iterator, Predicate<? super E> predicate)
   {
-    checkNotNull(iterator);
-    checkNotNull(predicate);
     return filter(iterator, predicate).next();
   }
 

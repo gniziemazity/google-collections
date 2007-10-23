@@ -89,7 +89,6 @@ public final class Sets {
   @SuppressWarnings("unchecked")
   public static <E extends Comparable> SortedSet<E> immutableSortedSet(
       E... elements) {
-    checkNotNull(elements);
     switch (elements.length) {
       case 0:
         SortedSet<E> result = (SortedSet<E>) EMPTY_SORTED_SET;
@@ -121,7 +120,6 @@ public final class Sets {
    */
   public static <E> SortedSet<E> immutableSortedSet(
       @Nullable Comparator<? super E> comparator, E... elements) {
-    checkNotNull(elements);
     switch (elements.length) {
       case 0:
         return immutableSortedSet(comparator);
@@ -219,7 +217,6 @@ public final class Sets {
    *     duplicates
    */
   public static <E> Set<E> immutableSet(E... elements) {
-    checkNotNull(elements);
     switch (elements.length) {
       case 0:
         return Collections.emptySet();
@@ -260,7 +257,6 @@ public final class Sets {
    * @return an immutable {@code Set} instance containing those elements
    */
   public static <E> Set<E> immutableSet(Collection<E> collection) {
-    checkNotNull(collection);
     switch (collection.size()) {
       case 0:
         return Collections.emptySet();
@@ -283,8 +279,6 @@ public final class Sets {
    */
   public static <E extends Enum<E>> Set<E> immutableEnumSet(
       E anElement, E... otherElements) {
-    checkNotNull(anElement);
-    checkNotNull(otherElements);
     return Collections.unmodifiableSet(EnumSet.of(anElement, otherElements));
   }
 
@@ -329,7 +323,6 @@ public final class Sets {
    *     duplicates)
    */
   public static <E> HashSet<E> newHashSet(E... elements) {
-    checkNotNull(elements);
     int capacity = elements.length * 4 / 3 + 1;
     HashSet<E> set = new HashSet<E>(capacity);
     Collections.addAll(set, elements);
@@ -347,8 +340,6 @@ public final class Sets {
    *     duplicates)
    */
   public static <E> HashSet<E> newHashSet(Iterable<? extends E> elements) {
-    checkNotNull(elements);
-
     if (elements instanceof Collection<?>) {
       @SuppressWarnings("unchecked")
       Collection<? extends E> collection = (Collection<? extends E>) elements;
@@ -369,7 +360,6 @@ public final class Sets {
    *     duplicates)
    */
   public static <E> HashSet<E> newHashSet(Iterator<? extends E> elements) {
-    checkNotNull(elements);
     HashSet<E> set = newHashSet();
     while (elements.hasNext()) {
       set.add(elements.next());
@@ -406,7 +396,6 @@ public final class Sets {
    *     (minus duplicates)
    */
   public static <E> Set<E> newConcurrentHashSet(E... elements) {
-    checkNotNull(elements);
     int capacity = elements.length * 4 / 3 + 1;
     Set<E> set = newSetFromMap(new ConcurrentHashMap<E, Boolean>(capacity));
     Collections.addAll(set, elements);
@@ -424,7 +413,6 @@ public final class Sets {
    */
   public static <E> Set<E> newConcurrentHashSet(Iterable<? extends E> elements)
   {
-    checkNotNull(elements);
     return newConcurrentHashSet(elements.iterator());
   }
 
@@ -439,7 +427,6 @@ public final class Sets {
    */
   public static <E> Set<E> newConcurrentHashSet(Iterator<? extends E> elements)
   {
-    checkNotNull(elements);
     Set<E> set = newConcurrentHashSet();
     while (elements.hasNext()) {
       set.add(elements.next());
@@ -469,7 +456,6 @@ public final class Sets {
    *     (minus duplicates)
    */
   public static <E> LinkedHashSet<E> newLinkedHashSet(E... elements) {
-    checkNotNull(elements);
     LinkedHashSet<E> set = new LinkedHashSet<E>(elements.length * 4 / 3 + 1);
     Collections.addAll(set, elements);
     return set;
@@ -484,8 +470,6 @@ public final class Sets {
    */
   public static <E> LinkedHashSet<E> newLinkedHashSet(
       Iterable<? extends E> elements) {
-    checkNotNull(elements);
-
     if (elements instanceof Collection<?>) {
       // Use LinkedHashSet's sizing logic
       @SuppressWarnings("unchecked")
@@ -505,7 +489,6 @@ public final class Sets {
    */
   public static <E> LinkedHashSet<E> newLinkedHashSet(
       Iterator<? extends E> elements) {
-    checkNotNull(elements);
     LinkedHashSet<E> set = newLinkedHashSet();
     while (elements.hasNext()) {
       set.add(elements.next());
@@ -546,7 +529,6 @@ public final class Sets {
    */
   @SuppressWarnings("unchecked")  // allow ungenerified Comparable types
   public static <E extends Comparable> TreeSet<E> newTreeSet(E... elements) {
-    checkNotNull(elements);
     TreeSet<E> set = newTreeSet();
     Collections.addAll(set, elements);
     return set;
@@ -567,7 +549,6 @@ public final class Sets {
   @SuppressWarnings("unchecked")  // allow ungenerified Comparable types
   public static <E extends Comparable> TreeSet<E> newTreeSet(
       Iterable<? extends E> elements) {
-    checkNotNull(elements);
     return newTreeSet(elements.iterator());
   }
 
@@ -586,7 +567,6 @@ public final class Sets {
   @SuppressWarnings("unchecked")  // allow ungenerified Comparable types
   public static <E extends Comparable> TreeSet<E> newTreeSet(
       Iterator<? extends E> elements) {
-    checkNotNull(elements);
     TreeSet<E> set = newTreeSet();
     while (elements.hasNext()) {
       set.add(elements.next());
@@ -621,7 +601,6 @@ public final class Sets {
    */
   public static <E> TreeSet<E> newTreeSet(
       @Nullable Comparator<? super E> comparator, E... elements) {
-    checkNotNull(elements);
     TreeSet<E> set = newTreeSet(comparator);
     Collections.addAll(set, elements);
     return set;
@@ -639,7 +618,6 @@ public final class Sets {
   public static <E> TreeSet<E> newTreeSet(
       @Nullable Comparator<? super E> comparator,
       Iterable<? extends E> elements) {
-    checkNotNull(elements);
     return newTreeSet(comparator, elements.iterator());
   }
 
@@ -655,7 +633,6 @@ public final class Sets {
   public static <E> TreeSet<E> newTreeSet(
       @Nullable Comparator<? super E> comparator,
       Iterator<? extends E> elements) {
-    checkNotNull(elements);
     TreeSet<E> set = newTreeSet(comparator);
     while (elements.hasNext()) {
       set.add(elements.next());

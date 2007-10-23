@@ -16,7 +16,7 @@
 
 package com.google.common.collect;
 
-import static com.google.common.base.Objects.nonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.Serializable;
 
@@ -71,7 +71,7 @@ public abstract class ForwardingObject implements Serializable {
    * @throws NullPointerException if {@code delegate} is {@code null}.
    */
   protected ForwardingObject(Object delegate) {
-    this.delegate = nonNull(delegate);
+    this.delegate = checkNotNull(delegate);
   }
 
   /**

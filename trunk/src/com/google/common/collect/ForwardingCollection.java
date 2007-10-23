@@ -168,7 +168,6 @@ public abstract class ForwardingCollection<E> extends ForwardingObject
    * @param o an element that might be contained by {@code c}
    */
   static boolean containsImpl(Collection<?> c, @Nullable Object o) {
-    checkNotNull(c);
     for (Object member : c) {
       if (Objects.equal(member, o)) {
         return true;
@@ -217,7 +216,6 @@ public abstract class ForwardingCollection<E> extends ForwardingObject
    * elements in common with {@code d}
    */
   static boolean removeImpl(Collection<?> c, @Nullable Object o) {
-    checkNotNull(c);
     Iterator<?> i = c.iterator();
     while (i.hasNext()) {
       if (Objects.equal(i.next(), o)) {

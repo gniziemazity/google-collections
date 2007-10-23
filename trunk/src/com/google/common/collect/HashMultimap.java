@@ -16,8 +16,6 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Objects;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,7 +53,7 @@ public final class HashMultimap<K, V> extends StandardSetMultimap<K, V> {
    */
   public HashMultimap(Multimap<? extends K, ? extends V> multimap) {
     this();
-    putAll(Objects.nonNull(multimap));
+    putAll(multimap);
   }
 
   /**

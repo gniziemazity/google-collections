@@ -18,6 +18,7 @@ package com.google.common.collect;
 
 import com.google.common.base.Nullable;
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import java.io.Serializable;
@@ -47,7 +48,7 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
   private long size;
 
   protected AbstractMapBasedMultiset(Map<E, AtomicInteger> backingMap) {
-    this.backingMap = backingMap;
+    this.backingMap = checkNotNull(backingMap);
     this.size = super.size();
   }
 
@@ -193,20 +194,18 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
    *     multiset. 
    */
   @Override public boolean add(@Nullable E element, int occurrences) {
-    if (occurrences < 0) {
-      checkArgument(false, "occurrences cannot be negative: " + occurrences);
-    }
     if (occurrences == 0) {
       return false;
     }
+    checkArgument(
+        occurrences > 0, "occurrences cannot be negative: %s", occurrences);
     AtomicInteger frequency = backingMap.get(element);
     if (frequency == null) {
       backingMap.put(element, new AtomicInteger(occurrences));
     } else {
-      if (occurrences > Integer.MAX_VALUE - frequency.get()) {
-        checkArgument(false,
-            "overflow: cannot add " + occurrences + " to " + frequency.get());
-      }
+      long newCount = (long) frequency.get() + (long) occurrences;
+      checkArgument(newCount <= (long) Integer.MAX_VALUE,
+          "too many occurrences: %s", newCount);
       frequency.getAndAdd(occurrences);
     }
     size += occurrences;
@@ -214,12 +213,11 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
   }
 
   @Override public int remove(@Nullable Object element, int occurrences) {
-    if (occurrences < 0) {
-      checkArgument(false, "occurrences cannot be negative: " + occurrences);
-    }
     if (occurrences == 0) {
       return 0;
     }
+    checkArgument(
+        occurrences > 0, "occurrences cannot be negative: %s", occurrences);
     AtomicInteger frequency = backingMap.get(element);
     if (frequency == null) {
       return 0;

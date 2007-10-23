@@ -113,7 +113,7 @@ public final class LinkedListMultimap<K, V>
    */
   public LinkedListMultimap(Multimap<? extends K, ? extends V> multimap) {
     this();
-    putAll(Objects.nonNull(multimap));
+    putAll(multimap);
   }
 
   /**

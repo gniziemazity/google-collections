@@ -51,8 +51,7 @@ final class Synchronized {
     protected final Object lock;
 
     public SynchronizedObject(Object delegate, Object lock) {
-      checkNotNull(delegate);
-      this.delegate = delegate;
+      this.delegate = checkNotNull(delegate);
       this.lock = (lock == null) ? this : lock;
     }
 
@@ -582,8 +581,7 @@ final class Synchronized {
     transient volatile Multiset<K> keys;
 
     SynchronizedMultimap(Multimap<K, V> delegate, Object lock) {
-      checkNotNull(delegate);
-      this.delegate = delegate;
+      this.delegate = checkNotNull(delegate);
       this.lock = (lock == null) ? this : lock;
     }
 
@@ -913,8 +911,7 @@ final class Synchronized {
     private transient volatile Set<Map.Entry<K, V>> entrySet;
 
     public SynchronizedMap(Map<K, V> delegate, Object lock) {
-      checkNotNull(delegate);
-      this.delegate = delegate;
+      this.delegate = checkNotNull(delegate);
       this.lock = (lock == null) ? this : lock;
     }
 

@@ -17,7 +17,6 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
-import com.google.common.base.Objects;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -103,7 +102,7 @@ public final class TreeMultimap<K, V> extends StandardSortedSetMultimap<K, V> {
    */
   @SuppressWarnings("unchecked")
   public TreeMultimap(Multimap<? extends K, ? extends V> multimap) {
-    this((Objects.nonNull(multimap) instanceof TreeMultimap<?, ?>)
+    this((multimap instanceof TreeMultimap<?, ?>)
             ? ((TreeMultimap<K, V>) multimap).keyComparator : null,
         (multimap instanceof TreeMultimap<?, ?>)
             ? ((TreeMultimap<K, V>) multimap).valueComparator : null,
@@ -126,7 +125,7 @@ public final class TreeMultimap<K, V> extends StandardSortedSetMultimap<K, V> {
       @Nullable Comparator<? super V> valueComparator,
       Multimap<? extends K, ? extends V> multimap) {
     this(keyComparator, valueComparator);
-    putAll(Objects.nonNull(multimap));
+    putAll(multimap);
   }
 
   /**
