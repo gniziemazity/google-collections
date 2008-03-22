@@ -18,7 +18,6 @@ package com.google.common.collect;
 
 import com.google.common.base.Nullable;
 import static com.google.common.base.Preconditions.checkArgument;
-
 import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -30,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * A multiset that supports concurrent modifications, and that provides atomic
+ * A multiset that supports concurrent modifications and that provides atomic
  * versions of most {@code Multiset} operations (exceptions where noted).
  * 
  * <p>This implementation is backed by a {@link ConcurrentMap}, and several of
@@ -58,8 +57,8 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
    * elements and their counts.
    * 
    * <p>The {@code ConcurrentHashMap} will have default capacity, load factor,
-   * and concurrency settings. For more control, use the alternative
-   * constructor, {@link #ConcurrentMultiset(ConcurrentMap)}.
+   * and concurrency settings. For more control, use
+   * {@link #ConcurrentMultiset(ConcurrentMap)}.
    */
   public ConcurrentMultiset() {
     this(new ConcurrentHashMap<E, Integer>());
@@ -71,8 +70,8 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
    * collection.
    *
    * <p>The {@code ConcurrentHashMap} will have default capacity, load factor,
-   * and concurrency settings. For more control, use the alternative
-   * constructor, {@link #ConcurrentMultiset(ConcurrentMap)}.
+   * and concurrency settings. For more control, use
+   * {@link #ConcurrentMultiset(ConcurrentMap)}.
    */
   public ConcurrentMultiset(Collection<? extends E> collection) {
     this(new ConcurrentHashMap<E, Integer>());
@@ -218,8 +217,8 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
 
   /**
    * Removes <b>all</b> occurrences of the specified element from this multiset.
-   * This method complements {@link Multiset#remove}, which removes only one
-   * occurrence at a time.
+   * This method complements {@link Multiset#remove(Object)}, which removes only
+   * one occurrence at a time.
    *
    * @param element the element whose occurrences should all be removed
    * @return the number of occurrences successfully removed, possibly zero
@@ -260,17 +259,17 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
   }
 
   /**
-   * Sets the number of occurrences of {@code element} to {@code newCount}, as
-   * does {@link #setCount(Object,int)}, but only if the count is currently
-   * {@code oldCount}. If {@code element} does not appear in the multiset
-   * exactly {@code oldCount} times, no changes will be made.
-   *
+   * Sets the number of occurrences of {@code element} to {@code newCount}, but
+   * only if the count is currently {@code oldCount}. If {@code element} does
+   * not appear in the multiset exactly {@code oldCount} times, no changes will
+   * be made.
+   * 
    * @return {@code true} if the change was successful. This usually indicates
-   *     that the multiset has been modified, but not always: in the case that
-   *     {@code oldCount == newCount}, the method may still return {@code true}
-   *     if the condition was met.
+   *         that the multiset has been modified, but not always: in the case
+   *         that {@code oldCount == newCount}, the method will return
+   *         {@code true} if the condition was met.
    * @throws IllegalArgumentException if {@code oldCount} or {@code newCount} is
-   *     negative
+   *         negative
    */
   public boolean setCount(E element, int oldCount, int newCount) {
     checkArgument(oldCount >= 0, "Invalid oldCount: %s", oldCount);
@@ -294,8 +293,8 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
    * Removes exactly the specified number of occurrences of {@code element}, or
    * makes no change if this is not possible.
    *
-   * <p>This method differs from {@link #remove(Object, int)} in that it has no
-   * effect when the element count is smaller than {@code occurrences}.
+   * <p>This method, in contrast to {@link #remove(Object, int)}, has no effect
+   * when the element count is smaller than {@code occurrences}.
    *
    * @param element the element to remove
    * @param occurrences the number of occurrences of {@code element} to remove

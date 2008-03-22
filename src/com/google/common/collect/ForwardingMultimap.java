@@ -17,7 +17,6 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -25,7 +24,7 @@ import java.util.Set;
 
 /**
  * A multimap which forwards all its method calls to another multimap.
- * Subclasses should override one or more methods to change or add behavior of
+ * Subclasses should override one or more methods to modify the behavior of
  * the backing multimap as desired per the <a
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
  *
@@ -35,7 +34,9 @@ import java.util.Set;
 public abstract class ForwardingMultimap<K, V> extends ForwardingObject
     implements Multimap<K, V> {
 
-  /** Constructs a forwarding multimap from a delegate. */
+  /**
+   * Constructs a forwarding multimap that forwards to the provided delegate.
+   */
   protected ForwardingMultimap(Multimap<K, V> delegate) {
     super(delegate);
   }

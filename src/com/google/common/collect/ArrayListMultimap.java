@@ -17,7 +17,6 @@
 package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkArgument;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -48,12 +47,15 @@ import java.util.List;
  * @author Jared Levy
  */
 public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
-  private final int initialListCapacity;
+  // Default from ArrayList
+  /*@VisibleForTesting*/ static final int DEFAULT_CAPACITY = 10;   
+  
+  /*@VisibleForTesting*/ final int initialListCapacity;
 
   /** Constructs an empty {@code ArrayListMultimap}. */
   public ArrayListMultimap() {
     super(new HashMap<K, Collection<V>>());
-    initialListCapacity = 10; // default from ArrayList
+    initialListCapacity = DEFAULT_CAPACITY;
   }
 
   /**
@@ -75,7 +77,10 @@ public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
    * specified {@code Multimap}.
    */
   public ArrayListMultimap(Multimap<? extends K, ? extends V> multimap) {
-    this(); // TODO: preserve capacity
+    this(multimap.keySet().size(),
+        (multimap instanceof ArrayListMultimap<?, ?>) ?
+            ((ArrayListMultimap<?, ?>) multimap).initialListCapacity :
+            DEFAULT_CAPACITY);
     putAll(multimap);
   }
 

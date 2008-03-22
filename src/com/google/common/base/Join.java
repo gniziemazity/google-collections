@@ -17,7 +17,6 @@
 package com.google.common.base;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.io.IOException;
 import java.util.AbstractList;
 import java.util.Arrays;
@@ -60,8 +59,8 @@ public final class Join {
    * @return The same appendable instance that was passed in
    * @throws JoinException if an IOException occurs
    */
-  public static Appendable join(
-      Appendable appendable, String delimiter, Iterator<?> tokens) {
+  public static <T extends Appendable> T join(
+      T appendable, String delimiter, Iterator<?> tokens) {
 
     /* This method is the workhorse of the class */
 
@@ -96,8 +95,8 @@ public final class Join {
    * Variant of {@link #join(Appendable,String,Iterator)} where {@code tokens}
    * is an {@code Iterable}.
    */
-  public static Appendable join(
-      Appendable appendable, String delimiter, Iterable<?> tokens) {
+  public static <T extends Appendable> T join(
+      T appendable, String delimiter, Iterable<?> tokens) {
     checkNotNull(tokens);
     return join(appendable, delimiter, tokens.iterator());
   }
@@ -106,8 +105,8 @@ public final class Join {
    * Variant of {@link #join(Appendable,String,Iterator)} where {@code tokens}
    * is an array.
    */
-  public static Appendable join(
-      Appendable appendable, String delimiter, Object[] tokens) {
+  public static <T extends Appendable> T join(
+      T appendable, String delimiter, Object[] tokens) {
     checkNotNull(tokens);
     return join(appendable, delimiter, Arrays.asList(tokens));
   }
@@ -116,7 +115,7 @@ public final class Join {
    * Variant of {@link #join(Appendable,String,Iterator)} for tokens given using
    * varargs.
    */
-  public static Appendable join(Appendable appendable, String delimiter,
+  public static <T extends Appendable> T join(T appendable, String delimiter,
       @Nullable Object firstToken, Object... otherTokens) {
     checkNotNull(otherTokens);
     return join(appendable, delimiter, asList(firstToken, otherTokens));

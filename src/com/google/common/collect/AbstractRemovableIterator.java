@@ -40,6 +40,10 @@ public abstract class AbstractRemovableIterator<T> extends AbstractIterator<T> {
     return element;
   }
 
+  /**
+   * Removes from the underlying collection the last element returned by the
+   * iterator.
+   */
   @Override public void remove() {
     checkState(canRemove, "no calls to next() since the last call to remove()");
     try {

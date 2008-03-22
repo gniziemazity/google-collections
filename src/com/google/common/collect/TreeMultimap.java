@@ -17,7 +17,6 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
-
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Set;

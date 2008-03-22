@@ -18,7 +18,6 @@ package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
@@ -64,11 +63,7 @@ public final class Multisets {
   }
 
   /**
-   * Creates a new {@code HashMultiset} containing the specified elements. If
-   * the specified elements is a {@code Multiset}, this method behaves
-   * identically to {@link HashMultiset#HashMultiset(Multiset)}. Otherwise, the
-   * {@code HashMultiset} is created with the default initial capacity (16
-   * distinct elements) and load factor (0.75).
+   * Creates a new {@code HashMultiset} containing the specified elements.
    *
    * @param elements the elements that the multiset should contain
    */

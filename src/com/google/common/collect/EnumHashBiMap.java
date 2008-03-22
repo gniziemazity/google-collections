@@ -17,14 +17,14 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
-
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * A {@code BiMap} backed by an {@code EnumMap} instance for keys-to-values, and
- * a {@code HashMap} instance for values-to-keys.
+ * a {@code HashMap} instance for values-to-keys. Null keys are not permitted,
+ * but null values are.
  *
  * @see EnumMap
  * @see HashMap
@@ -75,7 +75,7 @@ public final class EnumHashBiMap<K extends Enum<K>, V>
     putAll(map); // careful if we make this class non-final
   }
 
-  /**
+  /*
    * Constructs a new bimap with the same key type as the specified map,
    * initially containing the same mappings (if any).
    *
@@ -91,7 +91,7 @@ public final class EnumHashBiMap<K extends Enum<K>, V>
 //    putAll((Map) map); // careful if we make this class non-final
 //  }
 
-  // Override these two methods to show that values may be null (but not keys)
+  // Overriding these two methods to show that values may be null (but not keys)
 
   @Override public V put(K key, @Nullable V value) {
     return super.put(key, value);

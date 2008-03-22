@@ -17,7 +17,6 @@
 package com.google.common.collect;
 
 import com.google.common.base.Objects;
-
 import java.util.Map.Entry;
 
 /**
@@ -42,6 +41,10 @@ public abstract class AbstractMapEntry<K, V> implements Entry<K, V> {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Indicates whether an object equals this entry, following the behavior
+   * specified in {@link Entry#equals}.
+   */
   @Override public boolean equals(Object o) {
     if (o == this) {
       return true;
@@ -54,12 +57,19 @@ public abstract class AbstractMapEntry<K, V> implements Entry<K, V> {
         && Objects.equal(e.getValue(), getValue());
   }
 
+  /**
+   * Return this entry's hash code, following the behavior specified in
+   * {@link Entry#hashCode}.
+   */
   @Override public int hashCode() {
     K k = getKey();
     V v = getValue();
     return ((k == null) ? 0 : k.hashCode()) ^ ((v == null) ? 0 : v.hashCode());
   }
 
+  /**
+   * Returns a string representation of the form <code>{key}={value}</code>.
+   */
   @Override public String toString() {
     return getKey() + "=" + getValue();
   }

@@ -20,7 +20,6 @@ import com.google.common.base.Nullable;
 import com.google.common.base.Objects;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -39,7 +38,7 @@ import java.util.Set;
  * {@link #size} implementations all iterate across the set returned by
  * {@link Multiset#entrySet()}, as do many methods acting on the set returned by
  * {@link #elementSet}. Override those methods for better performance.
- *
+ * 
  * @author Kevin Bourrillion
  */
 public abstract class AbstractMultiset<E> extends AbstractCollection<E>
@@ -344,9 +343,6 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
        * We can't simply check whether the entry sets are equal, since that
        * approach fails when a TreeMultiset has a comparator that returns 0
        * when passed unequal elements.
-       *
-       * TODO: If we change TreeMultiset.Entry to call the comparator equals
-       * method, this method could check whether the entry sets are equal.
        */
       
       if (this.size() != that.size()) {

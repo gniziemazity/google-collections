@@ -20,7 +20,7 @@ import java.util.ListIterator;
 
 /**
  * A list iterator which forwards all its method calls to another list
- * iterator. Subclasses should override one or more methods to change or add
+ * iterator. Subclasses should override one or more methods to modify the
  * behavior of the backing iterator as desired per the <a
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
  *
@@ -30,6 +30,10 @@ import java.util.ListIterator;
 public abstract class ForwardingListIterator<E> extends ForwardingIterator<E>
     implements ListIterator<E> {
 
+  /**
+   * Constructs a forwarding list iterator that forwards to the provided
+   * delegate.
+   */
   protected ForwardingListIterator(ListIterator<E> delegate) {
     super(delegate);
   }

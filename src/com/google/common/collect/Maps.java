@@ -18,11 +18,9 @@ package com.google.common.collect;
 
 import com.google.common.base.Function;
 import com.google.common.base.Nullable;
-import com.google.common.base.Objects;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.MapConstraints.ConstrainedMap;
-
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -98,14 +96,16 @@ public final class Maps {
   }
 
   /**
-   * Returns the appropriate initial capacity for a new {@code HashMap} to hold
-   * the specified number of entries, given the default load factor of 0.75.
+   * Returns an appropriate value for the "capacity" (in reality, "minimum
+   * table size") parameter of a HashMap constructor, such that the resulting
+   * table will be between 25% and 50% full when it contains
+   * {@code expectedSize} entries.
    *
    * @throws IllegalArgumentException if {@code expectedSize} is negative
    */
   static int capacity(int expectedSize) {
     checkArgument(expectedSize >= 0);
-    return Math.max(expectedSize + expectedSize / 3 + 1, 16);
+    return Math.max(expectedSize * 2, 16);
   }
 
   /**
@@ -830,23 +830,44 @@ public final class Maps {
   private static final MapConstraint<Class<?>, Object> VALUE_CAN_BE_CAST_TO_KEY
       = new MapConstraint<Class<?>, Object>() {
     public void checkKeyValue(Class<?> key, Object value) {
-      key.cast(value);
+      wrap(key).cast(value);
     }
   };
 
+  // TODO: should be a public final class like the rest, right?
   private static class SimpleClassToInstanceMap<B> extends
       ConstrainedMap<Class<? extends B>, B> implements ClassToInstanceMap<B> {
     SimpleClassToInstanceMap(Map<Class<? extends B>, B> delegate) {
       super(delegate, VALUE_CAN_BE_CAST_TO_KEY);
     }
     public <T extends B> T putInstance(Class<T> type, T value) {
-      return type.cast(put(type, value));
+      B oldValue = put(type, value);
+      return wrap(type).cast(oldValue);
     }
     public <T extends B> T getInstance(Class<T> type) {
-      return type.cast(get(type));
+      B value = get(type);
+      return wrap(type).cast(value);
     }
     private static final long serialVersionUID = 3549975116715378971L;
   }
+
+  @SuppressWarnings("unchecked")
+  private static <T> Class<T> wrap(Class<T> c) {
+    return c.isPrimitive() ? (Class<T>) PRIMITIVES_TO_WRAPPERS.get(c) : c;
+  }
+
+  private static final Map<Class<?>, Class<?>> PRIMITIVES_TO_WRAPPERS
+      = new ImmutableMapBuilder<Class<?>, Class<?>>(9)
+          .put(boolean.class, Boolean.class)
+          .put(byte.class, Byte.class)
+          .put(char.class, Character.class)
+          .put(double.class, Double.class)
+          .put(float.class, Float.class)
+          .put(int.class, Integer.class)
+          .put(long.class, Long.class)
+          .put(short.class, Short.class)
+          .put(void.class, Void.class)
+          .getMap();
 
   /**
    * Implements {@code Collection.contains} safely for forwarding collections of

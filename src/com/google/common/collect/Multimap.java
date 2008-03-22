@@ -17,7 +17,6 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -30,8 +29,8 @@ import java.util.Set;
  *
  * <p>The methods {@link #get}, {@link #keySet}, {@link #keys}, {@link #values},
  * {@link #entries}, and {@link #asMap} return collections that are views of the
- * multimap. If the multimap is modifable, updating it can change the contents
- * of those collection, and updating those collections will change the multimap.
+ * multimap. If the multimap is modifiable, updating it can change the contents
+ * of those collections, and updating the collections will change the multimap.
  * In contrast, {@link #replaceValues} and {@link #removeAll} return collections
  * that are independent of subsequent multimap changes.
  *
@@ -215,8 +214,8 @@ public interface Multimap<K, V> {
   /**
    * Returns a map view that associates each key with the corresponding values
    * in the multimap. Changes to the returned map, such as element removal,
-   * will update the underlying multimap. The map never supports
-   * {@code setValue()} on the map entries, {@code put}, or {@code putAll}.
+   * will update the underlying multimap. The map does not support
+   * {@code setValue()} on its entries, {@code put}, or {@code putAll}.
    *
    * <p>The collections returned by {@code asMap().get(Object)} have the same
    * behavior as those returned by {@link #get}.

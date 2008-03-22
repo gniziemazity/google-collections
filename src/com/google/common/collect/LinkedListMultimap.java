@@ -19,7 +19,6 @@ package com.google.common.collect;
 import com.google.common.base.Nullable;
 import com.google.common.base.Objects;
 import static com.google.common.base.Preconditions.checkState;
-
 import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractMap;
@@ -112,7 +111,10 @@ public final class LinkedListMultimap<K, V>
    * specified {@code Multimap}.
    */
   public LinkedListMultimap(Multimap<? extends K, ? extends V> multimap) {
-    this();
+    int keySize = multimap.keySet().size();
+    keyCount = new HashMultiset<K>(keySize);
+    keyToKeyHead = Maps.newHashMapWithExpectedSize(keySize);
+    keyToKeyTail = Maps.newHashMapWithExpectedSize(keySize);
     putAll(multimap);
   }
 
@@ -357,6 +359,7 @@ public final class LinkedListMultimap<K, V>
     public void add(V value) {
       previous = addNode((K) key, value, next);
       nextIndex++;
+      current = null;
     }
   }
 

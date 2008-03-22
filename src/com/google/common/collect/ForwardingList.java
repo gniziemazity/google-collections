@@ -22,7 +22,7 @@ import java.util.ListIterator;
 
 /**
  * A list which forwards all its method calls to another list. Subclasses should
- * override one or more methods to change or add behavior of the backing list as
+ * override one or more methods to modify the behavior of the backing list as
  * desired per the <a
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
  *
@@ -31,6 +31,9 @@ import java.util.ListIterator;
 public abstract class ForwardingList<E> extends ForwardingCollection<E>
     implements List<E> {
 
+  /**
+   * Constructs a forwarding list that forwards to the provided delegate.
+   */
   protected ForwardingList(List<E> delegate) {
     super(delegate);
   }

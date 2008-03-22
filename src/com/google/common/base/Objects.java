@@ -197,8 +197,8 @@ public final class Objects {
   /**
    * Generates a hashcode for multiple values.
    *
-   * <p>This is useful for implementing Object.hashCode(). For example, in an
-   * object that has three properties, x, y and z, one could write:
+   * <p>This is useful for implementing {@link Object#hashCode()}. For example,
+   * in an object that has three properties, x, y and z, one could write:
    * <pre>
    * public int hashCode() {
    *   return Objects.hashCode(getX(), getY(), getZ());

@@ -18,7 +18,6 @@ package com.google.common.collect;
 
 import com.google.common.base.Nullable;
 import static com.google.common.base.Preconditions.checkState;
-
 import java.util.Arrays;
 
 /**
@@ -30,11 +29,11 @@ import java.util.Arrays;
  *       = createNumbersMap();
  *
  *   static Multimap&lt;String,Integer&gt; createNumbersMap() {
- *     Multimap&lt;String,Integer&gt; map = Multimaps.newHashMultimap();
- *     map.put("one", 1);
- *     map.putAll("several", Arrays.asList(1, 2, 3));
- *     map.putAll("many", Arrays.asList(1, 2, 3, 4, 5));
- *     return Multimaps.unmodifiableMultimap(map);
+ *     Multimap&lt;String,Integer&gt; multimap = Multimaps.newHashMultimap();
+ *     multimap.put("one", 1);
+ *     multimap.putAll("several", Arrays.asList(1, 2, 3));
+ *     multimap.putAll("many", Arrays.asList(1, 2, 3, 4, 5));
+ *     return Multimaps.unmodifiableMultimap(multimap);
  *   }
  * </pre>
  * ... can be rewritten far more simply as ...
@@ -47,7 +46,7 @@ import java.util.Arrays;
  *       .getMultimap();
  * </pre>
  * 
- * <p>The implementation is a {@link ListMultimap}, which allows duplicate
+ * <p>The generated multimap is a {@link ListMultimap}, which allows duplicate
  * key-value pairs and maintains the value ordering for each key.
  *
  * @author Laura Werner
@@ -55,27 +54,27 @@ import java.util.Arrays;
  */
 public class ImmutableMultimapBuilder<K, V> {
   /** A place to accumulate keys and values for the immutable Multimap */
-  private ListMultimap<K, V> map;
+  private ListMultimap<K, V> multimap;
 
   /** Creates a new ImmutableMultimapBuilder */
   public ImmutableMultimapBuilder() {
-    map = new ArrayListMultimap<K, V>();
+    multimap = new ArrayListMultimap<K, V>();
   }
 
   /**
-   * Adds a key-value mapping to the map that will be returned by {@code
+   * Adds a key-value mapping to the multimap that will be returned by {@code
    * getMultimap}.
    *
    * @param key key with which the specified value is to be associated
    * @param value value to be associated with the specified key
-   * @return this map builder (to enable call chaining)
+   * @return this multimap builder (to enable call chaining)
    * @throws IllegalStateException if {@code getMultimap} has already been
    *     called
    */
   public ImmutableMultimapBuilder<K, V> put(@Nullable K key, @Nullable V value)
   {
-    checkState(map != null, "map has already been created");
-    map.put(key, value);
+    checkState(multimap != null, "multimap has already been created");
+    multimap.put(key, value);
     return this;
   }
 
@@ -85,14 +84,14 @@ public class ImmutableMultimapBuilder<K, V> {
    *
    * @param key key to store in the multimap.
    * @param values values to store in the multimap.
-   * @return this map builder (to enable call chaining)
+   * @return this multimap builder (to enable call chaining)
    * @throws IllegalStateException if {@code getMultimap} has already been
    *     called
    */
   public ImmutableMultimapBuilder<K, V> putAll(
       @Nullable K key, Iterable<? extends V> values) {
-    checkState(map != null, "map has already been created");
-    map.putAll(key, values);
+    checkState(multimap != null, "multimap has already been created");
+    multimap.putAll(key, values);
     return this;
   }
 
@@ -102,13 +101,13 @@ public class ImmutableMultimapBuilder<K, V> {
    *
    * @param key key to store in the multimap.
    * @param values values to store in the multimap.
-   * @return this map builder (to enable call chaining)
+   * @return this multimap builder (to enable call chaining)
    * @throws IllegalStateException if {@code getMultimap} has already been
    *     called
    */
   public ImmutableMultimapBuilder<K, V> putAll(@Nullable K key, V... values) {
-    checkState(map != null, "map has already been created");
-    map.putAll(key, Arrays.asList(values));
+    checkState(multimap != null, "multimap has already been created");
+    multimap.putAll(key, Arrays.asList(values));
     return this;
   }
 
@@ -116,16 +115,16 @@ public class ImmutableMultimapBuilder<K, V> {
    * Returns a newly-created, immutable Multimap instance containing the keys
    * and values that were specified using {@code put} and {@code putAll}.
    *
-   * @return a new, immutable HashMap instance
+   * @return a new, immutable {@link ListMultimap} instance
    * @throws IllegalStateException if {@code getMultimap} has already been
    *     called
    */
   public ListMultimap<K, V> getMultimap() {
-    checkState(map != null, "map has already been created");
+    checkState(multimap != null, "multimap has already been created");
     try {
-      return Multimaps.unmodifiableListMultimap(map);
+      return Multimaps.unmodifiableListMultimap(multimap);
     } finally {
-      map = null;
+      multimap = null;
     }
   }
 }

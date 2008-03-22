@@ -18,7 +18,6 @@ package com.google.common.collect;
 
 import com.google.common.base.Nullable;
 import static com.google.common.base.Preconditions.checkArgument;
-
 import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractMap;
@@ -244,8 +243,9 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
     collection.clear();
 
     while (iterator.hasNext()) {
-      collection.add(iterator.next());
-      totalSize++;
+      if (collection.add(iterator.next())) {
+        totalSize++;
+      }
     }
 
     return oldValues;

@@ -20,7 +20,6 @@ import com.google.common.base.Nullable;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-
 import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -139,7 +138,11 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
     return new MapBasedMultisetIterator();
   }
 
-  // TODO: see if we can extend the superclass's iterator
+  /* 
+   * Not subclassing AbstractMultiset$MultisetIterator because next() needs to
+   * retrieve the Map.Entry<E, AtomicInteger> entry, which can then be used for
+   * a more efficient remove() call.
+   */
   private class MapBasedMultisetIterator implements Iterator<E> {
     final Iterator<Map.Entry<E, AtomicInteger>> entryIterator;
     Map.Entry<E, AtomicInteger> currentEntry;
@@ -204,7 +207,7 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
       backingMap.put(element, new AtomicInteger(occurrences));
     } else {
       long newCount = (long) frequency.get() + (long) occurrences;
-      checkArgument(newCount <= (long) Integer.MAX_VALUE,
+      checkArgument(newCount <= Integer.MAX_VALUE,
           "too many occurrences: %s", newCount);
       frequency.getAndAdd(occurrences);
     }

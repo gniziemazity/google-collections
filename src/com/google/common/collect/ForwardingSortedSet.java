@@ -21,16 +21,19 @@ import java.util.SortedSet;
 
 /**
  * A sorted set which forwards all its method calls to another sorted set.
- * Subclasses should override one or more methods to change or add behavior of
- * the backing sorted set as desired per the <a
+ * Subclasses should override one or more methods to modify the behavior of the
+ * backing sorted set as desired per the <a
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
- *
+ * 
  * @see ForwardingObject
  * @author Mike Bostock
  */
 public abstract class ForwardingSortedSet<E> extends ForwardingSet<E>
     implements SortedSet<E> {
 
+  /**
+   * Constructs a forwarding sorted set that forwards to the provided delegate.
+   */
   protected ForwardingSortedSet(SortedSet<E> delegate) {
     super(delegate);
   }

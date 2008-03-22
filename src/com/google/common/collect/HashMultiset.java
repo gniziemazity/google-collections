@@ -57,29 +57,13 @@ public final class HashMultiset<E> extends AbstractMapBasedMultiset<E> {
   }
 
   /**
-   * Constructs a new {@code HashMultiset} containing the specified elements. If
-   * the specified elements is a {@code Multiset} instance, this constructor
-   * behaves identically to {@link #HashMultiset(Multiset)}. Otherwise, the
-   * default initial capacity (16 distinct elements) and load factor (0.75) is
-   * used.
+   * Constructs a new {@code HashMultiset} containing the specified elements.
    *
    * @param elements the elements that the multiset should contain
    */
   public HashMultiset(Iterable<? extends E> elements) {
     this(Multisets.inferDistinctElements(elements));
     Iterables.addAll(this, elements); // careful if we make this class non-final
-  }
-
-  /**
-   * Constructs a new {@code HashMultiset} containing the specified elements.
-   * The multiset is created with the default load factor (0.75) and an initial
-   * capacity sufficient to hold the specified elements.
-   *
-   * @param elements the elements that the multiset should contain
-   */
-  public HashMultiset(Multiset<? extends E> elements) {
-    this(elements.elementSet().size());
-    addAll(elements); // careful if we make this class non-final
   }
 
   private static final long serialVersionUID = 2422072640108355431L;

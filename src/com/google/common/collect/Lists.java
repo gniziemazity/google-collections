@@ -19,9 +19,9 @@ package com.google.common.collect;
 import com.google.common.base.Function;
 import com.google.common.base.Nullable;
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.io.Serializable;
 import java.util.AbstractList;
+import java.util.AbstractSequentialList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,6 +30,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.RandomAccess;
 
 /**
@@ -61,126 +62,6 @@ import java.util.RandomAccess;
 public final class Lists {
   private Lists() {}
 
-  /**
-   * Returns an immutable List instance containing the given elements.
-   *
-   * <p><b>Note:</b> due to a bug in javac 1.5.0_06, we cannot support the
-   * following:
-   *
-   * <p>{@code List<Base> list = Lists.immutableList(sub1, sub2);}
-   *
-   * <p>where {@code sub1} and {@code sub2} are references to subtypes of {@code
-   * Base}, not of {@code Base} itself. To get around this, you must use:
-   *
-   * <p>{@code List<Base> list = Lists.<Base>immutableList(sub1, sub2);}
-   *
-   * @param elements the elements that the list should contain, in order. If an
-   *     array is given, its contents may later be altered without affecting the
-   *     List returned by this method
-   * @return an immutable {@code List} instance containing those elements
-   */
-  public static <E> List<E> immutableList(E... elements) {
-    switch (elements.length) {
-      case 0:
-        return Collections.emptyList();
-      case 1:
-        return Collections.singletonList(elements[0]);
-      default:
-        return new ImmutableArrayList<E>(elements.clone());
-    }
-  }
-
-  private static final Class<?> SINGLETON_CLASS
-      = Collections.singletonList(1).getClass();
-
-  /**
-   * Returns an immutable {@code List} instance containing the given elements.
-   * Note that if the input is an immutable list, then the input itself
-   * <i>may</i> be returned.
-   *
-   * @param iterable the elements that the list should contain, in order
-   * @return an immutable {@code List} instance containing those elements
-   */
-  public static <E> List<E> immutableList(Iterable<? extends E> iterable) {
-    if (iterable instanceof Collection<?>) {
-      @SuppressWarnings("unchecked")
-      Collection<? extends E> collection = (Collection<? extends E>) iterable;
-      return immutableList(collection);
-    } else {
-      return immutableList(iterable.iterator());
-    }
-  }
-
-  /**
-   * Returns an immutable {@code List} instance containing the given elements.
-   *
-   * @param iterator the elements that the list should contain, in order
-   * @return an immutable {@code List} instance containing those elements
-   */
-  public static <E> List<E> immutableList(Iterator<? extends E> iterator) {
-    return immutableList(newArrayList(iterator));
-  }
-
-  /**
-   * Returns an immutable {@code List} instance containing the given elements.
-   * Note that if the input is an immutable list, then the input itself
-   * <i>may</i> be returned.
-   *
-   * @param collection the elements that the list should contain, in order
-   * @return an immutable {@code List} instance containing those elements
-   */
-  public static <E> List<E> immutableList(Collection<? extends E> collection) {
-    int size = collection.size();
-    if (size == 0) {
-      return Collections.emptyList();
-    } else if (SINGLETON_CLASS.isInstance(collection)
-        || collection instanceof ImmutableArrayList<?>) {
-      /*
-       * Casting away the wildcard on the generic type parameter should be safe
-       * because the result is known to be immutable so any of the methods
-       * we're exposing are unsupported anyway.
-       * XXX This assumes that the implementation of Collections.singletonList
-       * doesn't change in such a way that the class of instances returned by
-       * it are sometimes mutable. Technically, that's a bit dirty.
-       */
-      @SuppressWarnings("unchecked")
-      List<E> result = (List<E>) collection;
-      return result;
-    } else if (size == 1) {
-      // TODO: remove <E> when Eclipse is fixed
-      return Collections.<E>singletonList(collection.iterator().next());
-    } else {
-      /*
-       * This cast is also unchecked, but because of the impedance mismatch
-       * between arrays and generics.
-       */
-      @SuppressWarnings("unchecked")
-      E[] array = (E[]) collection.toArray();
-      return new ImmutableArrayList<E>(array);
-    }
-  }
-
-  /**
-   * Variant of {@code immutableList} for zero arguments.
-   *
-   * @return an immutable empty list
-   * @see Collections#emptyList
-   */
-  public static <E> List<E> immutableList() {
-    return Collections.emptyList();
-  }
-
-  /**
-   * Variant of {@code immutableList} for one argument.
-   *
-   * @param element the lone element to be in the returned list
-   * @return an immutable list containing only the given element
-   * @see Collections#singletonList
-   */
-  public static <E> List<E> immutableList(@Nullable E element) {
-    return Collections.singletonList(element);
-  }
-
   // ArrayList
 
   /**
@@ -199,8 +80,8 @@ public final class Lists {
    * Creates a resizable {@code ArrayList} instance containing the given
    * elements.
    *
-   * <p><b>Note:</b> if it is an immutable List you seek, you should use {@code
-   * #immutableList}.
+   * <p><b>Note:</b> if it is an immutable List you seek, you should use {@link
+   * ImmutableList}.
    *
    * <p><b>Note:</b> due to a bug in javac 1.5.0_06, we cannot support the
    * following:
@@ -498,22 +379,95 @@ public final class Lists {
       List<F> fromList, Function<? super F, ? extends T> function) {
     return (fromList instanceof RandomAccess)
         ? new TransformingRandomAccessList<F, T>(fromList, function)
-        : new TransformingList<F, T>(fromList, function);
+        : new TransformingSequentialList<F, T>(fromList, function);
   }
 
   /**
-   * Implementation of a transforming list. We try to make as many of these
-   * methods pass-through to the source list as possible so that the performance
-   * characteristics of the source list and transformed list are similar.
+   * Implementation of a sequential transforming list. We try to implement
+   * as few methods as possible here to avoid duplicating code from {@link
+   * AbstractSequentialList}.
    *
    * @see Lists#transform
    */
-  private static class TransformingList<F, T> extends AbstractList<T>
-      implements Serializable {
+  private static class TransformingSequentialList<F, T>
+      extends AbstractSequentialList<T> implements Serializable {
     final List<F> fromList;
     final Function<? super F, ? extends T> function;
 
-    TransformingList(
+    TransformingSequentialList(
+        List<F> fromList, Function<? super F, ? extends T> function) {
+      this.fromList = checkNotNull(fromList);
+      this.function = checkNotNull(function);
+    }
+    /**
+     * The default implementation inherited is based on iteration and removal of
+     * each element which can be overkill. That's why we forward this call
+     * directly to the backing list.
+     */
+    @Override public void clear() {
+      fromList.clear();
+    }
+    @Override public int size() {
+      return fromList.size();
+    }
+    @Override
+    public ListIterator<T> listIterator(final int index) {
+      final ListIterator<F> delegate = fromList.listIterator(index);
+      return new ListIterator<T>() {
+        public void add(T e) {
+          throw new UnsupportedOperationException();
+        }
+
+        public boolean hasNext() {
+          return delegate.hasNext();
+        }
+
+        public boolean hasPrevious() {
+          return delegate.hasPrevious();
+        }
+
+        public T next() {
+          return function.apply(delegate.next());
+        }
+
+        public int nextIndex() {
+          return delegate.nextIndex();
+        }
+
+        public T previous() {
+          return function.apply(delegate.previous());
+        }
+
+        public int previousIndex() {
+          return delegate.previousIndex();
+        }
+
+        public void remove() {
+          delegate.remove();
+        }
+
+        public void set(T e) {
+          throw new UnsupportedOperationException("not supported");
+        }
+      };
+    }
+    private static final long serialVersionUID = -5874381536079320827L;
+  }
+
+  /**
+   * Implementation of a transforming random access list. We try to make as many
+   * of these methods pass-through to the source list as possible so that the
+   * performance characteristics of the source list and transformed list are
+   * similar.
+   *
+   * @see Lists#transform
+   */
+  private static class TransformingRandomAccessList<F, T>
+      extends AbstractList<T> implements RandomAccess, Serializable {
+    final List<F> fromList;
+    final Function<? super F, ? extends T> function;
+
+    TransformingRandomAccessList(
         List<F> fromList, Function<? super F, ? extends T> function) {
       this.fromList = checkNotNull(fromList);
       this.function = checkNotNull(function);
@@ -533,57 +487,6 @@ public final class Lists {
     @Override public int size() {
       return fromList.size();
     }
-    private static final long serialVersionUID = -5874381536079320827L;
-  }
-
-  /**
-   * Trivial subclass of {@code TransformingList} that preserves the {@code
-   * RandomAccess} interface marker.
-   *
-   * @see Lists#transform
-   */
-  private static class TransformingRandomAccessList<F, T>
-      extends TransformingList<F, T> implements RandomAccess {
-    TransformingRandomAccessList(
-        List<F> fromList, Function<? super F, ? extends T> function) {
-      super(fromList, function);
-    }
     private static final long serialVersionUID = -7837562545549389035L;
-  }
-
-  private static class ImmutableArrayList<E> extends AbstractList<E>
-      implements RandomAccess, Serializable {
-    final E[] array;
-
-    /**
-     * @param array underlying array for this ImmutableArrayList. Note that the
-     *     array is <b>not</b> cloned. The caller is responsible for ensuring
-     *     that the array can't "escape".
-     */
-    ImmutableArrayList(E[] array) {
-      this.array = array;
-    }
-    @Override public E get(int index) {
-      return array[index];
-    }
-    @Override public int size() {
-      return array.length;
-    }
-
-    // optimizations
-
-    @Override public Object[] toArray() {
-      Object[] newArray = new Object[array.length];
-      System.arraycopy(array, 0, newArray, 0, array.length);
-      return newArray;
-    }
-    @Override public String toString() {
-      return Arrays.toString(array);
-    }
-    @Override public int hashCode() {
-      return Arrays.hashCode(array);
-    }
-
-    private static final long serialVersionUID = 0x0a2ae799;
   }
 }
