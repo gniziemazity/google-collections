@@ -77,7 +77,8 @@ public final class Preconditions {
    *
    * @param expression a boolean expression
    * @param errorMessage the exception message to use if the check fails; will
-   *     be converted to a string using {@link String#valueOf} only if needed
+   *     be converted to a string using {@link String#valueOf(Object)} only if
+   *     needed
    * @throws IllegalArgumentException if {@code expression} is false
    */
   public static void checkArgument(boolean expression, Object errorMessage) {
@@ -127,7 +128,8 @@ public final class Preconditions {
    *
    * @param expression a boolean expression
    * @param errorMessage the exception message to use if the check fails; will
-   *     be converted to a string using {@link String#valueOf} only if needed
+   *     be converted to a string using {@link String#valueOf(Object)} only if
+   *     needed
    * @throws IllegalStateException if {@code expression} is false
    */
   public static void checkState(boolean expression, Object errorMessage) {
@@ -179,7 +181,8 @@ public final class Preconditions {
    *
    * @param reference an object reference
    * @param errorMessage the exception message to use if the check fails; will
-   *     be converted to a string using {@link String#valueOf} only if needed
+   *     be converted to a string using {@link String#valueOf(Object)} only if
+   *     needed
    * @return the non-null reference that was validated
    * @throws NullPointerException if {@code reference} is null
    */
@@ -235,7 +238,8 @@ public final class Preconditions {
    *
    * @param iterable any {@code Iterable} object
    * @param errorMessage the exception message to use if the check fails; will
-   *     be converted to a string using {@link String#valueOf} only if needed
+   *     be converted to a string using {@link String#valueOf(Object)} only if
+   *     needed
    * @return the non-null {@code iterable} reference just validated
    * @throws NullPointerException if {@code iterable} is null or contains at
    *     least one null element

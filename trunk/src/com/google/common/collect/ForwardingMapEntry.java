@@ -20,16 +20,19 @@ import java.util.Map;
 
 /**
  * A map entry which forwards all its method calls to another map entry.
- * Subclasses should override one or more methods to change or add behavior of
- * the backing map entry as desired per the <a
+ * Subclasses should override one or more methods to modify the behavior of the
+ * backing map entry as desired per the <a
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
- *
+ * 
  * @see ForwardingObject
  * @author Mike Bostock
  */
 public abstract class ForwardingMapEntry<K, V> extends ForwardingObject
     implements Map.Entry<K, V> {
 
+  /**
+   * Constructs a forwarding map entry that forwards to the provided delegate.
+   */
   protected ForwardingMapEntry(Map.Entry<K, V> delegate) {
     super(delegate);
   }

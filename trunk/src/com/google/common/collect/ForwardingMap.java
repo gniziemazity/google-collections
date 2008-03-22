@@ -22,7 +22,7 @@ import java.util.Set;
 
 /**
  * A map which forwards all its method calls to another map. Subclasses should
- * override one or more methods to change or add behavior of the backing map as
+ * override one or more methods to modify the behavior of the backing map as
  * desired per the <a
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
  *
@@ -32,6 +32,9 @@ import java.util.Set;
 public abstract class ForwardingMap<K, V> extends ForwardingObject
     implements Map<K, V> {
 
+  /**
+   * Constructs a forwarding map that forwards to the provided delegate.
+   */
   protected ForwardingMap(Map<K, V> delegate) {
     super(delegate);
   }

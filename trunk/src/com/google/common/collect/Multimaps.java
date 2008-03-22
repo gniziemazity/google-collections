@@ -20,7 +20,6 @@ import com.google.common.base.Nullable;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import com.google.common.base.Supplier;
-
 import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
@@ -211,6 +210,11 @@ public final class Multimaps {
    * method returns instances of a different class than {@code factory.get()}
    * does.
    * 
+   * <p>Call this method only when the simpler methods
+   * {@link #newArrayListMultimap()}, {@link #newHashMultimap()},
+   * {@link #newLinkedHashMultimap()}, {@link #newLinkedListMultimap()}, and
+   * {@link #newTreeMultimap()} won't suffice. 
+   * 
    * @param map place to store the mapping from each key to its corresponding
    *        values
    * @param factory supplier of new empty collections that will each hold all
@@ -238,6 +242,10 @@ public final class Multimaps {
    * method returns instances of a different class than {@code factory.get()}
    * does.
    * 
+   * <p>Call this method only when the simpler methods
+   * {@link #newArrayListMultimap()} and {@link #newLinkedListMultimap()} won't
+   * suffice.
+   *  
    * @param map place to store the mapping from each key to its corresponding
    *        values
    * @param factory supplier of new empty lists that will each hold all values
@@ -265,6 +273,10 @@ public final class Multimaps {
    * method returns instances of a different class than {@code factory.get()}
    * does.
    * 
+   * <p>Call this method only when the simpler methods
+   * {@link #newHashMultimap()}, {@link #newLinkedHashMultimap()}, and
+   * {@link #newTreeMultimap()} won't suffice. 
+   * 
    * @param map place to store the mapping from each key to its corresponding
    *        values
    * @param factory supplier of new empty sets that will each hold all values
@@ -291,6 +303,9 @@ public final class Multimaps {
    * multimap and its returned views. However, the multimaps's {@code get}
    * method returns instances of a different class than {@code factory.get()}
    * does.
+   * 
+   * <p>Call this method only when the simpler method {@link #newTreeMultimap()}
+   * won't suffice. 
    * 
    * @param map place to store the mapping from each key to its corresponding
    *        values

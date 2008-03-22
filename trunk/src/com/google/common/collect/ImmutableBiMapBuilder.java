@@ -28,11 +28,11 @@ import static com.google.common.base.Preconditions.checkState;
  *       = createNumbersMap();
  *
  *   static BiMap&lt;String,Integer&gt; createNumbersMap() {
- *     BiMap&lt;String,Integer&gt; map = StandardBiMap.newInstance();
- *     map.put("one", 1);
- *     map.put("two", 2);
- *     map.put("three", 3);
- *     return StandardBiMap.unmodifiableBiMap(map);
+ *     BiMap&lt;String,Integer&gt; bimap = StandardBiMap.newInstance();
+ *     bimap.put("one", 1);
+ *     bimap.put("two", 2);
+ *     bimap.put("three", 3);
+ *     return StandardBiMap.unmodifiableBiMap(bimap);
  *   }
  * </pre>
  * ... can be rewritten far more simply as ...
@@ -44,13 +44,15 @@ import static com.google.common.base.Preconditions.checkState;
  *       .put("three", 3)
  *       .getBiMap();
  * </pre>
+ * (Actually, for <i>small</i> immutable bimaps, you can use members of the
+ * even-more-convenient {@link Maps#immutableBiMap()} family of methods.)
  *
  * @author Alex Dovlecel
  */
 public class ImmutableBiMapBuilder<K, V> {
   /**
-   * Temporary bimap used for holding the state of the builder before the map
-   * will be created. When the map is created, it is set to {@code null}.
+   * Temporary bimap used for holding the state of the builder before the bimap
+   * will be created. When the bimap is created, it is set to {@code null}.
    */
   private BiMap<K, V> biMap;
 
@@ -63,24 +65,24 @@ public class ImmutableBiMapBuilder<K, V> {
    * Creates a new ImmutableBiMapBuilder with the given expected size.
    *
    * @param expectedSize the approximate number of key-value pairs you expect
-   *     this map to contain
+   *     this bimap to contain
    */
   public ImmutableBiMapBuilder(int expectedSize) {
     biMap = new HashBiMap<K, V>(expectedSize);
   }
 
   /**
-   * Adds a key-value mapping to the map that will be returned by {@code
+   * Adds a key-value mapping to the bimap that will be returned by {@code
    * getBiMap()}.
    *
    * @param key key with which the specified value is to be associated
    * @param value value to be associated with the specified key
-   * @return this map builder (to enable call chaining)
+   * @return this bimap builder (to enable call chaining)
    * @throws IllegalStateException if {@code getBiMap()} has already been
    *     called
    */
   public ImmutableBiMapBuilder<K, V> put(@Nullable K key, @Nullable V value) {
-    checkState(biMap != null, "map has already been created");
+    checkState(biMap != null, "bimap has already been created");
     biMap.put(key, value);
     return this;
   }
@@ -94,7 +96,7 @@ public class ImmutableBiMapBuilder<K, V> {
    *     called
    */
   public BiMap<K, V> getBiMap() {
-    checkState(biMap != null, "map has already been created");
+    checkState(biMap != null, "bimap has already been created");
     try {
       return Maps.unmodifiableBiMap(biMap);
     } finally {

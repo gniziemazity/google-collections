@@ -27,6 +27,9 @@ import java.util.Collection;
 public final class ObjectArrays {
   private ObjectArrays() {}
 
+  /** An empty object array. */
+  public static final Object[] EMPTY_ARRAY = new Object[0];
+
   /**
    * Returns a new array with the specified component type and length.
    *
@@ -39,17 +42,29 @@ public final class ObjectArrays {
   }
 
   /**
+   * Returns a new array with the same type as a reference array, and a given
+   * length.
+   *
+   * @param reference any array of the desired type
+   * @param length the length of the new array
+   */
+  public static <T> T[] newArray(T[] reference, int length) {
+    Class<?> type = reference.getClass().getComponentType();
+
+    // the cast is safe because result.getClass() == reference.getClass()
+    @SuppressWarnings("unchecked")
+    T[] result = (T[]) Array.newInstance(type, length);
+    return result;
+  }
+
+  /**
    * Returns an empty (immutable) array with the same component type as the
    * specified array.
    *
    * @param array the array from which to infer the component type
    */
-  @SuppressWarnings("unchecked")
   public static <T> T[] emptyArray(T[] array) {
-    if (array.length == 0) {
-      return array;
-    }
-    return (T[]) Array.newInstance(array.getClass().getComponentType(), 0);
+    return (array.length == 0) ? array : newArray(array, 0);
   }
 
   /**

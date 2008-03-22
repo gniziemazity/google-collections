@@ -52,7 +52,8 @@ public final class HashMultimap<K, V> extends StandardSetMultimap<K, V> {
    * @see #putAll(Multimap)
    */
   public HashMultimap(Multimap<? extends K, ? extends V> multimap) {
-    this();
+    super(new HashMap<K, Collection<V>>(
+        Maps.capacity(multimap.keySet().size())));
     putAll(multimap);
   }
 

@@ -17,7 +17,6 @@
 package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkArgument;
-
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -59,7 +58,7 @@ public final class EnumBiMap<K extends Enum<K>, V extends Enum<V>>
    * specified map is an {@code EnumBiMap} instance, this constructor behaves
    * identically to {@link #EnumBiMap(EnumBiMap)}. Otherwise, the specified map
    * must contain at least one mapping (in order to determine the new enum
-   * bimap's key type).
+   * bimap's key and value types).
    *
    * @param map the map whose mappings are to be placed in this map
    * @throws IllegalArgumentException if map is not an {@code EnumBiMap}

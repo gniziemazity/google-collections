@@ -67,15 +67,25 @@
  *
  * <h2>Collection Implementations</h2>
  *
- * <h3>of {@link java.util.Map}</h3>
+ * <h3>of {@link java.util.List}</h3>
  * <dl>
- * <dt>{@link com.google.common.collect.ReferenceMap}
+ * <dt>{@link com.google.common.collect.ImmutableList}
+ * </ul>
+ *
+ * <h3>of {@link java.util.Set}</h3>
+ * <dl>
+ * <dt>{@link com.google.common.collect.ImmutableSet}
  * </ul>
  *
  * <h3>of {@link java.util.SortedSet}</h3>
  * <dl>
  * <dt>{@link com.google.common.collect.SortedArraySet}
  * </dl>
+ *
+ * <h3>of {@link java.util.Map}</h3>
+ * <dl>
+ * <dt>{@link com.google.common.collect.ReferenceMap}
+ * </ul>
  *
  * <h3>of {@link com.google.common.collect.BiMap}</h3>
  * <dl>

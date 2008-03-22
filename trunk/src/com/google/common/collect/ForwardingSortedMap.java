@@ -21,7 +21,7 @@ import java.util.SortedMap;
 
 /**
  * A sorted map which forwards all its method calls to another sorted map.
- * Subclasses should override one or more methods to change or add behavior of
+ * Subclasses should override one or more methods to modify the behavior of
  * the backing sorted map as desired per the <a
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
  *
@@ -31,6 +31,9 @@ import java.util.SortedMap;
 public abstract class ForwardingSortedMap<K, V> extends ForwardingMap<K, V>
     implements SortedMap<K, V> {
 
+  /**
+   * Constructs a forwarding sorted map that forwards to the provided delegate.
+   */
   protected ForwardingSortedMap(SortedMap<K, V> delegate) {
     super(delegate);
   }

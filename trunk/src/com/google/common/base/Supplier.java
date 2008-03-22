@@ -21,8 +21,12 @@ package com.google.common.base;
  * be a Factory, Generator, Builder, Closure, or something else entirely. No
  * guarantees are implied by this interface.
  *
- * @param <T> the type of object being supplied
+ * @author Harry Heymann
  */
 public interface Supplier<T> {
+  /**
+   * Retrieve an instance of the appropriate type. The returned object may or
+   * may not be a new instance, depending on the implementation.
+   */
   public T get();
 }

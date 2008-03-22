@@ -17,7 +17,6 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
-
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -63,12 +62,12 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
    * Map entries with an iteration order corresponding to the order in which the
    * key-value pairs were added to the multimap.
    */
-  private final Collection<Map.Entry<K, V>> linkedEntries
-      = Sets.newLinkedHashSet();
+  private final Collection<Map.Entry<K, V>> linkedEntries;
 
   /** Constructs an empty {@code LinkedHashMultimap}. */
   public LinkedHashMultimap() {
     super(new LinkedHashMap<K, Collection<V>>());
+    linkedEntries = Sets.newLinkedHashSet();
   }
 
   /**
@@ -79,7 +78,10 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
    * appears once in the constructed multimap.
    */
   public LinkedHashMultimap(Multimap<? extends K, ? extends V> multimap) {
-    this();
+    super(new LinkedHashMap<K, Collection<V>>(
+        Maps.capacity(multimap.keySet().size())));
+    linkedEntries =
+        new LinkedHashSet<Map.Entry<K, V>>(Maps.capacity(multimap.size()));
     putAll(multimap);
   }
 

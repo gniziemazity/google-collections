@@ -17,7 +17,7 @@
 package com.google.common.collect;
 
 /**
- * Provides an implementation of {@code Object#toString} for {@code Iterable}
+ * Provides an implementation of {@link Object#toString} for {@link Iterable}
  * instances.
  *
  * @author Mike Bostock

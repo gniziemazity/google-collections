@@ -17,7 +17,6 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -162,8 +161,8 @@ public interface Multiset<E> extends Collection<E> {
 
   /**
    * Removes <b>all</b> occurrences of the specified element from this multiset.
-   * This method complements {@link Multiset#remove}, which removes only one
-   * occurrence at a time.
+   * This method complements {@link Multiset#remove(Object)}, which removes only
+   * one occurrence at a time.
    *
    * TODO: Nuke this.  Use setCount(e, 0).
    *
@@ -219,9 +218,7 @@ public interface Multiset<E> extends Collection<E> {
    * <p>If the element set supports any removal operations, these necessarily
    * cause <b>all</b> occurrences of the removed element(s) to be removed from
    * the multiset. Implementations are not expected to support the add
-   * operations, although this is possible (for example, one could define that
-   * adding an element to a multiset's element set causes, say, 42 occurrences
-   * of that element to be added to the multiset).
+   * operations, although this is possible.
    *
    * <p>A common use for the element set is to find the number of distinct
    * elements in the multiset: {@code elementSet().size()}.
@@ -232,10 +229,10 @@ public interface Multiset<E> extends Collection<E> {
 
   /**
    * Returns a view of the contents of this multiset, grouped into {@code
-   * Multiset.Entry} instances, each providing both an element of the multiset
-   * and the count of that element. This set contains exactly one entry for
-   * each distinct element in the multiset (thus it always has the same size as
-   * the {@link #elementSet}). The order of the elements in the element set is
+   * Multiset.Entry} instances, each providing an element of the multiset and
+   * the count of that element. This set contains exactly one entry for each
+   * distinct element in the multiset (thus it always has the same size as the
+   * {@link #elementSet}). The order of the elements in the element set is
    * unspecified.
    *
    * <p>The entry set is backed by the same data as the multiset, so any change
@@ -257,7 +254,7 @@ public interface Multiset<E> extends Collection<E> {
    * are of this class. A multiset implementation may return Entry instances
    * that are either live "read-through" views to the Multiset, or immutable
    * snapshots. Note that this type is unrelated to the similarly-named type
-   * {@link java.util.Map.Entry}.
+   * {@code Map.Entry}.
    */
   interface Entry<E> {
 

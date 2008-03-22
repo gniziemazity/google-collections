@@ -26,6 +26,10 @@ import com.google.common.collect.Multiset.Entry;
  * @author Mike Bostock
  */
 public abstract class AbstractMultisetEntry<E> implements Entry<E> {
+  /**
+   * Indicates whether an object equals this entry, following the behavior
+   * specified in {@link Entry#equals}.
+   */
   @Override public boolean equals(Object o) {
     if (o == this) {
       return true;
@@ -38,15 +42,17 @@ public abstract class AbstractMultisetEntry<E> implements Entry<E> {
         && (e.getCount() == getCount());
   }
 
+  /**
+   * Return this entry's hash code, following the behavior specified in
+   * {@link Entry#hashCode}.
+   */
   @Override public int hashCode() {
     E e = getElement();
     return ((e == null) ? 0 : e.hashCode()) ^ getCount();
   }
 
   /**
-   * {@inheritDoc}
-   *
-   * <p>Returns a string representation of this multiset entry. The string
+   * Returns a string representation of this multiset entry. The string
    * representation consists of the associated element if the associated count
    * is one, and otherwise the associated element followed by the characters " x
    * " (space, x and space) followed by the count. Elements and counts are

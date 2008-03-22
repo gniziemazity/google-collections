@@ -17,11 +17,11 @@
 package com.google.common.collect;
 
 import com.google.common.base.Function;
+import com.google.common.base.Functions;
 import com.google.common.base.Nullable;
 import com.google.common.base.Objects;
+import static com.google.common.base.Preconditions.checkContentsNotNull;
 import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -30,7 +30,13 @@ import java.util.Map;
 /**
  * Standard comparators and utilities for creating and working with comparators.
  *
- * <p>{@link Comparator} instances returned by this class are serializable.
+ * <p>Some of these methods return an {@link Ordering}, a serializable class
+ * that implements {@link Comparator} and includes many additional methods.
+ * 
+ * <p>Several method signatures include {@code <C extends Comparable>} with a
+ * raw {@link Comparable}, instead of
+ * {@code <C extends Comparable<? super C>}. That's necessary to support classes
+ * defined without generics.
  *
  * @author Jared Levy
  * @author Kevin Bourrillion
@@ -40,22 +46,21 @@ public final class Comparators {
   private Comparators() {}
 
   /**
-   * Returns a comparator that uses the natural ordering of values as defined by
-   * {@code Comparable}.
+   * Returns a comparator that uses the natural ordering of the values.
    *
    * @see java.util.Collections#reverseOrder()
    */
-  @SuppressWarnings("unchecked")
-  public static <C extends Comparable> Comparator<C> naturalOrder() {
-    return (Comparator<C>) NATURAL_ORDER;
+  @SuppressWarnings("unchecked")   // see explanation in class Javadoc
+  public static <C extends Comparable> Ordering<C> naturalOrder() {
+    return (Ordering<C>) NATURAL_ORDER;
   }
 
   /** @see #naturalOrder */
-  @SuppressWarnings("unchecked")
-  private static final Comparator<Comparable> NATURAL_ORDER
-      = new SerializableComparator<Comparable>() {
+  @SuppressWarnings("unchecked")   // see explanation in class Javadoc
+  private static final Ordering<Comparable> NATURAL_ORDER
+      = new Ordering<Comparable>() {
     public int compare(Comparable left, Comparable right) {
-      if ((left == right)) {
+      if (left == right) {
         return 0;
       }
 
@@ -78,11 +83,11 @@ public final class Comparators {
 
   /**
    * Returns a comparator that treats {@code null} as less than all other
-   * values, and uses {@code comparator} to compare non-null values.
+   * values and uses {@code comparator} to compare non-null values.
    */
-  public static <T> Comparator<T> nullLeastOrder(Comparator<T> comparator) {
+  public static <T> Ordering<T> nullLeastOrder(Comparator<T> comparator) {
     checkNotNull(comparator);
-    return new NullHandlingComparator<T>(comparator) {
+    return new NullHandlingOrdering<T>(comparator) {
       @Override int compareNullAndNonNull() {
         return -1;
       }
@@ -91,25 +96,25 @@ public final class Comparators {
   }
 
   /**
-   * Returns a comparator that uses the natural ordering of values, but also
+   * Returns a comparator that uses the natural ordering of the values, but also
    * handles null values, treating them as less than all other values.
    */
-  @SuppressWarnings("unchecked")
-  public static <C extends Comparable> Comparator<C> nullLeastOrder() {
-    return (Comparator<C>) NULL_LEAST_ORDER;
+  @SuppressWarnings("unchecked")   // see explanation in class Javadoc
+  public static <C extends Comparable> Ordering<C> nullLeastOrder() {
+    return (Ordering<C>) NULL_LEAST_ORDER;
   }
 
-  @SuppressWarnings("unchecked")
-  private static final Comparator<Comparable> NULL_LEAST_ORDER
+  @SuppressWarnings("unchecked")   // see explanation in class Javadoc
+  private static final Ordering<Comparable> NULL_LEAST_ORDER
       = nullLeastOrder(NATURAL_ORDER);
 
   /**
    * Returns a comparator that treats {@code null} as greater than all other
-   * values, and uses the given comparator to compare non-null values.
+   * values and uses the given comparator to compare non-null values.
    */
-  public static <T> Comparator<T> nullGreatestOrder(Comparator<T> comparator) {
+  public static <T> Ordering<T> nullGreatestOrder(Comparator<T> comparator) {
     checkNotNull(comparator);
-    return new NullHandlingComparator<T>(comparator) {
+    return new NullHandlingOrdering<T>(comparator) {
       @Override int compareNullAndNonNull() {
         return 1;
       }
@@ -118,16 +123,17 @@ public final class Comparators {
   }
 
   /**
-   * Returns a comparator that uses the natural ordering of values, but also
+   * Returns a comparator that uses the natural ordering of the values, but also
    * handles null values, treating them as greater than all other values.
    */
-  @SuppressWarnings("unchecked")
-  public static <C extends Comparable> Comparator<C> nullGreatestOrder() {
-    return (Comparator<C>) NULL_GREATEST_ORDER;
+  @SuppressWarnings("unchecked")   // see explanation in class Javadoc
+  public static <C extends Comparable> Ordering<C> nullGreatestOrder() {
+    return (Ordering<C>) NULL_GREATEST_ORDER;
   }
 
-  @SuppressWarnings("unchecked")
-  private static final Comparator<Comparable> NULL_GREATEST_ORDER
+  // TODO: Add readResolve methods to NULL_GREATEST_ORDER and NULL_LEAST_ORDER
+  @SuppressWarnings("unchecked")   // see explanation in class Javadoc
+  private static final Ordering<Comparable> NULL_GREATEST_ORDER
       = nullGreatestOrder(NATURAL_ORDER);
 
   /**
@@ -138,6 +144,10 @@ public final class Comparators {
    * <p>The returned comparator is a "view" of the specified {@code rest} array;
    * changes to the array will be reflected in the behavior of the returned
    * comparator.
+   * 
+   * <p>TODO: Add {@code compound} methods that take 2, 3, or 4 arguments, so
+   * the calling code doesn't need to say
+   * {@code @SuppressWarnings("unchecked")}.
    *
    * @param primary the primary comparator
    * @param secondary the secondary comparator
@@ -145,12 +155,8 @@ public final class Comparators {
    * @see #compound(List)
    */
   @SuppressWarnings("unchecked") // TODO: check that this is right
-  public static <T> Comparator<T> compound(Comparator<? super T> primary,
+  public static <T> Ordering<T> compound(Comparator<? super T> primary,
       Comparator<? super T> secondary, Comparator<? super T>... rest) {
-    checkNotNull(primary);
-    checkNotNull(secondary);
-    checkNotNull(rest);
-
     // TODO: is this really the best way?  if so, explain why.
     Comparator<T> primaryT = (Comparator<T>) primary;
     Comparator<T> secondaryT = (Comparator<T>) secondary;
@@ -169,17 +175,17 @@ public final class Comparators {
    *
    * @param comparators a collection of comparators to try in order
    */
-  public static <T> Comparator<T> compound(
+  public static <T> Ordering<T> compound(
       List<? extends Comparator<? super T>> comparators) {
     return new CompoundOrder<T>(comparators);
   }
 
   /** @see Comparators#compound(List) */
-  static class CompoundOrder<T> implements SerializableComparator<T> {
+  static class CompoundOrder<T> extends Ordering<T> {
     private final List<? extends Comparator<? super T>> comparators;
 
     CompoundOrder(List<? extends Comparator<? super T>> comparators) {
-      this.comparators = checkNotNull(comparators);
+      this.comparators = checkContentsNotNull(comparators);
     }
 
     public int compare(T left, T right) {
@@ -212,22 +218,22 @@ public final class Comparators {
 
   /**
    * Creates a comparator that compares any two items by applying a function to
-   * each of them and using the natural ordering of the results. The returned
-   * comparator will generally fail if the function returns {@code null}.
+   * each of them and using the natural ordering of the results.
    *
-   * @param function the function returning the value to compare
+   * @param function the function returning the value to compare. The function
+   *     should never return {@code null}.
    * @return the generated comparator
    */
-  @SuppressWarnings("unchecked")
-  public static <F, T extends Comparable> Comparator<F>
+  @SuppressWarnings("unchecked")   // see explanation in class Javadoc
+  public static <F, T extends Comparable> Ordering<F>
       fromFunction(Function<F, T> function) {
     return new TransformingNaturalOrder<F, T>(function);
   }
 
   /** @see Comparators#fromFunction(Function) */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("unchecked")   // see explanation in class Javadoc
   private static class TransformingNaturalOrder<F, T extends Comparable>
-      implements Comparator<F>, Serializable {
+      extends Ordering<F> {
     private final Function<F, T> function;
 
     TransformingNaturalOrder(Function<F, T> function) {
@@ -271,13 +277,13 @@ public final class Comparators {
    * @param comparator the comparator that receives the function output
    * @return the generated comparator
    */
-  public static <F, T> Comparator<F> fromFunction(
+  public static <F, T> Ordering<F> fromFunction(
       Function<F, T> function, Comparator<? super T> comparator) {
     return new TransformingOrder<F, T>(function, comparator);
   }
 
   /** @see Comparators#fromFunction(Function,Comparator) */
-  static class TransformingOrder<F, T> implements SerializableComparator<F> {
+  static class TransformingOrder<F, T> extends Ordering<F> {
     private final Function<F, T> function;
     private final Comparator<? super T> comparator;
 
@@ -309,33 +315,22 @@ public final class Comparators {
 
   /**
    * A comparator that compares objects by the natural ordering of their string
-   * representations as returned by {@code toString}. Does not allow null
+   * representations as returned by {@code toString}. Does not support null
    * values.
    */
-  public static final Comparator<Object> STRING_FORM_ORDER
-      = new SerializableComparator<Object>() {
-    public int compare(Object left, Object right) {
-      return left.toString().compareTo(right.toString());
-    }
-
-    // preserve singleton-ness, so equals() and hashCode() work correctly
-    private Object readResolve() {
-      return STRING_FORM_ORDER;
-    }
-
-    private static final long serialVersionUID = -8779076514758027173L;
-  };
-
+  public static final Ordering<Object> STRING_FORM_ORDER =
+      fromFunction(Functions.TO_STRING);
+  
   /**
-   * Returns the smaller of the two values, according to their <i>natural
-   * ordering</i>. If the values are equal, the first is returned.
-   *
+   * Returns the smaller of the two values, according to their natural ordering.
+   * If the values are equal, the first is returned.
+   * 
    * @param a non-null value to compare, returned if less than or equal to b.
    * @param b non-null value to compare.
-   * @throws ClassCastException if the parameters are not <i>mutually
-   *     comparable</i> (for example, strings and integers).
+   * @throws ClassCastException if the parameters are not mutually comparable
+   *         (for example, a string and an integer).
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("unchecked")   // see explanation in class Javadoc
   public static <T extends Comparable> T min(T a, T b) {
     /*
      * Let this throw a ClassCastException if T is a bizarre Comparable that
@@ -347,15 +342,15 @@ public final class Comparators {
   }
 
   /**
-   * Returns the larger of the two values, according to their <i>natural
-   * ordering</i>. If the values are equal, the first is returned.
-   *
+   * Returns the larger of the two values, according to their natural ordering.
+   * If the values are equal, the first is returned.
+   * 
    * @param a non-null value to compare, returned if greater than or equal to b.
    * @param b non-null value to compare.
-   * @throws ClassCastException if the parameters are not <i>mutually
-   *     comparable</i> (for example, strings and integers).
+   * @throws ClassCastException if the parameters are not mutually comparable
+   *         (for example, a string and an integer).
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("unchecked")   // see explanation in class Javadoc
   public static <T extends Comparable> T max(T a, T b) {
     /*
      * Let this throw a ClassCastException if T is a bizarre Comparable that
@@ -368,76 +363,73 @@ public final class Comparators {
 
   /**
    * Returns the smaller of the two values according to the specified
-   * comparator. If the values are equal, the first is returned.
+   * comparator. If the values are equal, the first is returned. Null values
+   * are allowed if the comparator supports them.
    *
-   * @param a non-null value to compare, returned if less than or equal to b.
-   * @param b non-null value to compare.
-   * @throws ClassCastException if the parameters are not <i>mutually
-   *     comparable</i> using the specified comparator.
+   * @param a value to compare, returned if less than or equal to b
+   * @param b value to compare
    */
-  public static <T> T min(Comparator<? super T> comparator, T a, T b) {
-    // TODO: allow null?
-    checkNotNull(a);
-    checkNotNull(b);
+  public static <T> T min(Comparator<? super T> comparator, @Nullable T a,
+      @Nullable T b) {
     return comparator.compare(a, b) <= 0 ? a : b;
   }
 
   /**
    * Returns the larger of the two values according to the specified comparator.
-   * If the values are equal, the first is returned.
+   * If the values are equal, the first is returned. Null values are allowed if
+   * the comparator supports them.
    *
-   * @param a non-null value to compare, returned if greater than or equal to b.
-   * @param b non-null value to compare.
-   * @throws ClassCastException if the parameters are not <i>mutually
-   *     comparable</i> using the specified comparator.
+   * @param a value to compare, returned if greater than or equal to b
+   * @param b value to compare
    */
-  public static <T> T max(Comparator<? super T> comparator, T a, T b) {
-    // TODO: allow null?
-    checkNotNull(a);
-    checkNotNull(b);
+  public static <T> T max(Comparator<? super T> comparator, @Nullable T a,
+      @Nullable T b) {
     return comparator.compare(a, b) >= 0 ? a : b;
   }
 
   /**
-   * Returns a comparator that compares objects by the order in which they
-   * appear in a given list. Only objects present in the list (according to
-   * {@link Object#equals}) may be compared. This comparator imposes a "partial
-   * ordering" over the type {@code T}. Subsequent changes to the {@code
-   * valuesInOrder} list will have no effect on the returned comparator.
-   *
+   * Returns a comparator that compares objects according to the order in
+   * which they appear in the given list. Only objects present in the list
+   * (according to {@link Object#equals}) may be compared. This comparator
+   * imposes a "partial ordering" over the type {@code T}. Subsequent changes
+   * to the {@code valuesInOrder} list will have no effect on the returned
+   * comparator. Null values in the list are supported.
+   * 
    * @param valuesInOrder the values that the returned comparator will be able
-   *     to compare, in the order the comparator should follow
+   *        to compare, in the order the comparator should follow
    * @return the comparator described above
    * @throws IllegalArgumentException if {@code valuesInOrder} contains any
-   *     duplicate values (according to {@link Object#equals})
+   *         non-consecutive duplicate values (according to
+   *         {@link Object#equals})
    */
-  public static <T> Comparator<T> givenOrder(List<T> valuesInOrder) {
+  public static <T> Ordering<T> givenOrder(List<T> valuesInOrder) {
     return new GivenOrder<T>(valuesInOrder);
   }
 
   /**
-   * Returns a comparator that compares objects by the order in which they are
-   * given to this method. Only objects present in the argument list (according
-   * to {@link Object#equals}) may be compared. This comparator imposes a
-   * "partial ordering" over the type {@code T}.
-   *
+   * Returns the comparator that compares objects according to the order in
+   * which they are given to this method. Only objects present in the argument
+   * list (according to {@link Object#equals}) may be compared. This comparator
+   * imposes a "partial ordering" over the type {@code T}. Null values in the
+   * argument list are supported.
+   * 
    * @param leastValue the value which the returned comparator should consider
-   *     the "least" of all values
+   *        the "least" of all values
    * @param remainingValuesInOrder the rest of the values that the returned
-   *     comparator will be able to compare, in the order the comparator should
-   *     follow
+   *        comparator will be able to compare, in the order the comparator
+   *        should follow
    * @return the comparator described above
-   * @throws IllegalArgumentException if any duplicate values (according to
-   *     {@link Object#equals}) are present among {@code leastValue} and {@code
-   *     remainingValuesInOrder}
+   * @throws IllegalArgumentException if any non-consecutive duplicate values
+   *         (according to {@link Object#equals}) are present among the method
+   *         arguments         
    */
-  public static <T> Comparator<T> givenOrder(
+  public static <T> Ordering<T> givenOrder(
       @Nullable T leastValue, T... remainingValuesInOrder) {
     return givenOrder(Lists.asList(leastValue, remainingValuesInOrder));
   }
 
   /** @see Comparators#givenOrder(List) */
-  private static class GivenOrder<T> implements SerializableComparator<T> {
+  private static class GivenOrder<T> extends Ordering<T> {
     final Map<T, Integer> rankMap;
 
     GivenOrder(List<T> valuesInOrder) {
@@ -445,7 +437,7 @@ public final class Comparators {
     }
 
     public int compare(T left, T right) {
-      return rank(left) - rank(right); // both are nonnegative
+      return rank(left) - rank(right);   // safe because both are nonnegative
     }
 
     int rank(T value) {
@@ -459,13 +451,17 @@ public final class Comparators {
     static <T> Map<T, Integer> buildRankMap(Collection<T> valuesInOrder) {
       Map<T, Integer> ranks
           = Maps.newHashMapWithExpectedSize(valuesInOrder.size());
+      T previousValue = null;
       int rank = 0;
       for (T value : valuesInOrder) {
-        Integer priorRank = ranks.put(value, rank);
-        if (priorRank != null) {
-          throw new DuplicateValueException(value, priorRank, rank);
+        if ((rank == 0) || !Objects.equal(value, previousValue)) {
+          Integer priorRank = ranks.put(value, rank);
+          if (priorRank != null) {
+            throw new DuplicateValueException(value, priorRank, rank);
+          }
         }
         rank++;
+        previousValue = value;
       }
       return ranks;
     }
@@ -491,6 +487,8 @@ public final class Comparators {
    * ClassCastException may seem odd, but it fits the spirit of the
    * Comparator.compare() specification, if you consider that we are handling
    * what is conceptually a "subtype" of T.
+   * 
+   * TODO: Consider making this exception public.
    */
   // @VisibleForTesting
   static class IncomparableValueException extends ClassCastException {
@@ -504,8 +502,9 @@ public final class Comparators {
 
   /**
    * Exception thrown when a duplicate value is found in a list or array which
-   * is not expected to contain any. TODO: this can probably be reused in a
-   * couple places.
+   * is not expected to contain any.
+   * 
+   * TODO: Consider making this exception public.
    */
   // @VisibleForTesting
   static class DuplicateValueException extends IllegalArgumentException {
@@ -527,7 +526,7 @@ public final class Comparators {
    * returned is the same as that of the value that would be returned by the
    * call:
    *
-   * <pre>  new Byte(a).compareTo(new Byte(b))</pre>
+   * <pre>  Byte.valueOf(a).compareTo(Byte.valueOf(b))</pre>
    *
    * @param a the first {@code byte} to compare
    * @param b the second {@code byte} to compare
@@ -543,7 +542,7 @@ public final class Comparators {
    * returned is the same as that of the value that would be returned by the
    * call:
    *
-   * <pre>  new Character(a).compareTo(new Character(b))</pre>
+   * <pre>  Character.valueOf(a).compareTo(Character.valueOf(b))</pre>
    *
    * @param a the first {@code char} to compare
    * @param b the second {@code char} to compare
@@ -559,7 +558,7 @@ public final class Comparators {
    * returned is the same as that of the value that would be returned by the
    * call:
    *
-   * <pre>  new Short(a).compareTo(new Short(b))</pre>
+   * <pre>  Short.valueOf(a).compareTo(Short.valueOf(b))</pre>
    *
    * @param a the first {@code short} to compare
    * @param b the second {@code short} to compare
@@ -575,7 +574,7 @@ public final class Comparators {
    * returned is the same as that of the value that would be returned by the
    * call:
    *
-   * <pre>  new Integer(a).compareTo(new Integer(b))</pre>
+   * <pre>  Integer.valueOf(a).compareTo(Integer.valueOf(b))</pre>
    *
    * @param a the first {@code int} to compare
    * @param b the second {@code int} to compare
@@ -591,7 +590,7 @@ public final class Comparators {
    * returned is the same as that of the value that would be returned by the
    * call:
    *
-   * <pre>  new Long(a).compareTo(new Long(b))</pre>
+   * <pre>  Long.valueOf(a).compareTo(Long.valueOf(b))</pre>
    *
    * @param a the first {@code long} to compare
    * @param b the second {@code long} to compare
@@ -607,7 +606,7 @@ public final class Comparators {
    * returned is the same as that of the value that would be returned by the
    * call:
    *
-   * <pre>  new Double(a).compareTo(new Double(b))</pre>
+   * <pre>  Double.valueOf(a).compareTo(Double.valueOf(b))</pre>
    *
    * @param a the first {@code double} to compare
    * @param b the second {@code double} to compare
@@ -624,7 +623,7 @@ public final class Comparators {
    * returned is the same as that of the value that would be returned by the
    * call:
    *
-   * <pre>  new Float(a).compareTo(new Float(b))</pre>
+   * <pre>  Float.valueOf(a).compareTo(Float.valueOf(b))</pre>
    *
    * @param a the first {@code float} to compare
    * @param b the second {@code float} to compare
@@ -641,7 +640,7 @@ public final class Comparators {
    * returned is the same as that of the value that would be returned by the
    * call:
    *
-   * <pre>  new Boolean(a).compareTo(new Boolean(b))</pre>
+   * <pre>  Boolean.valueOf(a).compareTo(Boolean.valueOf(b))</pre>
    *
    * @param a the first {@code boolean} to compare
    * @param b the second {@code boolean} to compare
@@ -653,11 +652,10 @@ public final class Comparators {
     return (a == b) ? 0 : (a ? 1 : -1);
   }
 
-  private static abstract class NullHandlingComparator<T>
-      implements SerializableComparator<T> {
+  private static abstract class NullHandlingOrdering<T> extends Ordering<T> {
     final Comparator<T> comparator;
 
-    public NullHandlingComparator(Comparator<T> comparator) {
+    public NullHandlingOrdering(Comparator<T> comparator) {
       this.comparator = checkNotNull(comparator);
     }
 
@@ -681,8 +679,11 @@ public final class Comparators {
     abstract int compareNullAndNonNull();
 
     @Override public boolean equals(Object object) {
+      if (object == null) {
+        return false;
+      }
       if (object.getClass() == getClass()) {
-        NullHandlingComparator<?> that = (NullHandlingComparator<?>) object;
+        NullHandlingOrdering<?> that = (NullHandlingOrdering<?>) object;
         return (this.comparator).equals(that.comparator);
       }
       return false;

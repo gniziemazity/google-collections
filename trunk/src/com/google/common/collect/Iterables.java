@@ -18,9 +18,9 @@ package com.google.common.collect;
 
 import com.google.common.base.Function;
 import com.google.common.base.Nullable;
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Predicate;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.SortedSet;
 
 /**
  * This class contains static utility methods that operate on or return objects
@@ -41,9 +42,18 @@ import java.util.Set;
 public final class Iterables {
   private Iterables() {}
 
+  private static final Iterable<Object> EMPTY_ITERABLE = new Iterable<Object>()
+  {
+    public Iterator<Object> iterator() {
+      return Iterators.EMPTY_ITERATOR;
+    }
+  };
+
   /** Returns the empty Iterable. */
+  // Casting to any type is safe since there are no actual elements.
+  @SuppressWarnings("unchecked")
   public static <T> Iterable<T> emptyIterable() {
-    return Collections.emptySet();
+    return (Iterable<T>) EMPTY_ITERABLE;
   }
 
   /** Returns an unmodifiable view of {@code iterable}. */
@@ -59,6 +69,15 @@ public final class Iterables {
       }
       // no equals and hashCode; it would break the contract!
     };
+  }
+
+  /**
+   * Returns the number of elements present in {@code iterable}.
+   */
+  public static int size(Iterable<?> iterable) {
+    return (iterable instanceof Collection<?>)
+        ? ((Collection<?>) iterable).size()
+        : Iterators.size(iterable.iterator());
   }
 
   /**
@@ -154,10 +173,12 @@ public final class Iterables {
    */
   public static <T> Iterable<T> cycle(final Iterable<T> iterable) {
     checkNotNull(iterable);
-    // TODO: do NOT extend AbstractIterable!
-    return new AbstractIterable<T>() {
+    return new Iterable<T>() {
       public Iterator<T> iterator() {
         return Iterators.cycle(iterable);
+      }
+      @Override public String toString() {
+        return iterable.toString() + " (cycled)";
       }
     };
   }
@@ -300,7 +321,7 @@ public final class Iterables {
 
   /**
    * Returns all instances of {@code type} found in {@code unfiltered}. Similar
-   * to {@link #filter(Iterable,Predicate)}.
+   * to {@link #filter(Iterable, Predicate)}.
    *
    * @param unfiltered an iterable containing objects of any type
    * @param type the type of elements desired
@@ -455,5 +476,135 @@ public final class Iterables {
         return rotated.iterator();
       }
     };
+  }
+
+  /**
+   * Variant of {@code Iterators.limit(Iterator,int)}, which accepts and
+   * returns an iterable instead of an iterator.
+   *
+   * @see Iterators#limit(Iterator, int)
+   */
+  public static <T> Iterable<T> limit(
+      final Iterable<T> iterable, final int limit) {
+    checkNotNull(iterable);
+    return new AbstractIterable<T>() {
+      public Iterator<T> iterator() {
+        return Iterators.limit(iterable.iterator(), limit);
+      }
+    };
+  }
+
+  /**
+   * Returns whether the given iterable contains no elements.
+   *
+   * @return {@code true} if the iterable has no elements, {@code false} if the
+   *     iterable has one or more elements
+   */
+  public static <T> boolean isEmpty(Iterable<T> iterable) {
+    return !iterable.iterator().hasNext();
+  }
+
+  /**
+   * Returns a view of {@code iterable} whose {@link Iterator} skips its first
+   * {@code numberToSkip} elements or, if {@code iterable} contains fewer than
+   * {@code numberToSkip} elements, skips all its elements.
+   * <p>
+   * Structural modifications to the underlying {@link Iterable}
+   * <strong>before</strong> a call to {@link Iterable#iterator() iterator()}
+   * are reflected in the returned {@code Iterator}. That is, the returned
+   * {@code Iterator} skips the first {@code numberToSkip} elements that exist
+   * when the {@code Iterator} is created, not when {@code skip()} is called.
+   * <p>
+   * Structural modifications to the underlying {@link Iterable}
+   * <strong>after</strong> a call to {@code iterator()} may result in undefined
+   * behavior by the returned {@code Iterator}, depending upon the
+   * concurrent-modification policy of the underlying {@code Iterable}.
+   * Non-structural changes to the underlying {@code Iterable} are always
+   * reflected in the returned {@code Iterable}.
+   * <p>
+   * {@link Iterator#remove()} is supported if iterators of the underlying
+   * {@code Iterable} supports it. (Note that it is <strong>not</strong>
+   * possible to delete the last skipped element by immediately calling
+   * {@code remove()} on a new iterator, as the {@code Iterator} contract
+   * requires that a call to {@code remove()} before a call to
+   * {@link Iterator#next() next()} will throw an
+   * {@link IllegalStateException}.)
+   */
+  public static <T> Iterable<T> skip(final Iterable<T> iterable,
+      final int numberToSkip) {
+    checkNotNull(iterable);
+    checkArgument(numberToSkip >= 0, "number to skip cannot be negative");
+
+    if (iterable instanceof List<?>) {
+      final List<T> list = (List<T>) iterable;      
+      return new Iterable<T>() {
+        public Iterator<T> iterator() {           
+          return (numberToSkip >= list.size())
+              ? Iterators.<T>emptyIterator() 
+              : list.subList(numberToSkip, list.size()).iterator();
+        }        
+      };
+    }
+    
+    return new Iterable<T>() {
+      public Iterator<T> iterator() {
+        final Iterator<T> iterator = iterable.iterator();
+
+        Iterators.skip(iterator, numberToSkip);
+
+        /*
+         * We can't just return the iterator because an immediate call to its
+         * remove() method would remove one of the skipped elements instead of
+         * throwing an IllegalStateException.
+         */
+        return new Iterator<T>() {
+          boolean atStart = true;
+
+          public boolean hasNext() {
+            return iterator.hasNext();
+          }
+
+          public T next() {
+            if (!hasNext()) {
+              throw new NoSuchElementException();
+            }
+
+            try {
+              return iterator.next();
+            } finally {
+              atStart = false;
+            }
+          }
+
+          public void remove() {
+            if (atStart) {
+              throw new IllegalStateException();
+            }
+            iterator.remove();
+          }
+        };
+      }
+    };
+  }
+
+  /**
+   * Returns the last element of {@code iterable}, or throws a
+   * {@link NoSuchElementException} if it has no elements.
+   */
+  public static <T> T getLast(Iterable<T> iterable) {
+    if (iterable instanceof List<?>) {
+      List<T> list = (List<T>) iterable;
+      if (list.isEmpty()) {
+        throw new NoSuchElementException();
+      }
+      return list.get(list.size() - 1);
+    }
+    
+    if (iterable instanceof SortedSet<?>) {
+      SortedSet<T> sortedSet = (SortedSet<T>) iterable;
+      return sortedSet.last();
+    }
+    
+    return Iterators.getLast(iterable.iterator());    
   }
 }

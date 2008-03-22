@@ -21,7 +21,6 @@ import com.google.common.base.FinalizableWeakReference;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.ReferenceType;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -51,8 +50,8 @@ import java.util.concurrent.ConcurrentMap;
  * program, it follows that this map is always subject to concurrent
  * modifications, whether or not the caller exposes it to multiple application
  * threads. The usual caveats about the reliability of methods such as {@link
- * #size} and {@link #equals} apply; for example, {@link #size} may be observed
- * to remain unchanged for a short time after an entry was reclaimed.
+ * #size} and {@link Map#equals} apply; for example, {@link #size} may be
+ * observed to remain unchanged for a short time after an entry was reclaimed.
  *
  * <p>This implementation does not permit null keys or values. To determine
  * equality to a key or value, this implementation uses {@link Object#equals}
@@ -64,6 +63,9 @@ import java.util.concurrent.ConcurrentMap;
  * only identity-based equality for keys. When possible, {@code ReferenceMap}
  * should be preferred over the JDK collection, for its concurrency and greater
  * flexibility.
+ *
+ * <p>Though this class implements {@link Serializable}, serializing reference
+ * maps with weak or soft references leads to unpredictable results.
  *
  * @author Bob Lee
  * @author Kevin Bourrillion

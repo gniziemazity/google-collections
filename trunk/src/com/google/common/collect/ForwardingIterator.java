@@ -20,16 +20,19 @@ import java.util.Iterator;
 
 /**
  * An iterator which forwards all its method calls to another iterator.
- * Subclasses should override one or more methods to change or add behavior of
- * the backing iterator as desired per the <a
+ * Subclasses should override one or more methods to modify the behavior of the
+ * backing iterator as desired per the <a
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
- *
+ * 
  * @see ForwardingObject
  * @author Kevin Bourrillion
  */
 public abstract class ForwardingIterator<T> extends ForwardingObject
     implements Iterator<T> {
 
+  /**
+   * Constructs a forwarding iterator that forwards to the provided delegate.
+   */
   protected ForwardingIterator(Iterator<T> delegate) {
     super(delegate);
   }

@@ -19,13 +19,16 @@ package com.google.common.collect;
 import com.google.common.base.Nullable;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-
+import com.google.common.base.ReferenceType;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -33,6 +36,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -62,10 +66,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Kevin Bourrillion
  */
 public final class Sets {
+  private Sets() {}
+
   private static final SortedSet<?> EMPTY_SORTED_SET
       = new EmptySortedSet<Object>();
-
-  private Sets() {}
 
   /**
    * Returns an immutable SortedSet instance containing the given elements
@@ -184,90 +188,6 @@ public final class Sets {
   }
 
   /**
-   * Returns an immutable Set instance containing the given elements.
-   *
-   * <p>Unlike an <i>unmodifiable</i> set such as that returned by {@code
-   * Collections.unmodifiableSet()}, which provides a read-only view of an
-   * underlying set which may itself be mutable, an <i>immutable</i> set makes a
-   * copy of the original set or collection, so that changes to the original are
-   * not reflected in the immutable set.
-   *
-   * <p>Immutability has two important advantages over unmodifiability. First,
-   * it allows the hash code to be computed once and cached, rather than
-   * computed every time it is needed, which takes O(n) time for a set of n
-   * elements. Second, it prevents <i>any</i> inadvertent modification of the
-   * value of the set. This is critical, for example, if the set is an element
-   * of a {@code HashSet} or a key in a {@code HashMap}.
-   *
-   * <p><b>Note:</b> due to a bug in javac 1.5.0_06, we cannot support the
-   * following:
-   *
-   * <p>{@code Set<Base> set = Sets.immutableSet(sub1, sub2);}
-   *
-   * <p>where {@code sub1} and {@code sub2} are references to subtypes of {@code
-   * Base}, not of {@code Base} itself. To get around this, you must use:
-   *
-   * <p>{@code Set<Base> set = Sets.<Base>immutableSet(sub1, sub2);}
-   *
-   * <p><b>Note:</b> If {@code <E>} is an {@code enum} type, use {@link
-   * #immutableEnumSet} instead.
-   *
-   * @param elements the elements that the set should contain
-   * @return an immutable {@code Set} instance containing those elements, minus
-   *     duplicates
-   */
-  public static <E> Set<E> immutableSet(E... elements) {
-    switch (elements.length) {
-      case 0:
-        return Collections.emptySet();
-      case 1:
-        return Collections.singleton(elements[0]);
-      default:
-        return new ImmutableHashSet<E>(elements);
-    }
-  }
-
-  /**
-   * Optimization of {@code #immutableSet} for zero arguments.
-   *
-   * @return an immutable empty set
-   * @see Collections#emptySet
-   */
-  public static <E> Set<E> immutableSet() {
-    return Collections.emptySet();
-  }
-
-  /**
-   * Optimization of {@code #immutableSet} for one argument.
-   *
-   * @param element the lone element to be in the returned set
-   * @return an immutable set containing only the given element
-   * @see Collections#singleton
-   */
-  public static <E> Set<E> immutableSet(@Nullable E element) {
-    return Collections.singleton(element);
-  }
-
-  /**
-   * Returns an immutable Set instance containing the elements in the provided
-   * set. See {@link #immutableSet(Object...)} for details.
-   *
-   * @param collection a collection containing the elements to be in the
-   *     returned set
-   * @return an immutable {@code Set} instance containing those elements
-   */
-  public static <E> Set<E> immutableSet(Collection<E> collection) {
-    switch (collection.size()) {
-      case 0:
-        return Collections.emptySet();
-      case 1:
-        return Collections.singleton(collection.iterator().next());
-      default:
-        return new ImmutableHashSet<E>(collection);
-    }
-  }
-
-  /**
    * Returns an immutable {@code Set} instance containing the given elements of
    * an enumerated type. Internally this set will be backed by an {@link
    * EnumSet}.
@@ -280,6 +200,36 @@ public final class Sets {
   public static <E extends Enum<E>> Set<E> immutableEnumSet(
       E anElement, E... otherElements) {
     return Collections.unmodifiableSet(EnumSet.of(anElement, otherElements));
+  }
+
+  /**
+   * Returns a new {@link EnumSet} instance containing the the elements in the
+   * given {@link Iterable}. Unlike {@link EnumSet#copyOf(Collection)}, this
+   * method does not produce an exception on any empty {@link Collection}, and
+   * it may be called on any {@code Iterable}, not just a {@code Collection}.
+   */
+  public static <E extends Enum<E>> EnumSet<E> newEnumSet(Class<E> elementType,
+      Iterable<E> iterable) {
+    /*
+     * TODO: noneOf() and addAll() will both throw NullPointerExceptions when
+     * appropriate. However, NullPointerTester will fail on this method because
+     * it passes in Class.class instead of an enum type. This means that, when
+     * iterable is null but elementType is not, noneOf() will throw a
+     * ClassCastException before addAll() has a chance to throw a
+     * NullPointerException. NullPointerTester considers this a failure.
+     * Ideally the test would be fixed, but it would require a special case for
+     * Class<E> where E extends Enum. Until that happens (if ever), leave
+     * checkNotNull() here. For now, contemplate the irony that checking
+     * elementType, the problem argument, is harmful, while checking iterable,
+     * the innocent bystander, is effective.
+     */
+    checkNotNull(iterable);
+
+    EnumSet<E> set = EnumSet.noneOf(elementType);
+
+    Iterables.addAll(set, iterable);
+
+    return set;
   }
 
   // HashSet
@@ -306,7 +256,7 @@ public final class Sets {
    * EnumSet#of(Enum, Enum...)} instead.
    *
    * <p><b>Note:</b> if it is an immutable Set you seek, you should use {@link
-   * #immutableSet(Object...)}.
+   * ImmutableSet}.
    *
    * <p><b>Note:</b> due to a bug in javac 1.5.0_06, we cannot support the
    * following:
@@ -327,6 +277,19 @@ public final class Sets {
     HashSet<E> set = new HashSet<E>(capacity);
     Collections.addAll(set, elements);
     return set;
+  }
+
+  /**
+   * Creates a {@code HashSet} instance with enough capacity to hold the
+   * specified number of elements without rehashing.
+   *
+   * @param expectedSize the expected size
+   * @return a newly-created {@code HashSet}, initially-empty, with enough
+   *     capacity to hold {@code expectedSize} elements without rehashing.
+   * @throws IllegalArgumentException if {@code expectedSize} is negative
+   */
+  public static <E> HashSet<E> newHashSetWithExpectedSize(int expectedSize) {
+    return new HashSet<E>(Maps.capacity(expectedSize));
   }
 
   /**
@@ -640,6 +603,26 @@ public final class Sets {
     return set;
   }
 
+  /**
+   * Creates a threadsafe {@code Set} that uses weak references. Its data is
+   * stored in a {@link ReferenceMap} backed by a {@link ConcurrentHashMap}. It
+   * does not support null elements.
+   */
+  public static <E> Set<E> newWeakHashSet() {
+    return newSetFromMap(
+        new ReferenceMap<E, Boolean>(ReferenceType.WEAK, ReferenceType.STRONG));
+  }
+  
+  /**
+   * Creates a threadsafe {@code Set} that uses soft references. Its data is
+   * stored in a {@link ReferenceMap} backed by a {@link ConcurrentHashMap}. It
+   * does not support null elements.
+   */
+  public static <E> Set<E> newSoftHashSet() {
+    return newSetFromMap(
+        new ReferenceMap<E, Boolean>(ReferenceType.SOFT, ReferenceType.STRONG));
+  }
+  
   // SortedArraySet
 
   /**
@@ -802,105 +785,116 @@ public final class Sets {
     return result;
   }
 
-  private static class ImmutableHashSet<E> extends HashSet<E> {
-    ImmutableHashSet(E... elements) {
-      // Avoid collisions by using 2-4x as many buckets as expected entries.
-      super(elements.length * 2);
-      for (E element : elements) {
-        super.add(element);
-      }
-    }
-
-    ImmutableHashSet(Collection<E> elements) {
-      // Avoid collisions by using 2-4x as many buckets as expected entries.
-      super(elements.size() * 2);
-      for (E element : elements) {
-        super.add(element);
-      }
-    }
-
-    @Override public Iterator<E> iterator() {
-      return Iterators.unmodifiableIterator(super.iterator());
-    }
-
-    // TODO: should this be volatile?
-    transient Integer cachedHashCode;
-
-    @Override public int hashCode() {
-      if (cachedHashCode == null) {
-        cachedHashCode = super.hashCode();
-      }
-      return cachedHashCode;
-    }
-
-    @Override public boolean add(E o) {
-      throw up();
-    }
-    @Override public boolean remove(Object o) {
-      throw up();
-    }
-    @Override public void clear() {
-      throw up();
-    }
-    @Override public boolean removeAll(Collection<?> c) {
-      throw up();
-    }
-    @Override public boolean addAll(Collection<? extends E> c) {
-      throw up();
-    }
-    @Override public boolean retainAll(Collection<?> c) {
-      throw up();
-    }
-    private static UnsupportedOperationException up() {
-      return new UnsupportedOperationException();
-    }
-
-    static final long serialVersionUID = 1241522570505539952L;
-  }
+  /*
+   * Regarding newSetForMap() and SetFromMap: 
+   * 
+   * Written by Doug Lea with assistance from members of JCP JSR-166
+   * Expert Group and released to the public domain, as explained at
+   * http://creativecommons.org/licenses/publicdomain
+   */
 
   /**
-   * Returns a set backed by the specified map. The resulting set displays the
-   * same ordering, concurrency, and performance characteristics as the backing
-   * map. In essence, this factory method provides a {@link Set} implementation
-   * corresponding to any {@link Map} implementation. There is no need to use
-   * this method on a map implementation that already has a corresponding set
-   * implementation (such as {@link java.util.HashMap} or {@link
-   * java.util.TreeMap}).
+   * Returns a set backed by the specified map.  The resulting set displays
+   * the same ordering, concurrency, and performance characteristics as the
+   * backing map.  In essence, this factory method provides a {@link Set}
+   * implementation corresponding to any {@link Map} implementation.  There
+   * is no need to use this method on a {@link Map} implementation that
+   * already has a corresponding {@link Set} implementation (such as {@link
+   * HashMap} or {@link TreeMap}).
    *
-   * <p>The specified map must be empty at the time this method is invoked, and
-   * should not be accessed directly after this method returns. These conditions
-   * are ensured if the map is created empty, passed directly to this method,
-   * and no reference to the map is retained, as illustrated in the following
-   * code fragment:
+   * <p>Each method invocation on the set returned by this method results in
+   * exactly one method invocation on the backing map or its <tt>keySet</tt>
+   * view, with one exception.  The <tt>addAll</tt> method is implemented
+   * as a sequence of <tt>put</tt> invocations on the backing map.
    *
-   * <pre>  Set&lt;Foo> identityHashSet = Sets.newSetFromMap(
-   *       new IdentityHashMap&lt;Foo, Boolean>());</pre>
+   * <p>The specified map must be empty at the time this method is invoked,
+   * and should not be accessed directly after this method returns.  These
+   * conditions are ensured if the map is created empty, passed directly
+   * to this method, and no reference to the map is retained, as illustrated
+   * in the following code fragment:
+   * <pre>
+   *    Set&lt;Object&gt; identityHashSet = Sets.newSetFromMap(
+   *        new IdentityHashMap&lt;Object, Boolean&gt;());
+   * </pre>
+   *
+   * This method has the same behavior as the JDK 6 method
+   * {@code Collections.newSetFromMap()}.
+   * 
+   * @param map the backing map
+   * @return the set backed by the map
+   * @throws IllegalArgumentException if <tt>map</tt> is not empty
    */
   public static <E> Set<E> newSetFromMap(Map<E, Boolean> map) {
-    checkNotNull(map);
-    checkArgument(map.isEmpty());
-    return new MapBackedSet<E>(map);
+    return new SetFromMap<E>(map);
   }
 
-  private static class MapBackedSet<E> extends ForwardingSet<E>
-      implements Serializable {
-    final Map<E, Boolean> map;
+  private static class SetFromMap<E> extends AbstractSet<E> implements Set<E>,
+      Serializable {
+    private final Map<E, Boolean> m; // The backing map
+    private transient Set<E> s; // Its keySet
 
-    MapBackedSet(Map<E, Boolean> map) {
-      super(map.keySet());
-      this.map = map;
+    SetFromMap(Map<E, Boolean> map) {
+      if (!map.isEmpty())
+        throw new IllegalArgumentException("Map is non-empty");
+      m = map;
+      s = map.keySet();
     }
-    @Override public boolean add(E element) {
-      return map.put(element, Boolean.TRUE) == null;
+
+    @Override public void clear() {
+      m.clear();
     }
-    @Override public boolean addAll(Collection<? extends E> elementsToAdd) {
-      boolean modified = false;
-      for (E element : elementsToAdd) {
-        modified |= add(element);
-      }
-      return modified;
+    @Override public int size() {
+      return m.size();
     }
-    private static final long serialVersionUID = 0xF5A3D7BE61C90842L;
+    @Override public boolean isEmpty() {
+      return m.isEmpty();
+    }
+    @Override public boolean contains(Object o) {
+      return m.containsKey(o);
+    }
+    @Override public boolean remove(Object o) {
+      return m.remove(o) != null;
+    }
+    @Override public boolean add(E e) {
+      return m.put(e, Boolean.TRUE) == null;
+    }
+    @Override public Iterator<E> iterator() {
+      return s.iterator();
+    }
+    @Override public Object[] toArray() {
+      return s.toArray();
+    }
+    @Override public <T> T[] toArray(T[] a) {
+      return s.toArray(a);
+    }
+    @Override public String toString() {
+      return s.toString();
+    }
+    @Override public int hashCode() {
+      return s.hashCode();
+    }
+    @Override public boolean equals(Object o) {
+      return (o == this) || s.equals(o);
+    }
+    @Override public boolean containsAll(Collection<?> c) {
+      return s.containsAll(c);
+    }
+    @Override public boolean removeAll(Collection<?> c) {
+      return s.removeAll(c);
+    }
+    @Override public boolean retainAll(Collection<?> c) {
+      return s.retainAll(c);
+    }
+
+    // addAll is the only inherited implementation
+
+    private static final long serialVersionUID = 2454657854757543876L;
+
+    private void readObject(ObjectInputStream stream)
+        throws IOException, ClassNotFoundException {
+      stream.defaultReadObject();
+      s = m.keySet();
+    }
   }
 
   /** Returns the empty sorted set (immutable). This set is serializable. */

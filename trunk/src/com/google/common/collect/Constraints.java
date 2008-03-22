@@ -17,7 +17,6 @@
 package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
@@ -27,10 +26,9 @@ import java.util.Set;
 import java.util.SortedSet;
 
 /**
- * Factory and utilities pertaining to the {@link Constraint} interface.
+ * Factories and utilities pertaining to the {@link Constraint} interface.
  *
- * <p>{@link Constraint} and {@code Collection} instances returned by this class
- * are serializable.
+ * <p>Constraints and collections returned by this class are serializable.
  *
  * @see MapConstraints
  * @author Mike Bostock
@@ -59,7 +57,7 @@ public final class Constraints {
   }
 
   /**
-   * Returns a constraint that verfies that the element is an instance of {@code
+   * Returns a constraint that verifies that the element is an instance of {@code
    * type}. A {@link ClassCastException} is thrown otherwise.
    *
    * @param type the required type for elements
@@ -91,12 +89,13 @@ public final class Constraints {
 
   /**
    * Returns a constrained view of the specified collection, using the specified
-   * constraint. Any operations that would add new elements to the collection
-   * will be verified by the constraint.
+   * constraint. Any operations that add new elements to the collection will
+   * call the provided constraint. However, this method does not verify that
+   * existing elements satisfy the constraint. 
    *
-   * @param collection the collection for which to return a constrained view
-   * @param constraint the constraint for elements in the collection
-   * @return a constrained view of the specified collection
+   * @param collection the collection to constrain
+   * @param constraint the constraint that validates added elements
+   * @return a constrained view of the collection
    */
   public static <E> Collection<E> constrainedCollection(
       Collection<E> collection, Constraint<? super E> constraint) {
@@ -124,12 +123,13 @@ public final class Constraints {
 
   /**
    * Returns a constrained view of the specified set, using the specified
-   * constraint. Any operations that would add new elements to the set will be
-   * verified by the constraint.
-   *
-   * @param set the set for which to return a constrained view
-   * @param constraint the constraint for elements in the set
-   * @return a constrained view of the specified set
+   * constraint. Any operations that add new elements to the set will call the
+   * provided constraint. However, this method does not verify that existing
+   * elements satisfy the constraint.
+   * 
+   * @param set the set to constrain
+   * @param constraint the constraint that validates added elements
+   * @return a constrained view of the set
    */
   public static <E> Set<E> constrainedSet(
       Set<E> set, Constraint<? super E> constraint) {
@@ -156,12 +156,13 @@ public final class Constraints {
 
   /**
    * Returns a constrained view of the specified sorted set, using the specified
-   * constraint. Any operations that would add new elements to the sorted set
-   * will be verified by the constraint.
+   * constraint. Any operations that add new elements to the sorted set will
+   * call the provided constraint. However, this method does not verify that
+   * existing elements satisfy the constraint. 
    *
-   * @param sortedSet the sorted set for which to return a constrained view
-   * @param constraint the constraint for elements in the sorted set
-   * @return a constrained view of the specified sorted set
+   * @param sortedSet the sorted set to constrain
+   * @param constraint the constraint that validates added elements
+   * @return a constrained view of the sorted set
    */
   public static <E> SortedSet<E> constrainedSortedSet(
       SortedSet<E> sortedSet, Constraint<? super E> constraint) {
@@ -200,14 +201,15 @@ public final class Constraints {
 
   /**
    * Returns a constrained view of the specified list, using the specified
-   * constraint. Any operations that would add new elements to the list will be
-   * verified by the constraint.
-   *
+   * constraint. Any operations that add new elements to the list will call the
+   * provided constraint. However, this method does not verify that existing
+   * elements satisfy the constraint.
+   * 
    * <p>If {@code list} implements {@link RandomAccess}, so will the returned
    * list.
-   *
-   * @param list the list for which to return a constrained view
-   * @param constraint the constraint for elements in the list
+   * 
+   * @param list the list to constrain
+   * @param constraint the constraint that validates added elements
    * @return a constrained view of the list
    */
   public static <E> List<E> constrainedList(
@@ -318,12 +320,13 @@ public final class Constraints {
 
   /**
    * Returns a constrained view of the specified multiset, using the specified
-   * constraint. Any operations that would add new elements to the underlying
-   * multiset will be verified by the constraint.
+   * constraint. Any operations that add new elements to the multiset will call
+   * the provided constraint. However, this method does not verify that
+   * existing elements satisfy the constraint. 
    *
-   * @param multiset the multiset for which to return a constrained view
-   * @param constraint the constraint for elements in the multiset
-   * @return a constrained view of the specified multiset
+   * @param multiset the multiset to constrain
+   * @param constraint the constraint that validates added elements
+   * @return a constrained view of the multiset
    */
   public static <E> Multiset<E> constrainedMultiset(
       Multiset<E> multiset, Constraint<? super E> constraint) {

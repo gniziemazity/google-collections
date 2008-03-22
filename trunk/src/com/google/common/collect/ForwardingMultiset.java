@@ -20,16 +20,19 @@ import java.util.Set;
 
 /**
  * A multiset which forwards all its method calls to another multiset.
- * Subclasses should override one or more methods to change or add behavior of
- * the backing multiset as desired per the <a
+ * Subclasses should override one or more methods to modify the behavior of the
+ * backing multiset as desired per the <a
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
- *
+ * 
  * @see ForwardingObject
  * @author Kevin Bourrillion
  */
 public abstract class ForwardingMultiset<E> extends ForwardingCollection<E>
     implements Multiset<E> {
 
+  /**
+   * Constructs a forwarding multiset that forwards to the provided delegate.
+   */
   protected ForwardingMultiset(Multiset<E> delegate) {
     super(delegate);
   }

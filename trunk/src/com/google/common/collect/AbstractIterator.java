@@ -17,7 +17,6 @@
 package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkState;
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -52,6 +51,10 @@ import java.util.NoSuchElementException;
  *       }
  *     };
  *   }</pre>
+ *   
+ * <p>This class supports iterators that include null elements. The
+ * {@link #remove} method throws an {@link UnsupportedOperationException}, but
+ * the similar class {@link AbstractRemovableIterator} does support remove.
  *
  * @author Kevin Bourrillion
  */
@@ -75,31 +78,33 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
   private T next;
 
   /**
-   * Returns the next element. <b>Note:</b> the implementor must call {@link
-   * #endOfData} when it has reached the end of the data. Failure to do so could
-   * result in an infinite loop.
+   * Returns the next element. <b>Note:</b> the implementation must call {@link
+   * #endOfData} when there are no elements left in the iteration. Failure to do
+   * so could result in an infinite loop.
    *
-   * <p>This class invokes {@link #computeNext} during the caller's initial
-   * invocation of {@link #hasNext} or {@link #next}, and on the first
-   * invocation of {@code hasNext} or {@code next} that follows each successful
-   * call to {@code next}. Once the implementor either invokes {@code endOfData}
-   * or throws any exception, {@code computeNext} is guaranteed to never be
-   * called again.
+   * <p>The initial invocation of {@link #hasNext()} or {@link #next()} calls
+   * this method, as does the first invocation of {@code hasNext} or
+   * {@code next} following each successful call to {@code next}. Once the
+   * implementation either invokes {@code endOfData} or throws an exception,
+   * {@code computeNext} is guaranteed to never be called again.
    *
    * <p>If this method throws an exception, it will propagate outward to the
-   * {@code hasNext} or {@code next} invocation that invoked this method. Any
-   * further attempts to use the iterator will result in {@code
+   * {@code hasNext()} or {@code next()} invocation that invoked this method.
+   * Any further attempts to use the iterator will result in an {@link
    * IllegalStateException}.
    *
-   * @return the next element if there was one. {@code null} is a valid element
-   *     value. If {@code endOfData} was called during execution, the return
-   *     value will be ignored.
+   * @return the next element if there was one. If {@code endOfData} was called
+   *     during execution, the return value will be ignored.
+   * @throws RuntimeException if any unrecoverable error happens. This exception
+   *     will propagate outward to the {@code hasNext()} or {@code next()}
+   *     invocation that invoked this method. Any further attempts to use the
+   *     iterator will result in an {@link IllegalStateException}.
    */
   protected abstract T computeNext();
 
   /**
-   * Implementors of {@code computeNext} <b>must</b> invoke this method when
-   * there is no data left.
+   * Implementations of {@code computeNext} <b>must</b> invoke this method when
+   * there are no elements left in the iteration.
    *
    * @return {@code null}; a convenience so your {@link #computeNext}
    *     implementation can use the simple statement {@code return endOfData();}
@@ -138,6 +143,9 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
     return next;
   }
 
+  /**
+   * This method is not supported.
+   */
   public void remove() {
     throw new UnsupportedOperationException();
   }

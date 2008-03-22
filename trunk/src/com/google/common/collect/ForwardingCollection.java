@@ -19,13 +19,12 @@ package com.google.common.collect;
 import com.google.common.base.Nullable;
 import com.google.common.base.Objects;
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.util.Collection;
 import java.util.Iterator;
 
 /**
  * A collection which forwards all its method calls to another collection.
- * Subclasses should override one or more methods to change or add behavior of
+ * Subclasses should override one or more methods to modify the behavior of
  * the backing collection as desired per the <a
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
  *
@@ -35,6 +34,9 @@ import java.util.Iterator;
 public abstract class ForwardingCollection<E> extends ForwardingObject
     implements Collection<E> {
 
+  /**
+   * Constructs a forwarding collection that forwards to the provided delegate.
+   */
   protected ForwardingCollection(Collection<E> delegate) {
     super(delegate);
   }
@@ -108,7 +110,7 @@ public abstract class ForwardingCollection<E> extends ForwardingObject
    * @param c the collection for which to return an array of elements
    * @see java.util.AbstractCollection#toArray()
    */
-  static Object[] toArrayImpl(Collection<?> c) {
+  protected static Object[] toArrayImpl(Collection<?> c) {
     return ObjectArrays.toArrayImpl(c);
   }
 
@@ -137,7 +139,7 @@ public abstract class ForwardingCollection<E> extends ForwardingObject
    * collection
    * @see java.util.AbstractCollection#toArray(Object[])
    */
-  static <T> T[] toArrayImpl(Collection<?> c, T[] array) {
+  protected static <T> T[] toArrayImpl(Collection<?> c, T[] array) {
     return ObjectArrays.toArrayImpl(c, array);
   }
 
@@ -146,12 +148,12 @@ public abstract class ForwardingCollection<E> extends ForwardingObject
    * representation consists of a list of the collection's elements in the order
    * they are returned by its iterator, enclosed in square brackets ("[]").
    * Adjacent elements are separated by the characters ", " (comma and space).
-   * elements are converted to strings as by {@code String.valueOf(Object)}.
+   * Elements are converted to strings as by {@code String.valueOf(Object)}.
    *
    * @param c the collection for which to return a string representation
    * @see java.util.AbstractCollection#toString
    */
-  static String toStringImpl(Collection<?> c) {
+  protected static String toStringImpl(Collection<?> c) {
     return Iterators.toString(c.iterator());
   }
 
@@ -167,7 +169,7 @@ public abstract class ForwardingCollection<E> extends ForwardingObject
    * @param c a collection which might contain the element.
    * @param o an element that might be contained by {@code c}
    */
-  static boolean containsImpl(Collection<?> c, @Nullable Object o) {
+  protected static boolean containsImpl(Collection<?> c, @Nullable Object o) {
     for (Object member : c) {
       if (Objects.equal(member, o)) {
         return true;
@@ -189,7 +191,7 @@ public abstract class ForwardingCollection<E> extends ForwardingObject
    * @param d a collection whose elements might be contained by {@code c}
    * @see java.util.AbstractCollection#containsAll(Collection)
    */
-  static boolean containsAllImpl(Collection<?> c, Collection<?> d) {
+  protected static boolean containsAllImpl(Collection<?> c, Collection<?> d) {
     checkNotNull(c);
     for (Object o : d) {
       if (!c.contains(o)) {
@@ -215,7 +217,7 @@ public abstract class ForwardingCollection<E> extends ForwardingObject
    * support the {@code remove} method and {@code c} contains one or more
    * elements in common with {@code d}
    */
-  static boolean removeImpl(Collection<?> c, @Nullable Object o) {
+  protected static boolean removeImpl(Collection<?> c, @Nullable Object o) {
     Iterator<?> i = c.iterator();
     while (i.hasNext()) {
       if (Objects.equal(i.next(), o)) {
@@ -243,7 +245,7 @@ public abstract class ForwardingCollection<E> extends ForwardingObject
    * elements in common with {@code d}
    * @see java.util.AbstractCollection#removeAll(Collection)
    */
-  static boolean removeAllImpl(Collection<?> c, Collection<?> d) {
+  protected static boolean removeAllImpl(Collection<?> c, Collection<?> d) {
     checkNotNull(d);
     boolean modified = false;
     Iterator<?> i = c.iterator();
@@ -274,7 +276,7 @@ public abstract class ForwardingCollection<E> extends ForwardingObject
    * support the {@code remove} method and {@code c} contains one or more
    * elements not present in the {@code d}
    */
-  static boolean retainAllImpl(Collection<?> c, Collection<?> d) {
+  protected static boolean retainAllImpl(Collection<?> c, Collection<?> d) {
     checkNotNull(d);
     boolean modified = false;
     Iterator<?> i = c.iterator();

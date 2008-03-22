@@ -20,7 +20,7 @@ import java.util.Queue;
 
 /**
  * A queue which forwards all its method calls to another queue. Subclasses
- * should override one or more methods to change or add behavior of the backing
+ * should override one or more methods to modify the behavior of the backing
  * queue as desired per the <a
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
  *
@@ -30,6 +30,9 @@ import java.util.Queue;
 public abstract class ForwardingQueue<E> extends ForwardingCollection<E>
     implements Queue<E> {
 
+  /**
+   * Constructs a forwarding queue that forwards to the provided delegate.
+   */
   protected ForwardingQueue(Queue<E> delegate) {
     super(delegate);
   }

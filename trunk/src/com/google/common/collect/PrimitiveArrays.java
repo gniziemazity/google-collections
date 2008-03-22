@@ -17,7 +17,6 @@
 package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.io.Serializable;
 import java.util.AbstractList;
 import java.util.Arrays;
