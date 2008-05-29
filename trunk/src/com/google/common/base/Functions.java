@@ -17,6 +17,7 @@
 package com.google.common.base;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.Serializable;
 import java.util.Map;
 
@@ -25,9 +26,9 @@ import java.util.Map;
  *
  * @author Mike Bostock
  * @author Vlad Patryshev
+ * @author Jared Levy
  */
 public final class Functions {
-
   private Functions() { }
 
   /**
@@ -40,64 +41,30 @@ public final class Functions {
       ToStringFunction.INSTANCE;
 
   /**
-   * A function that returns {@link Object#toString} of its argument.
-   * Note that this function is not {@literal @Nullable}: it will throw a
-   * {@link NullPointerException} when applied to {@code null}.
-   *
-   * <p> Note also that this is assignable to variables of type
-   * {@code Function<? super E, String>}, but not
-   * {@code Function<E, String>}.
+   * Returns a function that returns the {@link Object#toString} value of its
+   * argument. This function is not nullable; invoking {@code apply(null)} on it
+   * throws a {@link NullPointerException}.
    */
-  public static final Function<Object, String> toStringFunction() {
-    return ToStringFunction.INSTANCE;
+  @SuppressWarnings("unchecked") // see comment below
+  public static <F> Function<F, String> toStringFunction() {
+    /*
+     * Function<F, T> is contravariant on F, so this is essentially a widening
+     * cast. Note: IntelliJ incorrectly colors the following line red.
+     */
+    return (Function<F, String>) ToStringFunction.INSTANCE;
   }
 
-  private static class ToStringFunction
-      implements SerializableFunction<Object, String> {
-    private static final long serialVersionUID = -2979910855853295325L;
+  // enum singleton pattern
+  private enum ToStringFunction implements Function<Object, String> {
+    INSTANCE;
 
     public String apply(Object o) {
-      // avoiding String.valueOf(e) so we get an NPE instead of "null"
       return o.toString();
     }
-    private Object readResolve() {
-      return INSTANCE; /* Preserve singleton property. */
-    }
-    @Override public boolean equals(Object obj) {
-      return obj == INSTANCE;
-    }
-    @Override public int hashCode() {
-      return (int) serialVersionUID;
-    }
+
     @Override public String toString() {
       return "toString";
     }
-    private static final ToStringFunction INSTANCE = new ToStringFunction();
-  }
-
-  /**
-   * @see #toHashCode()
-   */
-  private static class HashCodeFunction
-      implements SerializableFunction<Object, Integer> {
-    private static final long serialVersionUID = 749417670239189171L;
-
-    public Integer apply(@Nullable Object o) {
-      return (o == null) ? 0 : o.hashCode();
-    }
-    private Object readResolve() {
-      return INSTANCE; /* Preserve singleton property. */
-    }
-    @Override public boolean equals(Object obj) {
-      return obj == INSTANCE;
-    }
-    @Override public int hashCode() {
-      return (int) serialVersionUID;
-    }
-    @Override public String toString() {
-      return "hashCode";
-    }
-    static final HashCodeFunction INSTANCE = new HashCodeFunction();
   }
 
   /**
@@ -109,41 +76,68 @@ public final class Functions {
     return HashCodeFunction.INSTANCE;
   }
 
-  /*
-   * For constant Functions a single instance will suffice; we'll cast it to
-   * the right parameterized type on demand.
+  // enum singleton pattern
+  private enum HashCodeFunction implements Function<Object, Integer> {
+    INSTANCE;
+
+    public Integer apply(Object o) {
+      return (o == null) ? 0 : o.hashCode();
+    }
+
+    @Override public String toString() {
+      return "hashCode";
+    }
+  }
+  
+  /**
+   * See {@link #trimString()}.
+   *
+   * TODO: Deprecate this and use trimString().
    */
+  public static final Function<String, String> TRIM_STRING =
+      TrimStringFunction.INSTANCE;
 
   /**
-   * Returns the identity Function.
+   * A function that returns the result of calling {@link String#trim}
+   * on its argument. Note that this function is not {@literal @Nullable}:
+   * it will throw a {@link NullPointerException} when applied to {@code null}.
+   */
+  public static Function<String, String> trimString() {
+    return TrimStringFunction.INSTANCE;
+  }
+
+  // enum singleton pattern
+  private enum TrimStringFunction implements Function<String, String> {
+    INSTANCE;
+
+    public String apply(String string) {
+      return string.trim();
+    }
+
+    @Override public String toString() {
+      return "String.trim";
+    }
+  }
+  
+  /**
+   * Returns the identity function.
    */
   @SuppressWarnings("unchecked")
   public static <E> Function<E, E> identity() {
     return (Function<E, E>) IdentityFunction.INSTANCE;
   }
 
-  /**
-   * @see Functions#identity
-   */
-  private static class IdentityFunction
-      implements SerializableFunction<Object, Object> {
-    private static final long serialVersionUID = 3129841931134422007L;
+  // enum singleton pattern
+  private enum IdentityFunction implements Function<Object, Object> {
+    INSTANCE;
+
     public Object apply(Object o) {
       return o;
     }
-    private Object readResolve() {
-      return INSTANCE;
-    }
-    @Override public boolean equals(Object obj) {
-      return obj == INSTANCE;
-    }
-    @Override public int hashCode() {
-      return (int) serialVersionUID;
-    }
+
     @Override public String toString() {
       return "identity";
     }
-    private static final IdentityFunction INSTANCE = new IdentityFunction();
   }
 
   /**

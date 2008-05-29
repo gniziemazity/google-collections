@@ -81,4 +81,15 @@ public abstract class ForwardingSet<E> extends ForwardingCollection<E>
     }
     return s.containsAll(os);
   }
+
+  /**
+   * Calculates and returns the hashcode of {@code s}.
+   */
+  static int hashCodeImpl(Set<?> s) {
+    int hashCode = 0;
+    for (Object o : s) {
+      hashCode += o != null ? o.hashCode() : 0;
+    }
+    return hashCode;
+  }
 }

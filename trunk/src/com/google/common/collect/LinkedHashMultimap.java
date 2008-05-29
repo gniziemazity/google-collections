@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -72,10 +73,10 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
 
   /**
    * Constructs a {@code LinkedHashMultimap} with the same mappings as the
-   * specified {@code Multimap}. The input ordering in the constructed multimap
-   * corresponds to {@link Multimap#entries()} of the input multimap. If a
-   * key-value mapping appears multiple times in the input multimap, it only
-   * appears once in the constructed multimap.
+   * specified {@code Multimap}. If a key-value mapping appears multiple times
+   * in the input multimap, it only appears once in the constructed multimap.
+   * The new multimap has the same {@link Multimap#entries()} iteration order as
+   * the input multimap, except for excluding duplicate mappings.
    */
   public LinkedHashMultimap(Multimap<? extends K, ? extends V> multimap) {
     super(new LinkedHashMap<K, Collection<V>>(
@@ -112,6 +113,8 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
     return new SetDecorator(key, createCollection());
   }
 
+  // TODO: Extend NonSerializableForwardingSet after we switch to non-default
+  // LinkedHashMultimap serialization.
   private class SetDecorator extends ForwardingSet<V> {
     final K key;
 

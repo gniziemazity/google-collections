@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,20 +50,6 @@ public final class HashBiMap<K, V> extends StandardBiMap<K, V> {
   }
 
   /**
-   * Constructs a new empty bimap with the specified initial capacity and load
-   * factor.
-   *
-   * @param initialCapacity the initial capacity
-   * @param loadFactor the load factor
-   * @throws IllegalArgumentException if the initial capacity is negative or the
-   *     load factor is nonpositive
-   */
-  public HashBiMap(int initialCapacity, float loadFactor) {
-    super(new HashMap<K, V>(initialCapacity, loadFactor),
-        new HashMap<V, K>(initialCapacity, loadFactor));
-  }
-
-  /**
    * Constructs a new bimap containing initial values from {@code map}. The
    * bimap is created with the default load factor (0.75) and an initial
    * capacity sufficient to hold the mappings in the specified map.
@@ -81,4 +68,6 @@ public final class HashBiMap<K, V> extends StandardBiMap<K, V> {
   @Override public V forcePut(@Nullable K key, @Nullable V value) {
     return super.forcePut(key, value);
   }
+  
+  private static final long serialVersionUID = 0;  
 }

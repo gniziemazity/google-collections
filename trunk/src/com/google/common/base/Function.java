@@ -19,12 +19,12 @@ package com.google.common.base;
 /**
  * A Function provides a transformation on an object and returns the resulting
  * object.  For example, a {@code StringToIntegerFunction} may implement
- * <code>Function&lt;String,Integer&gt;</code> and transform integers in String
- * format to Integer format.
+ * <code>Function&lt;String,Integer&gt;</code> and transform integers in
+ * {@code String} format to {@code Integer} format.
  *
  * <p>The transformation on the source object does not necessarily result in
  * an object of a different type.  For example, a
- * {@code FarenheitToCelciusFunction} may implement
+ * {@code FarenheitToCelsiusFunction} may implement
  * <code>Function&lt;Float,Float&gt;</code>.
  *
  * <p>Implementations which may cause side effects upon evaluation are strongly
@@ -33,14 +33,14 @@ package com.google.common.base;
  * @author Kevin Bourrillion
  * @author Scott Bonneau
  */
-public interface Function<F,T> {
+public interface Function<F, T> {
 
   /**
    * Applies the function to an object of type {@code F}, resulting in an object
    * of type {@code T}.  Note that types {@code F} and {@code T} may or may not
    * be the same.
-   * @param from The source object.
-   * @return The resulting object.
+   * @param from the source object
+   * @return the resulting object
    */
   T apply(@Nullable F from);
 

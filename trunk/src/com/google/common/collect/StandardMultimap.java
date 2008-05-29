@@ -17,7 +17,10 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
+import com.google.common.base.Objects;
+
 import static com.google.common.base.Preconditions.checkArgument;
+
 import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractMap;
@@ -110,7 +113,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
   }
 
   /**
-   * Creates the collection of values for a particular key.
+   * Creates the collection of values for a single key.
    *
    * <p>Collections with weak, soft, or phantom references are not supported.
    * Each call to {@code createCollection} should create a new instance.
@@ -124,7 +127,9 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
 
   /**
    * Creates the collection of values for an explicitly provided key. By
-   * default, it simply calls {@link #createCollection()}.
+   * default, it simply calls {@link #createCollection()}, which is the correct
+   * behavior for most implementations. The {@link LinkedHashMultimap} class
+   * overrides it. 
    *
    * @param key key to associate with values in the collection
    * @return an empty collection of values
@@ -133,6 +138,10 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
     return createCollection();
   }
 
+  Map<K, Collection<V>> backingMap() {
+    return map;
+  }
+  
   // Query Operations
   
   public int size() {
@@ -275,6 +284,11 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
 
   // Views
   
+  /**
+   * {@inheritDoc}
+   * 
+   * <p>The returned collection is not serializable.
+   */
   public Collection<V> get(@Nullable K key) {
     Collection<V> collection = map.get(key);
     if (collection == null) {
@@ -881,6 +895,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
     transient volatile Set<Multiset.Entry<K>> entrySet;
 
     @Override public int remove(Object key, int occurrences) {
+      checkArgument(occurrences >= 0);
       Collection<V> collection = map.get(key);
       if (collection == null) {
         return 0;
@@ -1310,8 +1325,8 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
         return false;
       }
       Map.Entry<?, ?> entry = (Map.Entry<?, ?>) o;
-      return (entry.getValue() != null) &&
-          entry.getValue().equals(map.get(entry.getKey()));
+      return (entry.getValue() != null)
+          && Objects.equal(map.get(entry.getKey()), entry.getValue());
     }
 
     @Override public boolean remove(Object o) {
@@ -1379,6 +1394,4 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
   @Override public String toString() {
     return map.toString();
   }
-  
-  private static final long serialVersionUID = -2014783599408314531L;
 }

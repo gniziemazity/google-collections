@@ -16,12 +16,15 @@
 
 package com.google.common.collect;
 
+import static com.google.common.base.Preconditions.checkContentsNotNull;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.base.Nullable;
 import com.google.common.base.Objects;
-import static com.google.common.base.Preconditions.checkContentsNotNull;
-import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -47,12 +50,10 @@ public final class Comparators {
 
   /**
    * Returns a comparator that uses the natural ordering of the values.
-   *
-   * @see java.util.Collections#reverseOrder()
    */
   @SuppressWarnings("unchecked")   // see explanation in class Javadoc
-  public static <C extends Comparable> Ordering<C> naturalOrder() {
-    return (Ordering<C>) NATURAL_ORDER;
+  public static <T extends Comparable> Ordering<T> naturalOrder() {
+    return (Ordering<T>) NATURAL_ORDER;
   }
 
   /** @see #naturalOrder */
@@ -60,6 +61,7 @@ public final class Comparators {
   private static final Ordering<Comparable> NATURAL_ORDER
       = new Ordering<Comparable>() {
     public int compare(Comparable left, Comparable right) {
+      checkNotNull(right);    // later code throws NPE when only left is null
       if (left == right) {
         return 0;
       }
@@ -100,8 +102,8 @@ public final class Comparators {
    * handles null values, treating them as less than all other values.
    */
   @SuppressWarnings("unchecked")   // see explanation in class Javadoc
-  public static <C extends Comparable> Ordering<C> nullLeastOrder() {
-    return (Ordering<C>) NULL_LEAST_ORDER;
+  public static <T extends Comparable> Ordering<T> nullLeastOrder() {
+    return (Ordering<T>) NULL_LEAST_ORDER;
   }
 
   @SuppressWarnings("unchecked")   // see explanation in class Javadoc
@@ -127,8 +129,8 @@ public final class Comparators {
    * handles null values, treating them as greater than all other values.
    */
   @SuppressWarnings("unchecked")   // see explanation in class Javadoc
-  public static <C extends Comparable> Ordering<C> nullGreatestOrder() {
-    return (Ordering<C>) NULL_GREATEST_ORDER;
+  public static <T extends Comparable> Ordering<T> nullGreatestOrder() {
+    return (Ordering<T>) NULL_GREATEST_ORDER;
   }
 
   // TODO: Add readResolve methods to NULL_GREATEST_ORDER and NULL_LEAST_ORDER
@@ -136,55 +138,161 @@ public final class Comparators {
   private static final Ordering<Comparable> NULL_GREATEST_ORDER
       = nullGreatestOrder(NATURAL_ORDER);
 
+  private static abstract class NullHandlingOrdering<T> extends Ordering<T> {
+    final Comparator<T> comparator;
+
+    public NullHandlingOrdering(Comparator<T> comparator) {
+      this.comparator = checkNotNull(comparator);
+    }
+
+    public int compare(T left, T right) {
+      if (left == right) {
+        return 0;
+      }
+      if (left == null) {
+        return compareNullAndNonNull();
+      }
+      if (right == null) {
+        return -compareNullAndNonNull();
+      }
+      return comparator.compare(left, right);
+    }
+
+    /**
+     * Returns the value this comparator should produce when comparing {@code
+     * null} to any non-null value (in that order).
+     */
+    abstract int compareNullAndNonNull();
+
+    @Override public boolean equals(Object object) {
+      if (object == null) {
+        return false;
+      }
+      if (object.getClass() == getClass()) {
+        NullHandlingOrdering<?> that = (NullHandlingOrdering<?>) object;
+        return (this.comparator).equals(that.comparator);
+      }
+      return false;
+    }
+
+    @Override public int hashCode() {
+      return comparator.hashCode();
+    }
+  }
+  
+  /**
+   * Returns a comparator which tries two comparators in order until a non-zero
+   * result is found, returning that result, and returning zero only if both
+   * comparators return zero.
+   * 
+   * @param first the first comparator to invoke
+   * @param second the second comparator to invoke
+   * @see #compound(Iterable)
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> Ordering<T> compound(Comparator<? super T> first,
+      Comparator<? super T> second) {
+    Comparator<T> firstT = (Comparator<T>) first;
+    Comparator<T> secondT = (Comparator<T>) second;
+    return compound(Arrays.asList(firstT, secondT));
+  }
+  
+  /**
+   * Returns a comparator which tries three comparators in order until a
+   * non-zero result is found, returning that result, and returning zero only if
+   * all comparators return zero.
+   * 
+   * @param first the first comparator to invoke
+   * @param second the second comparator to invoke
+   * @param third the third comparator to invoke
+   * @see #compound(Iterable)
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> Ordering<T> compound(Comparator<? super T> first,
+      Comparator<? super T> second, Comparator<? super T> third) {
+    Comparator<T> firstT = (Comparator<T>) first;
+    Comparator<T> secondT = (Comparator<T>) second;
+    Comparator<T> thirdT = (Comparator<T>) third;
+    return compound(Arrays.asList(firstT, secondT, thirdT));
+  }
+  
+  /**
+   * Returns a comparator which tries four comparators in order until a non-zero
+   * result is found, returning that result, and returning zero only if all
+   * comparators return zero.
+   * 
+   * @param first the first comparator to invoke
+   * @param second the second comparator to invoke
+   * @param third the third comparator to invoke
+   * @param forth the fourth comparator to invoke
+   * @see #compound(Iterable)
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> Ordering<T> compound(Comparator<? super T> first,
+      Comparator<? super T> second, Comparator<? super T> third,
+      Comparator<? super T> forth) {
+    Comparator<T> firstT = (Comparator<T>) first;
+    Comparator<T> secondT = (Comparator<T>) second;
+    Comparator<T> thirdT = (Comparator<T>) third;
+    Comparator<T> forthT = (Comparator<T>) forth;
+    return compound(Arrays.asList(firstT, secondT, thirdT, forthT));
+  }
+  
   /**
    * Returns a comparator which tries each given comparator in order until a
-   * non-zero result is found, returning this result, and returning zero only if
+   * non-zero result is found, returning that result, and returning zero only if
    * all comparators return zero.
    *
-   * <p>The returned comparator is a "view" of the specified {@code rest} array;
-   * changes to the array will be reflected in the behavior of the returned
-   * comparator.
+   * <p>Subsequent changes to the {@code rest} array do not affect the behavior
+   * of the returned comparator.
    * 
-   * <p>TODO: Add {@code compound} methods that take 2, 3, or 4 arguments, so
-   * the calling code doesn't need to say
-   * {@code @SuppressWarnings("unchecked")}.
-   *
-   * @param primary the primary comparator
-   * @param secondary the secondary comparator
+   * @param first the first comparator to invoke
+   * @param second the second comparator to invoke
+   * @param third the third comparator to invoke
+   * @param forth the fourth comparator to invoke
    * @param rest additional comparators to invoke as necessary
-   * @see #compound(List)
+   * @see #compound(Iterable)
    */
   @SuppressWarnings("unchecked") // TODO: check that this is right
-  public static <T> Ordering<T> compound(Comparator<? super T> primary,
-      Comparator<? super T> secondary, Comparator<? super T>... rest) {
+  public static <T> Ordering<T> compound(Comparator<? super T> first,
+      Comparator<? super T> second, Comparator<? super T> third,
+      Comparator<? super T> forth, Comparator<? super T>... rest) {
     // TODO: is this really the best way?  if so, explain why.
-    Comparator<T> primaryT = (Comparator<T>) primary;
-    Comparator<T> secondaryT = (Comparator<T>) secondary;
-    Comparator<T>[] restT = (Comparator<T>[]) rest;
-    return compound(Lists.asList(primaryT, secondaryT, restT));
+    Comparator<T> firstT = (Comparator<T>) first;
+    Comparator<T> secondT = (Comparator<T>) second;
+    Comparator<T> thirdT = (Comparator<T>) third;
+    Comparator<T> forthT = (Comparator<T>) forth;
+    List<Comparator<T>> list = Lists.newArrayList(
+        firstT, secondT, thirdT, forthT);
+    list.addAll(Arrays.asList((Comparator<T>[]) rest));
+    return compound(list);
   }
 
   /**
    * Returns a comparator which tries each given comparator in order until a
-   * non-zero result is found, returning this result, and returning zero only if
+   * non-zero result is found, returning that result, and returning zero only if
    * all comparators return zero.
    *
-   * <p>The returned comparator is a "view" of the specified {@code List}
-   * instance; changes to the collection of comparators will be reflected in the
-   * behavior of the returned comparator.
+   * <p>The returned comparator is a "view" of the specified {@code Iterable}
+   * instance; changes to the iterable will be reflected in the behavior of the
+   * returned comparator.
    *
-   * @param comparators a collection of comparators to try in order
+   * <p><b>Warning:</b> Supplying an argument with undefined iteration order,
+   * such as a {@link java.util.HashSet}, will produce non-deterministic
+   * results.
+   *
+   * @param comparators the comparators to try in order
    */
   public static <T> Ordering<T> compound(
-      List<? extends Comparator<? super T>> comparators) {
+      Iterable<? extends Comparator<? super T>> comparators) {
     return new CompoundOrder<T>(comparators);
   }
 
-  /** @see Comparators#compound(List) */
+  /** @see Comparators#compound(Iterable) */
   static class CompoundOrder<T> extends Ordering<T> {
-    private final List<? extends Comparator<? super T>> comparators;
+    private final Iterable<? extends Comparator<? super T>> comparators;
 
-    CompoundOrder(List<? extends Comparator<? super T>> comparators) {
+    CompoundOrder(Iterable<? extends Comparator<? super T>> comparators) {
       this.comparators = checkContentsNotNull(comparators);
     }
 
@@ -325,6 +433,11 @@ public final class Comparators {
    * Returns the smaller of the two values, according to their natural ordering.
    * If the values are equal, the first is returned.
    * 
+   * <p>To handle more than two values, call
+   * {@link Ordering#min(Object, Object, Object, Object...)} or
+   * {@link Ordering#min(Iterable)} on the {@link Ordering} returned by
+   * {@link Ordering#natural()}. 
+   * 
    * @param a non-null value to compare, returned if less than or equal to b.
    * @param b non-null value to compare.
    * @throws ClassCastException if the parameters are not mutually comparable
@@ -345,6 +458,11 @@ public final class Comparators {
    * Returns the larger of the two values, according to their natural ordering.
    * If the values are equal, the first is returned.
    * 
+   * <p>To handle more than two values, call
+   * {@link Ordering#max(Object, Object, Object, Object...)} or
+   * {@link Ordering#max(Iterable)} on the {@link Ordering} returned by
+   * {@link Ordering#natural()}.
+   *  
    * @param a non-null value to compare, returned if greater than or equal to b.
    * @param b non-null value to compare.
    * @throws ClassCastException if the parameters are not mutually comparable
@@ -366,6 +484,12 @@ public final class Comparators {
    * comparator. If the values are equal, the first is returned. Null values
    * are allowed if the comparator supports them.
    *
+   * <p>To handle more than two values, call
+   * {@link Ordering#min(Object, Object, Object, Object...)} or
+   * {@link Ordering#min(Iterable)} on the {@link Ordering} returned by
+   * {@link Ordering#forComparator(Comparator)}. 
+   * 
+   * @param comparator comparator that compares the two values
    * @param a value to compare, returned if less than or equal to b
    * @param b value to compare
    */
@@ -379,6 +503,12 @@ public final class Comparators {
    * If the values are equal, the first is returned. Null values are allowed if
    * the comparator supports them.
    *
+   * <p>To handle more than two values, call
+   * {@link Ordering#max(Object, Object, Object, Object...)} or
+   * {@link Ordering#max(Iterable)} on the {@link Ordering} returned by
+   * {@link Ordering#forComparator(Comparator)}. 
+   * 
+   * @param comparator comparator that compares the two values
    * @param a value to compare, returned if greater than or equal to b
    * @param b value to compare
    */
@@ -492,6 +622,7 @@ public final class Comparators {
    */
   // @VisibleForTesting
   static class IncomparableValueException extends ClassCastException {
+    private static final long serialVersionUID = 0;
     final Object value;
 
     IncomparableValueException(Object value) {
@@ -508,6 +639,7 @@ public final class Comparators {
    */
   // @VisibleForTesting
   static class DuplicateValueException extends IllegalArgumentException {
+    private static final long serialVersionUID = 0;
     final Object value;
     final int firstIndex;
     final int secondIndex;
@@ -650,47 +782,5 @@ public final class Comparators {
    */
   public static int compare(boolean a, boolean b) {
     return (a == b) ? 0 : (a ? 1 : -1);
-  }
-
-  private static abstract class NullHandlingOrdering<T> extends Ordering<T> {
-    final Comparator<T> comparator;
-
-    public NullHandlingOrdering(Comparator<T> comparator) {
-      this.comparator = checkNotNull(comparator);
-    }
-
-    public int compare(T left, T right) {
-      if (left == right) {
-        return 0;
-      }
-      if (left == null) {
-        return compareNullAndNonNull();
-      }
-      if (right == null) {
-        return -compareNullAndNonNull();
-      }
-      return comparator.compare(left, right);
-    }
-
-    /**
-     * Returns the value this comparator should produce when comparing {@code
-     * null} to any non-null value (in that order).
-     */
-    abstract int compareNullAndNonNull();
-
-    @Override public boolean equals(Object object) {
-      if (object == null) {
-        return false;
-      }
-      if (object.getClass() == getClass()) {
-        NullHandlingOrdering<?> that = (NullHandlingOrdering<?>) object;
-        return (this.comparator).equals(that.comparator);
-      }
-      return false;
-    }
-
-    @Override public int hashCode() {
-      return comparator.hashCode();
-    }
   }
 }

@@ -19,9 +19,10 @@ package com.google.common.collect;
 import com.google.common.base.Nullable;
 
 /**
- * Interface for defining a constraint on the types of keys and values that are
- * allowed to be added to a {@code Map} or {@code Multimap}. For example, to
- * enforce that a map contains no null keys or values, you might say:
+ * A constraint on the keys and values that may be added to a {@code Map} or
+ * {@code Multimap}. For example, {@link MapConstraints#NOT_NULL}, which
+ * prevents a map from including any null keys or values, could be implemented
+ * like this:
  *
  * <pre>  public void checkKeyValue(Object key, Object value) {
  *    if (key == null) {
@@ -32,12 +33,12 @@ import com.google.common.base.Nullable;
  *    }
  *  }</pre>
  *
- * Then use {@link MapConstraints#constrainedMap} to enforce the constraint.
- * This example is contrived; to check for {@code null} use {@link
- * MapConstraints#NOT_NULL}.
- *
- * <p>See {@link Constraint} for an important comment regarding determinism,
- * thread-safety and mutability when implementing constraints.
+ * <p>In order to be effective, constraints should be deterministic; that is,
+ * they should not depend on state that can change (such as external state,
+ * random variables, and time) and should only depend on the value of the
+ * passed-in key and value. A non-deterministic constraint cannot reliably
+ * enforce that all the collection's elements meet the constraint, since the
+ * constraint is only enforced when elements are added.
  *
  * @author Mike Bostock
  * @see MapConstraints
@@ -45,11 +46,16 @@ import com.google.common.base.Nullable;
  */
 public interface MapConstraint<K, V> {
   /**
-   * Implement this method to throw a suitable {@code RuntimeException} if the
-   * specified key or value is illegal. Typically this is either a {@link
-   * NullPointerException}, an {@link IllegalArgumentException}, or a {@link
-   * ClassCastException}, though a more application-specific exception class may
-   * be used as appropriate.
+   * Throws a suitable {@code RuntimeException} if the specified key or value is
+   * illegal. Typically this is either a {@link NullPointerException}, an
+   * {@link IllegalArgumentException}, or a {@link ClassCastException}, though
+   * an application-specific exception class may be used if appropriate.
    */
   void checkKeyValue(@Nullable K key, @Nullable V value);
+  
+  /**
+   * Returns a brief human readable description of this constraint, such as
+   * "Not null".
+   */
+  String toString();  
 }

@@ -16,6 +16,7 @@
 
 package com.google.common.collect;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -24,11 +25,15 @@ import java.util.Map;
  * backing map entry as desired per the <a
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
  * 
+ * <p>Unlike most {@code Forwarding} classes, this class does not implement
+ * {@link Serializable}, since it usually decorates a map entry that shouldn't
+ * be serialized.
+ * 
  * @see ForwardingObject
  * @author Mike Bostock
  */
-public abstract class ForwardingMapEntry<K, V> extends ForwardingObject
-    implements Map.Entry<K, V> {
+public abstract class ForwardingMapEntry<K, V>
+    extends NonSerializableForwardingObject implements Map.Entry<K, V> {
 
   /**
    * Constructs a forwarding map entry that forwards to the provided delegate.

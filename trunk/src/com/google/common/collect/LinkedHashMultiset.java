@@ -16,18 +16,23 @@
 
 package com.google.common.collect;
 
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
 import java.util.LinkedHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * A Multiset implementation with predictable iteration order. Elements appear
- * in the iterator in order by when the <i>first</i> occurrence of the element
- * was added. If all occurrences of an element are removed, then one or more
- * elements added again, the element will not retain its earlier iteration
- * position, but will appear at the end as if it had never been present.
- *
+ * A {@code Multiset} implementation with predictable iteration order. Its
+ * iterator orders elements according to when the first occurrence of the
+ * element was added. When the multiset contains multiple instances of an
+ * element, those instances are consecutive in the iteration order. If all
+ * occurrences of an element are removed, after which that element is added to
+ * the multiset, the element will appear at the end of the iteration.
+ * 
  * @author Kevin Bourrillion
+ * @author Jared Levy
  */
+@SuppressWarnings("serial") // we're overriding default serialization
 public final class LinkedHashMultiset<E> extends AbstractMapBasedMultiset<E> {
   /**
    * Constructs a new empty {@code LinkedHashMultiset} using the default initial
@@ -60,5 +65,22 @@ public final class LinkedHashMultiset<E> extends AbstractMapBasedMultiset<E> {
     Iterables.addAll(this, elements); // careful if we make this class non-final
   }
 
-  private static final long serialVersionUID = -1489616374694050806L;
+  private static class SerializedForm<E> extends MultisetSerializedForm<E> {
+    SerializedForm(Multiset<E> multiset) {
+      super(multiset);
+    }
+    @Override protected Multiset<E> createEmpty() {
+      return new LinkedHashMultiset<E>(elementCount());
+    }
+    private static final long serialVersionUID = 0;
+  }
+
+  private void readObject(ObjectInputStream stream)
+      throws InvalidObjectException {
+    throw new InvalidObjectException("Use SerializedForm");
+  }
+
+  private Object writeReplace() {
+    return new SerializedForm<E>(this);
+  }
 }

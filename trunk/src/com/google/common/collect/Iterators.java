@@ -25,6 +25,7 @@ import static com.google.common.base.Preconditions.checkContentsNotNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import com.google.common.base.Predicate;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -135,10 +136,11 @@ public final class Iterators {
   }
 
   /**
-   * Determines whether two iterators contain equal elements. More specifically,
-   * this method returns {@code true} if {@code iterator1} and {@code
-   * iterator2} contain the same number of elements and every element of {@code
-   * iterator1} is equal to the corresponding element of {@code iterator2}.
+   * Determines whether two iterators contain equal elements in the same order.
+   * More specifically, this method returns {@code true} if {@code iterator1}
+   * and {@code iterator2} contain the same number of elements and every element
+   * of {@code iterator1} is equal to the corresponding element of
+   * {@code iterator2}.
    *
    * <p>Note that this will modify the supplied iterators, since they will have
    * been advanced some number of elements forward.
@@ -159,9 +161,9 @@ public final class Iterators {
   }
 
   /**
-   * Returns a string representation of the elements in {@code iterator}, with
-   * the format "{@code [e1, e2, ..., en]}". The iterator will be left
-   * exhausted: its {@code hasNext()} method will return {@code false}.
+   * Returns a string representation of {@code iterator}, with the format
+   * {@code [e1, e2, ..., en]}. The iterator will be left exhausted: its
+   * {@code hasNext()} method will return {@code false}.
    */
   public static String toString(Iterator<?> iterator) {
     StringBuilder builder = new StringBuilder().append('[');
@@ -201,15 +203,16 @@ public final class Iterators {
   }
 
   /**
-   * Converts an iterator into an array. The iterator will be left exhausted:
-   * its {@code hasNext()} method will return {@code false}.
-   * 
-   * @param iterator the iterator to convert
+   * Copies an iterator's elements into an array. The iterator will be left
+   * exhausted: its {@code hasNext()} method will return {@code false}.
+   *
+   * @param iterator the iterator to copy
    * @param type the type of the elements
    * @return a newly-allocated array into which all the elements of the iterator
-   *         have been copied. It may be empty, but it never will be null.
+   *         have been copied
    */
-  public static <T> T[] newArray(Iterator<T> iterator, Class<T> type) {
+  public static <T> T[] newArray(
+      Iterator<? extends T> iterator, Class<T> type) {
     List<T> list = Lists.newArrayList(iterator);
     return Iterables.newArray(list, type);
   }
@@ -218,7 +221,7 @@ public final class Iterators {
    * Adds all elements in {@code iterator} to {@code collection}. The iterator
    * will be left exhausted: its {@code hasNext()} method will return
    * {@code false}.
-   * 
+   *
    * @return {@code true} if {@code collection} was modified as a result of this
    *         operation
    */
@@ -233,10 +236,10 @@ public final class Iterators {
   }
 
   /**
-   * Returns the number of elements in the specified iterator equal to the
+   * Returns the number of elements in the specified iterator that equal the
    * specified object. The iterator will be left exhausted: its
    * {@code hasNext()} method will return {@code false}.
-   * 
+   *
    * @see Collections#frequency
    */
   public static int frequency(Iterator<?> iterator, @Nullable Object element) {
@@ -260,13 +263,13 @@ public final class Iterators {
   /**
    * Returns an iterator that cycles indefinitely over the elements of {@code
    * iterable}.
-   * 
+   *
    * <p>The returned iterator supports {@code remove()} if the provided iterator
    * does. After {@code remove()} is called, subsequent cycles omit the removed
    * element, which is no longer in {@code iterable}. The iterator's
    * {@code hasNext()} method returns {@code true} until {@code iterable} is
    * empty.
-   *   
+   *
    * <p><b>Warning:</b> Typical uses of the resulting iterator may produce an
    * infinite loop. You should use an explicit {@code break} or be certain that
    * you will eventually remove all the elements.
@@ -301,13 +304,13 @@ public final class Iterators {
 
   /**
    * Returns an iterator that cycles indefinitely over the provided elements.
-   * 
+   *
    * <p>The returned iterator supports {@code remove()} if the provided iterator
-   * does. After calling {@code remove()}, subsequent cycles omit the removed
+   * does. After {@code remove()} is called, subsequent cycles omit the removed
    * element, but {@code elements} does not change. The iterator's
    * {@code hasNext()} method returns {@code true} until all of the original
    * elements have been removed.
-   * 
+   *
    * <p><b>Warning:</b> Typical uses of the resulting iterator may produce an
    * infinite loop. You should use an explicit {@code break} or be certain that
    * you will eventually remove all the elements.
@@ -320,9 +323,9 @@ public final class Iterators {
    * Combines two iterators into a single iterator. The returned iterator
    * iterates across the elements in {@code a}, followed by the elements in
    * {@code b}. The source iterators are not polled until necessary.
-   * 
-   * <p>The returned iterator supports {@code remove()} when the appropriate
-   * source iterator supports it.
+   *
+   * <p>The returned iterator supports {@code remove()} when the corresponding
+   * input iterator supports it.
    */
   @SuppressWarnings("unchecked")
   public static <T> Iterator<T> concat(Iterator<? extends T> a,
@@ -334,38 +337,37 @@ public final class Iterators {
 
   /**
    * Combines multiple iterators into a single iterator. The returned iterator
-   * iterates across the elements in each source iterator. The source iterators
-   * are not polled until necessary.
+   * iterates across the elements of each iterator in {@code inputs}. The input
+   * iterators are not polled until necessary.
    *
-   * <p>The returned iterator supports {@code remove()} when the appropriate
-   * source iterator supports it.
-   * 
+   * <p>The returned iterator supports {@code remove()} when the corresponding
+   * input iterator supports it.
+   *
    * @throws NullPointerException if any of the provided iterators is null
    */
-  public static <T> Iterator<T> concat(Iterator<? extends T>... iterators) {    
-    return concat(checkContentsNotNull(Arrays.asList(iterators)).iterator());
+  public static <T> Iterator<T> concat(Iterator<? extends T>... inputs) {
+    return concat(checkContentsNotNull(Arrays.asList(inputs)).iterator());
   }
 
   /**
    * Combines multiple iterators into a single iterator. The returned iterator
-   * iterates across the elements in each source iterator. The source iterators
-   * are not polled until necessary.
+   * iterates across the elements of each iterator in {@code inputs}. The input
+   * iterators are not polled until necessary.
    *
-   * <p>The returned iterator supports {@link Iterator#remove()} when the
-   * appropriate source iterator supports it. The methods of the returned
-   * iterator may throw {@code NullPointerException} if any of the source
-   * iterators are null.
+   * <p>The returned iterator supports {@code remove()} when the corresponding
+   * input iterator supports it. The methods of the returned iterator may throw
+   * {@code NullPointerException} if any of the input iterators are null.
    */
   public static <T> Iterator<T> concat(
-      final Iterator<? extends Iterator<? extends T>> iterators) {
-    checkNotNull(iterators);
+      final Iterator<? extends Iterator<? extends T>> inputs) {
+    checkNotNull(inputs);
     return new Iterator<T>() {
       Iterator<? extends T> current = emptyIterator();
       Iterator<? extends T> removeFrom;
 
       public boolean hasNext() {
-        while (!current.hasNext() && iterators.hasNext()) {
-          current = iterators.next();
+        while (!current.hasNext() && inputs.hasNext()) {
+          current = inputs.next();
         }
         return current.hasNext();
       }
@@ -386,12 +388,13 @@ public final class Iterators {
   }
 
   /**
-   * Partition an iterator into sub-iterators of the given size like so: {A, B,
-   * C, D, E, F} with partition size 3 => {A, B, C} and {D, E, F}. The returned
-   * iterator does not support {@code remove()}.
+   * Partition an iterator into sub-iterators of the given size. For example,
+   * <code>{A, B, C, D, E, F}</code> with partition size 3 yields
+   * <code>{A, B, C}</code> and <code>{D, E, F}</code>. The returned
+   * iterators do not support {@code remove()}.
    *
-   * <p>After you call {@code next()} on the returned iterator, the iterators
-   * from prior {@code next()} calls become invalid. 
+   * <p>After {@code next()} is called on the returned iterator, the iterators
+   * from prior {@code next()} calls become invalid.
    *
    * @param iterator the iterator to partition
    * @param partitionSize the size of each partition
@@ -439,9 +442,8 @@ public final class Iterators {
   }
 
   /**
-   * Returns the elements of {@code unfiltered} that satisfy a predicate. It may
-   * return an empty iterator, but never {@code null}. The resulting iterator
-   * does not support {@code remove()}.
+   * Returns the elements of {@code unfiltered} that satisfy a predicate. The
+   * resulting iterator does not support {@code remove()}.
    */
   public static <T> Iterator<T> filter(
       final Iterator<T> unfiltered, final Predicate<? super T> predicate) {
@@ -521,7 +523,7 @@ public final class Iterators {
    * state such that calling {@code iterator.remove()} will remove the found
    * item. If no such element is found, the iterator will be left exhausted: its
    * {@code hasNext()} method will return {@code false}.
-   * 
+   *
    * @return the first matching element in {@code iterator}
    * @throws NoSuchElementException if no element in {@code iterator} matches
    *         the given predicate
@@ -534,7 +536,7 @@ public final class Iterators {
   /**
    * Returns an iterator that applies {@code function} to each element of {@code
    * fromIterator}.
-   * 
+   *
    * <p>The returned iterator supports {@code remove()} if the provided iterator
    * does. After a successful {@code remove()} call, {@code fromIterator} no
    * longer contains the corresponding element.
@@ -558,8 +560,35 @@ public final class Iterators {
   }
 
   /**
-   * Advances {@code iterator} to the end, returning the last element. 
-   * 
+   * Advances {@code iterator} {@code position + 1} times, returning the element
+   * at the {@code position}th position.
+   *
+   * @param position position of the element to return
+   * @return the element at the specified position in {@code iterator}
+   * @throws IndexOutOfBoundsException if {@code position} is negative or
+   *         greater than or equal to the number of elements remaining in
+   *         {@code iterator}
+   */
+  public static <T> T get(Iterator<T> iterator, int position) {
+    checkNotNull(iterator);
+    if (position < 0) {
+      throw new IndexOutOfBoundsException(
+          "position cannot be negative: " + position);
+    }
+
+    int skipped = skip(iterator, position);
+    if (skipped < position || !iterator.hasNext()) {
+      throw new IndexOutOfBoundsException(String.format(
+          "position (%d) must be less than the number of elements that " +
+          "remained (%d)", position, skipped));
+    } else {
+      return iterator.next();
+    }
+  }
+
+  /**
+   * Advances {@code iterator} to the end, returning the last element.
+   *
    * @return the last element of {@code iterator}
    * @throws NoSuchElementException if the iterator has no remaining elements
    */
@@ -575,7 +604,7 @@ public final class Iterators {
   /**
    * Calls {@code next()} on {@code iterator}, either {@code numberToSkip} times
    * or until {@code hasNext()} returns {@code false}, whichever comes first.
-   * 
+   *
    * @return the number of elements skipped
    */
   public static <T> int skip(Iterator<T> iterator, int numberToSkip) {
@@ -589,6 +618,42 @@ public final class Iterators {
     return i;
   }
 
+  /**
+   * Creates an iterator returning the first {@code limitSize} elements of the
+   * given iterator. If the original iterator does not contain that many
+   * elements, the returned iterator will have the same behavior as the original
+   * iterator. The returned iterator supports {@code remove()} if the original
+   * iterator does.
+   *
+   * @param iterator the iterator to limit
+   * @param limitSize the maximum number of elements in the returned iterator
+   * @throws IllegalArgumentException if {@code limitSize} is negative
+   */
+  public static <T> Iterator<T> limit(
+      final Iterator<T> iterator, final int limitSize) {
+    checkNotNull(iterator);
+    checkArgument(limitSize >= 0, "limit is negative");
+    return new Iterator<T>() {
+      private int count;
+
+      public boolean hasNext() {
+        return count < limitSize && iterator.hasNext();
+      }
+
+      public T next() {
+        if (!hasNext()) {
+          throw new NoSuchElementException();
+        }
+        count++;
+        return iterator.next();
+      }
+
+      public void remove() {
+        iterator.remove();
+      }
+    };
+  }
+
   // Methods only in Iterators, not in Iterables
 
   /**
@@ -596,20 +661,53 @@ public final class Iterators {
    * that you can also use the iterator of {@link Arrays#asList}.
    */
   static <T> Iterator<T> forArray(final T[] array) {
+    return forArray(array, 0, array.length);
+  }
+
+  /**
+   * Returns an iterator containing the elements in the specified range of
+   * {@code array} in order.
+   */
+  public static <T> Iterator<T> forArray(
+      final T[] array, final int offset, final int length) {
     checkNotNull(array);
-    if (array.length == 0) {
+    if (length == 0) {
       return emptyIterator();
     }
+    checkArgument(length >= 0 && offset >= 0
+        && (offset + length <= array.length));
     return new Iterator<T>() {
-      int i = 0;
+      int i = offset;
       public boolean hasNext() {
-        return i < array.length;
+        return i < offset + length;
       }
       public T next() {
         if (!hasNext()) {
           throw new NoSuchElementException();
         }
         return array[i++];
+      }
+      public void remove() {
+        throw new UnsupportedOperationException();
+      }
+    };
+  }
+
+  /**
+   * Returns an iterator containing only {@code value}.
+   */
+  static <T> Iterator<T> singletonIterator(final T value) {
+    return new Iterator<T>() {
+      boolean done;
+      public boolean hasNext() {
+        return !done;
+      }
+      public T next() {
+        if (done) {
+          throw new NoSuchElementException();
+        }
+        done = true;
+        return value;
       }
       public void remove() {
         throw new UnsupportedOperationException();
@@ -655,51 +753,15 @@ public final class Iterators {
   }
 
   /**
-   * Creates an iterator returning the first {@code limit} elements of the given
-   * iterator. If the original iterator does not contain that many elements, the
-   * returned iterator will have the same behavior as the original iterator. The
-   * returned iterator supports {@code remove()} if the original iterator
-   * supports it.
-   * 
-   * @param iterator the iterator to limit
-   * @param limit the maximum number of elements in the returned iterator
-   * @throws IllegalArgumentException if limit is negative
-   */
-  public static <T> Iterator<T> limit(
-      final Iterator<T> iterator, final int limit) {
-    checkNotNull(iterator);
-    checkArgument(limit >= 0, "limit is negative");
-    return new Iterator<T>() {
-      private int count;
-
-      public boolean hasNext() {
-        return count < limit && iterator.hasNext();
-      }
-
-      public T next() {
-        if (!hasNext()) {
-          throw new NoSuchElementException();
-        }
-        count++;
-        return iterator.next();
-      }
-
-      public void remove() {
-        iterator.remove();
-      }
-    };
-  }
-
-  /**
    * Implementation of PeekingIterator that avoids peeking unless necessary.
    */
   private static class PeekingImpl<E> implements PeekingIterator<E> {
 
-    private final Iterator<E> iterator;
+    private final Iterator<? extends E> iterator;
     private boolean hasPeeked;
     private E peekedElement;
 
-    public PeekingImpl(Iterator<E> iterator) {
+    public PeekingImpl(Iterator<? extends E> iterator) {
       this.iterator = checkNotNull(iterator);
     }
 
@@ -759,7 +821,8 @@ public final class Iterators {
    * is unsupported by the returned iterator and will throw an
    * {@link IllegalStateException}.
    */
-  public static <T> PeekingIterator<T> peekingIterator(Iterator<T> iterator) {
+  public static <T> PeekingIterator<T> peekingIterator(
+      Iterator<? extends T> iterator) {
     return new PeekingImpl<T>(iterator);
   }
 }

@@ -20,6 +20,7 @@ import com.google.common.base.Nullable;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+
 import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -260,7 +261,7 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
     return new MapBasedElementSet(backingMap);      
   }
 
-  class MapBasedElementSet extends ForwardingSet<E> {
+  class MapBasedElementSet extends NonSerializableForwardingSet<E> {
     /**
      * This mapping is the usually the same as {@code backingMap}, but can
      * be a submap in some implementations.
@@ -304,11 +305,11 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
     }
 
     @Override public boolean removeAll(Collection<?> elementsToRemove) {
-      return removeAllImpl(this, elementsToRemove);
+      return ForwardingSet.removeAllImpl(this, elementsToRemove);
     }
 
     @Override public boolean retainAll(Collection<?> elementsToRetain) {
-      return retainAllImpl(this, elementsToRetain);
+      return ForwardingSet.retainAllImpl(this, elementsToRetain);
     }
 
     @Override public void clear() {
@@ -327,6 +328,4 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
       return map;
     }    
   }
-  
-  private static final long serialVersionUID = 8960755798254249671L;
 }

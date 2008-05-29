@@ -16,6 +16,8 @@
 
 package com.google.common.collect;
 
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.SortedMap;
@@ -27,7 +29,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Multiset implementation backed by a TreeMap.
  *
  * @author Neal Kanodia
+ * @author Jared Levy
  */
+@SuppressWarnings("serial") // we're overriding default serialization
 public final class TreeMultiset<E> extends AbstractMapBasedMultiset<E> {
   /**
    * Constructs a new, empty multiset, sorted according to the elements' natural
@@ -133,5 +137,24 @@ public final class TreeMultiset<E> extends AbstractMapBasedMultiset<E> {
    * have equal entry sets.
    */
   
-  private static final long serialVersionUID = 980261132547708887L;
+  private static class SerializedForm<E> extends MultisetSerializedForm<E> {
+    private final Comparator<? super E> comparator;
+    SerializedForm(TreeMultiset<E> multiset) {
+      super(multiset);
+      comparator = multiset.elementSet().comparator();
+    }
+    @Override protected Multiset<E> createEmpty() {
+      return new TreeMultiset<E>(comparator);
+    }
+    private static final long serialVersionUID = 0;
+  }
+
+  private void readObject(ObjectInputStream stream)
+      throws InvalidObjectException {
+    throw new InvalidObjectException("Use SerializedForm");
+  }
+
+  private Object writeReplace() {
+    return new SerializedForm<E>(this);
+  }
 }

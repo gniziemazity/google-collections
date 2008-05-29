@@ -16,8 +16,9 @@
 
 package com.google.common.base;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkContentsNotNull;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
@@ -185,10 +186,8 @@ public final class Predicates {
    * of the predicate.
    *
    * @param target the collection to test against
-   *
-   * <p>TODO: Consider changing signature to {@code in(Collection<?> target)}.
    */
-  public static <T> Predicate<T> in(Collection<T> target) {
+  public static <T> Predicate<T> in(Collection<?> target) {
     return new InPredicate<T>(target);
   }
 
@@ -458,23 +457,22 @@ public final class Predicates {
       implements Predicate<T>, Serializable {
     private static final long serialVersionUID = 8423798306294600396L;
 
-    private final Collection<T> target;
+    private final Collection<?> target;
 
-    private InPredicate(Collection<T> target) {
+    private InPredicate(Collection<?> target) {
       this.target = checkNotNull(target);
     }
 
     public boolean apply(T t) {
-      boolean result = false;
       try {
-        result = target.contains(t);
+        return target.contains(t);
       } catch (NullPointerException e) {
-        result = false;
+        return false;
       } catch (ClassCastException e) {
-        result = false;
+        return false;
       }
-      return result;
     }
+
     @Override public boolean equals(Object obj) {
       if (obj instanceof InPredicate<?>) {
         InPredicate<?> that = (InPredicate<?>) obj;
@@ -482,12 +480,12 @@ public final class Predicates {
       }
       return false;
     }
-    @Override
-    public int hashCode() {
+
+    @Override public int hashCode() {
       return target.hashCode();
     }
-    @Override
-    public String toString() {
+
+    @Override public String toString() {
       return "In(" + target + ")";
     }
   }

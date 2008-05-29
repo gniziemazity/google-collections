@@ -16,8 +16,8 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
-import static com.google.common.base.Preconditions.checkArgument;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
@@ -34,12 +33,11 @@ import java.util.Set;
  * user-specified iteration order. Does not permit null elements.
  *
  * <p>Unlike {@link Collections#unmodifiableSet}, which is a <i>view</i> of a
- * separate collection that can still change, an instance of {@code
- * ImmutableSet} contains its own private data and will <i>never</i> change.
- * {@code ImmutableSet} is convenient for {@code public static final} sets
- * ("constant sets") and also lets you easily make a "defensive copy" of a set
- * provided to your class by a caller.
- * 
+ * separate collection that can still change, an instance of this class contains
+ * its own private data and will <i>never</i> change. This class is convenient
+ * for {@code public static final} sets ("constant sets") and also lets you
+ * easily make a "defensive copy" of a set provided to your class by a caller.
+ *
  * <p><b>Warning:</b> Like most sets, an {@code ImmutableSet} will not function
  * correctly if an element is modified after being placed in the set. For this
  * reason, and to avoid general confusion, it is strongly recommended to place
@@ -50,14 +48,16 @@ import java.util.Set;
  * (as a well-behaved immutable object should).
  *
  * <p><b>Note</b>: Although this class is not final, it cannot be subclassed as
- * it has no public or protected constructors. Thus, the immutability guarantee
- * can be trusted.
+ * it has no public or protected constructors. Thus, instances of this type are
+ * guaranteed to be immutable.
  *
  * @see ImmutableList
+ * @see ImmutableMap
  * @author Kevin Bourrillion
  */
 @SuppressWarnings("serial") // we're overriding default serialization
-public abstract class ImmutableSet<E> implements Set<E>, Serializable {
+public abstract class ImmutableSet<E> extends ImmutableCollection<E>
+    implements Set<E> {
   private static final ImmutableSet<?> EMPTY_IMMUTABLE_SET
       = new EmptyImmutableSet();
 
@@ -88,7 +88,7 @@ public abstract class ImmutableSet<E> implements Set<E>, Serializable {
    * first are ignored (but too many of these may result in the set being
    * sized inappropriately).
    *
-   * @throws NullPointerException if any of {@code elements} are null
+   * @throws NullPointerException if any of {@code elements} is null
    */
   public static <E> ImmutableSet<E> of(E... elements) {
     switch (elements.length) {
@@ -117,7 +117,7 @@ public abstract class ImmutableSet<E> implements Set<E>, Serializable {
    * is an {@code ImmutableSet}, no copy will actually be performed, and the
    * given set itself will be returned.
    *
-   * @throws NullPointerException if any of {@code elements} are null
+   * @throws NullPointerException if any of {@code elements} is null
    */
   public static <E> ImmutableSet<E> copyOf(Iterable<? extends E> elements) {
     if (elements instanceof ImmutableSet<?>) {
@@ -130,65 +130,40 @@ public abstract class ImmutableSet<E> implements Set<E>, Serializable {
       case 0:
         return of();
       case 1:
-        // TODO: remove "ImmutableSet.<E>" when eclipse bug is fixed
+        // TODO: Remove "ImmutableSet.<E>" when eclipse bug is fixed.
         return ImmutableSet.<E>of(elements.iterator().next());
       default:
         return create(elements, size);
     }
   }
 
-  private final int hashCode;
+  ImmutableSet() {}
 
-  private ImmutableSet(int hashCode) {
-    this.hashCode = hashCode;
-  }
-
-  // Overriding to mark it Nullable
-  public abstract boolean contains(@Nullable Object target);
-
-  public boolean containsAll(Collection<?> targets) {
-    for (Object target : targets) {
-      if (!contains(target)) {
-        return false;
-      }
+  @Override public boolean equals(Object object) {
+    if (object == this) {
+      return true;
     }
-    return true;
+    if (object instanceof ImmutableSet<?> && hashCode() != object.hashCode()) {
+      return false;
+    }
+    if (object instanceof Set<?>) {
+      Set<?> that = (Set<?>) object;
+      return size() == that.size() && containsAll(that);
+    }
+    return false;
   }
-
-  /** Not supported. */
-  public final boolean add(E newElement) {
-    throw new UnsupportedOperationException();
-  }
-  /** Not supported. */
-  public final boolean remove(Object oldElement) {
-    throw new UnsupportedOperationException();
-  }
-  /** Not supported. */
-  public final boolean addAll(Collection<? extends E> newElements) {
-    throw new UnsupportedOperationException();
-  }
-  /** Not supported. */
-  public final boolean removeAll(Collection<?> oldElements) {
-    throw new UnsupportedOperationException();
-  }
-  /** Not supported. */
-  public final boolean retainAll(Collection<?> elementsToKeep) {
-    throw new UnsupportedOperationException();
-  }
-  /** Not supported. */
-  public final void clear() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override public final int hashCode() {
-    return hashCode;
+  
+  @Override public String toString() {
+    Iterator<E> iterator = iterator();
+    StringBuilder result = new StringBuilder(size() * 16);
+    result.append('[').append(iterator.next().toString());
+    for (int i = 1; i < size(); i++) {
+      result.append(", ").append(iterator.next().toString());
+    }
+    return result.append(']').toString();
   }
 
   private static final class EmptyImmutableSet extends ImmutableSet<Object> {
-    EmptyImmutableSet() {
-      super(0);
-    }
-
     public int size() {
       return 0;
     }
@@ -205,11 +180,11 @@ public abstract class ImmutableSet<E> implements Set<E>, Serializable {
       return Iterators.emptyIterator();
     }
 
-    public Object[] toArray() {
+    @Override public Object[] toArray() {
       return ObjectArrays.EMPTY_ARRAY;
     }
 
-    public <T> T[] toArray(T[] a) {
+    @Override public <T> T[] toArray(T[] a) {
       if (a.length > 0) {
         a[0] = null;
       }
@@ -225,6 +200,10 @@ public abstract class ImmutableSet<E> implements Set<E>, Serializable {
           || (object instanceof Set<?> && ((Set<?>) object).isEmpty());
     }
 
+    @Override public final int hashCode() {
+      return 0;
+    }
+
     @Override public String toString() {
       return "[]";
     }
@@ -232,10 +211,11 @@ public abstract class ImmutableSet<E> implements Set<E>, Serializable {
 
   private static final class SingletonImmutableSet<E> extends ImmutableSet<E> {
     final E element;
-
+    final int hashCode;
+    
     SingletonImmutableSet(E element, int hashCode) {
-      super(hashCode);
       this.element = element;
+      this.hashCode = hashCode;
     }
 
     public int size() {
@@ -251,31 +231,15 @@ public abstract class ImmutableSet<E> implements Set<E>, Serializable {
     }
 
     public Iterator<E> iterator() {
-      // TODO: may need to reuse this somewhere
-      return new Iterator<E>() {
-        boolean done;
-        public boolean hasNext() {
-          return !done;
-        }
-        public E next() {
-          if (done) {
-            throw new NoSuchElementException();
-          }
-          done = true;
-          return element;
-        }
-        public void remove() {
-          throw new UnsupportedOperationException();
-        }
-      };
+      return Iterators.singletonIterator(element);
     }
 
-    public Object[] toArray() {
+    @Override public Object[] toArray() {
       return new Object[] { element };
     }
 
     @SuppressWarnings({"unchecked"})
-    public <T> T[] toArray(T[] array) {
+    @Override public <T> T[] toArray(T[] array) {
       if (array.length == 0) {
         array = ObjectArrays.newArray(array, 1);
       } else if (array.length > 1) {
@@ -296,6 +260,10 @@ public abstract class ImmutableSet<E> implements Set<E>, Serializable {
       return false;
     }
 
+    @Override public final int hashCode() {
+      return hashCode;
+    }
+
     @Override public String toString() {
       String elementToString = element.toString();
       return new StringBuilder(elementToString.length() + 2)
@@ -309,7 +277,7 @@ public abstract class ImmutableSet<E> implements Set<E>, Serializable {
   private static <E> ImmutableSet<E> create(
       Iterable<? extends E> iterable, int count) {
     // count is always the (nonzero) number of elements in the iterable
-    int tableSize = chooseTableSize(count);
+    int tableSize = Hashing.chooseTableSize(count);
     Object[] table = new Object[tableSize];
     int mask = tableSize - 1;
 
@@ -318,7 +286,7 @@ public abstract class ImmutableSet<E> implements Set<E>, Serializable {
 
     for (E element : iterable) {
       int hash = element.hashCode();
-      for (int i = smear(hash); true; i++) {
+      for (int i = Hashing.smear(hash); true; i++) {
         int index = i & mask;
         Object value = table[index];
         if (value == null) {
@@ -336,20 +304,16 @@ public abstract class ImmutableSet<E> implements Set<E>, Serializable {
     // The iterable might have contained only duplicates of the same element.
     return (elements.size() == 1)
         ? new SingletonImmutableSet<E>(elements.get(0), hashCode)
-        : new RegularImmutableSet<E>(elements.toArray(), table, mask, hashCode);
+        : new RegularImmutableSet<E>(elements.toArray(), hashCode, table, mask);
   }
 
-  private static final class RegularImmutableSet<E> extends ImmutableSet<E> {
+  abstract static class ArrayImmutableSet<E> extends ImmutableSet<E> {
     final Object[] elements; // the elements (two or more) in the desired order
-    final Object[] table; // the same elements in hashed positions (plus nulls)
-    final int mask; // 'and' with an int to get a valid table index
+    final int hashCode;
 
-    RegularImmutableSet(
-        Object[] elements, Object[] table, int mask, int hashCode) {
-      super(hashCode);
+    ArrayImmutableSet(Object[] elements, int hashCode) {
       this.elements = elements;
-      this.table = table;
-      this.mask = mask;
+      this.hashCode = hashCode;
     }
 
     public int size() {
@@ -369,13 +333,13 @@ public abstract class ImmutableSet<E> implements Set<E>, Serializable {
       return (Iterator<E>) Iterators.forArray(elements);
     }
 
-    public Object[] toArray() {
+    @Override public Object[] toArray() {
       Object[] array = new Object[size()];
       System.arraycopy(elements, 0, array, 0, size());
       return array;
     }
 
-    public <T> T[] toArray(T[] array) {
+    @Override public <T> T[] toArray(T[] array) {
       int size = size();
       if (array.length < size) {
         array = ObjectArrays.newArray(array, size);
@@ -386,11 +350,46 @@ public abstract class ImmutableSet<E> implements Set<E>, Serializable {
       return array;
     }
 
+    @Override public boolean containsAll(Collection<?> targets) {
+      if (targets == this) {
+        return true;
+      }
+      if (!(targets instanceof ArrayImmutableSet<?>)) {
+        return super.containsAll(targets);
+      }
+      if (targets.size() > size()) {
+        return false;
+      }
+      for (Object target : ((ArrayImmutableSet<?>) targets).elements) {
+        if (!contains(target)) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    @Override public final int hashCode() {
+      return hashCode;
+    }
+  }
+
+  private static final class RegularImmutableSet<E>
+      extends ArrayImmutableSet<E> {
+    final Object[] table; // the same elements in hashed positions (plus nulls)
+    final int mask; // 'and' with an int to get a valid table index
+
+    RegularImmutableSet(Object[] elements, int hashCode,
+        Object[] table, int mask) {
+      super(elements, hashCode);
+      this.table = table;
+      this.mask = mask;
+    }
+
     @Override public boolean contains(Object target) {
       if (target == null) {
         return false;
       }
-      for (int i = smear(target.hashCode()); true; i++) {
+      for (int i = Hashing.smear(target.hashCode()); true; i++) {
         Object candidate = table[i & mask];
         if (candidate == null) {
           return false;
@@ -400,75 +399,61 @@ public abstract class ImmutableSet<E> implements Set<E>, Serializable {
         }
       }
     }
+  }
 
-    @Override public boolean containsAll(Collection<?> targets) {
-      if (targets == this) {
-        return true;
-      }
-      if (!(targets instanceof RegularImmutableSet<?>)) {
-        return super.containsAll(targets);
-      }
-      if (targets.size() > size()) {
-        return false;
-      }
-      for (Object target : ((RegularImmutableSet<?>) targets).elements) {
-        if (!contains(target)) {
-          return false;
-        }
-      }
-      return true;
+  /** such as ImmutableMap.keySet() */
+  abstract static class TransformedImmutableSet<D, E> extends ImmutableSet<E> {
+    final D[] source;
+    final int hashCode;
+
+    TransformedImmutableSet(D[] source, int hashCode) {
+      this.source = source;
+      this.hashCode = hashCode;
     }
 
-    @Override public boolean equals(Object object) {
-      if (object == this) {
-        return true;
-      }
-      if (object instanceof ImmutableSet<?> && hashCode() != object.hashCode())
-      {
-        return false;
-      }
-      if (object instanceof Set<?>) {
-        Set<?> that = (Set<?>) object;
-        return size() == that.size() && containsAll(that);
-      }
+    abstract E transform(D element);
+
+    public int size() {
+      return source.length;
+    }
+
+    public boolean isEmpty() {
       return false;
     }
 
-    @Override public String toString() {
-      StringBuilder result = new StringBuilder(size() * 16);
-      result.append('[').append(elements[0].toString());
-      for (int i = 1; i < size(); i++) {
-        result.append(", ").append(elements[i].toString());
+    public Iterator<E> iterator() {
+      return new AbstractIterator<E>() {
+        int index = 0;
+        @Override protected E computeNext() {
+          return index < source.length
+              ? transform(source[index++])
+              : endOfData();
+        }
+      };
+    }
+
+    @Override public Object[] toArray() {
+      return toArray(new Object[size()]);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override public <T> T[] toArray(T[] array) {
+      int size = size();
+      if (array.length < size) {
+        array = ObjectArrays.newArray(array, size);
+      } else if (array.length > size) {
+        array[size] = null;
       }
-      return result.append(']').toString();
+
+      for (int i = 0; i < source.length; i++) {
+        array[i] = (T) transform(source[i]);
+      }
+      return array;
     }
-  }
 
-  // We use power-of-2 tables, and this is the highest int that's a power of 2
-  private static final int MAX_TABLE_SIZE = 1 << 30;
-
-  // If the set has this many elements, it will "max out" the table size
-  private static final int CUTOFF = 1 << 29;
-
-  // Size the table to be at most 50% full, if possible
-  /*@VisibleForTesting*/ static int chooseTableSize(int setSize) {
-    if (setSize < CUTOFF) {
-      return Integer.highestOneBit(setSize) << 2;
+    @Override public final int hashCode() {
+      return hashCode;
     }
-    
-    // The table can't be completely full or we'll get infinite reprobes
-    checkArgument(setSize < MAX_TABLE_SIZE, "set too large");
-    return MAX_TABLE_SIZE;
-  }
-
-  /*
-   * Doug Lea's defensive hash code transform (this also appears in
-   * java/util/HashMap.java.) TODO: make this available at least as a
-   * protected method inside common.collect; possibly public.
-   */
-  private static int smear(int hashCode) {
-    hashCode ^= (hashCode >>> 20) ^ (hashCode >>> 12);
-    return hashCode ^ (hashCode >>> 7) ^ (hashCode >>> 4);
   }
 
   /*
@@ -489,7 +474,12 @@ public abstract class ImmutableSet<E> implements Set<E>, Serializable {
     private static final long serialVersionUID = 0;
   }
 
-  private Object writeReplace() {
+  private void readObject(ObjectInputStream stream)
+      throws InvalidObjectException {
+    throw new InvalidObjectException("Use SerializedForm");
+  }
+
+  @Override Object writeReplace() {
     return new SerializedForm(toArray());
   }
 }

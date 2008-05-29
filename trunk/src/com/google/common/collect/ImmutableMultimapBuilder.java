@@ -18,6 +18,7 @@ package com.google.common.collect;
 
 import com.google.common.base.Nullable;
 import static com.google.common.base.Preconditions.checkState;
+
 import java.util.Arrays;
 
 /**

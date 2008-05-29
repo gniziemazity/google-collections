@@ -18,6 +18,7 @@ package com.google.common.collect;
 
 import com.google.common.base.Nullable;
 import static com.google.common.base.Preconditions.checkArgument;
+
 import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -37,6 +38,10 @@ import java.util.concurrent.ConcurrentMap;
  * it can contain only values that are legal keys for the backing map. Thus,
  * when using the default {@link ConcurrentHashMap}, this implementation cannot
  * contain {@code null}.
+ * 
+ * <p>An instance of this class is serializable, as long as all of its elements
+ * are serializable and the instance wasn't created by passing a
+ * non-serializable map to {@link #ConcurrentMultiset(ConcurrentMap)}.  
  *
  * @author Cliff L. Biffle
  */
@@ -431,5 +436,10 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
     return (i == null) ? 0 : i;
   }
 
+  /*
+   * This class can't use MultisetSerializedForm for serialization because it
+   * can't generate the arbitrary empty ConcurrentMap passed to the
+   * ConcurrentMultiset(ConcurrentMap) constructor. 
+   */
   private static final long serialVersionUID = 0L;
 }

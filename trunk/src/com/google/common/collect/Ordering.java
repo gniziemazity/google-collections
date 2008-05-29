@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,16 +33,38 @@ import java.util.List;
 public abstract class Ordering<T> implements Comparator<T>, Serializable {
 
   /**
-   * Returns an Ordering for {@code comparator}.
+   * Returns an ordering that uses the natural order of the values.
+   * 
+   * <p>The type specification is {@code <T extends Comparable>}, instead of
+   * the more specific {@code <T extends Comparable<? super T>>}, to support
+   * classes defined without generics.
+   */
+  @SuppressWarnings("unchecked")   // see explanation in method Javadoc
+  public static <T extends Comparable> Ordering<T> natural() {
+    return Comparators.naturalOrder();
+  }
+  
+  /**
+   * Returns an ordering for {@code comparator}.
    *
    * @param comparator the comparator that defines the order
    */
   public static <T> Ordering<T> forComparator(final Comparator<T> comparator) {
-    return new Ordering<T>() {
-      public int compare(T a, T b) {
-        return comparator.compare(a, b);
-      }
-    };
+    return new ComparatorOrdering<T>(comparator);
+  }
+
+  private static final class ComparatorOrdering<T> extends Ordering<T> {
+    private final Comparator<T> comparator;
+
+    private ComparatorOrdering(Comparator<T> comparator) {
+      this.comparator = comparator;
+    }
+
+    public int compare(T a, T b) {
+      return comparator.compare(a, b);
+    }
+    
+    private static final long serialVersionUID = 0;
   }
 
   /**
@@ -79,13 +102,15 @@ public abstract class Ordering<T> implements Comparator<T>, Serializable {
       return other instanceof ReverseOrdering
           && forwardOrder.equals(((ReverseOrdering<?>) other).forwardOrder);
     }
+    
+    private static final long serialVersionUID = 0;
   }
 
 
   /**
    * {@link Collections#binarySearch(List, Object, Comparator) Searches}
-   * {@code list} for {@code key} using the binary search algorithm. The list
-   * must be sorted using this ordering.
+   * {@code sortedList} for {@code key} using the binary search algorithm. The
+   * list must be sorted using this ordering.
    *
    * @param sortedList the list to be searched
    * @param key the key to be searched for
@@ -106,13 +131,11 @@ public abstract class Ordering<T> implements Comparator<T>, Serializable {
 
   /**
    * Returns a copy of the given iterable sorted by this ordering. The input is
-   * not modified.
+   * not modified. The returned list is modifiable and has random access.
    *
    * <p>Unlike {@link Sets#newTreeSet(Comparator, Iterable)}, this method does
    * not collapse elements that compare as zero, and the resulting collection 
-   * does not maintain its own sort order. If you have no preference on these
-   * issues, these two alternatives are equivalent, so you can choose for
-   * performance factors.
+   * does not maintain its own sort order.
    *
    * @param iterable the elements to be copied and sorted
    * @return a new list containing the given elements in sorted order
@@ -233,5 +256,23 @@ public abstract class Ordering<T> implements Comparator<T>, Serializable {
    */
   public <E extends T> E min(E a, E b) {
     return compare(a, b) <= 0 ? a : b;
+  }  
+  
+  /**
+   * Returns an ordering that treats {@code null} as less than all other values
+   * and uses this ordering to compare non-null values.
+   */
+  public Ordering<T> nullsFirst() {
+    // TODO: Rename Comparators.nullLeastOrder to nullsFirst.
+    return Comparators.nullLeastOrder(this);
+  }
+  
+  /**
+   * Returns an ordering that treats {@code null} as greater than all other
+   * values and uses this ordering to compare non-null values.
+   */
+  public Ordering<T> nullsLast() {
+    // TODO: Rename Comparators.nullGreatestOrder to nullsLast.
+    return Comparators.nullGreatestOrder(this);
   }
 }

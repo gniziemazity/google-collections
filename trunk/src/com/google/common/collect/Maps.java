@@ -18,9 +18,11 @@ package com.google.common.collect;
 
 import com.google.common.base.Function;
 import com.google.common.base.Nullable;
+import com.google.common.base.Objects;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.MapConstraints.ConstrainedMap;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -55,11 +57,6 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <p>See also this class's counterparts {@link Lists} and {@link Sets}.
  *
- * <p>WARNING: These factories do not support the full variety of tuning
- * parameters available in the collection constructors. Use them only for
- * collections which will always remain small, or for which the cost of future
- * growth operations is not a concern.
- *
  * @author Kevin Bourrillion
  * @author Mike Bostock
  */
@@ -84,14 +81,19 @@ public final class Maps {
   /**
    * Creates a {@code HashMap} instance with enough capacity to hold the
    * specified number of elements without rehashing.
-   *
+   * 
    * @param expectedSize the expected size
-   * @return a newly-created {@code HashMap}, initially-empty, with enough
-   *     capacity to hold {@code expectedSize} elements without rehashing.
+   * @return a newly-created {@code HashMap}, initially empty, with enough
+   *     capacity to hold {@code expectedSize} elements without rehashing
    * @throws IllegalArgumentException if {@code expectedSize} is negative
    */
   public static <K, V> HashMap<K, V> newHashMapWithExpectedSize(
       int expectedSize) {
+    /* 
+     * The HashMap is constructed with an initialCapacity that's greater than
+     * expectedSize. The larger value is necessary because HashMap resizes
+     * its internal array if the map size exceeds loadFactor * initialCapacity.
+     */
     return new HashMap<K, V>(capacity(expectedSize));
   }
 
@@ -119,7 +121,7 @@ public final class Maps {
    * @return a newly-created {@code HashMap} initialized with the mappings from
    *     {@code map}
    */
-  public static <K, V> HashMap<K, V> newHashMap(Map<K, V> map) {
+  public static <K, V> HashMap<K, V> newHashMap(Map<? extends K, ? extends V> map) {
     return new HashMap<K, V>(map);
   }
 
@@ -140,7 +142,8 @@ public final class Maps {
    * @return a newly-created, {@code LinkedHashMap} initialized with the
    *     mappings from {@code map}
    */
-  public static <K, V> LinkedHashMap<K, V> newLinkedHashMap(Map<K, V> map) {
+  public static <K, V> LinkedHashMap<K, V> 
+      newLinkedHashMap(Map<? extends K, ? extends V> map) {
     return new LinkedHashMap<K, V>(map);
   }
 
@@ -154,10 +157,8 @@ public final class Maps {
   }
 
   /**
-   * Creates a {@code TreeMap} instance using the natural-order {@code
-   * Comparator}. <b>Note:</b> If {@code K} is an {@link Enum} type, and you
-   * don't require the map to implement {@link SortedMap} (only ordered
-   * iteration), use {@link #newEnumMap} instead.
+   * Creates a {@code TreeMap} instance using the natural ordering of its
+   * elements.
    *
    * @return a newly-created, initially-empty {@code TreeMap}
    */
@@ -193,7 +194,7 @@ public final class Maps {
   }
 
   /**
-   * Creates a {@code IdentityHashMap} instance.
+   * Creates an {@code IdentityHashMap} instance.
    *
    * @return a newly-created, initially-empty {@code IdentityHashMap}
    */
@@ -215,7 +216,7 @@ public final class Maps {
   }
 
   /**
-   * Creates a new immutable empty {@code Map} instance.
+   * Returns an immutable empty {@code Map} instance.
    *
    * @see Collections#emptyMap
    */
@@ -312,12 +313,40 @@ public final class Maps {
    */
 
   /**
-   * Creates a new immutable empty {@code BiMap} instance.
+   * Returns an immutable empty {@code BiMap} instance.
    */
+  @SuppressWarnings("unchecked")
   public static <K, V> BiMap<K, V> immutableBiMap() {
-    return new ImmutableBiMapBuilder<K, V>().getBiMap();
+    return (BiMap<K, V>) EMPTY_BIMAP;
   }
 
+  private static final BiMap<Object, Object> EMPTY_BIMAP = new EmptyBiMap();
+  
+  private static class EmptyBiMap extends ForwardingMap<Object, Object>
+      implements BiMap<Object, Object> {
+    public EmptyBiMap() {
+      super(immutableMap());      
+    }
+    
+    @Override public Set<Object> values() {
+      return Collections.emptySet();
+    }
+    
+    public Object forcePut(Object key, Object value) {
+      throw new UnsupportedOperationException();
+    }
+
+    public BiMap<Object, Object> inverse() {
+      return this;
+    }   
+    
+    private Object readResolve() {
+      return EMPTY_BIMAP; // preserve singleton property
+    }
+    
+    private static final long serialVersionUID = 0;
+  }
+  
   /**
    * Creates a new immutable {@code BiMap} instance containing the given
    * key-value pair.
@@ -452,8 +481,8 @@ public final class Maps {
     return new SortedMapKeySet<K, V>(map);
   }
 
-  private static class SortedMapKeySet<K, V> extends ForwardingSet<K>
-      implements SortedSet<K> {
+  private static class SortedMapKeySet<K, V>
+      extends NonSerializableForwardingSet<K> implements SortedSet<K> {
     final SortedMap<K, V> map;
 
     SortedMapKeySet(SortedMap<K, V> map) {
@@ -532,7 +561,7 @@ public final class Maps {
    */
   public static <K, V> Map<K, V> uniqueIndex(Collection<? extends V> values,
       Function<? super V, ? extends K> keyFunction) {
-    return uniqueIndex(new HashMap<K, V>(values.size() * 2),
+    return uniqueIndex(new HashMap<K, V>(capacity(values.size())),
         values.iterator(), keyFunction);
   }
 
@@ -576,26 +605,22 @@ public final class Maps {
    * Creates a {@code Map<String, String>} from a {@code Properties} instance.
    * Properties normally derive from {@code Map<Object, Object>}, but they
    * typically contain strings, which is awkward. This method lets you get a
-   * plain-old-{@code Map} out of a {@code Properties}. Note that you won't be
-   * able to save the changes to the Map the way you can with {@link
-   * Properties#store(java.io.OutputStream,String)}. Most people don't do this
-   * anyway.
+   * plain-old-{@code Map} out of a {@code Properties}. The returned map won't
+   * include any null keys or values.
    *
-   * @param prop a {@code Properties} object to be converted.
-   * @return a {@code Map<String, String>} containing all the entries in the
-   *     Properties object. Note that {@code Properties} does not allow the key
-   *     or value to be null.
+   * @param properties a {@code Properties} object to be converted
+   * @return a map containing all the entries in {@code properties}
    */
-  public static Map<String, String> fromProperties(Properties prop) {
-    Map<String, String> ret = newHashMapWithExpectedSize(prop.size());
-    for (Enumeration<?> e = prop.propertyNames(); e.hasMoreElements();) {
+  public static Map<String, String> fromProperties(Properties properties) {
+    Map<String, String> ret = newHashMapWithExpectedSize(properties.size());
+    for (Enumeration<?> e = properties.propertyNames(); e.hasMoreElements();) {
       Object k = e.nextElement();
       /*
        * It is unlikely that a 'null' could be inserted into a Properties, but
        * possible in a derived class.
        */
       String key = (k != null) ? k.toString() : null;
-      ret.put(key, prop.getProperty(key));
+      ret.put(key, properties.getProperty(key));
     }
     return ret;
   }
@@ -671,7 +696,7 @@ public final class Maps {
 
   /** @see Multimaps#unmodifiableEntries */
   static class UnmodifiableEntries<K, V>
-      extends ForwardingCollection<Entry<K, V>> {
+      extends NonSerializableForwardingCollection<Entry<K, V>> {
     UnmodifiableEntries(Collection<Entry<K, V>> entries) {
       super(entries);
     }
@@ -687,11 +712,11 @@ public final class Maps {
     // See java.util.Collections.UnmodifiableEntrySet for details on attacks.
 
     @Override public Object[] toArray() {
-      return toArrayImpl(this);
+      return ForwardingCollection.toArrayImpl(this);
     }
 
     @Override public <T> T[] toArray(T[] array) {
-      return toArrayImpl(this, array);
+      return ForwardingCollection.toArrayImpl(this, array);
     }
 
     @Override public boolean contains(Object o) {
@@ -699,7 +724,7 @@ public final class Maps {
     }
 
     @Override public boolean containsAll(Collection<?> c) {
-      return containsAllImpl(this, c);
+      return ForwardingCollection.containsAllImpl(this, c);
     }
   }
 
@@ -727,8 +752,7 @@ public final class Maps {
   }
 
   /**
-   * Returns a new empty {@code EnumHashBiMap} using the specified key type,
-   * sized to contain an entry for every possible key.
+   * Returns a new empty {@code EnumHashBiMap} using the specified key type.
    *
    * @param keyType the key type
    */
@@ -773,7 +797,7 @@ public final class Maps {
    * attemps to modify the returned map, whether direct or via its collection
    * views, result in an {@code UnsupportedOperationException}.
    *
-   * <p>The returned bimap will be serializable if the specified map is
+   * <p>The returned bimap will be serializable if the specified bimap is
    * serializable.
    *
    * @param bimap the bimap for which an unmodifiable view is to be returned
