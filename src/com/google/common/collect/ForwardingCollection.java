@@ -19,6 +19,7 @@ package com.google.common.collect;
 import com.google.common.base.Nullable;
 import com.google.common.base.Objects;
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.Collection;
 import java.util.Iterator;
 

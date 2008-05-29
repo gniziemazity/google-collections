@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkArgument;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -92,5 +93,15 @@ public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
     return new ArrayList<V>(initialListCapacity);
   }
 
+  /**
+   * Reduces the memory used by this {@code ArrayListMultimap}, if feasible.
+   */
+  public void trimToSize() {
+    for (Collection<V> collection : backingMap().values()) {
+      ArrayList<V> arrayList = (ArrayList<V>) collection;
+      arrayList.trimToSize();
+    }
+  }
+  
   private static final long serialVersionUID = -3840170139986607881L;
 }

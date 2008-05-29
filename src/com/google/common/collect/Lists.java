@@ -19,6 +19,7 @@ package com.google.common.collect;
 import com.google.common.base.Function;
 import com.google.common.base.Nullable;
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.Serializable;
 import java.util.AbstractList;
 import java.util.AbstractSequentialList;
@@ -34,27 +35,20 @@ import java.util.ListIterator;
 import java.util.RandomAccess;
 
 /**
- * Provides static methods for creating {@code List} instances easily, and other
- * utility methods for working with lists. You can replace code like:
+ * Provides static methods for creating {@code List} instances easily. You can
+ * replace code like:
  *
  * <p>{@code List<String> list = new ArrayList<String>();}
  * <br>{@code Collections.addAll(list, "foo", "bar", "baz");}
  *
- * <p>with just:
+ * <p>with:
  *
  * <p>{@code List<String> list = newArrayList("foo", "bar", "baz");}
  *
- * <p>You can also create an empty {@code List}, or populate your new {@code
- * List} using any array, {@link Iterator} or {@link Iterable}.
+ * <p>You can also create an empty {@code List} or populate a new {@code List}
+ * using an array, {@link Iterator} or {@link Iterable}.
  *
- * <p>Supported today are: {@link ArrayList} and {@link LinkedList}.
- *
- * <p>See also this class's counterparts {@link Sets} and {@link Maps}.
- *
- * <p>WARNING: These factories do not support the full variety of tuning
- * parameters available in the collection constructors. Use them only for
- * collections which will always remain small, or for which the cost of future
- * growth operations is not a concern.
+ * <p>See this class's counterparts {@link Sets} and {@link Maps}.
  *
  * @author Kevin Bourrillion
  * @author Mike Bostock
@@ -67,7 +61,7 @@ public final class Lists {
   /**
    * Creates an empty {@code ArrayList} instance.
    *
-   * <p><b>Note:</b> if you only need an <i>immutable</i> empty List, use {@link
+   * <p><b>Note:</b> if you need an immutable empty list, use {@link
    * Collections#emptyList} instead.
    *
    * @return a newly-created, initially-empty {@code ArrayList}
@@ -77,11 +71,10 @@ public final class Lists {
   }
 
   /**
-   * Creates a resizable {@code ArrayList} instance containing the given
-   * elements.
+   * Creates an {@code ArrayList} instance containing the given elements.
    *
-   * <p><b>Note:</b> if it is an immutable List you seek, you should use {@link
-   * ImmutableList}.
+   * <p><b>Note:</b> if you need an immutable List, use {@link ImmutableList}
+   * instead.
    *
    * <p><b>Note:</b> due to a bug in javac 1.5.0_06, we cannot support the
    * following:
@@ -104,8 +97,7 @@ public final class Lists {
     return list;
   }
   
-  // @VisibleForTesting
-  static int computeArrayListCapacity(int arraySize) {
+  /*@VisibleForTesting*/ static int computeArrayListCapacity(int arraySize) {
     return (int) Math.min(5L + arraySize + (arraySize / 10), Integer.MAX_VALUE);
   }
   
@@ -171,8 +163,8 @@ public final class Lists {
   /**
    * Creates an empty {@code LinkedList} instance.
    *
-   * <p><b>Note:</b> if you only need an <i>immutable</i> empty {@link List},
-   * use {@link Collections#emptyList} instead.
+   * <p><b>Note:</b> if you need an immutable empty {@link List}, use
+   * {@link Collections#emptyList} instead.
    *
    * @return a newly-created, initially-empty {@code LinkedList}
    */
@@ -183,7 +175,7 @@ public final class Lists {
   /**
    * Creates a {@code LinkedList} instance containing the given elements.
    *
-   * <p>Please see the caveat in {@link #newArrayList(Object...)}.
+   * <p>See the caveat in {@link #newArrayList(Object...)}.
    *
    * @param elements the elements that the list should contain, in order
    * @return a newly-created {@code LinkedList} containing those elements
@@ -225,15 +217,13 @@ public final class Lists {
    * elements. The input is not modified.
    *
    * <p>Unlike {@link Sets#newTreeSet(Iterable)}, this method does not collapse
-   * elements that compare as zero, and the resulting collection does not
-   * maintain its own sort order. If you have no preference on these issues,
-   * these two alternatives are equivalent, so you can choose for performance
-   * factors.
+   * equal elements, and the resulting collection does not maintain its own sort
+   * order.
    *
    * @param iterable the elements to be copied and sorted
    * @return a new list containing the given elements in sorted order
-   * @throws ClassCastException if {@code iterable} contains elements which are
-   *     not <i>mutually comparable</i>
+   * @throws ClassCastException if {@code iterable} contains elements that are
+   *     not mutually comparable
    */  
   @SuppressWarnings("unchecked")
   public static <E extends Comparable> List<E> sortedCopy(Iterable<E> iterable)
@@ -248,10 +238,8 @@ public final class Lists {
    * input is not modified.
    * 
    * <p>Unlike {@link Sets#newTreeSet(Comparator, Iterable)}, this method does
-   * not collapse elements that compare as zero, and the resulting collection
-   * does not maintain its own sort order. If you have no preference on these
-   * issues, these two alternatives are equivalent, so you can choose for
-   * performance factors.
+   * not collapse elements that the comparator treats as equal, and the
+   * resulting collection does not maintain its own sort order.
    * 
    * @param iterable the elements to be copied and sorted
    * @param comparator a comparator capable of sorting the given elements
@@ -271,7 +259,7 @@ public final class Lists {
    * Arrays#asList}, the returned list is unmodifiable.
    *
    * <p>This is useful when a varargs method needs to use a signature such as
-   * {@code (FoofirstFoo,Foo...moreFoos)}, in order to avoid overload
+   * {@code (Foo firstFoo, Foo... moreFoos)}, in order to avoid overload
    * ambiguity or to enforce a minimum argument count.
    *
    * <p>The returned list is serializable and implements {@link RandomAccess}.
@@ -310,12 +298,13 @@ public final class Lists {
    * {@link Arrays#asList}, the returned list is unmodifiable.
    *
    * <p>This is useful when a varargs method needs to use a signature such as
-   * {@code (FoofirstFoo,FoosecondFoo,Foo...moreFoos)}, in order to avoid
+   * {@code (Foo firstFoo, Foo secondFoo, Foo... moreFoos)}, in order to avoid
    * overload ambiguity or to enforce a minimum argument count.
    *
    * <p>The returned list is serializable and implements {@link RandomAccess}.
    *
    * @param first the first element
+   * @param second the second element
    * @param rest an array of additional elements, possibly empty
    * @return an unmodifiable list containing the specified elements
    */
@@ -354,26 +343,28 @@ public final class Lists {
 
   /**
    * Returns a list that applies {@code function} to each element of {@code
-   * fromList}. The returned list is a transformed view of {@code fromList},
-   * similar to {@link Iterators#transform}: changes to {@code fromList} will be
-   * reflected in the returned list and vice versa.
+   * fromList}. The returned list is a transformed view of {@code fromList};
+   * changes to {@code fromList} will be reflected in the returned list and vice
+   * versa.
    *
-   * <p>Functions are not reversible, so the transform is one-way and new items
-   * cannot be added to the returned list. The {@code add}, {@code addAll} and
-   * {@code set} methods are unsupported in the returned list.
+   * <p>Since functions are not reversible, the transform is one-way and new
+   * items cannot be stored in the returned list. The {@code add},
+   * {@code addAll} and {@code set} methods are unsupported in the returned
+   * list.
    *
-   * <p>As with {@link Iterators#transform}, the function is applied lazily.
-   * This is necessary for returned list to be a view, but also means that the
-   * function will be applied many times for bulk operations like {@link
-   * List#contains} and {@link List#hashCode}. For this to perform well, {@code
-   * function} should be fast. If you want to avoid lazy evaluation and you
-   * don't need the returned list to be a view, you can dump the returned list
-   * into a new list of your choosing. Alternatively, you can use a memoizing
-   * ("canonicalizing") function.
+   * <p>The function is applied lazily, invoked when needed. This is necessary
+   * for the returned list to be a view, but it means that the function will be
+   * applied many times for bulk operations like {@link List#contains} and
+   * {@link List#hashCode}. For this to perform well, {@code function} should be
+   * fast. To avoid lazy evaluation when the returned list doesn't need to be a
+   * view, copy the returned list into a new list of your choosing.
    *
    * <p>If {@code fromList} implements {@link RandomAccess}, so will the
-   * returned list. TODO: provide similar support for {@link
-   * java.io.Serializable}.
+   * returned list. The returned list always implements {@link Serializable},
+   * but serialization will succeed only when {@code fromList} and
+   * {@code function} are serializable.
+   * 
+   * @see Iterators#transform
    */
   public static <F, T> List<T> transform(
       List<F> fromList, Function<? super F, ? extends T> function) {

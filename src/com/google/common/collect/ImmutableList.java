@@ -17,10 +17,11 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.AbstractList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -41,15 +42,16 @@ import java.util.RandomAccess;
  * provided to your class by a caller.
  *
  * <p><b>Note</b>: Although this class is not final, it cannot be subclassed as
- * it has no public or protected constructors. Thus, the immutability guarantee
- * can be trusted.
+ * it has no public or protected constructors. Thus, instances of this type are
+ * guaranteed to be immutable.
  *
+ * @see ImmutableMap
  * @see ImmutableSet
  * @author Kevin Bourrillion
  */
 @SuppressWarnings("serial") // we're overriding default serialization
-public abstract class ImmutableList<E> extends AbstractList<E>
-    implements RandomAccess, Serializable {
+public abstract class ImmutableList<E> extends ImmutableCollection<E>
+    implements List<E>, RandomAccess {
   private static final ImmutableList<?> EMPTY_IMMUTABLE_LIST
       = new EmptyImmutableList();
 
@@ -58,7 +60,7 @@ public abstract class ImmutableList<E> extends AbstractList<E>
    * to {@link Collections#emptyList}, and is preferable mainly for consistency
    * and maintainability of your code.
    */
-  // Casting to any type is safe because the set will never hold any elements.
+  // Casting to any type is safe because the list will never hold any elements.
   @SuppressWarnings({"unchecked"})
   public static <E> ImmutableList<E> of() {
     return (ImmutableList<E>) EMPTY_IMMUTABLE_LIST;
@@ -106,34 +108,75 @@ public abstract class ImmutableList<E> extends AbstractList<E>
       ImmutableList<E> list = (ImmutableList<E>) elements;
       return list;
     }
-    int size = Iterables.size(elements);
+
+    Collection<?> collection = (elements instanceof Collection<?>)
+        ? (Collection<?>) elements : Lists.newArrayList(elements);
+    int size = collection.size();
     return (size == 0)
         ? ImmutableList.<E>of()
-        : new RegularImmutableList<E>(copyIntoArray(elements, size));
+        : new RegularImmutableList<E>(copyIntoArray(collection, size)); 
   }
 
   private ImmutableList() {}
 
-  // Mark these three methods with @Nullable
+  // Mark these two methods with @Nullable
 
-  @Override public int indexOf(@Nullable Object object) {
-    return super.indexOf(object);
+  public abstract int indexOf(@Nullable Object object);
+
+  public abstract int lastIndexOf(@Nullable Object object);
+
+  // constrain the return type to ImmutableList<E>
+
+  /**
+   * Returns an immutable list of the elements between the specified {@code
+   * fromIndex}, inclusive, and {@code toIndex}, exclusive. (If {@code
+   * fromIndex} and {@code toIndex} are equal, the empty immutable list is
+   * returned.)
+   */
+  public abstract ImmutableList<E> subList(int fromIndex, int toIndex);
+
+  /**
+   * Guaranteed to throw an exception and leave the list unmodified.
+   *
+   * @throws UnsupportedOperationException always
+   */
+  public final boolean addAll(int index, Collection<? extends E> newElements) {
+    throw new UnsupportedOperationException();
   }
 
-  @Override public int lastIndexOf(@Nullable Object object) {
-    return super.lastIndexOf(object);
+  /**
+   * Guaranteed to throw an exception and leave the list unmodified.
+   *
+   * @throws UnsupportedOperationException always
+   */
+  public final E set(int index, E element) {
+    throw new UnsupportedOperationException();
   }
 
-  @Override public boolean contains(@Nullable Object object) {
-    return super.contains(object);
+  /**
+   * Guaranteed to throw an exception and leave the list unmodified.
+   *
+   * @throws UnsupportedOperationException always
+   */
+  public final void add(int index, E element) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Guaranteed to throw an exception and leave the list unmodified.
+   *
+   * @throws UnsupportedOperationException always
+   */
+  public final E remove(int index) {
+    throw new UnsupportedOperationException();
   }
 
   private static final class EmptyImmutableList extends ImmutableList<Object> {
-    @Override public int size() {
+    public int size() {
       return 0;
     }
 
-    @Override public boolean isEmpty() {
+    public boolean isEmpty() {
       return true;
     }
 
@@ -141,7 +184,7 @@ public abstract class ImmutableList<E> extends AbstractList<E>
       return false;
     }
 
-    @Override public Iterator<Object> iterator() {
+    public Iterator<Object> iterator() {
       return Iterators.emptyIterator();
     }
 
@@ -156,8 +199,9 @@ public abstract class ImmutableList<E> extends AbstractList<E>
       return a;
     }
 
-    @Override public Object get(int index) {
-      throw new IndexOutOfBoundsException("Index: " + index);
+    public Object get(int index) {
+      throw new IndexOutOfBoundsException(
+          "Invalid index: " + index + ", list size is 0");
     }
 
     @Override public int indexOf(Object target) {
@@ -168,12 +212,23 @@ public abstract class ImmutableList<E> extends AbstractList<E>
       return -1;
     }
 
-    @Override public ListIterator<Object> listIterator() {
+    @Override public ImmutableList<Object> subList(int fromIndex, int toIndex) {
+      if (fromIndex != 0 || toIndex != 0) {
+        throw new IndexOutOfBoundsException("Invalid range: " + fromIndex
+            + ".." + toIndex + ", list size is 0");
+      }
+      return this;
+    }
+
+    public ListIterator<Object> listIterator() {
       return Iterators.emptyListIterator();
     }
 
-    @Override public ListIterator<Object> listIterator(int start) {
-      checkArgument(start == 0);
+    public ListIterator<Object> listIterator(int start) {
+      if (start != 0) {
+        throw new IndexOutOfBoundsException(
+            "Invalid index: " + start + ", list size is 0");
+      }
       return Iterators.emptyListIterator();
     }
 
@@ -200,17 +255,25 @@ public abstract class ImmutableList<E> extends AbstractList<E>
   }
 
   private static final class RegularImmutableList<E> extends ImmutableList<E> {
+    private final int offset;
+    private final int size;
     private final Object[] array;
 
-    private RegularImmutableList(Object[] array) {
+    private RegularImmutableList(Object[] array, int offset, int size) {
+      this.offset = offset;
+      this.size = size;
       this.array = array;
     }
 
-    @Override public int size() {
-      return array.length;
+    private RegularImmutableList(Object[] array) {
+      this(array, 0, array.length);
     }
 
-    @Override public boolean isEmpty() {
+    public int size() {
+      return size;
+    }
+
+    public boolean isEmpty() {
       return false;
     }
 
@@ -218,39 +281,43 @@ public abstract class ImmutableList<E> extends AbstractList<E>
       return indexOf(target) != -1;
     }
 
+    // The fake cast to E is safe because the creation methods only allow E's
     @SuppressWarnings("unchecked")
-    @Override public Iterator<E> iterator() {
-      return (Iterator<E>) Iterators.forArray(array);
+    public Iterator<E> iterator() {
+      return (Iterator<E>) Iterators.forArray(array, offset, size);
     }
 
     @Override public Object[] toArray() {
       Object[] newArray = new Object[size()];
-      System.arraycopy(array, 0, newArray, 0, size());
+      System.arraycopy(array, offset, newArray, 0, size);
       return newArray;
     }
 
     @Override public <T> T[] toArray(T[] other) {
-      int size = size();
       if (other.length < size) {
         other = ObjectArrays.newArray(other, size);
       } else if (other.length > size) {
         other[size] = null;
       }
-      System.arraycopy(array, 0, other, 0, size);
+      System.arraycopy(array, offset, other, 0, size);
       return other;
     }
 
     // The fake cast to E is safe because the creation methods only allow E's
     @SuppressWarnings("unchecked")
-    @Override public E get(int index) {
-      return (E) array[index];
+    public E get(int index) {
+      if (index < 0 || index >= size) {
+        throw new IndexOutOfBoundsException(
+            "Invalid index: " + index + ", list size is " + size);
+      }
+      return (E) array[index + offset];
     }
 
     @Override public int indexOf(Object target) {
       if (target != null) {
-        for (int i = 0; i < size(); i++) {
+        for (int i = offset; i < offset + size; i++) {
           if (array[i].equals(target)) {
-            return i;
+            return i - offset;
           }
         }
       }
@@ -259,23 +326,42 @@ public abstract class ImmutableList<E> extends AbstractList<E>
 
     @Override public int lastIndexOf(Object target) {
       if (target != null) {
-        for (int i = size() - 1; i >= 0; i--) {
+        for (int i = offset + size - 1; i >= offset; i--) {
           if (array[i].equals(target)) {
-            return i;
+            return i - offset;
           }
         }
       }
       return -1;
     }
 
-    @Override public ListIterator<E> listIterator(final int start) {
-      checkArgument(start >= 0);
-      checkArgument(start <= size());
+    @Override public ImmutableList<E> subList(int fromIndex, int toIndex) {
+      if (fromIndex < 0 || toIndex > size || fromIndex > toIndex) {
+        throw new IndexOutOfBoundsException("Invalid range: " + fromIndex
+            + ".." + toIndex + ", list size is " + size);
+      }
+
+      return (fromIndex == toIndex)
+          ? ImmutableList.<E>of()
+          : new RegularImmutableList<E>(
+              array, offset + fromIndex, toIndex - fromIndex);
+    }
+
+    public ListIterator<E> listIterator() {
+      return listIterator(0);
+    }
+
+    public ListIterator<E> listIterator(final int start) {
+      if ((start < 0) || (start > size)) {
+        throw new IndexOutOfBoundsException(
+            "Invalid index: " + start + ", list size is " + size);
+      }
+
       return new ListIterator<E>() {
         int index = start;
 
         public boolean hasNext() {
-          return index < size();
+          return index < size;
         }
         public boolean hasPrevious() {
           return index > 0;
@@ -292,7 +378,7 @@ public abstract class ImmutableList<E> extends AbstractList<E>
           E result;
           try {
             result = get(index);
-          } catch (IndexOutOfBoundsException unused) {
+          } catch (IndexOutOfBoundsException rethrown) {
             throw new NoSuchElementException();
           }
           index++;
@@ -302,7 +388,7 @@ public abstract class ImmutableList<E> extends AbstractList<E>
           E result;
           try {
             result = get(index - 1);
-          } catch (IndexOutOfBoundsException unused) {
+          } catch (IndexOutOfBoundsException rethrown) {
             throw new NoSuchElementException();
           }
           index--;
@@ -334,11 +420,11 @@ public abstract class ImmutableList<E> extends AbstractList<E>
         return false;
       }
 
-      int index = 0;
+      int index = offset;
       if (object instanceof RegularImmutableList<?>) {
         RegularImmutableList<?> other = (RegularImmutableList<?>) object;
-        for (Object element : other.array) {
-          if (!array[index++].equals(element)) {
+        for (int i = other.offset; i < other.offset + other.size; i++) {
+          if (!array[index++].equals(other.array[i])) {
             return false;
           }
         }
@@ -351,19 +437,19 @@ public abstract class ImmutableList<E> extends AbstractList<E>
       }
       return true;
     }
-  
+
     @Override public int hashCode() {
       int hashCode = 1;
-      for (Object element : array) {
-        hashCode = 31 * hashCode + element.hashCode();
+      for (int i = offset; i < offset + size; i++) {
+        hashCode = 31 * hashCode + array[i].hashCode();
       }
       return hashCode;
     }
 
     @Override public String toString() {
       StringBuilder sb = new StringBuilder(size() * 16);
-      sb.append('[').append(array[0]);
-      for (int i = 1; i < size(); i++) {
+      sb.append('[').append(array[offset]);
+      for (int i = offset + 1; i < offset + size; i++) {
         sb.append(", ").append(array[i]);
       }
       return sb.append(']').toString();
@@ -394,5 +480,27 @@ public abstract class ImmutableList<E> extends AbstractList<E>
     return array;
   }
 
-  private static final long serialVersionUID = 0;
+  /*
+   * Serializes ImmutableLists as their logical contents. This ensures that
+   * implementation types do not leak into the serialized representation.
+   */
+  private static class SerializedForm implements Serializable {
+    final Object[] elements;
+    SerializedForm(Object[] elements) {
+      this.elements = elements;
+    }
+    Object readResolve() {
+      return of(elements);
+    }
+    private static final long serialVersionUID = 0;
+  }
+
+  private void readObject(ObjectInputStream stream)
+      throws InvalidObjectException {
+    throw new InvalidObjectException("Use SerializedForm");
+  }
+
+  @Override Object writeReplace() {
+    return new SerializedForm(toArray());
+  }
 }

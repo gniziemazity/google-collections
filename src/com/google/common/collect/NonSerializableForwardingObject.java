@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Google Inc.
+ * Copyright (C) 2008 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,19 +18,18 @@ package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.io.Serializable;
-
 /**
- * An abstract base class for implementing the <a
+ * A non-serializable abstract base class for implementing the <a
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
  * It is not strictly necessary to override any methods on this class, though
  * typical implementations override {@link #delegate()} to specify the correct
- * return type, and add type-specific forwarding methods.
+ * return type, and add type-specific forwarding methods. Except for
+ * serialization, this class is the same as {@link ForwardingObject}.
  *
  * <p>As a contrived example, to decorate an object to use the default
  * implementation of {@code toString()}, you might say:
  *
- * <pre>  return new ForwardingObject(object) {
+ * <pre>  return new NonSerializableForwardingObject(object) {
  *      {@literal @}Override public String toString() {
  *        return delegate().getClass().getName() + '@'
  *            + Integer.toHexString(hashCode());
@@ -53,14 +52,11 @@ import java.io.Serializable;
  * ForwardingList}, to preserve equality behavior, or override {@code equals}
  * directly.
  *
- * <p>The {@code toString} method is forwarded to the delegate. Although this
- * class implements {@link Serializable}, instances will be serializable only
- * when the delegate is serializable.
+ * <p>The {@code toString} method is forwarded to the delegate.
  *
- * @author Mike Bostock
+ * @author Jared Levy
  */
-public abstract class ForwardingObject implements Serializable {
-  private static final long serialVersionUID = 2301990993511486937L;
+abstract class NonSerializableForwardingObject {
   private final Object delegate;
 
   /**
@@ -70,7 +66,7 @@ public abstract class ForwardingObject implements Serializable {
    * @param delegate the backing object to which methods are forwarded.
    * @throws NullPointerException if {@code delegate} is {@code null}.
    */
-  protected ForwardingObject(Object delegate) {
+  protected NonSerializableForwardingObject(Object delegate) {
     this.delegate = checkNotNull(delegate);
   }
 

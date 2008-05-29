@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkState;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -51,10 +52,11 @@ import java.util.NoSuchElementException;
  *       }
  *     };
  *   }</pre>
- *   
+ *
  * <p>This class supports iterators that include null elements. The
  * {@link #remove} method throws an {@link UnsupportedOperationException}, but
- * the similar class {@link AbstractRemovableIterator} does support remove.
+ * the similar class {@link AbstractRemovableIterator} does support
+ * {@code remove}.
  *
  * @author Kevin Bourrillion
  */
@@ -96,9 +98,10 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
    * @return the next element if there was one. If {@code endOfData} was called
    *     during execution, the return value will be ignored.
    * @throws RuntimeException if any unrecoverable error happens. This exception
-   *     will propagate outward to the {@code hasNext()} or {@code next()}
-   *     invocation that invoked this method. Any further attempts to use the
-   *     iterator will result in an {@link IllegalStateException}.
+   *     will propagate outward to the {@code hasNext()}, {@code next()}, or
+   *     {@code peek()} invocation that invoked this method. Any further
+   *     attempts to use the iterator will result in an
+   *     {@link IllegalStateException}.
    */
   protected abstract T computeNext();
 
@@ -140,6 +143,20 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
       throw new NoSuchElementException();
     }
     state = State.NOT_READY;
+    return next;
+  }
+
+  /**
+   * Returns the next element in the iteration without advancing the iteration,
+   * according to the contract of {@link PeekingIterator#peek()}.
+   *
+   * <p>Implementations of {@code AbstractIterator} that wish to expose this
+   * functionality should implement {@code PeekingIterator}.
+   */
+  public T peek() {
+    if (!hasNext()) {
+      throw new NoSuchElementException();
+    }
     return next;
   }
 

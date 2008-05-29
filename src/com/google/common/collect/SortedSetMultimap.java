@@ -17,7 +17,9 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
+
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
@@ -86,4 +88,10 @@ public interface SortedSetMultimap<K, V> extends SetMultimap<K, V> {
    * has {@link SortedSet} values.
    */
   Map<K, Collection<V>> asMap();
+  
+  /**
+   * Returns the comparator that orders the multimap values, with a {@code null}
+   * indicating that natural ordering is used.
+   */
+  Comparator<? super V> valueComparator();  
 }

@@ -63,7 +63,6 @@
  *     the {@linkplain com.google.common.collect.SortedSetMultimap#get
  *     collection values} associated with a fixed key is a
  *     {@link java.util.SortedSet}.
- * </dl>
  *
  * <h2>Collection Implementations</h2>
  *
@@ -76,11 +75,6 @@
  * <dl>
  * <dt>{@link com.google.common.collect.ImmutableSet}
  * </ul>
- *
- * <h3>of {@link java.util.SortedSet}</h3>
- * <dl>
- * <dt>{@link com.google.common.collect.SortedArraySet}
- * </dl>
  *
  * <h3>of {@link java.util.Map}</h3>
  * <dl>
@@ -163,6 +157,13 @@
  * java.lang.NullPointerException} in response to a null value being supplied
  * for any parameter that is not explicitly annotated as being {@link
  * com.google.common.base.Nullable @Nullable}.
+ * 
+ * <p>This package does not support self-containing collections: a collection
+ * instance that includes itself, or an object that references itself, as a
+ * member. Doing so may lead to undefined behavior. For example, deserialization
+ * can generate multiple copies of the self-containing collection. However, no
+ * problems will arise when a collection contains an element of the same type,
+ * as long as it's a different instance.
  *
  * @author Mike Bostock
  * @author Kevin Bourrillion

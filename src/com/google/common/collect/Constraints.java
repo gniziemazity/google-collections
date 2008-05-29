@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
@@ -40,20 +41,19 @@ public final class Constraints {
    * A constraint that verifies that the element is not null. If the element is
    * null, a {@link NullPointerException} is thrown.
    */
-  public static final Constraint<Object> NOT_NULL = new NotNullConstraint();
+  public static final Constraint<Object> NOT_NULL = NotNullConstraint.INSTANCE;
 
-  /** @see Constraints#NOT_NULL */
-  static class NotNullConstraint implements Constraint<Object>, Serializable {
+  // enum singleton pattern
+  private enum NotNullConstraint implements Constraint<Object> {
+    INSTANCE;
+
     public void checkElement(Object element) {
       checkNotNull(element);
     }
-    private Object readResolve() {
-      return NOT_NULL; // preserve singleton property
-    }
+
     @Override public String toString() {
       return "Not null";
     }
-    private static final long serialVersionUID = 8771569713494573120L;
   }
 
   /**
@@ -354,6 +354,7 @@ public final class Constraints {
       constraint.checkElement(element);
       return super.add(element, occurrences);
     }
+    private static final long serialVersionUID = 0;
   }
 
   private static <E> Collection<E> checkElements(

@@ -18,6 +18,7 @@ package com.google.common.collect;
 
 import com.google.common.base.Nullable;
 import static com.google.common.base.Preconditions.checkState;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -163,10 +164,13 @@ public class ImmutableMapBuilder<K, V> {
      * to secretPut() are finished.
      */
     @Override public int hashCode() {
-      if (cachedHashCode == null) {
-        cachedHashCode = super.hashCode();
+      Integer code = cachedHashCode;
+      if (code == null) {
+        int computed = super.hashCode();
+        cachedHashCode = computed;
+        return computed; 
       }
-      return cachedHashCode;
+      return code;
     }
 
     private void secretPut(K key, V value) {

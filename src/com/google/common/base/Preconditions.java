@@ -225,7 +225,6 @@ public final class Preconditions {
    *     least one null element
    */
   public static <T extends Iterable<?>> T checkContentsNotNull(T iterable) {
-    // TODO: call Iterables.containsNull()
     for (Object element : iterable) {
       checkNotNull(element);
     }
@@ -248,7 +247,6 @@ public final class Preconditions {
       T iterable, Object errorMessage) {
     checkNotNull(iterable, errorMessage);
 
-    // TODO: call Iterables.containsNull()
     for (Object element : iterable) {
       checkNotNull(element, errorMessage);
     }
@@ -272,7 +270,6 @@ public final class Preconditions {
       String errorMessageFormat, Object... errorMessageArgs) {
     checkNotNull(iterable, errorMessageFormat, errorMessageArgs);
 
-    // TODO: call Iterables.containsNull()
     for (Object element : iterable) {
       checkNotNull(element, errorMessageFormat, errorMessageArgs);
     }

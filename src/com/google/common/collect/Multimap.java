@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -227,15 +228,16 @@ public interface Multimap<K, V> {
   // Comparison and hashing
   
   /**
-   * Compares the specified object with this multimap for equality. Two
-   * multimaps are equal if and only if their map views, as returned by
-   * {@link #asMap}, are equal.
+   * Compares the specified object with this multimap for equality. If two
+   * multimaps are equal, their map views, as returned by {@link #asMap}, are
+   * also equal. However, the converse is not true; an empty {@link SetMultimap}
+   * does not equal an empty {@link ListMultimap}, even though they both have
+   * empty map views.
    *
-   * <p>Note that two multimaps with identical key-value mappings may or may not
-   * always be equal, depending on the implementation. For example, {@link
+   * <p>In general, two multimaps with identical key-value mappings may or may
+   * not always be equal, depending on the implementation. For example, {@link
    * SetMultimap} equality is independent of ordering, while {@link
-   * ListMultimap} equality is dependent on the order of values for a given
-   * key.
+   * ListMultimap} equality is dependent on the order of values for each key.
    */
   boolean equals(@Nullable Object obj);
 

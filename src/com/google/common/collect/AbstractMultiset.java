@@ -20,6 +20,7 @@ import com.google.common.base.Nullable;
 import com.google.common.base.Objects;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -170,7 +171,8 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
   /**
    * {@inheritDoc}
    *
-   * <p>This implementation calls {@link #remove(Object,int)} with 1 occurrence.
+   * <p>This implementation calls {@link #remove(Object, int)} with 1
+   * occurrence.
    */
   @Override public boolean remove(Object element) {
     return remove(element, 1) == 1;

@@ -17,6 +17,9 @@
 package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkArgument;
+
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,11 +29,15 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author Jared Levy
  */
+@SuppressWarnings("serial") // we're overriding default serialization
 public final class EnumMultiset<E extends Enum<E>>
     extends AbstractMapBasedMultiset<E> {
+  private final Class<E> type;
+  
   /** Creates an empty {@code EnumMultiset}. */
   public EnumMultiset(Class<E> type) {
     super(new EnumMap<E, AtomicInteger>(type));
+    this.type = type;
   }
 
   /**
@@ -58,5 +65,25 @@ public final class EnumMultiset<E extends Enum<E>>
     return iterator.next().getDeclaringClass();
   }
 
-  private static final long serialVersionUID = -3657226655572850764L;
+  private static class SerializedForm<E extends Enum<E>>
+      extends MultisetSerializedForm<E> {
+    private final Class<E> type;    
+    SerializedForm(EnumMultiset<E> multiset) {
+      super(multiset);
+      this.type = multiset.type;
+    }
+    @Override protected Multiset<E> createEmpty() {
+      return new EnumMultiset<E>(type);
+    }
+    private static final long serialVersionUID = 0;
+  }
+
+  private void readObject(ObjectInputStream stream)
+      throws InvalidObjectException {
+    throw new InvalidObjectException("Use SerializedForm");
+  }
+
+  private Object writeReplace() {
+    return new SerializedForm<E>(this);
+  }
 }

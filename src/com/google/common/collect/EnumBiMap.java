@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkArgument;
+
 import java.util.EnumMap;
 import java.util.Map;
 

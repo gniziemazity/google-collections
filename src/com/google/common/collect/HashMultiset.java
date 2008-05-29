@@ -16,6 +16,8 @@
 
 package com.google.common.collect;
 
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -23,7 +25,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Multiset implementation backed by a {@link HashMap}.
  *
  * @author Kevin Bourrillion
+ * @author Jared Levy
  */
+@SuppressWarnings("serial") // we're overriding default serialization
 public final class HashMultiset<E> extends AbstractMapBasedMultiset<E> {
   /**
    * Constructs a new empty {@code HashMultiset} using the default initial
@@ -45,18 +49,6 @@ public final class HashMultiset<E> extends AbstractMapBasedMultiset<E> {
   }
 
   /**
-   * Constructs a new empty {@code HashMultiset} using the specified initial
-   * capacity (distinct elements) and load factor.
-   *
-   * @param initialCapacity the initial capacity
-   * @param loadFactor the load factor
-   * @throws IllegalArgumentException if the initial capacity is negative
-   */
-  public HashMultiset(int initialCapacity, float loadFactor) {
-    super(new HashMap<E, AtomicInteger>(initialCapacity, loadFactor));
-  }
-
-  /**
    * Constructs a new {@code HashMultiset} containing the specified elements.
    *
    * @param elements the elements that the multiset should contain
@@ -66,5 +58,22 @@ public final class HashMultiset<E> extends AbstractMapBasedMultiset<E> {
     Iterables.addAll(this, elements); // careful if we make this class non-final
   }
 
-  private static final long serialVersionUID = 2422072640108355431L;
+  private static class SerializedForm<E> extends MultisetSerializedForm<E> {
+    SerializedForm(Multiset<E> multiset) {
+      super(multiset);
+    }
+    @Override protected Multiset<E> createEmpty() {
+      return new HashMultiset<E>(elementCount());
+    }
+    private static final long serialVersionUID = 0;
+  }
+
+  private void readObject(ObjectInputStream stream)
+      throws InvalidObjectException {
+    throw new InvalidObjectException("Use SerializedForm");
+  }
+
+  private Object writeReplace() {
+    return new SerializedForm<E>(this);
+  }
 }
