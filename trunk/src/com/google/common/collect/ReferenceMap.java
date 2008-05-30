@@ -29,6 +29,7 @@ import java.io.Serializable;
 import java.lang.ref.Reference;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,8 @@ import java.util.concurrent.ConcurrentMap;
  *
  * <p>All nine possible combinations of reference types are supported, although
  * using strong keys with strong values provides no benefit over using a {@code
- * Map} or {@code ConcurrentMap} directly.
+ * Map} or {@code ConcurrentMap} directly. This implementation does not permit
+ * null keys or values.
  *
  * <p><b>Note:</b> because garbage collection happens concurrently to your
  * program, it follows that this map is always subject to concurrent
@@ -54,10 +56,15 @@ import java.util.concurrent.ConcurrentMap;
  * #size} and {@link Map#equals} apply; for example, {@link #size} may be
  * observed to remain unchanged for a short time after an entry was reclaimed.
  *
- * <p>This implementation does not permit null keys or values. To determine
- * equality to a key or value, this implementation uses {@link Object#equals}
- * for strong references, and identity-based equality for soft and weak
- * references.
+ * <p>To determine equality to a key, this implementation uses
+ * {@link Object#equals} for strong references, and identity-based equality for
+ * soft and weak references. In other words, for a map with weak or soft key
+ * references, {@link #get} returns {@code null} when passed an object that
+ * equals a map key, but isn't the same instance. This behavior is similar to
+ * the way {@link IdentityHashMap} handles key lookups. However, to determine
+ * value equality, as occurs when {@link #containsValue} is called, the
+ * {@code ReferenceMap} always uses {@code equals}, regardless of the value
+ * reference type.
  *
  * <p><b>Note:</b> {@code new ReferenceMap(WEAK, STRONG)} is very nearly a
  * drop-in replacement for {@link WeakHashMap}, but improves upon this by using
@@ -109,22 +116,40 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
     valueStrategy = ReferenceStrategy.forType(valueReferenceType);
     delegate = backingMap;
   }
+ 
+  /*
+   * Specifying Javadoc for many classes so the AbstractMap Javadoc, which
+   * includes incorrect implementation details, is not displayed.
+   */
 
   // Query Operations
 
+  /**
+   * Returns the number of key-value mappings in this map.
+   */
   @Override public int size() {
     return delegate.size();
   }
 
+  /**
+   * Returns {@code true} if this map contains no key-value mappings.
+   */
   @Override public boolean isEmpty() {
     return delegate.isEmpty();
   }
 
+  /**
+   * Returns {@code true} if this map contains a mapping for the specified key.
+   */
   @Override public boolean containsKey(Object key) {
     Object keyDummy = keyStrategy.getDummyFor(key);
     return delegate.containsKey(keyDummy);
   }
 
+  /**
+   * Returns {@code true} if this map maps one or more keys to the specified
+   * value. 
+   */
   @Override public boolean containsValue(Object value) {
     checkNotNull(value);
     for (Object valueReference : delegate.values()) {
@@ -135,6 +160,10 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
     return false;
   }
 
+  /**
+   * Returns the value to which the specified key is mapped, or {@code null} if
+   * this map contains no mapping for the key.
+   */
   @Override public V get(Object key) {
     Object keyDummy = keyStrategy.getDummyFor(key);
     Object valueReference = delegate.get(keyDummy);
@@ -143,6 +172,9 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
 
   // Modification Operations
 
+  /**
+   * Associates the specified value with the specified key in this map.
+   */
   @Override public V put(K key, V value) {
     Object keyReference = referenceKey(key);
     Object valueReference = referenceValue(keyReference, value);
@@ -229,6 +261,9 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
     return (valueReference != null) && (value == null);
   }
 
+  /**
+   * Removes the mapping for a key from this map if it is present.
+   */
   @Override public V remove(Object key) {
     Object keyDummy = keyStrategy.getDummyFor(key);
     Object valueReference = delegate.remove(keyDummy);
@@ -245,6 +280,9 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
 
   // Inherit putAll() from AbstractMap
 
+  /**
+   * Removes all of the mappings from this map.
+   */
   @Override public void clear() {
     delegate.clear();
   }
@@ -260,7 +298,8 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
    *
    * <p><b>Note:</b> Regardless of the choice of key and value reference types,
    * an entry in the entry set always has strong references to both key and
-   * value. You should avoid any lingering strong references to Entry objects.
+   * value. You should avoid any lingering strong references to {@code Entry}
+   * objects.
    */
   @Override public Set<Map.Entry<K, V>> entrySet() {
     EntrySet es = entrySet;
@@ -433,7 +472,7 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
         return object;
       }
       @Override Object getDummyFor(Object object) {
-        return object;
+        return checkNotNull(object);
       }
     },
 

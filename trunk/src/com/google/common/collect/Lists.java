@@ -133,19 +133,6 @@ public final class Lists {
   }
 
   /**
-   * Creates an {@code ArrayList} instance with the given initial capacity.
-   *
-   * @param initialCapacity the initial capacity of the list
-   * @return a newly-created, initially empty {@code ArrayList} with the given
-   *     initial capacity
-   * @throws IllegalArgumentException if the specified initial capacity is
-   *     negative
-   */
-  public static <E> ArrayList<E> newArrayListWithCapacity(int initialCapacity) {
-    return new ArrayList<E>(initialCapacity);
-  }
-
-  /**
    * Creates an {@code ArrayList} instance with the given expected size.
    *
    * @param expectedSize the expected size of the list
@@ -175,40 +162,13 @@ public final class Lists {
   /**
    * Creates a {@code LinkedList} instance containing the given elements.
    *
-   * <p>See the caveat in {@link #newArrayList(Object...)}.
-   *
-   * @param elements the elements that the list should contain, in order
-   * @return a newly-created {@code LinkedList} containing those elements
-   */
-  public static <E> LinkedList<E> newLinkedList(E... elements) {
-    LinkedList<E> list = newLinkedList();
-    Collections.addAll(list, elements);
-    return list;
-  }
-
-  /**
-   * Creates a {@code LinkedList} instance containing the given elements.
-   *
    * @param elements the elements that the list should contain, in order
    * @return a newly-created {@code LinkedList} containing those elements
    */
   public static <E> LinkedList<E> newLinkedList(
       Iterable<? extends E> elements) {
-    return newLinkedList(elements.iterator());
-  }
-
-  /**
-   * Creates a {@code LinkedList} instance containing the given elements.
-   *
-   * @param elements the elements that the list should contain, in order
-   * @return a newly-created {@code LinkedList} containing those elements
-   */
-  public static <E> LinkedList<E> newLinkedList(
-      Iterator<? extends E> elements) {
     LinkedList<E> list = newLinkedList();
-    while (elements.hasNext()) {
-      list.add(elements.next());
-    }
+    Iterables.addAll(list, elements);
     return list;
   }
 
