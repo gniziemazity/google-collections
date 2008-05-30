@@ -484,7 +484,8 @@ public final class LinkedListMultimap<K, V>
   }
 
   private List<V> getCopy(@Nullable Object key) {
-    return Lists.newLinkedList(new ValueForKeyIterator(key));
+    // TODO: change to immutable
+    return Lists.newArrayList(new ValueForKeyIterator(key));
   }
   
   public List<V> removeAll(@Nullable Object key) {

@@ -131,7 +131,7 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
     <E> Collection<Map.Entry<K, E>> createEntries(Collection<E> values) {
       // converts a collection of values into a list of key/value map entries
       Collection<Map.Entry<K, E>> entries
-          = Lists.newArrayListWithCapacity(values.size());
+          = Lists.newArrayListWithExpectedSize(values.size());
       for (E value : values) {
         entries.add(createEntry(value));
       }

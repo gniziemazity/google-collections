@@ -312,25 +312,6 @@ public final class Sets {
    * Creates a {@code LinkedHashSet} instance containing the given elements.
    *
    * <p><b>Note:</b> if you need an immutable set without nulls, you should use
-   * {@link ImmutableSet#of(Object...)}.
-   *
-   * <p>Please see the notice in {@link #newHashSet(Object...)} about a relevant
-   * javac bug.
-   *
-   * @param elements the elements that the set should contain, in order
-   * @return a newly created {@code LinkedHashSet} containing those elements
-   *     (minus duplicates)
-   */
-  public static <E> LinkedHashSet<E> newLinkedHashSet(E... elements) {
-    LinkedHashSet<E> set = new LinkedHashSet<E>(Maps.capacity(elements.length));
-    Collections.addAll(set, elements);
-    return set;
-  }
-
-  /**
-   * Creates a {@code LinkedHashSet} instance containing the given elements.
-   *
-   * <p><b>Note:</b> if you need an immutable set without nulls, you should use
    * {@link ImmutableSet#copyOf(Iterable)}.
    *
    * @param elements the elements that the set should contain, in order
@@ -339,28 +320,8 @@ public final class Sets {
    */
   public static <E> LinkedHashSet<E> newLinkedHashSet(
       Iterable<? extends E> elements) {
-    if (elements instanceof Collection<?>) {
-      @SuppressWarnings("unchecked")
-      Collection<? extends E> collection = (Collection<? extends E>) elements;
-      return new LinkedHashSet<E>(collection);
-    } else {
-      return newLinkedHashSet(elements.iterator());
-    }
-  }
-
-  /**
-   * Creates a {@code LinkedHashSet} instance containing the given elements.
-   *
-   * @param elements the elements that the set should contain, in order
-   * @return a newly created {@code LinkedHashSet} containing those elements
-   *     (minus duplicates)
-   */
-  public static <E> LinkedHashSet<E> newLinkedHashSet(
-      Iterator<? extends E> elements) {
     LinkedHashSet<E> set = newLinkedHashSet();
-    while (elements.hasNext()) {
-      set.add(elements.next());
-    }
+    Iterables.addAll(set, elements);
     return set;
   }
 

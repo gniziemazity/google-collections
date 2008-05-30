@@ -216,103 +216,6 @@ public final class Maps {
   }
 
   /**
-   * Returns an immutable empty {@code Map} instance.
-   *
-   * @see Collections#emptyMap
-   */
-  public static <K, V> Map<K, V> immutableMap() {
-    return Collections.emptyMap();
-  }
-
-  /**
-   * Creates a new immutable {@code Map} instance containing the given key-value
-   * pair.
-   *
-   * @see Collections#singletonMap
-   */
-  public static <K, V> Map<K, V> immutableMap(
-      @Nullable K k1, @Nullable V v1) {
-    return Collections.singletonMap(k1, v1);
-  }
-
-  /**
-   * Creates a new immutable {@code Map} instance containing the given key-value
-   * pairs.
-   *
-   * @see ImmutableMapBuilder
-   */
-  public static <K, V> Map<K, V> immutableMap(
-      @Nullable K k1, @Nullable V v1,
-      @Nullable K k2, @Nullable V v2) {
-    return new ImmutableMapBuilder<K, V>()
-        .put(k1, v1)
-        .put(k2, v2)
-        .getMap();
-  }
-
-  /**
-   * Creates a new immutable {@code Map} instance containing the given key-value
-   * pairs.
-   *
-   * @see ImmutableMapBuilder
-   */
-  public static <K, V> Map<K, V> immutableMap(
-      @Nullable K k1, @Nullable V v1,
-      @Nullable K k2, @Nullable V v2,
-      @Nullable K k3, @Nullable V v3) {
-    return new ImmutableMapBuilder<K, V>()
-        .put(k1, v1)
-        .put(k2, v2)
-        .put(k3, v3)
-        .getMap();
-  }
-
-  /**
-   * Creates a new immutable {@code Map} instance containing the given key-value
-   * pairs.
-   *
-   * @see ImmutableMapBuilder
-   */
-  public static <K, V> Map<K, V> immutableMap(
-      @Nullable K k1, @Nullable V v1,
-      @Nullable K k2, @Nullable V v2,
-      @Nullable K k3, @Nullable V v3,
-      @Nullable K k4, @Nullable V v4) {
-    return new ImmutableMapBuilder<K, V>()
-        .put(k1, v1)
-        .put(k2, v2)
-        .put(k3, v3)
-        .put(k4, v4)
-        .getMap();
-  }
-
-  /**
-   * Creates a new immutable {@code Map} instance containing the given key-value
-   * pairs.
-   *
-   * @see ImmutableMapBuilder
-   */
-  public static <K, V> Map<K, V> immutableMap(
-      @Nullable K k1, @Nullable V v1,
-      @Nullable K k2, @Nullable V v2,
-      @Nullable K k3, @Nullable V v3,
-      @Nullable K k4, @Nullable V v4,
-      @Nullable K k5, @Nullable V v5) {
-    return new ImmutableMapBuilder<K, V>()
-        .put(k1, v1)
-        .put(k2, v2)
-        .put(k3, v3)
-        .put(k4, v4)
-        .put(k5, v5)
-        .getMap();
-  }
-
-  /*
-   * Please use ImmutableMapBuilder directly if you are looking for overloads
-   * for 6 or more key-value pairs.
-   */
-
-  /**
    * Returns an immutable empty {@code BiMap} instance.
    */
   @SuppressWarnings("unchecked")
@@ -325,7 +228,7 @@ public final class Maps {
   private static class EmptyBiMap extends ForwardingMap<Object, Object>
       implements BiMap<Object, Object> {
     public EmptyBiMap() {
-      super(immutableMap());      
+      super(ImmutableMap.of());      
     }
     
     @Override public Set<Object> values() {
@@ -881,7 +784,7 @@ public final class Maps {
   }
 
   private static final Map<Class<?>, Class<?>> PRIMITIVES_TO_WRAPPERS
-      = new ImmutableMapBuilder<Class<?>, Class<?>>(9)
+      = new ImmutableMap.Builder<Class<?>, Class<?>>()
           .put(boolean.class, Boolean.class)
           .put(byte.class, Byte.class)
           .put(char.class, Character.class)
@@ -891,7 +794,7 @@ public final class Maps {
           .put(long.class, Long.class)
           .put(short.class, Short.class)
           .put(void.class, Void.class)
-          .getMap();
+          .build();
 
   /**
    * Implements {@code Collection.contains} safely for forwarding collections of
