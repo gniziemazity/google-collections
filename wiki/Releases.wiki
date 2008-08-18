@@ -1,3 +1,44 @@
+= Release 0.8 (snapshot 20080818) =
+
+==Added classes==
+
+ * Collections2: Provides static methods for working with Collection instances
+ * ImmutableBiMap: An immutable BiMap with reliable user-specified iteration order
+ * ImmutableMultimap: An immutable ListMultimap with reliable user-specified key and value iteration order
+ * ImmutableMultiset: An immutable hash-based multiset
+ * Serialization: Provides static method for serializing collection classes
+ * UnmodifiableIterator: An iterator that does not support remove()
+
+==New functionality==
+
+ * Added Join methods taking a Map parameter
+ * Added Comparators.toStringOrder()
+ * Added Constraints.notNull()
+ * Added HashMultiset.create() methods
+ * Added ImmutableList.of() methods taking 2-5 parameters and ImmutableList.copyOf()
+ * Added ImmutableSet.copyOf()
+ * ImmutableSortedSet now extends ImmutableSet
+ * Added ImmutableSet.orderedBy() and reverseOrder()
+ * Added contains(), containsNull(), removeAll() and retainAll() methods to Iterables and Iterators
+ * Added Sets.filter()
+ * Widespread Javadoc improvements
+ * Explicit serialized forms for most collection classes
+ * To support more serialization options, Forwarding classes now have an abstract delegate() method, have a no-argument constructor, and don't implement Serializable
+ * Moved static ForwardingCollection methods to Iterables
+
+==Removed code==
+
+ * Removed Functions.TRIM_STRING and trimString()
+ * Removed Objects method deepEquals(), deepHashCode(), deepToString(), and nonNull()
+ * Removed classes ImmutableBiMapBuilder, ImmtuableMultimapBuilder, and LinkedListMultimap
+ * Removed interface SerializableComparator
+ * Removed constructor ConcurrentMultiset(ConcurrentMap)
+ * Removed constructors EnumBiMap(EnumBiMap) and EnumHashBiMap(EnumHashBiMap), 
+ * Removed constructors HashMultiset(int) and HashMultiset(Iterable), 
+ * Removed Maps methods immutableBiMap(), newBiMap(), sortedKeySet(), uniqueIndex(Collection, Function), and uniqueIndex(Iterator, Function)
+ * Removed Multimaps.immutableMultimap() methods
+ * Removed Multisets methods emptyMultiset() and immutableMultiset()
+
 = Release 0.7 (snapshot 20080530) =
 
 ==New functionality==
