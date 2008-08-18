@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkContentsNotNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.base.Nullable;
 import com.google.common.base.Objects;
 
@@ -49,7 +48,9 @@ public final class Comparators {
   private Comparators() {}
 
   /**
-   * Returns a comparator that uses the natural ordering of the values.
+   * Returns a comparator that uses the natural ordering of the values. The
+   * comparator throws a {@link NullPointerException} when passed a null
+   * parameter.
    */
   @SuppressWarnings("unchecked")   // see explanation in class Javadoc
   public static <T extends Comparable> Ordering<T> naturalOrder() {
@@ -59,7 +60,10 @@ public final class Comparators {
   /** @see #naturalOrder */
   @SuppressWarnings("unchecked")   // see explanation in class Javadoc
   private static final Ordering<Comparable> NATURAL_ORDER
-      = new Ordering<Comparable>() {
+      = new NaturalOrdering();
+
+  @SuppressWarnings("unchecked")   // see explanation in class Javadoc
+  private static class NaturalOrdering extends Ordering<Comparable> {
     public int compare(Comparable left, Comparable right) {
       checkNotNull(right);    // later code throws NPE when only left is null
       if (left == right) {
@@ -70,7 +74,6 @@ public final class Comparators {
        * compareTo() may throw a ClassCastException if the elements are not
        * mutually comparable.
        */
-      @SuppressWarnings("unchecked")
       int result = left.compareTo(right);
       return result;
     }
@@ -79,9 +82,13 @@ public final class Comparators {
     private Object readResolve() {
       return NATURAL_ORDER;
     }
-
-    private static final long serialVersionUID = 4773556737939767552L;
-  };
+    
+    @Override public String toString() {
+      return "naturalOrder()";
+    }
+    
+    private static final long serialVersionUID = 0;
+  }
 
   /**
    * Returns a comparator that treats {@code null} as less than all other
@@ -89,14 +96,25 @@ public final class Comparators {
    */
   public static <T> Ordering<T> nullLeastOrder(Comparator<T> comparator) {
     checkNotNull(comparator);
-    return new NullHandlingOrdering<T>(comparator) {
-      @Override int compareNullAndNonNull() {
-        return -1;
-      }
-      private static final long serialVersionUID = 0x5AF3C26EB419D807L;
-    };
+    return new NullLeastOrdering<T>(comparator);
   }
-
+  
+  private static class NullLeastOrdering<T> extends NullHandlingOrdering<T> {
+    NullLeastOrdering(Comparator<T> comparator) {
+      super(comparator);
+    }
+    
+    @Override int compareNullAndNonNull() {
+      return -1;
+    }
+    
+    @Override public String toString() {
+      return "nullLeastOrder(" + comparator + ")";
+    }
+    
+    private static final long serialVersionUID = 0;
+  }
+  
   /**
    * Returns a comparator that uses the natural ordering of the values, but also
    * handles null values, treating them as less than all other values.
@@ -108,22 +126,52 @@ public final class Comparators {
 
   @SuppressWarnings("unchecked")   // see explanation in class Javadoc
   private static final Ordering<Comparable> NULL_LEAST_ORDER
-      = nullLeastOrder(NATURAL_ORDER);
+      = new NaturalNullLeastOrder();
 
+  @SuppressWarnings("unchecked")   // see explanation in class Javadoc
+  private static class NaturalNullLeastOrder
+      extends NullLeastOrdering<Comparable> {
+    private NaturalNullLeastOrder() {
+      super(NATURAL_ORDER);
+    }
+    
+    // preserve singleton-ness
+    private Object readResolve() {
+      return NULL_LEAST_ORDER;
+    }
+    
+    @Override public String toString() {
+      return "nullLeastOrder()";
+    }
+    
+    private static final long serialVersionUID = 0;    
+  }
+  
   /**
    * Returns a comparator that treats {@code null} as greater than all other
    * values and uses the given comparator to compare non-null values.
    */
   public static <T> Ordering<T> nullGreatestOrder(Comparator<T> comparator) {
     checkNotNull(comparator);
-    return new NullHandlingOrdering<T>(comparator) {
-      @Override int compareNullAndNonNull() {
-        return 1;
-      }
-      private static final long serialVersionUID = 0xB17D30AE62485CF9L;
-    };
+    return new NullGreatestOrdering<T>(comparator);
   }
 
+  private static class NullGreatestOrdering<T> extends NullHandlingOrdering<T> {
+    NullGreatestOrdering(Comparator<T> comparator) {
+      super(comparator);
+    }
+    
+    @Override int compareNullAndNonNull() {
+      return 1;
+    }
+    
+    @Override public String toString() {
+      return "nullGreatestOrder(" + comparator + ")";
+    }
+    
+    private static final long serialVersionUID = 0;
+  }
+  
   /**
    * Returns a comparator that uses the natural ordering of the values, but also
    * handles null values, treating them as greater than all other values.
@@ -133,16 +181,34 @@ public final class Comparators {
     return (Ordering<T>) NULL_GREATEST_ORDER;
   }
 
-  // TODO: Add readResolve methods to NULL_GREATEST_ORDER and NULL_LEAST_ORDER
   @SuppressWarnings("unchecked")   // see explanation in class Javadoc
   private static final Ordering<Comparable> NULL_GREATEST_ORDER
-      = nullGreatestOrder(NATURAL_ORDER);
+      = new NaturalNullGreatestOrder();
+
+  @SuppressWarnings("unchecked")   // see explanation in class Javadoc
+  private static class NaturalNullGreatestOrder
+      extends NullGreatestOrdering<Comparable> {
+    private NaturalNullGreatestOrder() {
+      super(NATURAL_ORDER);
+    }
+    
+    // preserve singleton-ness
+    private Object readResolve() {
+      return NULL_GREATEST_ORDER;
+    }
+    
+    @Override public String toString() {
+      return "nullGreatestOrder()";
+    }
+    
+    private static final long serialVersionUID = 0;    
+  }
 
   private static abstract class NullHandlingOrdering<T> extends Ordering<T> {
     final Comparator<T> comparator;
 
     public NullHandlingOrdering(Comparator<T> comparator) {
-      this.comparator = checkNotNull(comparator);
+      this.comparator = comparator;
     }
 
     public int compare(T left, T right) {
@@ -168,9 +234,10 @@ public final class Comparators {
       if (object == null) {
         return false;
       }
-      if (object.getClass() == getClass()) {
+      if (object instanceof NullHandlingOrdering) {
         NullHandlingOrdering<?> that = (NullHandlingOrdering<?>) object;
-        return (this.comparator).equals(that.comparator);
+        return (this.compareNullAndNonNull() == that.compareNullAndNonNull())
+            && this.comparator.equals(that.comparator);
       }
       return false;
     }
@@ -310,7 +377,7 @@ public final class Comparators {
     }
 
     @Override public boolean equals(Object object) {
-      if (object instanceof CompoundOrder<?>) {
+      if (object instanceof CompoundOrder) {
         CompoundOrder<?> that = (CompoundOrder<?>) object;
         return (this.comparators).equals(that.comparators);
       }
@@ -320,14 +387,18 @@ public final class Comparators {
     @Override public int hashCode() {
       return comparators.hashCode();
     }
+    
+    @Override public String toString() {
+      return "compound(" + comparators + ")";
+    }
 
-    private static final long serialVersionUID = 5950260273184699058L;
+    private static final long serialVersionUID = 0;
   }
 
   /**
    * Creates a comparator that compares any two items by applying a function to
    * each of them and using the natural ordering of the results.
-   *
+   * 
    * @param function the function returning the value to compare. The function
    *     should never return {@code null}.
    * @return the generated comparator
@@ -356,13 +427,11 @@ public final class Comparators {
        * Let this throw a ClassCastException if T is a bizarre Comparable that
        * can't be compared to itself.
        */
-      @SuppressWarnings("unchecked")
-      int result = leftTransformed.compareTo(rightTransformed);
-      return result;
+      return leftTransformed.compareTo(rightTransformed);
     }
 
     @Override public boolean equals(Object object) {
-      if (object instanceof TransformingNaturalOrder<?, ?>) {
+      if (object instanceof TransformingNaturalOrder) {
         TransformingNaturalOrder<?, ?> that
             = (TransformingNaturalOrder<?, ?>) object;
         return (this.function).equals(that.function);
@@ -374,7 +443,11 @@ public final class Comparators {
       return function.hashCode();
     }
 
-    private static final long serialVersionUID = 4211028873657370047L;
+    @Override public String toString() {
+      return "fromFunction(" + function + ")";
+    }
+    
+    private static final long serialVersionUID = 0;
   }
 
   /**
@@ -391,7 +464,7 @@ public final class Comparators {
   }
 
   /** @see Comparators#fromFunction(Function,Comparator) */
-  static class TransformingOrder<F, T> extends Ordering<F> {
+  private static class TransformingOrder<F, T> extends Ordering<F> {
     private final Function<F, T> function;
     private final Comparator<? super T> comparator;
 
@@ -406,7 +479,7 @@ public final class Comparators {
     }
 
     @Override public boolean equals(Object object) {
-      if (object instanceof TransformingOrder<?, ?>) {
+      if (object instanceof TransformingOrder) {
         TransformingOrder<?, ?> that = (TransformingOrder<?, ?>) object;
         return (this.function).equals(that.function)
             && (this.comparator).equals(that.comparator);
@@ -418,16 +491,48 @@ public final class Comparators {
       return Objects.hashCode(function, comparator);
     }
 
-    private static final long serialVersionUID = 5364346520892770700L;
+    @Override public String toString() {
+      return "fromFunction(" + function + ", " + comparator + ")";
+    }
+    
+    private static final long serialVersionUID = 0;
   }
 
   /**
    * A comparator that compares objects by the natural ordering of their string
-   * representations as returned by {@code toString}. Does not support null
+   * representations as returned by {@code toString()}. It does not support null
    * values.
+   * 
+   * <p>TODO: Deprecate this in favor of {@link #toStringOrder}.
    */
-  public static final Ordering<Object> STRING_FORM_ORDER =
-      fromFunction(Functions.TO_STRING);
+  public static final Ordering<Object> STRING_FORM_ORDER = new ToStringOrder();
+  
+  private static class ToStringOrder extends Ordering<Object> {
+    public int compare(Object o1, Object o2) {
+      return o1.toString().compareTo(o2.toString());
+    }
+    
+    // preserve singleton-ness, so equals() and hashCode() work correctly
+    private Object readResolve() {
+      return STRING_FORM_ORDER;
+    }
+    
+    @Override public String toString() {
+      return "toStringOrder()";
+    }
+    
+    private static final long serialVersionUID = 0;
+  }
+  
+  /**
+   * Returns a comparator that compares objects by the natural ordering of their
+   * string representations as returned by {@code toString()}. It does not
+   * support null values.
+   */
+  @SuppressWarnings("unchecked")  // casting STRING_FORM_ORDER
+  public static final <T> Ordering<T> toStringOrder() {
+    return (Ordering<T>) STRING_FORM_ORDER;
+  }
   
   /**
    * Returns the smaller of the two values, according to their natural ordering.
@@ -449,7 +554,6 @@ public final class Comparators {
      * Let this throw a ClassCastException if T is a bizarre Comparable that
      * can't be compared to itself, as documented.
      */
-    @SuppressWarnings("unchecked")
     int result = a.compareTo(b);
     return result <= 0 ? a : b;
   }
@@ -474,7 +578,6 @@ public final class Comparators {
      * Let this throw a ClassCastException if T is a bizarre Comparable that
      * can't be compared to itself, as documented.
      */
-    @SuppressWarnings("unchecked")
     int result = a.compareTo(b);
     return result >= 0 ? a : b;
   }
@@ -525,14 +628,16 @@ public final class Comparators {
    * to the {@code valuesInOrder} list will have no effect on the returned
    * comparator. Null values in the list are supported.
    * 
+   * <p>The returned comparator throws an {@link ClassCastException} when it
+   * receives an input parameter that isn't in {@code valuesInOrder}.
+   * 
    * @param valuesInOrder the values that the returned comparator will be able
-   *        to compare, in the order the comparator should follow
+   *     to compare, in the order the comparator should follow
    * @return the comparator described above
    * @throws IllegalArgumentException if {@code valuesInOrder} contains any
-   *         non-consecutive duplicate values (according to
-   *         {@link Object#equals})
+   *     non-consecutive duplicate values (according to {@link Object#equals})
    */
-  public static <T> Ordering<T> givenOrder(List<T> valuesInOrder) {
+  public static <T> Ordering<T> givenOrder(List<? extends T> valuesInOrder) {
     return new GivenOrder<T>(valuesInOrder);
   }
 
@@ -543,15 +648,19 @@ public final class Comparators {
    * imposes a "partial ordering" over the type {@code T}. Null values in the
    * argument list are supported.
    * 
+   * <p>The returned comparator throws a {@link ClassCastException} when it
+   * receives an input parameter that isn't equal to {@code leastValue}
+   * or in {@code remainingValuesInOrder}.
+   * 
    * @param leastValue the value which the returned comparator should consider
-   *        the "least" of all values
+   *     the "least" of all values
    * @param remainingValuesInOrder the rest of the values that the returned
-   *        comparator will be able to compare, in the order the comparator
-   *        should follow
+   *     comparator will be able to compare, in the order the comparator should
+   *     follow
    * @return the comparator described above
    * @throws IllegalArgumentException if any non-consecutive duplicate values
-   *         (according to {@link Object#equals}) are present among the method
-   *         arguments         
+   *     (according to {@link Object#equals}) are present among the method
+   *     arguments         
    */
   public static <T> Ordering<T> givenOrder(
       @Nullable T leastValue, T... remainingValuesInOrder) {
@@ -562,7 +671,7 @@ public final class Comparators {
   private static class GivenOrder<T> extends Ordering<T> {
     final Map<T, Integer> rankMap;
 
-    GivenOrder(List<T> valuesInOrder) {
+    GivenOrder(List<? extends T> valuesInOrder) {
       rankMap = buildRankMap(valuesInOrder);
     }
 
@@ -578,7 +687,8 @@ public final class Comparators {
       return rank;
     }
 
-    static <T> Map<T, Integer> buildRankMap(Collection<T> valuesInOrder) {
+    static <T> Map<T, Integer> buildRankMap(
+        Collection<? extends T> valuesInOrder) {
       Map<T, Integer> ranks
           = Maps.newHashMapWithExpectedSize(valuesInOrder.size());
       T previousValue = null;
@@ -597,7 +707,7 @@ public final class Comparators {
     }
 
     @Override public boolean equals(Object object) {
-      if (object instanceof GivenOrder<?>) {
+      if (object instanceof GivenOrder) {
         GivenOrder<?> that = (GivenOrder<?>) object;
         return (this.rankMap).equals(that.rankMap);
       }
@@ -608,36 +718,36 @@ public final class Comparators {
       return rankMap.hashCode();
     }
 
-    private static final long serialVersionUID = 1841692415248046482L;
+    @Override public String toString() {
+      return "givenOrder(" + rankMap + ")";
+    }
+    
+    private static final long serialVersionUID = 0;
   }
 
   /**
-   * Exception thrown by a "partial-ordering" comparator when asked to compare
-   * at least one value outside the set of values it can compare. Extending
-   * ClassCastException may seem odd, but it fits the spirit of the
-   * Comparator.compare() specification, if you consider that we are handling
-   * what is conceptually a "subtype" of T.
-   * 
-   * TODO: Consider making this exception public.
+   * Exception thrown by a {@link #givenOrder(List)} or
+   * {@link #givenOrder(Object, Object...)} comparator when comparing a value
+   * outside the set of values it can compare. Extending
+   * {@link ClassCastException} may seem odd, but it fits the spirit of the
+   * {@link Comparator#compare} specification, if you consider that we are
+   * handling what is conceptually a "subtype" of {@code T}.
    */
-  // @VisibleForTesting
   static class IncomparableValueException extends ClassCastException {
-    private static final long serialVersionUID = 0;
     final Object value;
 
     IncomparableValueException(Object value) {
       super("Cannot compare value: " + value);
       this.value = value;
     }
+
+    private static final long serialVersionUID = 0;
   }
 
   /**
    * Exception thrown when a duplicate value is found in a list or array which
    * is not expected to contain any.
-   * 
-   * TODO: Consider making this exception public.
    */
-  // @VisibleForTesting
   static class DuplicateValueException extends IllegalArgumentException {
     private static final long serialVersionUID = 0;
     final Object value;

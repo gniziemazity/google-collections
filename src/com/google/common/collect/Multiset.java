@@ -77,24 +77,21 @@ import java.util.TreeSet;
  * they are "the same." {@code Multiset} does not specify which equivalence
  * relation will be used for this purpose; it is left implementation-dependent.
  * For example, given non-null instances, {@link HashMultiset} uses the typical
- * choice of relation:
+ * choice of relation : <pre>   {@code
  *
- * <pre>    {(x, y) | x.hashCode() == y.hashCode() && x.equals(y)}
- * </pre>
+ *   {(x, y) | x.hashCode() == y.hashCode() && x.equals(y)}}</pre>
  *
- * <p>... whereas {@link TreeMultiset} instead uses the slightly-less-common
- * relation:
+ * ... whereas {@link TreeMultiset} instead uses the slightly-less-common
+ * relation: <pre>   {@code
  *
- * <pre>    {(x, y) | comparator.compare(x, y) == 0}
- * </pre>
+ *   {(x, y) | comparator.compare(x, y) == 0}}</pre>
  *
- * <p>... and other implementations may use something else entirely. This
- * approach may seem novel compared to existing collection specifications such
- * as {@link Set}, however, it matches precisely the <i>de facto</i>
- * specifications of these interfaces. That is, in practice, it is well-known
- * that JDK implementation classes such as {@link TreeSet} and {@link
- * IdentityHashMap} freely substitute their own equivalence relations however it
- * suits them.
+ * ... and other implementations may use something else entirely. This approach
+ * may seem novel compared to existing collection specifications such as {@link
+ * Set}, however, it matches precisely the <i>de facto</i> specifications of
+ * these interfaces. That is, in practice, it is well-known that JDK
+ * implementation classes such as {@link TreeSet} and {@link IdentityHashMap}
+ * freely substitute their own equivalence relations however it suits them.
  *
  * @author Kevin Bourrillion
  */
@@ -421,18 +418,18 @@ public interface Multiset<E> extends Collection<E> {
   /**
    * {@inheritDoc}
    *
-   * <p>This method refines {@link Collection#containsAll} to further specify
-   * that it <b>may not</b> throw an exception in response to any of {@code
-   * elements} being null or of the wrong type.
+   * <p>This method refines {@link Collection#removeAll} to further specify that
+   * it <b>may not</b> throw an exception in response to any of {@code elements}
+   * being null or of the wrong type.
    */
   boolean removeAll(Collection<?> c);
 
   /**
    * {@inheritDoc}
    *
-   * <p>This method refines {@link Collection#containsAll} to further specify
-   * that it <b>may not</b> throw an exception in response to any of {@code
-   * elements} being null or of the wrong type.
+   * <p>This method refines {@link Collection#retainAll} to further specify that
+   * it <b>may not</b> throw an exception in response to any of {@code elements}
+   * being null or of the wrong type.
    */
   boolean retainAll(Collection<?> c);
 }

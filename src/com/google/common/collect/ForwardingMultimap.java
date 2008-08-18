@@ -35,17 +35,7 @@ import java.util.Set;
 public abstract class ForwardingMultimap<K, V> extends ForwardingObject
     implements Multimap<K, V> {
 
-  /**
-   * Constructs a forwarding multimap that forwards to the provided delegate.
-   */
-  protected ForwardingMultimap(Multimap<K, V> delegate) {
-    super(delegate);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override protected Multimap<K, V> delegate() {
-    return (Multimap<K, V>) super.delegate();
-  }
+  @Override protected abstract Multimap<K, V> delegate();
 
   public Map<K, Collection<V>> asMap() {
     return delegate().asMap();
@@ -91,12 +81,12 @@ public abstract class ForwardingMultimap<K, V> extends ForwardingObject
     return delegate().put(key, value);
   }
 
-  public void putAll(K key, Iterable<? extends V> values) {
-    delegate().putAll(key, values);
+  public boolean putAll(K key, Iterable<? extends V> values) {
+    return delegate().putAll(key, values);
   }
 
-  public void putAll(Multimap<? extends K, ? extends V> multimap) {
-    delegate().putAll(multimap);
+  public boolean putAll(Multimap<? extends K, ? extends V> multimap) {
+    return delegate().putAll(multimap);
   }
 
   public boolean remove(@Nullable Object key, @Nullable Object value) {
@@ -120,10 +110,10 @@ public abstract class ForwardingMultimap<K, V> extends ForwardingObject
   }
 
   @Override public boolean equals(@Nullable Object obj) {
-    return delegate().equals(obj);
+    return (this == obj) || delegate().equals(obj);
   }
 
   @Override public int hashCode() {
     return delegate().hashCode();
-  }  
+  }
 }

@@ -43,7 +43,7 @@ import java.util.Set;
  * supporting duplicates, the multimap will contain a single mapping from the
  * key to the value, and {@code get} will return a collection that includes the
  * value once.
- * 
+ *
  * <p>All methods that alter the multimap are optional, and the views returned
  * by the multimap may or may not be modifiable. When modification isn't
  * supported, those methods will throw an {@link UnsupportedOperationException}.
@@ -86,7 +86,7 @@ public interface Multimap<K, V> {
   boolean containsEntry(@Nullable Object key, @Nullable Object value);
 
   // Modification Operations
-  
+
   /**
    * Stores a key-value pair in the multimap.
    *
@@ -111,25 +111,27 @@ public interface Multimap<K, V> {
    * @return {@code true} if the multimap changed
    */
   boolean remove(@Nullable Object key, @Nullable Object value);
-  
+
   // Bulk Operations
-  
+
   /**
    * Stores a collection of values with the same key.
-   * 
+   *
    * @param key key to store in the multimap
    * @param values values to store in the multimap
+   * @return {@code true} if the multimap changed
    */
-  void putAll(@Nullable K key, Iterable<? extends V> values);
+  boolean putAll(@Nullable K key, Iterable<? extends V> values);
 
   /**
    * Copies all of another multimap's key-value pairs into this multimap. The
    * order in which the mappings are added is determined by
    * {@code multimap.entries()}.
-   * 
+   *
    * @param multimap mappings to store in this multimap
+   * @return {@code true} if the multimap changed
    */
-  void putAll(Multimap<? extends K, ? extends V> multimap);
+  boolean putAll(Multimap<? extends K, ? extends V> multimap);
 
   /**
    * Stores a collection of values with the same key, replacing any existing
@@ -138,8 +140,9 @@ public interface Multimap<K, V> {
    * @param key key to store in the multimap
    * @param values values to store in the multimap
    * @return the collection of replaced values, or an empty collection if no
-   *     values were previously associated with the key. The collection is
-   *     modifiable, but updating it will have no effect on the multimap.
+   *     values were previously associated with the key. The collection
+   *     <i>may</i> be modifiable, but updating it will have no effect on the
+   *     multimap.
    */
   Collection<V> replaceValues(K key, Iterable<? extends V> values);
 
@@ -148,8 +151,9 @@ public interface Multimap<K, V> {
    *
    * @param key key of entries to remove from the multimap
    * @return the collection of removed values, or an empty collection if no
-   *     values were associated with the provided key. The collection is
-   *     modifiable, but updating it will have no effect on the multimap.
+   *     values were associated with the provided key. The collection
+   *     <i>may</i> be modifiable, but updating it will have no effect on the
+   *     multimap.
    */
   Collection<V> removeAll(@Nullable Object key);
 
@@ -172,7 +176,7 @@ public interface Multimap<K, V> {
    * @return the collection of values that the key maps to
    */
   Collection<V> get(@Nullable K key);
-  
+
   /**
    * Returns the set of all keys, each appearing once in the returned set.
    * Changes to the returned set will update the underlying multimap, and vice
@@ -226,18 +230,22 @@ public interface Multimap<K, V> {
   Map<K, Collection<V>> asMap();
 
   // Comparison and hashing
-  
+
   /**
-   * Compares the specified object with this multimap for equality. If two
-   * multimaps are equal, their map views, as returned by {@link #asMap}, are
-   * also equal. However, the converse is not true; an empty {@link SetMultimap}
-   * does not equal an empty {@link ListMultimap}, even though they both have
-   * empty map views.
+   * Compares the specified object with this multimap for equality. Two
+   * multimaps are equal when their map views, as returned by {@link #asMap},
+   * are also equal.
    *
    * <p>In general, two multimaps with identical key-value mappings may or may
-   * not always be equal, depending on the implementation. For example, {@link
-   * SetMultimap} equality is independent of ordering, while {@link
-   * ListMultimap} equality is dependent on the order of values for each key.
+   * not be equal, depending on the implementation. For example, two
+   * {@link SetMultimap} instances with the same key-value mappings are equal,
+   * but equality of two {@link ListMultimap} instances depends on the ordering
+   * of the values for each key.
+   *
+   * <p>A non-empty {@link SetMultimap} cannot be equal to a non-empty
+   * {@link ListMultimap}, since their {@link #asMap} views contain unequal
+   * collections as values. However, any two empty multimaps are equal, because
+   * they both have empty {@link #asMap} views.
    */
   boolean equals(@Nullable Object obj);
 

@@ -16,8 +16,11 @@
 
 package com.google.common.collect;
 
-import java.io.InvalidObjectException;
+import com.google.common.base.Nullable;
+
+import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.SortedMap;
@@ -26,7 +29,8 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Multiset implementation backed by a TreeMap.
+ * Multiset implementation backed by a {@code TreeMap}. The multiset elements
+ * are ordered by their natural sort ordering or by a comparator.  
  *
  * @author Neal Kanodia
  * @author Jared Levy
@@ -43,9 +47,6 @@ public final class TreeMultiset<E> extends AbstractMapBasedMultiset<E> {
    * violates this constraint (for example, the user attempts to add a string
    * element to a set whose elements are integers), the {@code add(Object)}
    * call will throw a {@code ClassCastException}.
-   *
-   * @see Comparable
-   * @see java.util.TreeSet
    */
   public TreeMultiset() {
     super(new TreeMap<E, AtomicInteger>());
@@ -88,6 +89,26 @@ public final class TreeMultiset<E> extends AbstractMapBasedMultiset<E> {
     return (SortedSet<E>) super.elementSet();
   }
   
+  @Override public int count(@Nullable Object element) {
+    try {
+      return super.count(element);
+    } catch (NullPointerException e) {
+      return 0;
+    } catch (ClassCastException e) {
+      return 0;
+    }
+  }
+
+  @Override public int removeAllOccurrences(@Nullable Object element) {
+    try {
+      return super.removeAllOccurrences(element);
+    } catch (NullPointerException e) {
+      return 0;
+    } catch (ClassCastException e) {
+      return 0;
+    }
+  }
+
   @Override protected Set<E> createElementSet() {
      return new SortedMapBasedElementSet(
          (SortedMap<E, AtomicInteger>) backingMap());
@@ -137,24 +158,25 @@ public final class TreeMultiset<E> extends AbstractMapBasedMultiset<E> {
    * have equal entry sets.
    */
   
-  private static class SerializedForm<E> extends MultisetSerializedForm<E> {
-    private final Comparator<? super E> comparator;
-    SerializedForm(TreeMultiset<E> multiset) {
-      super(multiset);
-      comparator = multiset.elementSet().comparator();
-    }
-    @Override protected Multiset<E> createEmpty() {
-      return new TreeMultiset<E>(comparator);
-    }
-    private static final long serialVersionUID = 0;
+  /**
+   * @serialData the comparator, the number of distinct elements, the first
+   *     element, its count, the second element, its count, and so on
+   */
+  private void writeObject(ObjectOutputStream stream) throws IOException {
+    stream.defaultWriteObject();
+    stream.writeObject(elementSet().comparator());
+    Serialization.writeMultiset(this, stream);
   }
-
+  
   private void readObject(ObjectInputStream stream)
-      throws InvalidObjectException {
-    throw new InvalidObjectException("Use SerializedForm");
+      throws IOException, ClassNotFoundException {
+    stream.defaultReadObject();
+    @SuppressWarnings("unchecked") // reading data stored by writeObject
+    Comparator<? super E> comparator
+        = (Comparator<? super E>) stream.readObject();
+    setBackingMap(new TreeMap<E, AtomicInteger>(comparator));
+    Serialization.populateMultiset(this, stream);
   }
-
-  private Object writeReplace() {
-    return new SerializedForm<E>(this);
-  }
+  
+  private static final long serialVersionUID = 0;  
 }

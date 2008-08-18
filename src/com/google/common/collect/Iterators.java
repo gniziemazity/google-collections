@@ -16,14 +16,15 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Function;
-import com.google.common.base.Join;
-import com.google.common.base.Nullable;
-import com.google.common.base.Objects;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkContentsNotNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+
+import com.google.common.base.Function;
+import com.google.common.base.Join;
+import com.google.common.base.Nullable;
+import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 
 import java.util.Arrays;
@@ -104,6 +105,33 @@ public final class Iterators {
     return (ListIterator<T>) EMPTY_LIST_ITERATOR;
   }
 
+  private static final Iterator<Object> EMPTY_MODIFIABLE_ITERATOR =
+      new Iterator<Object>() {
+        /*@Override*/ public boolean hasNext() {
+          return false;
+        }
+
+        /*@Override*/ public Object next() {
+          throw new NoSuchElementException();
+        }
+
+        /*@Override*/ public void remove() {
+          throw new IllegalStateException();
+        }
+      };
+
+  /**
+   * Returns the empty {@code Iterator} that throws
+   * {@link IllegalStateException} instead of
+   * {@link UnsupportedOperationException} on a call to
+   * {@link Iterator#remove()}.
+   */
+  // Casting to any type is safe since there are no actual elements.
+  @SuppressWarnings("unchecked")
+  static <T> Iterator<T> emptyModifiableIterator() {
+    return (Iterator<T>) EMPTY_MODIFIABLE_ITERATOR;
+  }
+
   /** Returns an unmodifiable view of {@code iterator}. */
   public static <T> Iterator<T> unmodifiableIterator(
       final Iterator<T> iterator) {
@@ -135,6 +163,77 @@ public final class Iterators {
     return count;
   }
 
+  /**
+   * Returns {@code true} if {@code iterator} contains {@code element}.
+   */
+  public static boolean contains(Iterator<?> iterator, @Nullable Object element)
+  {
+    if (element == null) {
+      return containsNull(iterator);
+    }
+    while (iterator.hasNext()) {
+      if (element.equals(iterator.next())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Returns {@code true} if {@code iterator} contains at least one null
+   * element.
+   */
+  public static boolean containsNull(Iterator<?> iterator) {
+    while (iterator.hasNext()) {
+      if (iterator.next() == null) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Traverses an iterator and removes every element that belongs to the
+   * provided collection. The iterator will be left exhausted: its
+   * {@code hasNext()} method will return {@code false}.
+   * 
+   * @param iterator the iterator to (potentially) remove elements from
+   * @param c the elements to remove
+   * @return {@code true} if any elements are removed from {@code iterator}
+   */
+  public static boolean removeAll(Iterator<?> iterator, Collection<?> c) {
+    checkNotNull(c);
+    boolean modified = false;
+    while (iterator.hasNext()) {
+      if (c.contains(iterator.next())) {
+        iterator.remove();
+        modified = true;
+      }
+    }
+    return modified;
+  }
+  
+  /**
+   * Traverses an iterator and removes every element that does not belong to the
+   * provided collection. The iterator will be left exhausted: its
+   * {@code hasNext()} method will return {@code false}.
+   * 
+   * @param iterator the iterator to (potentially) remove elements from
+   * @param c the elements to retain
+   * @return {@code true} if any elements are removed from {@code iterator}
+   */
+  public static boolean retainAll(Iterator<?> iterator, Collection<?> c) {
+    checkNotNull(c);
+    boolean modified = false;
+    while (iterator.hasNext()) {
+      if (!c.contains(iterator.next())) {
+        iterator.remove();
+        modified = true;
+      }
+    }
+    return modified;
+  }
+  
   /**
    * Determines whether two iterators contain equal elements in the same order.
    * More specifically, this method returns {@code true} if {@code iterator1}
@@ -176,18 +275,25 @@ public final class Iterators {
    *
    * @throws NoSuchElementException if the iterator is empty
    * @throws IllegalArgumentException if the iterator contains multiple
-   *     elements
+   *     elements.  The state of the iterator is unspecified.
    */
   public static <T> T getOnlyElement(Iterator<T> iterator) {
+    T first = iterator.next();
     if (!iterator.hasNext()) {
-      throw new NoSuchElementException();
+      return first;
     }
-    T element = iterator.next();
+
+    StringBuilder sb = new StringBuilder();
+    sb.append("expected one element but was: <" + first);
+    for (int i = 0; i < 4 && iterator.hasNext(); i++) {
+      sb.append(", " + iterator.next());
+    }
     if (iterator.hasNext()) {
-      throw new IllegalArgumentException(
-          "extra elements found: " + toString(iterator));
+      sb.append(", ...");
     }
-    return element;
+    sb.append(">");
+
+    throw new IllegalArgumentException(sb.toString());
   }
 
   /**
@@ -195,7 +301,7 @@ public final class Iterators {
    * defaultValue} if the iterator is empty.
    *
    * @throws IllegalArgumentException if the iterator contains multiple
-   * elements
+   *     elements.  The state of the iterator is unspecified.
    */
   public static <T> T getOnlyElement(
       Iterator<T> iterator, @Nullable T defaultValue) {
@@ -234,7 +340,7 @@ public final class Iterators {
     }
     return wasModified;
   }
-
+  
   /**
    * Returns the number of elements in the specified iterator that equal the
    * specified object. The iterator will be left exhausted: its
@@ -526,7 +632,7 @@ public final class Iterators {
    *
    * @return the first matching element in {@code iterator}
    * @throws NoSuchElementException if no element in {@code iterator} matches
-   *         the given predicate
+   *     the given predicate
    */
   public static <E> E find(Iterator<E> iterator, Predicate<? super E> predicate)
   {
@@ -566,8 +672,8 @@ public final class Iterators {
    * @param position position of the element to return
    * @return the element at the specified position in {@code iterator}
    * @throws IndexOutOfBoundsException if {@code position} is negative or
-   *         greater than or equal to the number of elements remaining in
-   *         {@code iterator}
+   *     greater than or equal to the number of elements remaining in
+   *     {@code iterator}
    */
   public static <T> T get(Iterator<T> iterator, int position) {
     checkNotNull(iterator);
@@ -660,22 +766,38 @@ public final class Iterators {
    * Returns an iterator containing the elements of {@code array} in order. Note
    * that you can also use the iterator of {@link Arrays#asList}.
    */
-  static <T> Iterator<T> forArray(final T[] array) {
+  static <T> Iterator<T> forArray(T[] array) {
     return forArray(array, 0, array.length);
   }
 
   /**
    * Returns an iterator containing the elements in the specified range of
    * {@code array} in order.
+   * 
+   * @param array array to read elements out of
+   * @param offset index of first array element to retrieve
+   * @length length number of elements in iteration
+   * 
+   * @throws IndexOutOfBoundsException if {@code offset} is negative,
+   *    {@code length} is negative, or {@code offset + length > array.length}
    */
   public static <T> Iterator<T> forArray(
       final T[] array, final int offset, final int length) {
     checkNotNull(array);
+    if (length < 0) {
+      throw new IndexOutOfBoundsException("Negative length " + length);
+    }
+    if (offset < 0) {
+      throw new IndexOutOfBoundsException("Negative offset " + offset);
+    }
+    if (offset + length > array.length) {
+      throw new IndexOutOfBoundsException(
+          "offset (" + offset + ") + length (" + length + ") > "
+          + "array.length (" + array.length + ")");
+    }
     if (length == 0) {
       return emptyIterator();
     }
-    checkArgument(length >= 0 && offset >= 0
-        && (offset + length <= array.length));
     return new Iterator<T>() {
       int i = offset;
       public boolean hasNext() {

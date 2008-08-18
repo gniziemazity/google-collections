@@ -38,7 +38,7 @@
  * <dd>A new type, which is similar to {@link java.util.Map}, but may contain
  *     multiple entries with the same key. Some behaviors of
  *     {@link com.google.common.collect.Multimap} are left unspecified and are
- *     provided only by the two subtypes mentioned next.
+ *     provided only by the subtypes mentioned below.
  *
  * <dt>{@link com.google.common.collect.SetMultimap}
  * <dd>An extension of {@link com.google.common.collect.Multimap} which has
@@ -46,7 +46,7 @@
  *     while a key may appear twice in a {@code SetMultimap}, each must map to a
  *     different value.  {@code SetMultimap} takes its name from the fact that
  *     the {@linkplain com.google.common.collect.SetMultimap#get collection of
- *     values} associated with a fixed key fulfills the {@link java.util.Set}
+ *     values} associated with a given key fulfills the {@link java.util.Set}
  *     contract.
  *
  * <dt>{@link com.google.common.collect.ListMultimap}
@@ -56,13 +56,18 @@
  *     {@link com.google.common.collect.ListMultimap#equals(Object)}. {@code
  *     ListMultimap} takes its name from the fact that the {@linkplain
  *     com.google.common.collect.ListMultimap#get collection of values}
- *     associated with a fixed key fulfills the {@link java.util.List} contract.
+ *     associated with a given key fulfills the {@link java.util.List} contract.
  *
  * <dt>{@link com.google.common.collect.SortedSetMultimap}
  * <dd>An extension of {@link com.google.common.collect.SetMultimap} for which
  *     the {@linkplain com.google.common.collect.SortedSetMultimap#get
- *     collection values} associated with a fixed key is a
+ *     collection values} associated with a given key is a
  *     {@link java.util.SortedSet}.
+ *     
+ * <dt>{@link com.google.common.collect.ClassToInstanceMap}
+ * <dd>An extension of {@link java.util.Map} that associates a raw type with an
+ *     instance of that type.          
+ * </dl>
  *
  * <h2>Collection Implementations</h2>
  *
@@ -76,8 +81,14 @@
  * <dt>{@link com.google.common.collect.ImmutableSet}
  * </ul>
  *
+ * <h3>of {@link java.util.SortedSet}</h3>
+ * <dl>
+ * <dt>{@link com.google.common.collect.ImmutableSortedSet}
+ * </dl>
+ *
  * <h3>of {@link java.util.Map}</h3>
  * <dl>
+ * <dt>{@link com.google.common.collect.ImmutableMap}
  * <dt>{@link com.google.common.collect.ReferenceMap}
  * </ul>
  *
@@ -90,8 +101,10 @@
  *
  * <h3>of {@link com.google.common.collect.Multiset}</h3>
  * <dl>
+ * <dt>{@link com.google.common.collect.ConcurrentMultiset}
  * <dt>{@link com.google.common.collect.EnumMultiset}
  * <dt>{@link com.google.common.collect.HashMultiset}
+ * <dt>{@link com.google.common.collect.ImmutableMultiset}
  * <dt>{@link com.google.common.collect.LinkedHashMultiset}
  * <dt>{@link com.google.common.collect.TreeMultiset}
  * </dl>
@@ -99,8 +112,8 @@
  * <h3>of {@link com.google.common.collect.Multimap}</h3>
  * <dl>
  * <dt>{@link com.google.common.collect.ArrayListMultimap}
- * <dt>{@link com.google.common.collect.LinkedListMultimap}
  * <dt>{@link com.google.common.collect.HashMultimap}
+ * <dt>{@link com.google.common.collect.ImmutableMultimap}
  * <dt>{@link com.google.common.collect.LinkedHashMultimap}
  * <dt>{@link com.google.common.collect.TreeMultimap}
  * </dl>
@@ -112,12 +125,14 @@
  * <dt>{@link com.google.common.collect.AbstractMapEntry}
  * <dt>{@link com.google.common.collect.AbstractMultiset}
  * <dt>{@link com.google.common.collect.AbstractMultisetEntry}
+ * <dt>{@link com.google.common.collect.AbstractRemovableIterator}
+ * <dt>{@link com.google.common.collect.UnmodifiableIterator}
  * </dl>
  *
  * <h2>Classes of static utility methods</h2>
  *
  * <dl>
- * <dt>{@link com.google.common.collect.Comparators}
+ * <dt>{@link com.google.common.collect.Collections2}
  * <dt>{@link com.google.common.collect.Iterators}
  * <dt>{@link com.google.common.collect.Iterables}
  * <dt>{@link com.google.common.collect.Lists}
@@ -127,16 +142,27 @@
  * <dt>{@link com.google.common.collect.Multimaps}
  * <dt>{@link com.google.common.collect.ObjectArrays}
  * <dt>{@link com.google.common.collect.PrimitiveArrays}
+ * <dt>{@link com.google.common.collect.Serialization}
  * </dl>
+
+ * <h2>Comparators</h2>
+ * <dl>
+ * <dt>{@link com.google.common.collect.Comparators}
+ * <dt>{@link com.google.common.collect.Ordering}
+ * </ul> 
  *
- * <h2>Builders</h2>
+ * <h2>Constraints</h2>
+ * 
+ * <dt>{@link com.google.common.collect.Constraint}
+ * <dt>{@link com.google.common.collect.Constraints}
+ * <dt>{@link com.google.common.collect.MapConstraint}
+ * <dt>{@link com.google.common.collect.MapConstraints} 
  *
- * <h2>Constraints stuff</h2>
- *
- * <h2>Forwarding objects</h2>
+ * <h2>Forwarding collections</h2>
  * 
  * <dl>
  * <dt>{@link com.google.common.collect.ForwardingCollection }
+ * <dt>{@link com.google.common.collect.ForwardingConcurrentMap }
  * <dt>{@link com.google.common.collect.ForwardingIterator }
  * <dt>{@link com.google.common.collect.ForwardingList }
  * <dt>{@link com.google.common.collect.ForwardingListIterator }
@@ -158,13 +184,6 @@
  * for any parameter that is not explicitly annotated as being {@link
  * com.google.common.base.Nullable @Nullable}.
  * 
- * <p>This package does not support self-containing collections: a collection
- * instance that includes itself, or an object that references itself, as a
- * member. Doing so may lead to undefined behavior. For example, deserialization
- * can generate multiple copies of the self-containing collection. However, no
- * problems will arise when a collection contains an element of the same type,
- * as long as it's a different instance.
- *
  * @author Mike Bostock
  * @author Kevin Bourrillion
  * @author Jared Levy

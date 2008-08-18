@@ -34,7 +34,7 @@ public abstract class AbstractMultisetEntry<E> implements Entry<E> {
     if (o == this) {
       return true;
     }
-    if (!(o instanceof Entry<?>)) {
+    if (!(o instanceof Entry)) {
       return false;
     }
     Entry<?> e = (Entry<?>) o;

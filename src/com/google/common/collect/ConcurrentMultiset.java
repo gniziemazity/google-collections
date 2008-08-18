@@ -16,9 +16,14 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.Nullable;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -31,17 +36,8 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * A multiset that supports concurrent modifications and that provides atomic
- * versions of most {@code Multiset} operations (exceptions where noted).
- * 
- * <p>This implementation is backed by a {@link ConcurrentMap}, and several of
- * its properties will depend on the behavior of this backing map: for example,
- * it can contain only values that are legal keys for the backing map. Thus,
- * when using the default {@link ConcurrentHashMap}, this implementation cannot
- * contain {@code null}.
- * 
- * <p>An instance of this class is serializable, as long as all of its elements
- * are serializable and the instance wasn't created by passing a
- * non-serializable map to {@link #ConcurrentMultiset(ConcurrentMap)}.  
+ * versions of most {@code Multiset} operations (exceptions where noted). Null
+ * elements are not supported.
  *
  * @author Cliff L. Biffle
  */
@@ -55,31 +51,20 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
    */
   
   /** The number of occurrences of each element. */
-  private final ConcurrentMap<E, Integer> countMap;
+  private transient final ConcurrentMap<E, Integer> countMap;
 
   /**
-   * Creates an empty instance using a {@link ConcurrentHashMap} to store
-   * elements and their counts.
-   * 
-   * <p>The {@code ConcurrentHashMap} will have default capacity, load factor,
-   * and concurrency settings. For more control, use
-   * {@link #ConcurrentMultiset(ConcurrentMap)}.
+   * Creates an empty instance.
    */
   public ConcurrentMultiset() {
     this(new ConcurrentHashMap<E, Integer>());
   }
 
   /**
-   * Creates an instance using a {@link ConcurrentHashMap} to store elements
-   * and their counts, and initially containing all the elements from a given
-   * collection.
-   *
-   * <p>The {@code ConcurrentHashMap} will have default capacity, load factor,
-   * and concurrency settings. For more control, use
-   * {@link #ConcurrentMultiset(ConcurrentMap)}.
+   * Creates an instance that contains the elements in a given collection.
    */
   public ConcurrentMultiset(Collection<? extends E> collection) {
-    this(new ConcurrentHashMap<E, Integer>());
+    this(new ConcurrentHashMap<E, Integer>(Maps.capacity(collection.size())));
     addAll(collection);
   }
 
@@ -91,10 +76,10 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
    * should not maintain references to the map or modify it in any way.
    * 
    * @param countMap backing map for storing the elements in the multiset and
-   *     their counts. Must be empty.
+   *     their counts. It must be empty.
    * @throws IllegalArgumentException if {@code countMap} is not empty
    */
-  public ConcurrentMultiset(ConcurrentMap<E, Integer> countMap) {
+  ConcurrentMultiset(ConcurrentMap<E, Integer> countMap) {
     checkArgument(countMap.isEmpty());
     this.countMap = countMap;
   }
@@ -108,7 +93,28 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
    * @return the nonnegative number of occurrences of the element
    */
   @Override public int count(@Nullable Object element) {
-    return unbox(countMap.get(element));
+    try {
+      return unbox(countMap.get(element));
+    } catch (NullPointerException e) {
+      return 0;
+    } catch (ClassCastException e) {
+      return 0;
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>If the data in the multiset is modified by any other threads during this
+   * method, it is undefined which (if any) of these modifications will be
+   * reflected in the result.
+   */
+  @Override public int size() {
+    long sum = 0L;
+    for (Integer value : countMap.values()) {
+      sum += value;
+    }
+    return (int) Math.min(sum, Integer.MAX_VALUE);
   }
 
   /*
@@ -143,11 +149,6 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
 
   /**
    * Adds a number of occurrences of the specified element to this multiset.
-   *
-   * <p>To succeed, {@code element} must be a legal key in the backing map.  In
-   * the case of the default {@link ConcurrentHashMap}, this means it must not
-   * be {@code null}, but other {@code Map} implementations may allow {@code
-   * null}.
    *
    * @param element the element to add
    * @param occurrences the number of occurrences to add
@@ -229,71 +230,15 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
    * @return the number of occurrences successfully removed, possibly zero
    */
   @Override public int removeAllOccurrences(@Nullable Object element) {
-    return unbox(countMap.remove(element));
-  }
-
-  // TODO: move this above isEmpty() where it belongs
-  /**
-   * {@inheritDoc}
-   *
-   * <p>If the data in the multiset is modified by any other threads during this
-   * method, it is undefined which (if any) of these modifications will be
-   * reflected in the result.
-   */
-  @Override public int size() {
-    long sum = 0L;
-    for (Integer value : countMap.values()) {
-      sum += value;
+    try {
+      return unbox(countMap.remove(element));
+    } catch (NullPointerException e) {
+      return 0;
+    } catch (ClassCastException e) {
+      return 0;
     }
-    return (int) Math.min(sum, Integer.MAX_VALUE);
   }
 
-
-  /**
-   * Adds or removes occurrences of {@code element} such that the {@link #count}
-   * of the element becomes {@code count}.
-   *
-   * @return the count of {@code element} in the multiset before this call
-   * @throws IllegalArgumentException if {@code count} is negative
-   */
-  public int setCount(E element, int count) {
-    checkArgument(count >= 0, "Invalid count: %s", count);
-    return (count == 0)
-        ? removeAllOccurrences(element)
-        : unbox(countMap.put(element, count));
-  }
-
-  /**
-   * Sets the number of occurrences of {@code element} to {@code newCount}, but
-   * only if the count is currently {@code oldCount}. If {@code element} does
-   * not appear in the multiset exactly {@code oldCount} times, no changes will
-   * be made.
-   * 
-   * @return {@code true} if the change was successful. This usually indicates
-   *         that the multiset has been modified, but not always: in the case
-   *         that {@code oldCount == newCount}, the method will return
-   *         {@code true} if the condition was met.
-   * @throws IllegalArgumentException if {@code oldCount} or {@code newCount} is
-   *         negative
-   */
-  public boolean setCount(E element, int oldCount, int newCount) {
-    checkArgument(oldCount >= 0, "Invalid oldCount: %s", oldCount);
-    checkArgument(newCount >= 0, "Invalid newCount: %s", newCount);
-    if (newCount == 0) {
-      if (oldCount == 0) {
-        // No change to make, but must return true if the element is not present
-        return !countMap.containsKey(element);
-      } else {
-        return countMap.remove(element, box(oldCount));
-      }
-    }
-    if (oldCount == 0) {
-      return countMap.putIfAbsent(element, newCount) == null;
-    }
-    return countMap.replace(element, oldCount, newCount);
-  }
-
-  // TODO: move this above removeAllOccurrences() where it belongs
   /**
    * Removes exactly the specified number of occurrences of {@code element}, or
    * makes no change if this is not possible.
@@ -331,6 +276,49 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
       // If we're still here, there was a race, so just try again.
     }
   }
+  /**
+   * Adds or removes occurrences of {@code element} such that the {@link #count}
+   * of the element becomes {@code count}.
+   *
+   * @return the count of {@code element} in the multiset before this call
+   * @throws IllegalArgumentException if {@code count} is negative
+   */
+  public int setCount(E element, int count) {
+    checkArgument(count >= 0, "Invalid count: %s", count);
+    return (count == 0)
+        ? removeAllOccurrences(element)
+        : unbox(countMap.put(element, count));
+  }
+
+  /**
+   * Sets the number of occurrences of {@code element} to {@code newCount}, but
+   * only if the count is currently {@code oldCount}. If {@code element} does
+   * not appear in the multiset exactly {@code oldCount} times, no changes will
+   * be made.
+   * 
+   * @return {@code true} if the change was successful. This usually indicates
+   *     that the multiset has been modified, but not always: in the case that
+   *     {@code oldCount == newCount}, the method will return {@code true} if
+   *     the condition was met.
+   * @throws IllegalArgumentException if {@code oldCount} or {@code newCount} is
+   *     negative
+   */
+  public boolean setCount(E element, int oldCount, int newCount) {
+    checkArgument(oldCount >= 0, "Invalid oldCount: %s", oldCount);
+    checkArgument(newCount >= 0, "Invalid newCount: %s", newCount);
+    if (newCount == 0) {
+      if (oldCount == 0) {
+        // No change to make, but must return true if the element is not present
+        return !countMap.containsKey(element);
+      } else {
+        return countMap.remove(element, oldCount);
+      }
+    }
+    if (oldCount == 0) {
+      return countMap.putIfAbsent(element, newCount) == null;
+    }
+    return countMap.replace(element, oldCount, newCount);
+  }
 
   // Views
 
@@ -338,11 +326,14 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
     return countMap.keySet();
   }
 
-  private transient EntrySet entrySet;
+  private volatile transient EntrySet entrySet;
 
   @Override public Set<Multiset.Entry<E>> entrySet() {
-    EntrySet es = entrySet;
-    return (es == null) ? (entrySet = new EntrySet()) : es;
+    EntrySet result = entrySet;
+    if (result == null) {
+      entrySet = result = new EntrySet();
+    }
+    return result;
   }
   
   private class EntrySet extends AbstractSet<Multiset.Entry<E>> {
@@ -355,7 +346,7 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
     }
 
     @Override public boolean contains(Object object) {
-      if (object instanceof Multiset.Entry<?>) {
+      if (object instanceof Multiset.Entry) {
         Multiset.Entry<?> entry = (Multiset.Entry<?>) object;
         Object element = entry.getElement();
         int entryCount = entry.getCount();
@@ -410,36 +401,55 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
     }
 
     @Override public boolean remove(Object object) {
-      if (object instanceof Multiset.Entry<?>) {
+      if (object instanceof Multiset.Entry) {
         Multiset.Entry<?> entry = (Multiset.Entry<?>) object;
         Object element = entry.getElement();
-        return countMap.remove(element, box(entry.getCount()));
+        int entryCount = entry.getCount();
+        return countMap.remove(element, entryCount);
       }
       return false;
     }
 
+    @Override public boolean retainAll(Collection<?> c) {
+      return super.retainAll(checkNotNull(c));
+    }
+    
     @Override public void clear() {
       countMap.clear();
     }
+    
+    /**
+     * The hash code is the same as countMap's, though the objects aren't equal.
+     */
+    @Override public int hashCode() {
+      return countMap.hashCode();
+    }
   }
 
-  /*
-   * We use a special form of boxing and unboxing that treats null as zero
-   * and zero as null.
+  /**
+   * We use a special form of unboxing that treats null as zero.
    */
-
-  private static Integer box(int i) {
-    return (i == 0) ? null : i;
-    }
-
   private static int unbox(Integer i) {
     return (i == null) ? 0 : i;
   }
 
-  /*
-   * This class can't use MultisetSerializedForm for serialization because it
-   * can't generate the arbitrary empty ConcurrentMap passed to the
-   * ConcurrentMultiset(ConcurrentMap) constructor. 
+  /**
+   * @serialData the number of distinct elements, the first element, its count,
+   *     the second element, its count, and so on
    */
+  private void writeObject(ObjectOutputStream stream) throws IOException {
+    stream.defaultWriteObject();
+    // creating HashMultiset to handle concurrent changes
+    Serialization.writeMultiset(HashMultiset.create(this), stream);
+  }
+  
+  private void readObject(ObjectInputStream stream)
+      throws IOException, ClassNotFoundException, NoSuchFieldException {
+    stream.defaultReadObject();
+    Serialization.setFinalField(ConcurrentMultiset.class, this, "countMap",
+        Maps.newConcurrentHashMap());
+    Serialization.populateMultiset(this, stream);
+  }
+  
   private static final long serialVersionUID = 0L;
 }

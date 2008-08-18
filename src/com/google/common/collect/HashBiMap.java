@@ -18,27 +18,29 @@ package com.google.common.collect;
 
 import com.google.common.base.Nullable;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * A {@link BiMap} backed by two {@link HashMap} instances. This implementation
- * allows null keys and values.
+ * allows null keys and values. A {@code HashBiMap} and its inverse are both
+ * serializable.
  *
  * @author Mike Bostock
  */
 public final class HashBiMap<K, V> extends StandardBiMap<K, V> {
   /**
-   * Constructs a new empty bimap with the default initial capacity (16) and the
-   * default load factor (0.75).
+   * Constructs a new empty bimap with the default initial capacity (16).
    */
   public HashBiMap() {
     super(new HashMap<K, V>(), new HashMap<V, K>());
   }
 
   /**
-   * Constructs a new empty bimap with the specified expected size and the
-   * default load factor (0.75).
+   * Constructs a new empty bimap with the specified expected size.
    *
    * @param expectedSize the expected number of entries
    * @throws IllegalArgumentException if the specified expected size is
@@ -51,8 +53,8 @@ public final class HashBiMap<K, V> extends StandardBiMap<K, V> {
 
   /**
    * Constructs a new bimap containing initial values from {@code map}. The
-   * bimap is created with the default load factor (0.75) and an initial
-   * capacity sufficient to hold the mappings in the specified map.
+   * bimap is created with an initial capacity sufficient to hold the mappings
+   * in the specified map.
    */
   public HashBiMap(Map<? extends K, ? extends V> map) {
     this(map.size());
@@ -67,6 +69,22 @@ public final class HashBiMap<K, V> extends StandardBiMap<K, V> {
 
   @Override public V forcePut(@Nullable K key, @Nullable V value) {
     return super.forcePut(key, value);
+  }
+
+  /**
+   * @serialData the number of entries, first key, first value, second key,
+   *     second value, and so on.
+   */
+  private void writeObject(ObjectOutputStream stream) throws IOException {
+    stream.defaultWriteObject();
+    Serialization.writeMap(this, stream);
+  }
+  
+  private void readObject(ObjectInputStream stream)
+      throws IOException, ClassNotFoundException {
+    stream.defaultReadObject();
+    setDelegates(new HashMap<K, V>(), new HashMap<V, K>());
+    Serialization.populateMap(this, stream);
   }
   
   private static final long serialVersionUID = 0;  

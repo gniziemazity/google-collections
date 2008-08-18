@@ -18,19 +18,23 @@ package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.EnumMap;
 import java.util.Map;
 
 /**
  * A {@code BiMap} backed by two {@code EnumMap} instances. Null keys and values
- * are not permitted.
+ * are not permitted. An {@code EnumBiMap} and its inverse are both
+ * serializable.
  *
  * @author Mike Bostock
  */
 public final class EnumBiMap<K extends Enum<K>, V extends Enum<V>>
     extends StandardBiMap<K, V> {
-  private final Class<K> keyType;
-  private final Class<V> valueType;
+  private transient Class<K> keyType;
+  private transient Class<V> valueType;
 
   /**
    * Constructs a new empty bimap using the specified key type and value type.
@@ -45,21 +49,10 @@ public final class EnumBiMap<K extends Enum<K>, V extends Enum<V>>
   }
 
   /**
-   * Constructs a new bimap with the same mappings as the specified map.
-   *
-   * @param map the map whose mappings are to be placed in this map
-   */
-  public EnumBiMap(EnumBiMap<K, V> map) {
-    this(map.keyType, map.valueType);
-    putAll(map); // careful if we make this class non-final
-  }
-
-  /**
    * Constructs a new bimap with the same mappings as the specified map. If the
-   * specified map is an {@code EnumBiMap} instance, this constructor behaves
-   * identically to {@link #EnumBiMap(EnumBiMap)}. Otherwise, the specified map
-   * must contain at least one mapping (in order to determine the new enum
-   * bimap's key and value types).
+   * specified map is an {@code EnumBiMap}, the new bimap has the same types as
+   * the provided map. Otherwise, the specified map must contain at least one
+   * mapping, in order to determine the key and value types.
    *
    * @param map the map whose mappings are to be placed in this map
    * @throws IllegalArgumentException if map is not an {@code EnumBiMap}
@@ -71,18 +64,18 @@ public final class EnumBiMap<K extends Enum<K>, V extends Enum<V>>
   }
 
   static <K extends Enum<K>> Class<K> inferKeyType(Map<K, ?> map) {
-    if (map instanceof EnumBiMap<?, ?>) {
-      return ((EnumBiMap<K, ?>) map).keyType;
+    if (map instanceof EnumBiMap) {
+      return ((EnumBiMap<K, ?>) map).keyType();
     }
-    if (map instanceof EnumHashBiMap<?, ?>) {
-      return ((EnumHashBiMap<K, ?>) map).keyType;
+    if (map instanceof EnumHashBiMap) {
+      return ((EnumHashBiMap<K, ?>) map).keyType();
     }
     checkArgument(!map.isEmpty());
     return map.keySet().iterator().next().getDeclaringClass();
   }
 
   private static <V extends Enum<V>> Class<V> inferValueType(Map<?, V> map) {
-    if (map instanceof EnumBiMap<?, ?>) {
+    if (map instanceof EnumBiMap) {
       return ((EnumBiMap<?, V>) map).valueType;
     }
     checkArgument(!map.isEmpty());
@@ -98,4 +91,27 @@ public final class EnumBiMap<K extends Enum<K>, V extends Enum<V>>
   public Class<V> valueType() {
     return valueType;
   }
+  
+  /**
+   * @serialData the key class, value class, number of entries, first key, first
+   *     value, second key, second value, and so on.
+   */
+  private void writeObject(ObjectOutputStream stream) throws IOException {
+    stream.defaultWriteObject();
+    stream.writeObject(keyType);
+    stream.writeObject(valueType);    
+    Serialization.writeMap(this, stream);
+  }
+  
+  @SuppressWarnings("unchecked") // reading fields populated by writeObject
+  private void readObject(ObjectInputStream stream)
+      throws IOException, ClassNotFoundException {
+    stream.defaultReadObject();
+    keyType = (Class<K>) stream.readObject();
+    valueType = (Class<V>) stream.readObject();
+    setDelegates(new EnumMap<K, V>(keyType), new EnumMap<V, K>(valueType));
+    Serialization.populateMap(this, stream);
+  }
+  
+  private static final long serialVersionUID = 0;  
 }

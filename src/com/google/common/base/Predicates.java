@@ -25,19 +25,16 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * Contains static methods for creating the standard set of {@code Predicate}
- * objects.
- *
- * <p>"Lispy, but good."
- *
- * <p>TODO: considering having these implement a {@code VisitablePredicate}
- * interface which specifies an {@code accept(PredicateVisitor)} method.
+ * Contains static factory methods for creating {@code Predicate} instances.
  *
  * @author Kevin Bourrillion
  */
 public final class Predicates {
   private Predicates() {}
 
+  // TODO: considering having these implement a VisitablePredicate interface
+  // which specifies an accept(PredicateVisitor) method.
+  
   /**
    * Returns a predicate that always evaluates to {@code true}.
    */
@@ -55,8 +52,8 @@ public final class Predicates {
   }
 
   /**
-   * Returns a predicate that evaluates to true if the object reference being
-   * tested is null.
+   * Returns a predicate that evaluates to {@code true} if the object reference
+   * being tested is null.
    */
   @SuppressWarnings("unchecked")
   public static <T> Predicate<T> isNull() {
@@ -64,8 +61,8 @@ public final class Predicates {
   }
 
   /**
-   * Returns a predicate that evaluates to true if the object reference being
-   * tested is not null.
+   * Returns a predicate that evaluates to {@code true} if the object reference
+   * being tested is not null.
    */
   @SuppressWarnings("unchecked")
   public static <T> Predicate<T> notNull() {
@@ -73,7 +70,7 @@ public final class Predicates {
   }
 
   /**
-   * Returns a predicate that evaluates to true iff the given predicate
+   * Returns a predicate that evaluates to {@code true} if the given predicate
    * evaluates to {@code false}.
    */
   public static <T> Predicate<T> not(Predicate<? super T> predicate) {
@@ -81,11 +78,11 @@ public final class Predicates {
   }
 
   /**
-   * Returns a predicate that evaluates to {@code true} iff each of its
+   * Returns a predicate that evaluates to {@code true} if each of its
    * components evaluates to {@code true}. The components are evaluated in
-   * order, and evaluation will be "short-circuited" as soon as the answer is
-   * determined. Does not defensively copy the iterable passed in, so future
-   * changes to it will alter the behavior of this predicate. If
+   * order, and evaluation will be "short-circuited" as soon as a false
+   * predicate is found. It does not defensively copy the iterable passed in, so
+   * future changes to it will alter the behavior of this predicate. If
    * {@code components} is empty, the returned predicate will always evaluate to
    * {@code true}.
    */
@@ -95,11 +92,11 @@ public final class Predicates {
   }
 
   /**
-   * Returns a predicate that evaluates to {@code true} iff each of its
+   * Returns a predicate that evaluates to {@code true} if each of its
    * components evaluates to {@code true}. The components are evaluated in
-   * order, and evaluation will be "short-circuited" as soon as the answer is
-   * determined. Does not defensively copy the array passed in, so future
-   * changes to it will alter the behavior of this predicate. If
+   * order, and evaluation will be "short-circuited" as soon as a false
+   * predicate is found. It does not defensively copy the array passed in, so
+   * future changes to it will alter the behavior of this predicate. If
    * {@code components} is empty, the returned predicate will always evaluate to
    * {@code true}.
    */
@@ -108,10 +105,10 @@ public final class Predicates {
   }
 
   /**
-   * Returns a predicate that evaluates to {@code true} iff both of its
+   * Returns a predicate that evaluates to {@code true} if both of its
    * components evaluate to {@code true}. The components are evaluated in
-   * order, and evaluation will be "short-circuited" as soon as the answer is
-   * determined.
+   * order, and evaluation will be "short-circuited" as soon as a false
+   * predicate is found.
    */
   @SuppressWarnings("unchecked")
   public static <T> Predicate<T> and(Predicate<? super T> first,
@@ -120,11 +117,11 @@ public final class Predicates {
   }
 
   /**
-   * Returns a predicate that evaluates to {@code true} iff any one of its
+   * Returns a predicate that evaluates to {@code true} if any one of its
    * components evaluates to {@code true}. The components are evaluated in
-   * order, and evaluation will be "short-circuited" as soon as the answer is
-   * determined. Does not defensively copy the iterable passed in, so future
-   * changes to it will alter the behavior of this predicate. If
+   * order, and evaluation will be "short-circuited" as soon as as soon as a
+   * true predicate is found. It does not defensively copy the iterable passed
+   * in, so future changes to it will alter the behavior of this predicate. If
    * {@code components} is empty, the returned predicate will always evaluate to
    * {@code false}.
    */
@@ -134,22 +131,23 @@ public final class Predicates {
   }
 
   /**
-   * Returns a predicate that evaluates to true iff any one of its components
-   * evaluates to true. The components are evaluated in order, and evaluation
-   * will be "short-circuited" as soon as the answer is determined. Does not
-   * defensively copy the array passed in, so future changes to it will alter
-   * the behavior of this predicate. If components is empty, the returned
-   * predicate will always evaluate to false.
+   * Returns a predicate that evaluates to {@code true} if any one of its
+   * components evaluates to {@code true}. The components are evaluated in
+   * order, and evaluation will be "short-circuited" as soon as as soon as a
+   * true predicate is found. It does not defensively copy the array passed in,
+   * so future changes to it will alter the behavior of this predicate. If
+   * {@code components} is empty, the returned predicate will always evaluate to
+   * {@code false}.
    */
   public static <T> Predicate<T> or(Predicate<? super T>... components) {
     return or(Arrays.asList(components));
   }
 
   /**
-   * Returns a predicate that evaluates to {@code true} iff either of its
+   * Returns a predicate that evaluates to {@code true} if either of its
    * components evaluates to {@code true}. The components are evaluated in
-   * order, and evaluation will be "short-circuited" as soon as the answer is
-   * determined.
+   * order, and evaluation will be "short-circuited" as soon as as soon as a
+   * true predicate is found.
    */
   @SuppressWarnings("unchecked")
   public static <T> Predicate<T> or(Predicate<? super T> first,
@@ -158,20 +156,19 @@ public final class Predicates {
   }
 
   /**
-   * Returns a predicate that evaluates to {@code true} iff the object being
-   * tested {@code equals()} the given target or if both are null.
-   *
-   * TODO: Change signature to return Predicate&lt;Object&gt;
+   * Returns a predicate that evaluates to {@code true} if the object being
+   * tested {@code equals()} the given target or both are null.
    */
   public static <T> Predicate<T> isEqualTo(@Nullable T target) {
+    // TODO: Change signature to return Predicate<Object>.
     return (target == null)
-        ? Predicates.<T> isNull()
+        ? Predicates.<T>isNull()
         : new IsEqualToPredicate<T>(target);
   }
 
   /**
-   * Returns a predicate that evaluates to {@code true} iff the object being
-   * tested refers to the same object as the given target.
+   * Returns a predicate that evaluates to {@code true} if the object being
+   * tested refers to the same object as the given target or both are null.
    */
   public static Predicate<Object> isSameAs(@Nullable Object target) {
     return (target == null)
@@ -181,11 +178,11 @@ public final class Predicates {
 
   /**
    * Returns a predicate that evaluates to {@code true} if the object reference
-   * being tested is a member of the given collection. Does not defensively copy
-   * the collection passed in, so future changes to it will alter the behavior
-   * of the predicate.
-   *
-   * @param target the collection to test against
+   * being tested is a member of the given collection. It does not defensively
+   * copy the collection passed in, so future changes to it will alter the
+   * behavior of the predicate.
+   * 
+   * @param target the collection that may contain the function input
    */
   public static <T> Predicate<T> in(Collection<?> target) {
     return new InPredicate<T>(target);
@@ -195,9 +192,7 @@ public final class Predicates {
    * Returns the composition of a function and a predicate. For every {@code x},
    * the generated predicate returns {@code predicate(function(x))}.
    *
-   * @return the composition of the provided function and predicate.
-   *
-   * @see Functions#compose(Function, Function)
+   * @return the composition of the provided function and predicate
    */
   public static <A, B> Predicate<A> compose(
       Predicate<? super B> predicate,
@@ -206,53 +201,34 @@ public final class Predicates {
   }
 
   /** @see Predicates#alwaysTrue() */
-  private static class AlwaysTruePredicate
-      implements Predicate<Object>, Serializable {
-    private static final long serialVersionUID = 8759914710239461322L;
+  // enum singleton pattern
+  private enum AlwaysTruePredicate implements Predicate<Object> {
+    INSTANCE;
+    
     public boolean apply(Object o) {
       return true;
-    }
-    private Object readResolve() {
-      return INSTANCE; /* Preserve singleton property. */
-    }
-    @Override public int hashCode() {
-      return -1; /* All bits on */
-    }
-    @Override public boolean equals(Object obj) {
-      return obj == INSTANCE;
     }
     @Override public String toString() {
       return "AlwaysTrue";
     }
-    static final AlwaysTruePredicate INSTANCE = new AlwaysTruePredicate();
   }
 
   /** @see Predicates#alwaysFalse() */
-  private static class AlwaysFalsePredicate
-      implements Predicate<Object>, Serializable {
-    private static final long serialVersionUID = -565481022115659695L;
+  // enum singleton pattern
+  private enum AlwaysFalsePredicate implements Predicate<Object> {
+    INSTANCE;
+    
     public boolean apply(Object o) {
       return false;
-    }
-    private Object readResolve() {
-      return INSTANCE; /* Preserve singleton property. */
-    }
-    @Override public int hashCode() {
-      return 0; /* All bits off */
-    }
-    @Override public boolean equals(Object obj) {
-      return obj == INSTANCE;
     }
     @Override public String toString() {
       return "AlwaysFalse";
     }
-    static final AlwaysFalsePredicate INSTANCE = new AlwaysFalsePredicate();
   }
 
   /** @see Predicates#not(Predicate) */
   private static class NotPredicate<T>
       implements Predicate<T>, Serializable {
-    private static final long serialVersionUID = -5113445916422049953L;
     private final Predicate<? super T> predicate;
 
     private NotPredicate(Predicate<? super T> predicate) {
@@ -274,12 +250,12 @@ public final class Predicates {
     @Override public String toString() {
       return "Not(" + predicate.toString() + ")";
     }
+    private static final long serialVersionUID = 0;
   }
 
   /** @see Predicates#and(Iterable) */
   private static class AndPredicate<T>
       implements Predicate<T>, Serializable {
-    private static final long serialVersionUID = 1022358602593297546L;
     private final Iterable<? extends Predicate<? super T>> components;
 
     private AndPredicate(Iterable<? extends Predicate<? super T>> components) {
@@ -310,12 +286,12 @@ public final class Predicates {
     @Override public String toString() {
       return "And(" + Join.join(",", components) + ")";
     }
+    private static final long serialVersionUID = 0;
   }
 
   /** @see Predicates#or(Iterable) */
   private static class OrPredicate<T>
       implements Predicate<T>, Serializable {
-    private static final long serialVersionUID = -7942366790698074803L;
     private final Iterable<? extends Predicate<? super T>> components;
 
     private OrPredicate(Iterable<? extends Predicate<? super T>> components) {
@@ -346,16 +322,16 @@ public final class Predicates {
     @Override public String toString() {
       return "Or(" + Join.join(",", components) + ")";
     }
+    private static final long serialVersionUID = 0;
   }
 
   /** @see Predicates#isEqualTo(Object) */
   private static class IsEqualToPredicate<T>
       implements Predicate<T>, Serializable {
-    private static final long serialVersionUID = 6457380537065200145L;
     private final T target;
 
     private IsEqualToPredicate(T target) {
-      this.target = checkNotNull(target);
+      this.target = target;
     }
     public boolean apply(T t) {
       return target.equals(t);
@@ -373,16 +349,16 @@ public final class Predicates {
     @Override public String toString() {
       return "IsEqualTo(" + target + ")";
     }
+    private static final long serialVersionUID = 0;
   }
 
   /** @see Predicates#isSameAs(Object) */
   private static class IsSameAsPredicate
       implements Predicate<Object>, Serializable {
-    private static final long serialVersionUID = -6693499628919249233L;
     private final Object target;
 
     private IsSameAsPredicate(Object target) {
-      this.target = checkNotNull(target);
+      this.target = target;
     }
     public boolean apply(Object o) {
       return target == o;
@@ -400,63 +376,38 @@ public final class Predicates {
     @Override public String toString() {
       return "IsSameAs(" + target + ")";
     }
+    private static final long serialVersionUID = 0;
   }
 
-  /**
-   * @see Predicates#isNull()
-   */
-  private static class IsNullPredicate
-      implements Predicate<Object>, Serializable {
-    private static final long serialVersionUID = -2507344851931204908L;
+  /** @see Predicates#isNull() */
+  // enum singleton pattern
+  private enum IsNullPredicate implements Predicate<Object> {
+    INSTANCE;
+    
     public boolean apply(Object o) {
       return o == null;
-    }
-    private Object readResolve() {
-      return INSTANCE; /* Preserve singleton property. */
-    }
-    @Override public int hashCode() {
-      return (int) serialVersionUID; /* Arbitrary non-(0 or -1) hash code. */
-    }
-    @Override public boolean equals(Object obj) {
-      return obj == INSTANCE;
     }
     @Override public String toString() {
       return "IsNull";
     }
-    static final IsNullPredicate INSTANCE = new IsNullPredicate();
   }
 
-  /**
-   * @see Predicates#notNull()
-   */
-  private static class NotNullPredicate
-      implements Predicate<Object>, Serializable {
-    private static final long serialVersionUID = -1450999195742675143L;
+  /** @see Predicates#notNull() */
+  // enum singleton pattern
+  private enum NotNullPredicate implements Predicate<Object> {
+    INSTANCE;
+    
     public boolean apply(Object o) {
       return o != null;
-    }
-    private Object readResolve() {
-      return INSTANCE; /* Preserve singleton property. */
-    }
-    @Override public int hashCode() {
-      return ~((int) IsNullPredicate.serialVersionUID);
-    }
-    @Override public boolean equals(Object obj) {
-      return obj == INSTANCE;
     }
     @Override public String toString() {
       return "NotNull";
     }
-    static final NotNullPredicate INSTANCE = new NotNullPredicate();
   }
 
-  /**
-   * @see Predicates#in(Collection)
-   */
+  /** @see Predicates#in(Collection) */
   private static class InPredicate<T>
       implements Predicate<T>, Serializable {
-    private static final long serialVersionUID = 8423798306294600396L;
-
     private final Collection<?> target;
 
     private InPredicate(Collection<?> target) {
@@ -488,15 +439,12 @@ public final class Predicates {
     @Override public String toString() {
       return "In(" + target + ")";
     }
+    private static final long serialVersionUID = 0;
   }
 
-  /**
-   * @see Predicates#compose(Predicate, Function)
-   */
+  /** @see Predicates#compose(Predicate, Function) */
   private static class CompositionPredicate<A, B>
       implements Predicate<A>, Serializable {
-    private static final long serialVersionUID = -6029206722887771572L;
-
     final Predicate<? super B> p;
     final Function<? super A, ? extends B> f;
 
@@ -538,6 +486,8 @@ public final class Predicates {
     @Override public String toString() {
       return p.toString() + "(" + f.toString() + ")";
     }
+    
+    private static final long serialVersionUID = 0;
   }
 
   /**

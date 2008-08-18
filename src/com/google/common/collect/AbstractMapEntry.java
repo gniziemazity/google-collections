@@ -50,7 +50,7 @@ public abstract class AbstractMapEntry<K, V> implements Entry<K, V> {
     if (o == this) {
       return true;
     }
-    if (!(o instanceof Entry<?, ?>)) {
+    if (!(o instanceof Entry)) {
       return false;
     }
     Entry<?, ?> e = (Entry<?, ?>) o;

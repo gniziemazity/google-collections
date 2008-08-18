@@ -16,8 +16,9 @@
 
 package com.google.common.collect;
 
-import java.io.InvalidObjectException;
+import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.LinkedHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -65,22 +66,21 @@ public final class LinkedHashMultiset<E> extends AbstractMapBasedMultiset<E> {
     Iterables.addAll(this, elements); // careful if we make this class non-final
   }
 
-  private static class SerializedForm<E> extends MultisetSerializedForm<E> {
-    SerializedForm(Multiset<E> multiset) {
-      super(multiset);
-    }
-    @Override protected Multiset<E> createEmpty() {
-      return new LinkedHashMultiset<E>(elementCount());
-    }
-    private static final long serialVersionUID = 0;
+  /**
+   * @serialData the number of distinct elements, the first element, its count,
+   *     the second element, its count, and so on
+   */
+  private void writeObject(ObjectOutputStream stream) throws IOException {
+    stream.defaultWriteObject();
+    Serialization.writeMultiset(this, stream);
   }
-
+  
   private void readObject(ObjectInputStream stream)
-      throws InvalidObjectException {
-    throw new InvalidObjectException("Use SerializedForm");
+      throws IOException, ClassNotFoundException {
+    stream.defaultReadObject();
+    setBackingMap(new LinkedHashMap<E, AtomicInteger>());
+    Serialization.populateMultiset(this, stream);
   }
-
-  private Object writeReplace() {
-    return new SerializedForm<E>(this);
-  }
+  
+  private static final long serialVersionUID = 0;  
 }

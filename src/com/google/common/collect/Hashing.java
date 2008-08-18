@@ -24,7 +24,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  * @author Kevin Bourrillion
  * @author Jesse Wilson
  */
-class Hashing {
+final class Hashing {
   private Hashing() {}
 
   /*

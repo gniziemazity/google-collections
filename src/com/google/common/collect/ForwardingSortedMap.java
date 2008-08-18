@@ -31,17 +31,7 @@ import java.util.SortedMap;
 public abstract class ForwardingSortedMap<K, V> extends ForwardingMap<K, V>
     implements SortedMap<K, V> {
 
-  /**
-   * Constructs a forwarding sorted map that forwards to the provided delegate.
-   */
-  protected ForwardingSortedMap(SortedMap<K, V> delegate) {
-    super(delegate);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override protected SortedMap<K, V> delegate() {
-    return (SortedMap<K, V>) super.delegate();
-  }
+  @Override protected abstract SortedMap<K, V> delegate();
 
   public Comparator<? super K> comparator() {
     return delegate().comparator();

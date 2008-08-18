@@ -36,11 +36,10 @@ import java.util.NoSuchElementException;
  * and invoke the {@link #endOfData} method when appropriate.
  *
  * <p>Another example is an iterator that skips over null elements in a backing
- * iterator. This could be implemented as:
+ * iterator. This could be implemented as: <pre>   {@code
  *
- * <pre>  public static Iterator&lt;String> skipNulls(
- *       final Iterator&lt;String> in) {
- *     return new AbstractIterator&lt;String>() {
+ *   public static Iterator<String> skipNulls(final Iterator<String> in) {
+ *     return new AbstractIterator<String>() {
  *       protected String computeNext() {
  *         while (in.hasNext()) {
  *           String s = in.next();
@@ -51,12 +50,11 @@ import java.util.NoSuchElementException;
  *         return endOfData();
  *       }
  *     };
- *   }</pre>
+ *   }}</pre>
  *
- * <p>This class supports iterators that include null elements. The
- * {@link #remove} method throws an {@link UnsupportedOperationException}, but
- * the similar class {@link AbstractRemovableIterator} does support
- * {@code remove}.
+ * This class supports iterators that include null elements. The {@link
+ * #remove()} method throws an {@link UnsupportedOperationException}, but the
+ * similar class {@link AbstractRemovableIterator} does support {@code remove}.
  *
  * @author Kevin Bourrillion
  */
@@ -124,6 +122,7 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
         return false;
       case READY:
         return true;
+      default:
     }
     return tryToComputeNext();
   }

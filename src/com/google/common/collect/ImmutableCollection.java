@@ -19,8 +19,6 @@ package com.google.common.collect;
 import com.google.common.base.Nullable;
 
 import java.io.Serializable;
-import java.io.ObjectInputStream;
-import java.io.InvalidObjectException;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -33,6 +31,7 @@ import java.util.Iterator;
  *
  * @author Jesse Wilson
  */
+@SuppressWarnings("serial") // we're overriding default serialization
 public abstract class ImmutableCollection<E>
     implements Collection<E>, Serializable {
   static final ImmutableCollection<Object> EMPTY_IMMUTABLE_COLLECTION
@@ -87,6 +86,10 @@ public abstract class ImmutableCollection<E>
     return true;
   }
 
+  public boolean isEmpty() {
+    return size() == 0;
+  }
+  
   @Override public String toString() {
     StringBuilder sb = new StringBuilder(size() * 16);
     sb.append('[');
@@ -161,7 +164,7 @@ public abstract class ImmutableCollection<E>
       return 0;
     }
 
-    public boolean isEmpty() {
+    @Override public boolean isEmpty() {
       return true;
     }
 
@@ -197,7 +200,7 @@ public abstract class ImmutableCollection<E>
       return elements.length;
     }
 
-    public boolean isEmpty() {
+    @Override public boolean isEmpty() {
       return false;
     }
 
@@ -221,11 +224,6 @@ public abstract class ImmutableCollection<E>
           : new ArrayImmutableCollection<Object>(elements.clone());
     }
     private static final long serialVersionUID = 0;
-  }
-
-  private void readObject(ObjectInputStream stream)
-      throws InvalidObjectException {
-    throw new InvalidObjectException("Use SerializedForm");
   }
 
   Object writeReplace() {

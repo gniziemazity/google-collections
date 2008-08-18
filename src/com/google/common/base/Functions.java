@@ -32,18 +32,19 @@ public final class Functions {
   private Functions() { }
 
   /**
-   * See {@link #toStringFunction()}.
+   * A function that calls {@code toString()} on its argument. This function
+   * does not accept nulls; it will throw a {@link NullPointerException} when
+   * applied to {@code null}.
    *
-   * TODO: Consider deprecating this in favor of an accessor method like
-   * {@link #toStringFunction()}.
+   * <p>TODO: Consider deprecating this in favor of {@link #toStringFunction()}.
    */
   public static final Function<Object, String> TO_STRING =
       ToStringFunction.INSTANCE;
 
   /**
-   * Returns a function that returns the {@link Object#toString} value of its
-   * argument. This function is not nullable; invoking {@code apply(null)} on it
-   * throws a {@link NullPointerException}.
+   * Returns a function that calls {@code toString()} on its argument. The
+   * function does not accept nulls; it will throw a
+   * {@link NullPointerException} when applied to {@code null}.
    */
   @SuppressWarnings("unchecked") // see comment below
   public static <F> Function<F, String> toStringFunction() {
@@ -68,9 +69,9 @@ public final class Functions {
   }
 
   /**
-   * Returns a function that determines the {@link Object#hashCode()} of its
-   * argument. For null arguments, this returns 0, as used in hash code
-   * calculations by the Java Collections classes.
+   * Returns a function that determines the hash code of its argument. For null
+   * arguments, the function returns 0, for consistency with the hash code
+   * calculations in the Java Collections classes.
    */
   public static Function<Object, Integer> toHashCode() {
     return HashCodeFunction.INSTANCE;
@@ -87,23 +88,6 @@ public final class Functions {
     @Override public String toString() {
       return "hashCode";
     }
-  }
-  
-  /**
-   * See {@link #trimString()}.
-   *
-   * TODO: Deprecate this and use trimString().
-   */
-  public static final Function<String, String> TRIM_STRING =
-      TrimStringFunction.INSTANCE;
-
-  /**
-   * A function that returns the result of calling {@link String#trim}
-   * on its argument. Note that this function is not {@literal @Nullable}:
-   * it will throw a {@link NullPointerException} when applied to {@code null}.
-   */
-  public static Function<String, String> trimString() {
-    return TrimStringFunction.INSTANCE;
   }
 
   // enum singleton pattern
@@ -141,15 +125,15 @@ public final class Functions {
   }
 
   /**
-   * Returns a function which performs key-to-value lookup on {@code map}.
+   * Returns a function which performs a map lookup.
    *
    * <p>The difference between a map and a function is that a map is defined on
-   * a set of keys, while a function is defined on a type.
-   * The function built by this method returns {@code null}
-   * for all arguments that do not belong to the map's keyset.
+   * a set of keys, while a function is defined on all inputs of the correct
+   * type. The function created by this method returns {@code null} for all
+   * inputs that do not belong to the map's key set.
    *
-   * @param map Map&lt;A,B> source map
-   * @return Function&lt;A,B> function that returns map.get(a) for each A a
+   * @param map source map that determines the function behavior
+   * @return function that returns {@code map.get(a)} for each {@code a}
    */
   public static <A, B> Function<A, B> forMap(
       final Map<? super A, ? extends B> map) {
@@ -157,7 +141,7 @@ public final class Functions {
   }
 
   private static class FunctionForMapNoDefault<A, B>
-      implements SerializableFunction<A, B> {
+      implements Function<A, B>, Serializable {
     private final Map<? super A, ? extends B> map;
 
     public FunctionForMapNoDefault(
@@ -180,24 +164,21 @@ public final class Functions {
     @Override public String toString() {
       return "forMap(" + map + ")";
     }
-    private static final long serialVersionUID = 3270419028101751025L;
+    private static final long serialVersionUID = 0;
   }
 
   /**
-   * Returns a function which performs key-to-value lookup on {@code map}.
-   * The function built by this method returns {@code defaultValue}
-   * for all its arguments that do not belong to the map's keyset.
+   * Returns a function which performs a map lookup with a default value. The
+   * function created by this method returns {@code defaultValue} for all
+   * inputs that do not belong to the map's key set.
    *
-   * @param map Map&lt;A,B>
-   * @param defaultValue B
-   * @return Function {@code f} such that {@code f(a)=map.get(a)}
-   * if {@code map.containsKey(x)}, and {@code defaultValue} otherwise.
-   *
-   * @see #forMap(Map)
+   * @param map source map that determines the function behavior
+   * @param defaultValue the value to return for inputs that aren't map keys
+   * @return function that returns {@code map.get(a)} when {@code a} is a key,
+   *     or {@code defaultValue} otherwise
    */
   public static <A, B> Function<A, B> forMap(
-      final Map<? super A, ? extends B> map,
-      @Nullable final B defaultValue) {
+      Map<? super A, ? extends B> map, @Nullable final B defaultValue) {
     if (defaultValue == null) {
       return forMap(map);
     }
@@ -205,15 +186,13 @@ public final class Functions {
   }
 
   private static class ForMapWithDefault<A, B>
-      implements SerializableFunction<A, B> {
-    private static final long serialVersionUID = 1652422010500531299L;
-
+      implements Function<A, B>, Serializable {
     private final Map<? super A, ? extends B> map;
     private final B defaultValue;
 
     public ForMapWithDefault(Map<? super A, ? extends B> map, B defaultValue) {
       this.map = checkNotNull(map);
-      this.defaultValue = checkNotNull(defaultValue);
+      this.defaultValue = defaultValue;
     }
     public B apply(A a) {
       return map.containsKey(a) ? map.get(a) : defaultValue;
@@ -231,20 +210,20 @@ public final class Functions {
     @Override public String toString() {
       return "forMap(" + map + ", defaultValue=" + defaultValue + ")";
     }
-
+    private static final long serialVersionUID = 0;
   }
 
   /**
    * Returns the composition of two functions. For {@code f: A->B} and
    * {@code g: B->C}, composition is defined as the function h such that
-   * {@code h(x) == g(f(x))} for each {@code x}.
+   * {@code h(a) == g(f(a))} for each {@code a}.
    *
    * @see <a href="//en.wikipedia.org/wiki/Function_composition">
    * function composition</a>
    *
-   * @param g Function&lt;B,C>
-   * @param f Function&lt;A,B>
-   * @return Function&lt;A,C> composition of f and g
+   * @param g the second function to apply
+   * @param f the first function to apply
+   * @return the composition of {@code f} and {@code g}
    */
   public static <A, B, C> Function<A, C> compose(
       final Function<? super B, ? extends C> g,
@@ -253,7 +232,7 @@ public final class Functions {
   }
 
   private static class FunctionComposition<A, B, C>
-      implements SerializableFunction<A, C> {
+      implements Function<A, C>, Serializable {
     private final Function<? super B, ? extends C> g;
     private final Function<? super A, ? extends B> f;
 
@@ -292,22 +271,21 @@ public final class Functions {
     @Override public String toString() {
       return g.toString() + "(" + f.toString() + ")";
     }
-    private static final long serialVersionUID = 2530922454216511764L;
+    private static final long serialVersionUID = 0;
   }
 
   /**
-   * Returns a boolean-valued function that evaluates to the same result as the
-   * given predicate.
+   * Creates a function that returns the same boolean output as the given
+   * predicate for all inputs.
    */
   public static <T> Function<T, Boolean> forPredicate(
       Predicate<? super T> predicate) {
-    checkNotNull(predicate);
     return new PredicateFunction<T>(predicate);
   }
 
   /** @see Functions#forPredicate */
   private static class PredicateFunction<T>
-      implements SerializableFunction<T, Boolean> {
+      implements Function<T, Boolean>, Serializable {
     private final Predicate<? super T> predicate;
 
     private PredicateFunction(Predicate<? super T> predicate) {
@@ -328,24 +306,23 @@ public final class Functions {
       return predicate.hashCode();
     }
     @Override public String toString() {
-      return "asFunction(" + predicate + ")";
+      return "forPredicate(" + predicate + ")";
     }
-    private static final long serialVersionUID = 7159925838099303368L;
+    private static final long serialVersionUID = 0;
   }
 
   /**
-   * Returns a {@link Function} that returns {@code value} for any input.
+   * Creates a function that returns {@code value} for any input.
    *
-   * @param value the constant value for the {@code Function} to return
-   * @return a {@code Function} that always returns {@code value}.
+   * @param value the constant value for the function to return
+   * @return a function that always returns {@code value}
    */
-  public static <E> Function<Object, E> constant(@Nullable final E value) {
+  public static <E> Function<Object, E> constant(@Nullable E value) {
     return new ConstantFunction<E>(value);
   }
 
   private static class ConstantFunction<E>
-      implements SerializableFunction<Object, E> {
-    private static final long serialVersionUID = 2347134351918525179L;
+      implements Function<Object, E>, Serializable {
     private final E value;
 
     public ConstantFunction(@Nullable E value) {
@@ -367,8 +344,6 @@ public final class Functions {
     @Override public String toString() {
       return "constant(" + value + ")";
     }
+    private static final long serialVersionUID = 0;
   }
-
-  private interface SerializableFunction<A, B>
-      extends Function<A, B>, Serializable {}
 }
