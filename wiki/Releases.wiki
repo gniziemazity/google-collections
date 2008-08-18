@@ -1,10 +1,48 @@
 = Release 0.7 (snapshot 20080530) =
 
+==New functionality==
+
+  * ImmutableMap: an immutable Map that requires less memory than other Map implementations
+  * ImmutableSortedSet: an immutable SortedSet that requires less memory than other SortedSet implementations
+  * ArrayListMultimap.trimToSize(): reduces memory usage
+  * Iterables.get(int) and Iterators.get(int): retrieves the indexed element of an Iterable or Iterator
+  * Iterables.getLast(): retrieves the last element of an Iterable
+  * Multimap.index(): creates an index multimap that contains the results of applying a specified function to each item in an Iterable of values
+  * Ordering.nullsFirst() and Ordering.nullsLast(): generates an Ordering that includes nulls first or last in the iteration order
+  * Sets.union(), Sets.intersection(), and Sets.difference(): creates a set view of the union, intersection, or difference of two provided sets
+  * Sets.newIdentityHashSet(ReferenceType): creates an identity-based hash set with strong, weak, or soft references
+
+==General improvements==
+
+  * Extensive Javadoc rewrite
+  * Bug fixes
+  * Better performance
+
+
+==Removed code==
+
+  * SortedArraySet [use ImmutableSortedSet (if immutable) or TreeSet]
+  * Lists.newArrayListWithCapacity()  [use Lists.newArrayListWithExpectedSize()]
+  * Lists.newLinkedList(E...) and Lists.newLinkedList(Iterator)
+  * ImmutableMapBuilder  [use ImmuableMap.builder()]
+  * Map.immutableMap methods   [use ImmutableMap]
+  * Sets.newLinkedHashSet(E...) and newLinkedHashSet(Iterator)
+  * Sets.immutableSortedSet methods  [use ImmutableSortedSet]
+  * Sets.newWeakHashSet() and Sets.newSoftHashSet()  [use Sets.newIdentityHashSet()]
+
+[http://google-collections.googlecode.com/files/google-collect-snapshot-20080530.zip Download]
+
+[http://repo1.maven.org/maven2/com/google/code/google-collections/google-collect/snapshot-20080530/ Maven bundle]
+
 = Release 0.6 (snapshot 20080321) =
+
+[http://google-collections.googlecode.com/files/google-collect-snapshot-20080321.zip Download]
+
+[http://repo1.maven.org/maven2/com/google/code/google-collections/google-collect/snapshot-20080321/ Maven bundle]
 
 = Release 0.5 (snapshot 20071022) =
 
-*Initial release*
+==Initial release==
 
 [http://google-collections.googlecode.com/files/google-collect-snapshot-20071022.zip Download]
 
