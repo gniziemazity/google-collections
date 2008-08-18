@@ -16,7 +16,6 @@
 
 package com.google.common.collect;
 
-import java.io.Serializable;
 import java.util.Iterator;
 
 /**
@@ -25,26 +24,13 @@ import java.util.Iterator;
  * backing iterator as desired per the <a
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
  * 
- * <p>Unlike most {@code Forwarding} classes, this class does not implement
- * {@link Serializable}, since iterators are rarely serialized.
- * 
  * @see ForwardingObject
  * @author Kevin Bourrillion
  */
 public abstract class ForwardingIterator<T>
-    extends NonSerializableForwardingObject implements Iterator<T> {
+    extends ForwardingObject implements Iterator<T> {
 
-  /**
-   * Constructs a forwarding iterator that forwards to the provided delegate.
-   */
-  protected ForwardingIterator(Iterator<T> delegate) {
-    super(delegate);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override protected Iterator<T> delegate() {
-    return (Iterator<T>) super.delegate();
-  }
+  @Override protected abstract Iterator<T> delegate();
 
   public boolean hasNext() {
     return delegate().hasNext();

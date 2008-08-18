@@ -16,8 +16,6 @@
 
 package com.google.common.collect;
 
-import java.io.InvalidObjectException;
-import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,8 +27,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * A high-performance, immutable, hash-based {@code Set} with reliable,
- * user-specified iteration order. Does not permit null elements.
+ * A high-performance, immutable {@code Set} with reliable, user-specified
+ * iteration order. Does not permit null elements.
  *
  * <p>Unlike {@link Collections#unmodifiableSet}, which is a <i>view</i> of a
  * separate collection that can still change, an instance of this class contains
@@ -45,11 +43,13 @@ import java.util.Set;
  *
  * <p>This class has been observed to perform significantly better than {@link
  * HashSet} for objects with very fast {@link Object#hashCode} implementations
- * (as a well-behaved immutable object should).
+ * (as a well-behaved immutable object should). While this class's factory
+ * methods create hash-based instances, the {@link ImmutableSortedSet} subclass
+ * performs binary searches instead.
  *
- * <p><b>Note</b>: Although this class is not final, it cannot be subclassed as
- * it has no public or protected constructors. Thus, instances of this type are
- * guaranteed to be immutable.
+ * <p><b>Note</b>: Although this class is not final, it cannot be subclassed
+ * outside its package as it has no public or protected constructors. Thus,
+ * instances of this type are guaranteed to be immutable.
  *
  * @see ImmutableList
  * @see ImmutableMap
@@ -108,10 +108,10 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
    * sized inappropriately).
    *
    * <p>Note that if {@code s} is a {@code Set<String>}, then {@code
-   * ImmutableSet.copyOf(s)} returns a {@code ImmutableSet<String>} containing
-   * each of the strings in {@code s}, while ImmutableSet.of(s)} returns a
-   * {@code ImmutableSet<Set<String>>} containing one element (the given set
-   * itself).</p>
+   * ImmutableSet.copyOf(s)} returns an {@code ImmutableSet<String>} containing
+   * each of the strings in {@code s}, while {@code ImmutableSet.of(s)} returns
+   * a {@code ImmutableSet<Set<String>>} containing one element (the given set
+   * itself).
    *
    * <p><b>Note:</b> Despite what the method name suggests, if {@code elements}
    * is an {@code ImmutableSet}, no copy will actually be performed, and the
@@ -120,40 +120,73 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
    * @throws NullPointerException if any of {@code elements} is null
    */
   public static <E> ImmutableSet<E> copyOf(Iterable<? extends E> elements) {
-    if (elements instanceof ImmutableSet<?>) {
+    if (elements instanceof ImmutableSet) {
       @SuppressWarnings("unchecked") // all supported methods are covariant
       ImmutableSet<E> set = (ImmutableSet<E>) elements;
       return set;
     }
-    int size = Iterables.size(elements);
-    switch (size) {
+    return copyOfInternal(Collections2.toCollection(elements));
+  }
+
+  /**
+   * Returns an immutable set containing the given elements, in order. Repeated
+   * occurrences of an element (according to {@link Object#equals}) after the
+   * first are ignored.
+   *
+   * @throws NullPointerException if any of {@code elements} is null
+   */
+  public static <E> ImmutableSet<E> copyOf(Iterator<? extends E> elements) {
+    Collection<E> list = Lists.newArrayList(elements);
+    return copyOfInternal(list);
+  }
+
+  private static <E> ImmutableSet<E> copyOfInternal(
+      Collection<? extends E> collection) {
+    // TODO: Support concurrent collections that change while this method is
+    // running.
+    switch (collection.size()) {
       case 0:
         return of();
       case 1:
         // TODO: Remove "ImmutableSet.<E>" when eclipse bug is fixed.
-        return ImmutableSet.<E>of(elements.iterator().next());
+        return ImmutableSet.<E>of(collection.iterator().next());
       default:
-        return create(elements, size);
+        return create(collection, collection.size());
     }
   }
 
   ImmutableSet() {}
 
+  /** Returns {@code true} if the {@code hashCode()} method runs quickly. */
+  boolean isHashCodeFast() {
+    return false;
+  }
+  
   @Override public boolean equals(Object object) {
     if (object == this) {
       return true;
     }
-    if (object instanceof ImmutableSet<?> && hashCode() != object.hashCode()) {
+    if (object instanceof ImmutableSet
+        && isHashCodeFast()
+        && ((ImmutableSet<?>) object).isHashCodeFast()
+        && hashCode() != object.hashCode()) {
       return false;
     }
-    if (object instanceof Set<?>) {
+    if (object instanceof Set) {
       Set<?> that = (Set<?>) object;
       return size() == that.size() && containsAll(that);
     }
     return false;
   }
   
+  @Override public int hashCode() {
+    return Sets.hashCodeImpl(this);
+  }
+  
   @Override public String toString() {
+    if (isEmpty()) {
+      return "[]";
+    }
     Iterator<E> iterator = iterator();
     StringBuilder result = new StringBuilder(size() * 16);
     result.append('[').append(iterator.next().toString());
@@ -168,7 +201,7 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
       return 0;
     }
 
-    public boolean isEmpty() {
+    @Override public boolean isEmpty() {
       return true;
     }
 
@@ -197,13 +230,17 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
 
     @Override public boolean equals(Object object) {
       return object == this
-          || (object instanceof Set<?> && ((Set<?>) object).isEmpty());
+          || (object instanceof Set && ((Set<?>) object).isEmpty());
     }
 
     @Override public final int hashCode() {
       return 0;
     }
-
+    
+    @Override boolean isHashCodeFast() {
+      return true;
+    }
+    
     @Override public String toString() {
       return "[]";
     }
@@ -222,7 +259,7 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
       return 1;
     }
 
-    public boolean isEmpty() {
+    @Override public boolean isEmpty() {
       return false;
     }
 
@@ -253,7 +290,7 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
       if (object == this) {
         return true;
       }
-      if (object instanceof Set<?>) {
+      if (object instanceof Set) {
         Set<?> set = (Set<?>) object;
         return set.size() == 1 && contains(set.iterator().next());
       }
@@ -263,6 +300,10 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
     @Override public final int hashCode() {
       return hashCode;
     }
+    
+    @Override boolean isHashCodeFast() {
+      return true;
+    }    
 
     @Override public String toString() {
       String elementToString = element.toString();
@@ -309,18 +350,16 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
 
   abstract static class ArrayImmutableSet<E> extends ImmutableSet<E> {
     final Object[] elements; // the elements (two or more) in the desired order
-    final int hashCode;
 
-    ArrayImmutableSet(Object[] elements, int hashCode) {
+    ArrayImmutableSet(Object[] elements) {
       this.elements = elements;
-      this.hashCode = hashCode;
     }
 
     public int size() {
       return elements.length;
     }
 
-    public boolean isEmpty() {
+    @Override public boolean isEmpty() {
       return false;
     }
 
@@ -354,7 +393,7 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
       if (targets == this) {
         return true;
       }
-      if (!(targets instanceof ArrayImmutableSet<?>)) {
+      if (!(targets instanceof ArrayImmutableSet)) {
         return super.containsAll(targets);
       }
       if (targets.size() > size()) {
@@ -367,22 +406,20 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
       }
       return true;
     }
-
-    @Override public final int hashCode() {
-      return hashCode;
-    }
   }
 
   private static final class RegularImmutableSet<E>
       extends ArrayImmutableSet<E> {
     final Object[] table; // the same elements in hashed positions (plus nulls)
     final int mask; // 'and' with an int to get a valid table index
-
+    final int hashCode;
+    
     RegularImmutableSet(Object[] elements, int hashCode,
         Object[] table, int mask) {
-      super(elements, hashCode);
+      super(elements);
       this.table = table;
       this.mask = mask;
+      this.hashCode = hashCode;
     }
 
     @Override public boolean contains(Object target) {
@@ -399,6 +436,14 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
         }
       }
     }
+    
+    @Override public int hashCode() {
+      return hashCode;
+    }
+    
+    @Override boolean isHashCodeFast() {
+      return true;
+    }    
   }
 
   /** such as ImmutableMap.keySet() */
@@ -417,7 +462,7 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
       return source.length;
     }
 
-    public boolean isEmpty() {
+    @Override public boolean isEmpty() {
       return false;
     }
 
@@ -454,6 +499,10 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
     @Override public final int hashCode() {
       return hashCode;
     }
+    
+    @Override boolean isHashCodeFast() {
+      return true;
+    }    
   }
 
   /*
@@ -472,11 +521,6 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
       return of(elements);
     }
     private static final long serialVersionUID = 0;
-  }
-
-  private void readObject(ObjectInputStream stream)
-      throws InvalidObjectException {
-    throw new InvalidObjectException("Use SerializedForm");
   }
 
   @Override Object writeReplace() {

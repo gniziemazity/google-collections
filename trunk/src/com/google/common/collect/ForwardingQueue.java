@@ -30,17 +30,7 @@ import java.util.Queue;
 public abstract class ForwardingQueue<E> extends ForwardingCollection<E>
     implements Queue<E> {
 
-  /**
-   * Constructs a forwarding queue that forwards to the provided delegate.
-   */
-  protected ForwardingQueue(Queue<E> delegate) {
-    super(delegate);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override protected Queue<E> delegate() {
-    return (Queue<E>) super.delegate();
-  }
+  @Override protected abstract Queue<E> delegate();
 
   public boolean offer(E o) {
     return delegate().offer(o);

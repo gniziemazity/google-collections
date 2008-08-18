@@ -37,25 +37,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Provides static methods for creating mutable {@code Map} instances easily.
- * You can replace code like:
- *
- * <p>{@code Map<String, Integer> map = new HashMap<String, Integer>();}
- *
- * <p>with just:
- *
- * <p>{@code Map<String, Integer> map = Maps.newHashMap();}
- *
- * <p>Supported today are: {@link HashMap}, {@link LinkedHashMap}, {@link
- * ConcurrentHashMap}, {@link TreeMap}, and {@link EnumMap}.
- *
- * <p>See also this class's counterparts {@link Lists} and {@link Sets}.
+ * Static utility methods pertaining to {@link Map} instances. Also see this
+ * class's counterparts {@link Lists} and {@link Sets}.
  *
  * @author Kevin Bourrillion
  * @author Mike Bostock
@@ -99,8 +86,8 @@ public final class Maps {
 
   /**
    * Returns an appropriate value for the "capacity" (in reality, "minimum
-   * table size") parameter of a HashMap constructor, such that the resulting
-   * table will be between 25% and 50% full when it contains
+   * table size") parameter of a {@link HashMap} constructor, such that the
+   * resulting table will be between 25% and 50% full when it contains
    * {@code expectedSize} entries.
    *
    * @throws IllegalArgumentException if {@code expectedSize} is negative
@@ -121,7 +108,8 @@ public final class Maps {
    * @return a newly-created {@code HashMap} initialized with the mappings from
    *     {@code map}
    */
-  public static <K, V> HashMap<K, V> newHashMap(Map<? extends K, ? extends V> map) {
+  public static <K, V> HashMap<K, V> newHashMap(
+      Map<? extends K, ? extends V> map) {
     return new HashMap<K, V>(map);
   }
 
@@ -170,7 +158,7 @@ public final class Maps {
   /**
    * Creates a {@code TreeMap} instance using the given comparator.
    *
-   * @param comparator the Comparator to sort the keys with
+   * @param comparator the comparator to sort the keys with
    * @return a newly-created, initially-empty {@code TreeMap}
    */
   public static <C, K extends C, V> TreeMap<K, V> newTreeMap(
@@ -216,129 +204,6 @@ public final class Maps {
   }
 
   /**
-   * Returns an immutable empty {@code BiMap} instance.
-   */
-  @SuppressWarnings("unchecked")
-  public static <K, V> BiMap<K, V> immutableBiMap() {
-    return (BiMap<K, V>) EMPTY_BIMAP;
-  }
-
-  private static final BiMap<Object, Object> EMPTY_BIMAP = new EmptyBiMap();
-  
-  private static class EmptyBiMap extends ForwardingMap<Object, Object>
-      implements BiMap<Object, Object> {
-    public EmptyBiMap() {
-      super(ImmutableMap.of());      
-    }
-    
-    @Override public Set<Object> values() {
-      return Collections.emptySet();
-    }
-    
-    public Object forcePut(Object key, Object value) {
-      throw new UnsupportedOperationException();
-    }
-
-    public BiMap<Object, Object> inverse() {
-      return this;
-    }   
-    
-    private Object readResolve() {
-      return EMPTY_BIMAP; // preserve singleton property
-    }
-    
-    private static final long serialVersionUID = 0;
-  }
-  
-  /**
-   * Creates a new immutable {@code BiMap} instance containing the given
-   * key-value pair.
-   */
-  public static <K, V> BiMap<K, V> immutableBiMap(
-      @Nullable K k1, @Nullable V v1) {
-    return new ImmutableBiMapBuilder<K, V>()
-        .put(k1, v1)
-        .getBiMap();
-  }
-
-  /**
-   * Creates a new immutable {@code BiMap} instance containing the given
-   * key-value pairs.
-   *
-   * @see ImmutableBiMapBuilder
-   */
-  public static <K, V> BiMap<K, V> immutableBiMap(
-      @Nullable K k1, @Nullable V v1,
-      @Nullable K k2, @Nullable V v2) {
-    return new ImmutableBiMapBuilder<K, V>()
-        .put(k1, v1)
-        .put(k2, v2)
-        .getBiMap();
-  }
-
-  /**
-   * Creates a new immutable {@code BiMap} instance containing the given
-   * key-value pairs.
-   *
-   * @see ImmutableBiMapBuilder
-   */
-  public static <K, V> BiMap<K, V> immutableBiMap(
-      @Nullable K k1, @Nullable V v1,
-      @Nullable K k2, @Nullable V v2,
-      @Nullable K k3, @Nullable V v3) {
-    return new ImmutableBiMapBuilder<K, V>()
-        .put(k1, v1)
-        .put(k2, v2)
-        .put(k3, v3)
-        .getBiMap();
-  }
-
-  /**
-   * Creates a new immutable {@code BiMap} instance containing the given
-   * key-value pairs.
-   *
-   * @see ImmutableBiMapBuilder
-   */
-  public static <K, V> BiMap<K, V> immutableBiMap(
-      @Nullable K k1, @Nullable V v1,
-      @Nullable K k2, @Nullable V v2,
-      @Nullable K k3, @Nullable V v3,
-      @Nullable K k4, @Nullable V v4) {
-    return new ImmutableBiMapBuilder<K, V>()
-        .put(k1, v1)
-        .put(k2, v2)
-        .put(k3, v3)
-        .put(k4, v4)
-        .getBiMap();
-  }
-
-  /**
-   * Creates a new immutable {@code BiMap} instance containing the given
-   * key-value pairs.
-   *
-   * @see ImmutableBiMapBuilder
-   */
-  public static <K, V> BiMap<K, V> immutableBiMap(
-      @Nullable K k1, @Nullable V v1,
-      @Nullable K k2, @Nullable V v2,
-      @Nullable K k3, @Nullable V v3,
-      @Nullable K k4, @Nullable V v4,
-      @Nullable K k5, @Nullable V v5) {
-    return new ImmutableBiMapBuilder<K, V>()
-        .put(k1, v1)
-        .put(k2, v2)
-        .put(k3, v3)
-        .put(k4, v4)
-        .put(k5, v5)
-        .getBiMap();
-  }
-
-  /*
-   * Please use ImmutableBiMapBuilder directly if you are looking for overloads
-   * for 6 or more key-value pairs.
-   */
-
-  /**
    * Returns a synchronized (thread-safe) bimap backed by the specified bimap.
    * In order to guarantee serial access, it is critical that <b>all</b> access
    * to the backing bimap is accomplished through the returned bimap.
@@ -368,58 +233,9 @@ public final class Maps {
   }
 
   /**
-   * Returns a sorted set view of the keys contained in the specified map. The
-   * set is backed by the map, so changes to the map are reflected in the set,
-   * and vice versa. If the map is modified while an iteration over the set is
-   * in progress (except through the iterator's own {@code remove} operation),
-   * the results of the iteration are undefined. The set supports element
-   * removal, which removes the corresponding mapping from the map, via the
-   * {@code Iterator.remove}, {@code Set.remove}, {@code removeAll}, {@code
-   * removeAll}, and {@code clear} operations. It does not support the add or
-   * {@code addAll} operations.
-   *
-   * @return a sorted set view of the keys contained in the specified map.
-   */
-  public static <K, V> SortedSet<K> sortedKeySet(SortedMap<K, V> map) {
-    return new SortedMapKeySet<K, V>(map);
-  }
-
-  private static class SortedMapKeySet<K, V>
-      extends NonSerializableForwardingSet<K> implements SortedSet<K> {
-    final SortedMap<K, V> map;
-
-    SortedMapKeySet(SortedMap<K, V> map) {
-      super(map.keySet());
-      this.map = map;
-    }
-    public Comparator<? super K> comparator() {
-      return map.comparator();
-    }
-    public K first() {
-      return map.firstKey();
-    }
-    public SortedSet<K> headSet(K toElement) {
-      return new SortedMapKeySet<K, V>(map.headMap(toElement));
-    }
-    public K last() {
-      return map.lastKey();
-    }
-    public SortedSet<K> subSet(K fromElement, K toElement) {
-      return new SortedMapKeySet<K, V>(map.subMap(fromElement, toElement));
-    }
-    public SortedSet<K> tailSet(K fromElement) {
-      return new SortedMapKeySet<K, V>(map.tailMap(fromElement));
-    }
-  }
-
-  /**
-   * Creates an index {@code Map} that contains the results of applying a
-   * specified function to each item in an {@code Iterable} of values. Each
-   * value will be stored as a value in the resulting map. The key used to store
-   * that value in the map will be the result of calling the function on that
-   * value. Neither keys nor values are allowed to be null. It is an error if
-   * the function produces the same key for more than one value in the input
-   * collection.
+   * Returns an immutable map for which the {@link Map#values} are the given
+   * elements in the given order, and each key is the product of invoking a
+   * supplied function on its corresponding value.
    *
    * @param values the values to use when constructing the {@code Map}
    * @param keyFunction the function used to produce the key for each value
@@ -427,81 +243,19 @@ public final class Maps {
    *     keyFunction} on each value in the input collection to that value
    * @throws IllegalArgumentException if {@code keyFunction} produces the same
    *     key for more than one value in the input collection
-   * @throws NullPointerException if any elements of {@code values} are null, or
+   * @throws NullPointerException if any elements of {@code values} is null, or
    *     if {@code keyFunction} produces {@code null} for any value
    */
-  public static <K, V> Map<K, V> uniqueIndex(Iterable<? extends V> values,
-      Function<? super V, ? extends K> keyFunction) {
-    HashMap<K, V> newMap;
-    if (values instanceof Collection<?>) {
-      // If it's really a collection, take advantage of knowing the size
-      @SuppressWarnings("unchecked")
-      Collection<? extends V> collection = (Collection<? extends V>) values;
-      newMap = new HashMap<K, V>(collection.size());
-    } else {
-      newMap = new HashMap<K, V>();
-    }
-    return uniqueIndex(newMap, values.iterator(), keyFunction);
-  }
-
-  /**
-   * Creates an index {@code Map} that contains the results of applying a
-   * specified function to each item in a {@code Collection} of values. Each
-   * value will be stored as a value in the resulting map. The key used to store
-   * that value in the map will be the result of calling the function on that
-   * value. Neither keys nor values are allowed to be null. It is an error if
-   * the function produces the same key for more than one value in the input
-   * collection.
-   *
-   * @param values the values to use when constructing the {@code Map}
-   * @param keyFunction the function used to produce the key for each value
-   * @return {@code Map} mapping the result of evaluating the function {@code
-   *     keyFunction} on each value in the input collection to that value
-   * @throws IllegalArgumentException if {@code keyFunction} produces the same
-   *     key for more than one value in the input collection
-   * @throws NullPointerException if any elements of {@code values} are null, or
-   *     if {@code keyFunction} produces {@code null} for any value
-   */
-  public static <K, V> Map<K, V> uniqueIndex(Collection<? extends V> values,
-      Function<? super V, ? extends K> keyFunction) {
-    return uniqueIndex(new HashMap<K, V>(capacity(values.size())),
-        values.iterator(), keyFunction);
-  }
-
-  /**
-   * Creates an index {@code Map} that contains the results of applying a
-   * specified function to each item in an {@code Iterator} of values. Each
-   * value will be stored as a value in the resulting map. The key used to store
-   * that value in the map will be the result of calling the function on that
-   * value. Neither keys nor values are allowed to be null. It is an error if
-   * the function produces the same key for more than one value in the input
-   * collection.
-   *
-   * @param values the values to use when constructing the {@code Map}
-   * @param keyFunction the function used to produce the key for each value
-   * @return {@code Map} mapping the result of evaluating the function {@code
-   *     keyFunction} on each value in the input collection to that value
-   * @throws IllegalArgumentException if {@code keyFunction} produces the same
-   *     key for more than one value in the input collection
-   * @throws NullPointerException if any elements of {@code values} are null, or
-   *     if {@code keyFunction} produces {@code null} for any value
-   */
-  public static <K, V> Map<K, V> uniqueIndex(Iterator<? extends V> values,
-      Function<? super V, ? extends K> keyFunction) {
-    return uniqueIndex(new HashMap<K, V>(), values, keyFunction);
-  }
-
-  private static <K, V> Map<K, V> uniqueIndex(
-      Map<K, V> map, Iterator<? extends V> values,
-      Function<? super V, ? extends K> keyFunction) {
+  // TODO: consider returning a bimap, whose inverse view does lookups by
+  // invoking the function.
+  public static <K, V> ImmutableMap<K, V> uniqueIndex(
+      Iterable<V> values, Function<? super V, K> keyFunction) {
     checkNotNull(keyFunction);
-    while (values.hasNext()) {
-      V value = checkNotNull(values.next(), "null index values not allowed");
-      K key = checkNotNull(keyFunction.apply(value),
-          "null index keys not allowed");
-      checkArgument(map.put(key, value) == null, "Duplicate key: %s", key);
+    ImmutableMap.Builder<K, V> builder = ImmutableMap.builder();
+    for (V value : values) {
+      builder.put(keyFunction.apply(value), value);
     }
-    return map;
+    return builder.build();
   }
 
   /**
@@ -509,7 +263,8 @@ public final class Maps {
    * Properties normally derive from {@code Map<Object, Object>}, but they
    * typically contain strings, which is awkward. This method lets you get a
    * plain-old-{@code Map} out of a {@code Properties}. The returned map won't
-   * include any null keys or values.
+   * include any null keys or values. The returned map is modifiable and
+   * serializable.
    *
    * @param properties a {@code Properties} object to be converted
    * @return a map containing all the entries in {@code properties}
@@ -558,7 +313,7 @@ public final class Maps {
     @Override public V getValue() {
       return value;
     }
-    private static final long serialVersionUID = 8715539841043489689L;
+    private static final long serialVersionUID = 0;
   }
 
   /**
@@ -599,15 +354,25 @@ public final class Maps {
 
   /** @see Multimaps#unmodifiableEntries */
   static class UnmodifiableEntries<K, V>
-      extends NonSerializableForwardingCollection<Entry<K, V>> {
+      extends ForwardingCollection<Entry<K, V>> {
+    private final Collection<Entry<K, V>> entries;
+    
     UnmodifiableEntries(Collection<Entry<K, V>> entries) {
-      super(entries);
+      this.entries = entries;
     }
 
-    @Override public Iterator<Entry<K, V>> iterator() {
-      return new ForwardingIterator<Entry<K, V>>(super.iterator()) {
+    @Override protected Collection<Entry<K, V>> delegate() {
+      return entries;
+    }
+    
+   @Override public Iterator<Entry<K, V>> iterator() {
+      final Iterator<Entry<K, V>> delegate = super.iterator();
+      return new ForwardingIterator<Entry<K, V>>() {
         @Override public Entry<K, V> next() {
           return unmodifiableEntry(super.next());
+        }
+        @Override protected Iterator<Entry<K, V>> delegate() {
+          return delegate;
         }
       };
     }
@@ -615,11 +380,11 @@ public final class Maps {
     // See java.util.Collections.UnmodifiableEntrySet for details on attacks.
 
     @Override public Object[] toArray() {
-      return ForwardingCollection.toArrayImpl(this);
+      return ObjectArrays.toArrayImpl(this);
     }
 
     @Override public <T> T[] toArray(T[] array) {
-      return ForwardingCollection.toArrayImpl(this, array);
+      return ObjectArrays.toArrayImpl(this, array);
     }
 
     @Override public boolean contains(Object o) {
@@ -627,7 +392,7 @@ public final class Maps {
     }
 
     @Override public boolean containsAll(Collection<?> c) {
-      return ForwardingCollection.containsAllImpl(this, c);
+      return Collections2.containsAll(this, c);
     }
   }
 
@@ -642,13 +407,17 @@ public final class Maps {
     // See java.util.Collections.UnmodifiableEntrySet for details on attacks.
 
     @Override public boolean equals(Object o) {
-      return ForwardingSet.equalsImpl(this, o);
+      return Sets.equalsImpl(this, o);
+    }
+    
+    @Override public int hashCode() {
+      return Sets.hashCodeImpl(this);
     }
   }
 
   /**
    * Returns a new empty {@code HashBiMap} with the default initial capacity
-   * (16) and load factor (0.75).
+   * (16).
    */
   public static <K, V> HashBiMap<K, V> newHashBiMap() {
     return new HashBiMap<K, V>();
@@ -665,32 +434,15 @@ public final class Maps {
   }
 
   /**
-   * Returns a new empty {@code EnumBiMap} using the specified key type and
-   * value type.
+   * Returns a new empty {@code EnumBiMap} using the specified key and value
+   * types.
    *
    * @param keyType the key type
    * @param valueType the value type
    */
   public static <K extends Enum<K>, V extends Enum<V>> EnumBiMap<K, V>
-  newEnumBiMap(Class<K> keyType, Class<V> valueType) {
+      newEnumBiMap(Class<K> keyType, Class<V> valueType) {
     return new EnumBiMap<K, V>(keyType, valueType);
-  }
-
-  /**
-   * Returns a new {@code BiMap}, backed by the two supplied empty maps. The
-   * caller surrenders control of these maps and should not retain any
-   * references to either.
-   *
-   * <p>The returned bimap will be serializable if both of the specified maps
-   * are serializable.
-   *
-   * @param forward an empty map to be used for associating keys with values
-   * @param backward an empty map to be used for associating values with keys
-   * @throws IllegalArgumentException if either map is nonempty
-   */
-  public static <K, V> BiMap<K, V> newBiMap(
-      Map<K, V> forward, Map<V, K> backward) {
-    return new StandardBiMap<K, V>(forward, backward);
   }
 
   /**
@@ -712,28 +464,36 @@ public final class Maps {
 
   /** @see Maps#unmodifiableBiMap(BiMap) */
   private static class UnmodifiableBiMap<K, V> extends ForwardingMap<K, V>
-      implements BiMap<K, V> {
+      implements BiMap<K, V>, Serializable {
+    final Map<K, V> unmodifiableMap; 
     final BiMap<K, V> delegate;
-    transient volatile BiMap<V, K> inverse;
-
+    transient BiMap<V, K> inverse;
+    transient Set<V> values;
+    
     UnmodifiableBiMap(BiMap<K, V> delegate, BiMap<V, K> inverse) {
-      super(Collections.unmodifiableMap(delegate));
+      unmodifiableMap = Collections.unmodifiableMap(delegate);      
       this.delegate = delegate;
       this.inverse = inverse;
+    }
+    @Override protected Map<K, V> delegate() {
+      return unmodifiableMap;
     }
     public V forcePut(K key, V value) {
       throw new UnsupportedOperationException();
     }
     public BiMap<V, K> inverse() {
-      if (inverse == null) {
-        inverse = new UnmodifiableBiMap<V, K>(delegate.inverse(), this);
-      }
-      return inverse;
+      BiMap<V, K> result = inverse;
+      return (result == null)
+          ? inverse = new UnmodifiableBiMap<V, K>(delegate.inverse(), this)
+          : result;
     }
     @Override public Set<V> values() {
-      return Collections.unmodifiableSet(delegate.values());
+      Set<V> result = values;
+      return (result == null)
+          ? values = Collections.unmodifiableSet(delegate.values())
+          : result;
     }
-    private static final long serialVersionUID = 9106827410356097381L;
+    private static final long serialVersionUID = 0;
   }
 
   /**
@@ -761,7 +521,6 @@ public final class Maps {
     }
   };
 
-  // TODO: should be a public final class like the rest, right?
   private static class SimpleClassToInstanceMap<B> extends
       ConstrainedMap<Class<? extends B>, B> implements ClassToInstanceMap<B> {
     SimpleClassToInstanceMap(Map<Class<? extends B>, B> delegate) {
@@ -775,7 +534,7 @@ public final class Maps {
       B value = get(type);
       return wrap(type).cast(value);
     }
-    private static final long serialVersionUID = 3549975116715378971L;
+    private static final long serialVersionUID = 0;
   }
 
   @SuppressWarnings("unchecked")
@@ -809,9 +568,8 @@ public final class Maps {
    * @param o the object that might be contained in {@code c}
    * @return {@code true} if {@code c} contains {@code o}
    */
-  @SuppressWarnings("unchecked")
   static <K, V> boolean containsEntryImpl(Collection<Entry<K, V>> c, Object o) {
-    if (!(o instanceof Entry<?, ?>)) {
+    if (!(o instanceof Entry)) {
       return false;
     }
     return c.contains(unmodifiableEntry((Entry<?, ?>) o));
@@ -830,9 +588,8 @@ public final class Maps {
    * @param o the object to remove from {@code c}
    * @return {@code true} if {@code c} was changed
    */
-  @SuppressWarnings("unchecked")
   static <K, V> boolean removeEntryImpl(Collection<Entry<K, V>> c, Object o) {
-    if (!(o instanceof Entry<?, ?>)) {
+    if (!(o instanceof Entry)) {
       return false;
     }
     return c.remove(unmodifiableEntry((Entry<?, ?>) o));

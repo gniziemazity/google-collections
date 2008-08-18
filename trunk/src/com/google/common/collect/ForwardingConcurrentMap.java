@@ -30,17 +30,7 @@ import java.util.concurrent.ConcurrentMap;
 public abstract class ForwardingConcurrentMap<K, V> extends ForwardingMap<K, V>
     implements ConcurrentMap<K, V> {
 
-  /**
-   * Constructs a forwarding concurrent map that forwards to the provided
-   * delegate.
-   */
-  protected ForwardingConcurrentMap(ConcurrentMap<K, V> delegate) {
-    super(delegate);
-  }
-
-  @Override protected ConcurrentMap<K, V> delegate() {
-    return (ConcurrentMap<K, V>) super.delegate();
-  }
+  @Override protected abstract ConcurrentMap<K, V> delegate();
 
   public V putIfAbsent(K key, V value) {
     return delegate().putIfAbsent(key, value);

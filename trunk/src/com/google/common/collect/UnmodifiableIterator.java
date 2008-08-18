@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Google Inc.
+ * Copyright (C) 2008 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,21 @@
 
 package com.google.common.collect;
 
-import java.io.Serializable;
-import java.util.Comparator;
+import java.util.Iterator;
 
 /**
- * A serializable comparator. Comparator implementations may implement this
- * interface instead of {@code Comparator<T>} directly, so that collections
- * using the comparator can be serializable.
- *
- * @author Kevin Bourrillion
+ * An iterator that does not support {@link #remove}.
+ * 
+ * @author Jared Levy
  */
-public interface SerializableComparator<T> extends Comparator<T>, Serializable {
+public abstract class UnmodifiableIterator<E> implements Iterator<E> {
+  
+  /**
+   * Guaranteed to throw an exception and leave the underlying data unmodified.
+   *
+   * @throws UnsupportedOperationException always
+   */
+  public final void remove() {
+    throw new UnsupportedOperationException();
+  }
 }

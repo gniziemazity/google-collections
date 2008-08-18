@@ -16,6 +16,9 @@
 
 package com.google.common.collect;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -68,5 +71,21 @@ public final class HashMultimap<K, V> extends StandardSetMultimap<K, V> {
     return new HashSet<V>();
   }
 
-  private static final long serialVersionUID = 4309375142408689415L;
+  /**
+   * @serialData number of distinct keys, and then for each distinct key: the
+   *     key, the number of values for that key, and the key's values  
+   */
+  private void writeObject(ObjectOutputStream stream) throws IOException {
+    stream.defaultWriteObject();
+    Serialization.writeMultimap(this, stream);
+  }
+  
+  private void readObject(ObjectInputStream stream)
+      throws IOException, ClassNotFoundException {
+    stream.defaultReadObject();
+    setMap(new HashMap<K, Collection<V>>());
+    Serialization.populateMultimap(this, stream);
+  }
+  
+  private static final long serialVersionUID = 0;  
 }

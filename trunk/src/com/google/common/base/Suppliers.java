@@ -19,7 +19,7 @@ package com.google.common.base;
 import java.io.Serializable;
 
 /**
- * Useful {@code Supplier}s
+ * Useful suppliers.
  *
  * @author Laurence Gonsalves
  * @author Harry Heymann
@@ -28,51 +28,49 @@ public final class Suppliers {
   private Suppliers() {}
 
   /**
-   * Returns a new {@code Supplier} which is the composition of the {@code
-   * Function function} and the {@code Supplier first}. In other words, this
-   * new {@code Supplier}'s value will be computed by retrieving the value from
-   * {@code first}, and then applying {@code function} to that value. Note that
-   * the resulting {@code Supplier} will not force {@code first} (or
-   * invoke {@code function}) until it is, itself, forced.
+   * Returns a new supplier which is the composition of the provided function
+   * and supplier. In other words, the new supplier's value will be computed by
+   * retrieving the value from {@code first}, and then applying
+   * {@code function} to that value. Note that the resulting supplier will not
+   * call {@code first} or invoke {@code function} until it is called.
    */
-  public static <K, V> Supplier<V> compose(final Function<K, V> function,
-                                           final Supplier<? extends K> first) {
-    return new SupplierComposition<K, V>(function, first);
+  public static <F, T> Supplier<T> compose(
+      Function<? super F, ? extends T> function, Supplier<? extends F> first) {
+    return new SupplierComposition<F, T>(function, first);
   }
   
-  private static class SupplierComposition<K, V>
-      implements SerializableSupplier<V> {
-    private final Function<K, V> function;
-    private final Supplier<? extends K> first;
+  private static class SupplierComposition<F, T>
+      implements Supplier<T>, Serializable {
+    private final Function<? super F, ? extends T> function;
+    private final Supplier<? extends F> first;
     
-    public SupplierComposition(Function<K, V> function,
-        Supplier<? extends K> first) {
+    public SupplierComposition(Function<? super F, ? extends T> function,
+        Supplier<? extends F> first) {
       this.function = function;
       this.first = first;
     }
-    public V get() {
+    public T get() {
       return function.apply(first.get());
     }
-    private static final long serialVersionUID = 239402700273621706L;
+    private static final long serialVersionUID = 0;
   }
 
   /**
-   * Returns a {@code Supplier} which delegates to the given {@code Supplier}
-   * on the first call to get(), records the value returned, and returns this
-   * recorded value on all subsequent calls to get(). See:
+   * Returns a supplier which caches the instance retrieved during the first
+   * call to {@code get()} and returns that value on subsequent calls to
+   * {@code get()}. See:
    * <a href="http://en.wikipedia.org/wiki/Memoization">memoization</a>
    *
-   * The returned {@code Supplier} will throw {@code CyclicDependencyException}
-   * if the call to get() tries to get its own value.
-   *
-   * The returned supplier is <em>not</em> MT-safe.
+   * <p>The returned supplier will throw {@code CyclicDependencyException} if
+   * the call to {@link Supplier#get} tries to get its own value. The returned
+   * supplier is <i>not</i> thread-safe.
    */
-  public static <T> Supplier<T> memoize(final Supplier<T> delegate) {
+  public static <T> Supplier<T> memoize(Supplier<T> delegate) {
     return new MemoizingSupplier<T>(delegate);
   }
 
   private static class MemoizingSupplier<T>
-      implements SerializableSupplier<T> {
+      implements Supplier<T>, Serializable {
     private final Supplier<T> delegate;
     private MemoizationState state = MemoizationState.NOT_YET;
     private T value;
@@ -96,32 +94,30 @@ public final class Suppliers {
       }
       return value;
     }
-    private static final long serialVersionUID = 1138306392412025275L;
+    private static final long serialVersionUID = 0;
   }
   
   private enum MemoizationState { NOT_YET, COMPUTING, DONE }
 
   /**
-   * Exception thrown when a memoizing {@code Supplier} tries to get its
-   * own value.
+   * Exception thrown when a memoizing supplier tries to get its own value.
    */
   public static class CyclicDependencyException extends RuntimeException {
-    private static final long serialVersionUID = -1;
-
-    public CyclicDependencyException() {
-      super("Cycle detected when forcing a memoizing supplier.");
+    CyclicDependencyException() {
+      super("Cycle detected when invoking a memoizing supplier.");
     }
+    private static final long serialVersionUID = 0;
   }
 
   /**
-   * Returns a {@code Supplier} that always supplies {@code instance}.
+   * Returns a supplier that always supplies {@code instance}.
    */
-  public static <T> Supplier<T> ofInstance(@Nullable final T instance) {
+  public static <T> Supplier<T> ofInstance(@Nullable T instance) {
     return new SupplierOfInstance<T>(instance);
   }
   
   private static class SupplierOfInstance<T>
-      implements SerializableSupplier<T> {
+      implements Supplier<T>, Serializable {
     private final T instance;
     
     public SupplierOfInstance(T instance) {
@@ -130,9 +126,6 @@ public final class Suppliers {
     public T get() {
       return instance;
     }
-    private static final long serialVersionUID = 1052627637788228454L;
+    private static final long serialVersionUID = 0;
   }
-  
-  private interface SerializableSupplier<T>
-      extends Supplier<T>, Serializable {}
 }

@@ -28,21 +28,12 @@ import java.util.Set;
  *
  * @see ForwardingObject
  * @author Kevin Bourrillion
+ * @author Jared Levy
  */
 public abstract class ForwardingMap<K, V> extends ForwardingObject
     implements Map<K, V> {
 
-  /**
-   * Constructs a forwarding map that forwards to the provided delegate.
-   */
-  protected ForwardingMap(Map<K, V> delegate) {
-    super(delegate);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override protected Map<K, V> delegate() {
-    return (Map<K, V>) super.delegate();
-  }
+  @Override protected abstract Map<K, V> delegate();
 
   public int size() {
     return delegate().size();
@@ -80,20 +71,72 @@ public abstract class ForwardingMap<K, V> extends ForwardingObject
     delegate().putAll(map);
   }
 
+  private transient Set<K> keySet;
+  
+  /**
+   * {@inheritDoc}
+   * 
+   * <p>The returned set's {@code removeAll} and {@code retainAll} methods
+   * always throw a {@link NullPointerException} when given a null collection.  
+   */
   public Set<K> keySet() {
-    return delegate().keySet();
+    return (keySet == null) ? keySet = createKeySet() : keySet;
   }
 
+  private Set<K> createKeySet() {
+    final Set<K> delegate = delegate().keySet();
+    return new ForwardingSet<K>() {
+      @Override protected Set<K> delegate() {
+        return delegate;
+      }
+    };
+  }
+  
+  private transient Collection<V> values;
+
+  /**
+   * {@inheritDoc}
+   * 
+   * <p>The returned collection's {@code removeAll} and {@code retainAll}
+   * methods always throw a {@link NullPointerException} when given a null
+   * collection.  
+   */
   public Collection<V> values() {
-    return delegate().values();
+    return (values == null) ? values = createValues() : values;
   }
 
+  private Collection<V> createValues() {
+    final Collection<V> delegate = delegate().values();
+    return new ForwardingCollection<V>() {
+      @Override protected Collection<V> delegate() {
+        return delegate;
+      }      
+    };
+  }
+  
+  private transient Set<Entry<K, V>> entrySet;
+  
+  /**
+   * {@inheritDoc}
+   * 
+   * <p>The returned set's {@code removeAll} and {@code retainAll} methods
+   * always throw a {@link NullPointerException} when given a null collection.  
+   */
   public Set<Entry<K, V>> entrySet() {
-    return delegate().entrySet();
+    return (entrySet == null) ? entrySet = createEntrySet() : entrySet;
   }
 
+  private Set<Entry<K, V>> createEntrySet() {
+    final Set<Entry<K, V>> delegate = delegate().entrySet();
+    return new ForwardingSet<Entry<K, V>>() {
+      @Override protected Set<Entry<K, V>> delegate() {
+        return delegate;
+      }
+    };
+  }
+  
   @Override public boolean equals(Object obj) {
-    return delegate().equals(obj);
+    return (this == obj) || delegate().equals(obj);
   }
 
   @Override public int hashCode() {

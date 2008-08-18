@@ -33,7 +33,8 @@ import java.util.List;
 public abstract class Ordering<T> implements Comparator<T>, Serializable {
 
   /**
-   * Returns an ordering that uses the natural order of the values.
+   * Returns an ordering that uses the natural order of the values. The ordering
+   * throws a {@link NullPointerException} when passed a null parameter.
    * 
    * <p>The type specification is {@code <T extends Comparable>}, instead of
    * the more specific {@code <T extends Comparable<? super T>>}, to support
@@ -57,11 +58,24 @@ public abstract class Ordering<T> implements Comparator<T>, Serializable {
     private final Comparator<T> comparator;
 
     private ComparatorOrdering(Comparator<T> comparator) {
-      this.comparator = comparator;
+      this.comparator = checkNotNull(comparator);
     }
 
     public int compare(T a, T b) {
       return comparator.compare(a, b);
+    }
+    
+    @Override public boolean equals(Object other) {
+      return other instanceof ComparatorOrdering
+          && comparator.equals(((ComparatorOrdering<?>) other).comparator);
+    }
+    
+    @Override public int hashCode() {
+      return comparator.hashCode();
+    }
+
+    @Override public String toString() {
+      return comparator.toString();
     }
     
     private static final long serialVersionUID = 0;
@@ -103,9 +117,12 @@ public abstract class Ordering<T> implements Comparator<T>, Serializable {
           && forwardOrder.equals(((ReverseOrdering<?>) other).forwardOrder);
     }
     
+    @Override public String toString() {
+      return "reverseOrder(" + forwardOrder + ")";
+    }
+    
     private static final long serialVersionUID = 0;
   }
-
 
   /**
    * {@link Collections#binarySearch(List, Object, Comparator) Searches}
@@ -131,7 +148,8 @@ public abstract class Ordering<T> implements Comparator<T>, Serializable {
 
   /**
    * Returns a copy of the given iterable sorted by this ordering. The input is
-   * not modified. The returned list is modifiable and has random access.
+   * not modified. The returned list is modifiable, serializable, and has random
+   * access.
    *
    * <p>Unlike {@link Sets#newTreeSet(Comparator, Iterable)}, this method does
    * not collapse elements that compare as zero, and the resulting collection 

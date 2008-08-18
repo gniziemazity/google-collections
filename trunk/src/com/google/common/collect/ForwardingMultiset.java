@@ -30,17 +30,7 @@ import java.util.Set;
 public abstract class ForwardingMultiset<E> extends ForwardingCollection<E>
     implements Multiset<E> {
 
-  /**
-   * Constructs a forwarding multiset that forwards to the provided delegate.
-   */
-  protected ForwardingMultiset(Multiset<E> delegate) {
-    super(delegate);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override protected Multiset<E> delegate() {
-    return (Multiset<E>) super.delegate();
-  }
+  @Override protected abstract Multiset<E> delegate();
 
   public int count(Object element) {
     return delegate().count(element);
@@ -67,7 +57,7 @@ public abstract class ForwardingMultiset<E> extends ForwardingCollection<E>
   }
 
   @Override public boolean equals(Object obj) {
-    return delegate().equals(obj);
+    return (this == obj) || delegate().equals(obj);
   }
 
   @Override public int hashCode() {

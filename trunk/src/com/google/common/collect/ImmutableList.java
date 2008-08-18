@@ -17,7 +17,6 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -61,7 +60,7 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
    * and maintainability of your code.
    */
   // Casting to any type is safe because the list will never hold any elements.
-  @SuppressWarnings({"unchecked"})
+  @SuppressWarnings("unchecked")
   public static <E> ImmutableList<E> of() {
     return (ImmutableList<E>) EMPTY_IMMUTABLE_LIST;
   }
@@ -71,10 +70,50 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
    * and performs comparably to {@link Collections#singleton}, but will not
    * accept a null element. It is preferable mainly for consistency and
    * maintainability of your code.
+   *
+   * @throws NullPointerException if {@code element} is null
    */
   public static <E> ImmutableList<E> of(E element) {
     // TODO: evaluate a specialized SingletonImmutableList
-    return new RegularImmutableList<E>(new Object[] { checkNotNull(element) });
+    return new RegularImmutableList<E>(copyIntoArray(element));
+  }
+
+  // TODO: Add similar overloadings to ImmutableSet and ImmutableSortedSet
+
+  /**
+   * Returns an immutable list containing the given elements, in order.
+   *
+   * @throws NullPointerException if any element is null
+   */
+  public static <E> ImmutableList<E> of(E e1, E e2) {
+    return new RegularImmutableList<E>(copyIntoArray(e1, e2));
+  }
+
+  /**
+   * Returns an immutable list containing the given elements, in order.
+   *
+   * @throws NullPointerException if any element is null
+   */
+  public static <E> ImmutableList<E> of(E e1, E e2, E e3) {
+    return new RegularImmutableList<E>(copyIntoArray(e1, e2, e3));
+  }
+
+  /**
+   * Returns an immutable list containing the given elements, in order.
+   *
+   * @throws NullPointerException if any element is null
+   */
+  public static <E> ImmutableList<E> of(E e1, E e2, E e3, E e4) {
+    return new RegularImmutableList<E>(copyIntoArray(e1, e2, e3, e4));
+  }
+
+  /**
+   * Returns an immutable list containing the given elements, in order.
+   *
+   * @throws NullPointerException if any element is null
+   */
+  public static <E> ImmutableList<E> of(E e1, E e2, E e3, E e4, E e5) {
+    return new RegularImmutableList<E>(copyIntoArray(e1, e2, e3, e4, e5));
   }
 
   /**
@@ -100,21 +139,33 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
    * is an {@code ImmutableList}, no copy will actually be performed, and the
    * given list itself will be returned.
    *
-   * @throws NullPointerException if any of {@code elements} are null
+   * @throws NullPointerException if any of {@code elements} is null
    */
   public static <E> ImmutableList<E> copyOf(Iterable<? extends E> elements) {
-    if (elements instanceof ImmutableList<?>) {
+    if (elements instanceof ImmutableList) {
       @SuppressWarnings("unchecked") // all supported methods are covariant
       ImmutableList<E> list = (ImmutableList<E>) elements;
       return list;
     }
+    return copyOfInternal(Collections2.toCollection(elements));
+  }
 
-    Collection<?> collection = (elements instanceof Collection<?>)
-        ? (Collection<?>) elements : Lists.newArrayList(elements);
+  /**
+   * Returns an immutable list containing the given elements, in order.
+   *
+   * @throws NullPointerException if any of {@code elements} is null
+   */
+  public static <E> ImmutableList<E> copyOf(Iterator<? extends E> elements) {
+    return copyOfInternal(Lists.newArrayList(elements));
+  }
+
+  private static <E> ImmutableList<E> copyOfInternal(Collection<?> collection) {
+    // TODO: Support concurrent collections that change while this method is
+    // running.
     int size = collection.size();
     return (size == 0)
         ? ImmutableList.<E>of()
-        : new RegularImmutableList<E>(copyIntoArray(collection, size)); 
+        : new RegularImmutableList<E>(copyIntoArray(collection, size));
   }
 
   private ImmutableList() {}
@@ -176,7 +227,7 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
       return 0;
     }
 
-    public boolean isEmpty() {
+    @Override public boolean isEmpty() {
       return true;
     }
 
@@ -238,7 +289,7 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
 
     @Override public boolean equals(Object object) {
       return object == this
-          || (object instanceof List<?> && ((List<?>) object).isEmpty());
+          || (object instanceof List && ((List<?>) object).isEmpty());
     }
 
     @Override public int hashCode() {
@@ -273,7 +324,7 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
       return size;
     }
 
-    public boolean isEmpty() {
+    @Override public boolean isEmpty() {
       return false;
     }
 
@@ -411,7 +462,7 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
       if (object == this) {
         return true;
       }
-      if (!(object instanceof List<?>)) {
+      if (!(object instanceof List)) {
         return false;
       }
 
@@ -421,7 +472,7 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
       }
 
       int index = offset;
-      if (object instanceof RegularImmutableList<?>) {
+      if (object instanceof RegularImmutableList) {
         RegularImmutableList<?> other = (RegularImmutableList<?>) object;
         for (int i = other.offset; i < other.offset + other.size; i++) {
           if (!array[index++].equals(other.array[i])) {
@@ -439,6 +490,8 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
     }
 
     @Override public int hashCode() {
+      // not caching hash code since it could change if the elements are mutable
+      // in a way that modifies their hash codes
       int hashCode = 1;
       for (int i = offset; i < offset + size; i++) {
         hashCode = 31 * hashCode + array[i].hashCode();
@@ -456,7 +509,7 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
     }
   }
 
-  private static Object[] copyIntoArray(Object[] source) {
+  private static Object[] copyIntoArray(Object... source) {
     Object[] array = new Object[source.length];
     int index = 0;
     for (Object element : source) {

@@ -18,6 +18,9 @@ package com.google.common.collect;
 
 import com.google.common.base.Nullable;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Set;
@@ -56,8 +59,8 @@ import java.util.TreeSet;
  * @author Jared Levy
  */
 public final class TreeMultimap<K, V> extends StandardSortedSetMultimap<K, V> {
-  private final Comparator<? super K> keyComparator;
-  private final Comparator<? super V> valueComparator;
+  private transient Comparator<? super K> keyComparator;
+  private transient Comparator<? super V> valueComparator;
 
   /**
    * Constructs an empty {@code TreeMultimap} using the natural ordering of the
@@ -103,9 +106,9 @@ public final class TreeMultimap<K, V> extends StandardSortedSetMultimap<K, V> {
    */
   @SuppressWarnings("unchecked")
   public TreeMultimap(Multimap<? extends K, ? extends V> multimap) {
-    this((multimap instanceof TreeMultimap<?, ?>)
+    this((multimap instanceof TreeMultimap)
             ? ((TreeMultimap<K, V>) multimap).keyComparator() : null,
-        (multimap instanceof SortedSetMultimap<?, ?>)
+        (multimap instanceof SortedSetMultimap)
             ? ((SortedSetMultimap<K, V>) multimap).valueComparator() : null,
         multimap);
   }
@@ -163,5 +166,27 @@ public final class TreeMultimap<K, V> extends StandardSortedSetMultimap<K, V> {
     return (SortedSet<K>) super.keySet();
   }
 
-  private static final long serialVersionUID = 4309375142408689415L;
+  /**
+   * @serialData key comparator, value comparator, number of distinct keys, and
+   *     then for each distinct key: the key, number of values for that key, and
+   *     key values  
+   */
+  private void writeObject(ObjectOutputStream stream) throws IOException {
+    stream.defaultWriteObject();
+    stream.writeObject(keyComparator());
+    stream.writeObject(valueComparator());
+    Serialization.writeMultimap(this, stream);
+  }
+  
+  @SuppressWarnings("unchecked") // reading data stored by writeObject
+  private void readObject(ObjectInputStream stream)
+      throws IOException, ClassNotFoundException {
+    stream.defaultReadObject();
+    keyComparator = (Comparator<? super K>) stream.readObject();
+    valueComparator = (Comparator<? super V>) stream.readObject();
+    setMap(new TreeMap<K, Collection<V>>(keyComparator));
+    Serialization.populateMultimap(this, stream);
+  }
+  
+  private static final long serialVersionUID = 0;
 }

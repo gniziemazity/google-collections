@@ -18,6 +18,9 @@ package com.google.common.collect;
 
 import com.google.common.base.Nullable;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,22 +28,20 @@ import java.util.Map;
 /**
  * A {@code BiMap} backed by an {@code EnumMap} instance for keys-to-values, and
  * a {@code HashMap} instance for values-to-keys. Null keys are not permitted,
- * but null values are.
+ * but null values are. An {@code EnumHashBiMap} and its inverse are both
+ * serializable.
  *
- * @see EnumMap
- * @see HashMap
  * @author Mike Bostock
  */
 public final class EnumHashBiMap<K extends Enum<K>, V>
     extends StandardBiMap<K, V> {
-  final Class<K> keyType;
+  private transient Class<K> keyType;
 
   /**
    * Constructs a new empty bimap using the specified key type, sized to contain
    * an entry for every possible key.
    *
    * @param keyType the key type
-   * @throws NullPointerException if any argument is null
    */
   public EnumHashBiMap(Class<K> keyType) {
     super(new EnumMap<K, V>(keyType),
@@ -50,11 +51,9 @@ public final class EnumHashBiMap<K extends Enum<K>, V>
 
   /**
    * Constructs a new bimap with the same mappings as the specified map. If the
-   * specified map is an {@code EnumHashBiMap} or an {@code EnumBiMap} instance,
-   * this constructor behaves identically to {@link
-   * #EnumHashBiMap(EnumHashBiMap)} or {@link #EnumHashBiMap(EnumHashBiMap)},
-   * respectively. Otherwise, the specified map must contain at least one
-   * mapping (in order to determine the new enum bimap's key type).
+   * specified map is an {@code EnumHashBiMap} or an {@link EnumBiMap}, the new
+   * bimap has the same key type as the input bimap. Otherwise, the specified
+   * map must contain at least one mapping, in order to determine the key type.
    *
    * @param map the map whose mappings are to be placed in this map
    * @throws IllegalArgumentException if map is not an {@code EnumBiMap} or an
@@ -64,33 +63,6 @@ public final class EnumHashBiMap<K extends Enum<K>, V>
     this(EnumBiMap.inferKeyType(map));
     putAll(map); // careful if we make this class non-final
   }
-
-  /**
-   * Constructs a new bimap with the same key type as the specified map,
-   * initially containing the same mappings (if any).
-   *
-   * @param map the map whose mappings are to be placed in this map
-   */
-  public EnumHashBiMap(EnumHashBiMap<K, ? extends V> map) {
-    this(map.keyType);
-    putAll(map); // careful if we make this class non-final
-  }
-
-  /*
-   * Constructs a new bimap with the same key type as the specified map,
-   * initially containing the same mappings (if any).
-   *
-   * <p>Note: This constructor has been commented out to work around Eclipse bug
-   * 179902. It should be restored when the bug has been fixed. In the meantime,
-   * the "(Map<K, ? extends V> map)" overload will suffice. See:
-   * <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=179902">bug
-   * report</a>.
-   */
-//  @SuppressWarnings("unchecked")
-//  public EnumHashBiMap(EnumBiMap<K, ? extends V> map) {
-//    this(map.keyType);
-//    putAll((Map) map); // careful if we make this class non-final
-//  }
 
   // Overriding these two methods to show that values may be null (but not keys)
 
@@ -106,4 +78,26 @@ public final class EnumHashBiMap<K extends Enum<K>, V>
   public Class<K> keyType() {
     return keyType;
   }
+  
+  /**
+   * @serialData the key class, number of entries, first key, first value,
+   *     second key, second value, and so on.
+   */
+  private void writeObject(ObjectOutputStream stream) throws IOException {
+    stream.defaultWriteObject();
+    stream.writeObject(keyType);
+    Serialization.writeMap(this, stream);
+  }
+  
+  @SuppressWarnings("unchecked") // reading field populated by writeObject
+  private void readObject(ObjectInputStream stream)
+      throws IOException, ClassNotFoundException {
+    stream.defaultReadObject();
+    keyType = (Class<K>) stream.readObject();
+    setDelegates(new EnumMap<K, V>(keyType),
+        new HashMap<V, K>(keyType.getEnumConstants().length * 3 / 2));
+    Serialization.populateMap(this, stream);
+  }
+  
+  private static final long serialVersionUID = 0;  
 }

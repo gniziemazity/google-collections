@@ -22,23 +22,20 @@ import com.google.common.base.Nullable;
  * A constraint on the keys and values that may be added to a {@code Map} or
  * {@code Multimap}. For example, {@link MapConstraints#NOT_NULL}, which
  * prevents a map from including any null keys or values, could be implemented
- * like this:
+ * like this: <pre>   {@code
  *
- * <pre>  public void checkKeyValue(Object key, Object value) {
- *    if (key == null) {
- *      throw new NullPointerException();
- *    }
- *    if (value == null) {
- *      throw new NullPointerException();
- *    }
- *  }</pre>
+ *   public void checkKeyValue(Object key, Object value) {
+ *     if (key == null || value == null) {
+ *       throw new NullPointerException();
+ *     }
+ *   }}</pre>
  *
- * <p>In order to be effective, constraints should be deterministic; that is,
- * they should not depend on state that can change (such as external state,
- * random variables, and time) and should only depend on the value of the
- * passed-in key and value. A non-deterministic constraint cannot reliably
- * enforce that all the collection's elements meet the constraint, since the
- * constraint is only enforced when elements are added.
+ * In order to be effective, constraints should be deterministic; that is, they
+ * should not depend on state that can change (such as external state, random
+ * variables, and time) and should only depend on the value of the passed-in key
+ * and value. A non-deterministic constraint cannot reliably enforce that all
+ * the collection's elements meet the constraint, since the constraint is only
+ * enforced when elements are added.
  *
  * @author Mike Bostock
  * @see MapConstraints

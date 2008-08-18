@@ -16,7 +16,10 @@
 
 package com.google.common.collect;
 
+import com.google.common.base.Nullable;
+
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Collection;
 
 /**
@@ -81,22 +84,36 @@ public final class ObjectArrays {
   }
 
   /**
-   * This method implements {@code Collection.toArray(Object[])} for Collection
-   * implementations to share. Other code should never need to use it, as it can
-   * call {@link Collection#toArray(Object[])}.
+   * Returns an array containing all of the elements in the specified
+   * collection; the runtime type of the returned array is that of the specified
+   * array. If the collection fits in the specified array, it is returned
+   * therein. Otherwise, a new array is allocated with the runtime type of the
+   * specified array and the size of the specified collection.
    *
-   * @param self the collection for which to return an array of elements
+   * <p>If the collection fits in the specified array with room to spare (i.e.,
+   * the array has more elements than the collection), the element in the array
+   * immediately following the end of the collection is set to null. This is
+   * useful in determining the length of the collection <i>only</i> if the
+   * caller knows that the collection does not contain any null elements.
+   *
+   * <p>This method returns the elements in the order they are returned by the
+   * collection's iterator.
+   * 
+   * <p>TODO: Support concurrent collections whose size can change while the
+   * method is running.
+   *
+   * @param c the collection for which to return an array of elements
    * @param array the array in which to place the collection elements
+   * @throws ArrayStoreException if the runtime type of the specified array is
+   *     not a supertype of the runtime type of every element in the specified
+   *     collection
    */
-  static <T> T[] toArrayImpl(Collection<?> self, T[] array) {
-    int size = self.size();
+  static <T> T[] toArrayImpl(Collection<?> c, T[] array) {
+    int size = c.size();
     if (array.length < size) {
-      @SuppressWarnings("unchecked")
-      Class<? extends T> type
-          = (Class<? extends T>) array.getClass().getComponentType();
-      array = newArray(type, size);
+      array = newArray(array, size);
     }
-    fillArray(self, array);
+    fillArray(c, array);
     if (array.length > size) {
       array[size] = null;
     }
@@ -104,14 +121,22 @@ public final class ObjectArrays {
   }
 
   /**
-   * This method implements {@code Collection.toArray()} for Collection
-   * implementations to share. Other code should never need to use it, as it can
-   * call {@link Collection#toArray()}.
+   * Returns an array containing all of the elements in the specified
+   * collection. This method returns the elements in the order they are returned
+   * by the collection's iterator. The returned array is "safe" in that no
+   * references to it are maintained by the collection. The caller is thus free
+   * to modify the returned array.
+   * 
+   * <p>This method assumes that the collection size doesn't change while the
+   * method is running.
    *
-   * @param self the collection for which to return an array of elements
+   * <p>TODO: Support concurrent collections whose size can change while the
+   * method is running.
+   *
+   * @param c the collection for which to return an array of elements
    */
-  static Object[] toArrayImpl(Collection<?> self) {
-    return fillArray(self, new Object[self.size()]);
+  static Object[] toArrayImpl(Collection<?> c) {
+    return fillArray(c, new Object[c.size()]);
   }
 
   private static Object[] fillArray(Iterable<?> elements, Object[] array) {

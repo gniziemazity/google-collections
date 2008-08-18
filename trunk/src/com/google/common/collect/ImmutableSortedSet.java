@@ -21,12 +21,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Objects;
 
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
@@ -56,20 +59,16 @@ import java.util.SortedSet;
  * {@code ImmutableSortedSet} doesn't use {@link Object#equals} to determine if
  * two elements are equivalent. Instead, with an explicit comparator, the
  * following relation determines whether elements {@code x} and {@code y} are
- * equivalent:
- * 
- * <pre>
- *     {(x, y) | comparator.compare(x, y) == 0}
- * </pre>
- * 
- * <p>With natural ordering of elements, the following relation determines
- * whether two elements are equivalent:
- * 
- * <pre>
- *     {(x, y) | x.compareTo(y) == 0}
- * </pre>
- * 
- * <p><b>Warning:</b> Like most sets, an {@code ImmutableSortedSet} will not
+ * equivalent: <pre>   {@code
+ *
+ *   {(x, y) | comparator.compare(x, y) == 0}}</pre>
+ *
+ * With natural ordering of elements, the following relation determines whether
+ * two elements are equivalent: <pre>   {@code
+ *
+ *   {(x, y) | x.compareTo(y) == 0}}</pre>
+ *
+ * <b>Warning:</b> Like most sets, an {@code ImmutableSortedSet} will not
  * function correctly if an element is modified after being placed in the set.
  * For this reason, and to avoid general confusion, it is strongly recommended
  * to place only immutable objects into this collection.
@@ -82,7 +81,7 @@ import java.util.SortedSet;
  * @author Jared Levy
  */
 @SuppressWarnings("serial") // we're overriding default serialization
-public abstract class ImmutableSortedSet<E> extends ImmutableCollection<E>
+public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
     implements SortedSet<E> {
 
   // TODO: Can we find a way to remove these @SuppressWarnings?
@@ -108,16 +107,27 @@ public abstract class ImmutableSortedSet<E> extends ImmutableCollection<E>
 
   /**
    * Returns the empty immutable sorted set.
+   */
+  public static <E> ImmutableSortedSet<E> of() {
+    return emptySet();
+  }
+
+  /**
+   * Returns an immutable sorted set containing a single element.
    * 
    * <p>The type specification is {@code <E extends Comparable>}, instead of the
    * more specific {@code <E extends Comparable<? super E>>}, to support
    * classes defined without generics.
    */
-  @SuppressWarnings("unchecked")   // See method Javadoc
-  public static <E extends Comparable> ImmutableSortedSet<E> of() {
-    return emptySet();
+  @SuppressWarnings("unchecked") // See method Javadoc
+  public static <E extends Comparable> ImmutableSortedSet<E> of(E element) {
+    Object[] array = { checkNotNull(element) };
+    return new RegularImmutableSortedSet<E>(array, NATURAL_ORDER);
   }
-
+  
+  // TODO: Consider adding factory methods that throw an exception when given
+  // duplicate elements.
+  
   /**
    * Returns an immutable sorted set containing the given elements sorted by
    * their natural ordering. When multiple elements are equivalent according to
@@ -129,25 +139,9 @@ public abstract class ImmutableSortedSet<E> extends ImmutableCollection<E>
    * 
    * @throws NullPointerException if any of {@code elements} is null
    */
-  @SuppressWarnings("unchecked")   // See method Javadoc
+  @SuppressWarnings("unchecked") // See method Javadoc
   public static <E extends Comparable> ImmutableSortedSet<E> of(E... elements) {
-    // TODO: Consider whether to throw an exception when given duplicate
-    // elements. The of(Comparator, E...) and ImmutableSet.of(E...) methods
-    // should have consistent behavior.
     return ofInternal(Comparators.naturalOrder(), elements);
-  }
-
-  /**
-   * Returns an immutable sorted set containing the given elements sorted by the
-   * provided comparator. When multiple elements are equivalent according to the
-   * comparator, only the first one specified is included.
-   * 
-   * @throws NullPointerException if {@code comparator} or any of
-   *     {@code elements} is null
-   */
-  public static <E> ImmutableSortedSet<E> of(Comparator<? super E> comparator,
-      E... elements) {
-    return ofInternal(checkNotNull(comparator), elements);
   }
 
   private static <E> ImmutableSortedSet<E> ofInternal(
@@ -167,7 +161,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableCollection<E>
   }
 
   /** Sort the array, according to the comparator. */
-  @SuppressWarnings("unchecked")   // E comparator with Object array
+  @SuppressWarnings("unchecked") // E comparator with Object array
   private static <E> void sort(
       Object[] array, Comparator<? super E> comparator) {
     Arrays.sort(array, (Comparator<Object>) comparator);
@@ -229,19 +223,20 @@ public abstract class ImmutableSortedSet<E> extends ImmutableCollection<E>
   }
 
   /**
-   * Returns an immutable sorted set containing the given elements sorted by the
-   * provided comparator. When multiple elements are equivalent according to the
-   * comparator, only the first one specified is included.
-   * 
-   * <p><b>Note:</b> Despite what the method name suggests, if {@code elements}
-   * is an {@code ImmutableSortedSet}, it may be returned instead of a copy.
-   * 
-   * @throws NullPointerException if {@code comparator} or any of
-   *     {@code elements} is null
+   * Returns an immutable sorted set containing the given elements sorted by
+   * their natural ordering. When multiple elements are equivalent according to
+   * {@code compareTo()}, only the first one specified is included.
+   *
+   * <p>The type specification is {@code <E extends Comparable>}, instead of the
+   * more specific {@code <E extends Comparable<? super E>>}, to support
+   * classes defined without generics.
+   *
+   * @throws NullPointerException if any of {@code elements} is null
    */
-  public static <E> ImmutableSortedSet<E> copyOf(
-      Comparator<? super E> comparator, Iterable<? extends E> elements) {
-    return copyOfInternal(checkNotNull(comparator), elements, false);
+  @SuppressWarnings("unchecked")
+  public static <E extends Comparable> ImmutableSortedSet<E> copyOf(
+      Iterator<? extends E> elements) {
+    return copyOfInternal(Comparators.naturalOrder(), elements);
   }
 
   /**
@@ -270,7 +265,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableCollection<E>
     boolean hasSameComparator
         = fromSortedSet || hasSameComparator(elements, comparator);
 
-    if (hasSameComparator && (elements instanceof ImmutableSortedSet<?>)) {
+    if (hasSameComparator && (elements instanceof ImmutableSortedSet)) {
       @SuppressWarnings("unchecked")
       ImmutableSortedSet<E> result = (ImmutableSortedSet<E>) elements;
       if (!result.hasPartialArray()) {
@@ -295,6 +290,21 @@ public abstract class ImmutableSortedSet<E> extends ImmutableCollection<E>
     return new RegularImmutableSortedSet<E>(array, comparator);
   }
 
+  private static <E> ImmutableSortedSet<E> copyOfInternal(
+      Comparator<? super E> comparator, Iterator<? extends E> elements) {
+    if (!elements.hasNext()) {
+      return emptySet(comparator);
+    }
+    List<E> list = Lists.newArrayList();
+    while (elements.hasNext()) {
+      list.add(checkNotNull(elements.next()));
+    }
+    Object[] array = list.toArray();
+    sort(array, comparator);
+    array = removeDupes(array, comparator);
+    return new RegularImmutableSortedSet<E>(array, comparator);
+  }
+
   /**
    * Returns {@code true} if {@code elements} is a {@code SortedSet} that uses
    * {@code comparator} to order its elements. Note that equivalent comparators
@@ -304,7 +314,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableCollection<E>
    */
   private static boolean hasSameComparator(Object elements,
       Comparator<?> comparator) {
-    if (elements instanceof SortedSet<?>) {
+    if (elements instanceof SortedSet) {
       SortedSet<?> sortedSet = (SortedSet<?>) elements;
       Comparator<?> comparator2 = sortedSet.comparator();
       return Objects.equal(comparator2, comparator)
@@ -314,6 +324,90 @@ public abstract class ImmutableSortedSet<E> extends ImmutableCollection<E>
     return false;
   }
 
+  /**
+   * Returns a factory that creates immutable sorted sets with an explicit
+   * comparator. If the comparator has a more general type than the set being
+   * generated, such as creating a {@code SortedSet<Integer>} with a
+   * {@code Comparator<Number>}, use the {@link Factory#Factory(Comparator)}
+   * constructor instead.
+   * 
+   * @throws NullPointerException if {@code comparator} is null
+   */
+  public static <E> Factory<E> orderedBy(Comparator<E> comparator) {
+    return new Factory<E>(comparator);
+  }
+  
+  /**
+   * Returns a factory that creates immutable sorted sets whose elements are
+   * ordered by the reverse of their natural ordering. The sorted sets use
+   * {@link Collections#reverseOrder()} as the comparator.
+   * 
+   * <p>The type specification is {@code <E extends Comparable>}, instead of the
+   * more specific {@code <E extends Comparable<? super E>>}, to support
+   * classes defined without generics.
+   */
+  @SuppressWarnings("unchecked") // See method Javadoc
+  public static <E extends Comparable> Factory<E> reverseOrder() {
+    return new Factory<E>(Collections.reverseOrder());
+  }
+  
+  /**
+   * A factory for creating immutable sorted sets with an explicit comparator.
+   * 
+   * <p>The factory is immutable and may be used to create multiple
+   * {@code ImmutableSortedSet} instances.
+   */
+  public static class Factory<E> {
+    private final Comparator<? super E> comparator;
+
+    /**
+     * Creates a new factory. The returned factory is equivalent to the factory
+     * generated by {@link ImmutableSortedSet#orderedBy}.
+     * 
+     * @throws NullPointerException if {@code comparator} is null
+     */
+    public Factory(Comparator<? super E> comparator) {
+      this.comparator = checkNotNull(comparator);
+    }
+
+    /**
+     * Returns an immutable sorted set containing the given elements sorted by
+     * the factory's comparator. When multiple elements are equivalent according
+     * to the comparator, only the first one specified is included.
+     * 
+     * @throws NullPointerException if any of {@code elements} is null
+     */
+    public ImmutableSortedSet<E> of(E... elements) {
+      return ofInternal(comparator, elements);
+    }
+    
+    /**
+     * Returns an immutable sorted set containing the given elements sorted by
+     * the factory's comparator. When multiple elements are equivalent according
+     * to the comparator, only the first one specified is included.
+     * 
+     * <p><b>Note:</b> Despite what the method name suggests, if
+     * {@code elements} is an {@code ImmutableSortedSet} with an equivalent
+     * comparator, it may be returned instead of a copy.
+     * 
+     * @throws NullPointerException if any of {@code elements} is null
+     */
+    public ImmutableSortedSet<E> copyOf(Iterable<? extends E> elements) {
+      return copyOfInternal(comparator, elements, false);
+    }
+
+    /**
+     * Returns an immutable sorted set containing the given elements sorted by
+     * the factory's comparator. When multiple elements are equivalent according
+     * to the comparator, only the first one specified is included.
+     * 
+     * @throws NullPointerException if any of {@code elements} is null
+     */
+    public ImmutableSortedSet<E> copyOf(Iterator<? extends E> elements) {
+      return copyOfInternal(comparator, elements);
+    }
+  }
+  
   @SuppressWarnings("unchecked")
   private static <E> int compare(Comparator<? super E> comparator, Object a,
       Object b) {
@@ -410,7 +504,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableCollection<E>
       return 0;
     }
 
-    public boolean isEmpty() {
+    @Override public boolean isEmpty() {
       return true;
     }
 
@@ -438,7 +532,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableCollection<E>
     }
 
     @Override public boolean equals(Object object) {
-      return (object instanceof Set<?>) && ((Set<?>) object).isEmpty();
+      return (object instanceof Set) && ((Set<?>) object).isEmpty();
     }
 
     @Override public int hashCode() {
@@ -476,8 +570,9 @@ public abstract class ImmutableSortedSet<E> extends ImmutableCollection<E>
 
   /**
    * An empty immutable sorted set with one or more elements.
-   * TODO: Create a separate class for a single-element sorted set.
+   * TODO: Consider creating a separate class for a single-element sorted set.
    */
+  @SuppressWarnings("serial")
   private static final class RegularImmutableSortedSet<E>
       extends ImmutableSortedSet<E> {
 
@@ -492,7 +587,6 @@ public abstract class ImmutableSortedSet<E> extends ImmutableCollection<E>
      * index).
      */
     final int toIndex;
-    transient Integer hashCode;
 
     RegularImmutableSortedSet(Object[] elements,
         Comparator<? super E> comparator) {
@@ -516,7 +610,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableCollection<E>
       return (Iterator<E>) Iterators.forArray(elements, fromIndex, size());
     }
 
-    public boolean isEmpty() {
+    @Override public boolean isEmpty() {
       return false;
     }
 
@@ -612,7 +706,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableCollection<E>
       if (object == this) {
         return true;
       }
-      if (!(object instanceof Set<?>)) {
+      if (!(object instanceof Set)) {
         return false;
       }
       Set<?> set = (Set<?>) object;
@@ -642,14 +736,13 @@ public abstract class ImmutableSortedSet<E> extends ImmutableCollection<E>
     }
 
     @Override public int hashCode() {
-      if (hashCode == null) {
-        int hash = 0;
-        for (int i = fromIndex; i < toIndex; i++) {
-          hash += elements[i].hashCode();
-        }
-        hashCode = hash;
+      // not caching hash code since it could change if the elements are mutable
+      // in a way that modifies their hash codes
+      int hash = 0;
+      for (int i = fromIndex; i < toIndex; i++) {
+        hash += elements[i].hashCode();
       }
-      return hashCode;
+      return hash;
     }
 
     @Override public String toString() {
@@ -722,10 +815,15 @@ public abstract class ImmutableSortedSet<E> extends ImmutableCollection<E>
 
     @SuppressWarnings("unchecked")
     Object readResolve() {
-      return ofInternal(comparator, (E[]) elements);
+      return new Factory<E>(comparator).of((E[]) elements);
     }
 
     private static final long serialVersionUID = 0;
+  }
+
+  private void readObject(ObjectInputStream stream)
+      throws InvalidObjectException {
+    throw new InvalidObjectException("Use SerializedForm");
   }
 
   @Override Object writeReplace() {

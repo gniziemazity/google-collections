@@ -35,20 +35,8 @@ import java.util.ListIterator;
 import java.util.RandomAccess;
 
 /**
- * Provides static methods for creating {@code List} instances easily. You can
- * replace code like:
- *
- * <p>{@code List<String> list = new ArrayList<String>();}
- * <br>{@code Collections.addAll(list, "foo", "bar", "baz");}
- *
- * <p>with:
- *
- * <p>{@code List<String> list = newArrayList("foo", "bar", "baz");}
- *
- * <p>You can also create an empty {@code List} or populate a new {@code List}
- * using an array, {@link Iterator} or {@link Iterable}.
- *
- * <p>See this class's counterparts {@link Sets} and {@link Maps}.
+ * Static utility methods pertaining to {@link List} instances. Also see this
+ * class's counterparts {@link Sets} and {@link Maps}.
  *
  * @author Kevin Bourrillion
  * @author Mike Bostock
@@ -97,7 +85,7 @@ public final class Lists {
     return list;
   }
   
-  /*@VisibleForTesting*/ static int computeArrayListCapacity(int arraySize) {
+  static int computeArrayListCapacity(int arraySize) {
     return (int) Math.min(5L + arraySize + (arraySize / 10), Integer.MAX_VALUE);
   }
   
@@ -109,7 +97,7 @@ public final class Lists {
    */
   public static <E> ArrayList<E> newArrayList(Iterable<? extends E> elements) {
     // Let ArrayList's sizing logic work, if possible
-    if (elements instanceof Collection<?>) {
+    if (elements instanceof Collection) {
       @SuppressWarnings("unchecked")
       Collection<? extends E> collection = (Collection<? extends E>) elements;
       return new ArrayList<E>(collection);
@@ -167,14 +155,28 @@ public final class Lists {
    */
   public static <E> LinkedList<E> newLinkedList(
       Iterable<? extends E> elements) {
+    return newLinkedList(elements.iterator());
+  }
+
+  /**
+   * Creates a {@code LinkedList} instance containing the given elements.
+   *
+   * @param elements the elements that the list should contain, in order
+   * @return a newly-created {@code LinkedList} containing those elements
+   */
+  private static <E> LinkedList<E> newLinkedList(
+      Iterator<? extends E> elements) {
     LinkedList<E> list = newLinkedList();
-    Iterables.addAll(list, elements);
+    while (elements.hasNext()) {
+      list.add(elements.next());
+    }
     return list;
   }
 
   /**
    * Returns a copy of the given iterable sorted by the natural ordering of its
-   * elements. The input is not modified.
+   * elements. The input is not modified. The returned list is modifiable,
+   * serializable, and implements {@link RandomAccess}.
    *
    * <p>Unlike {@link Sets#newTreeSet(Iterable)}, this method does not collapse
    * equal elements, and the resulting collection does not maintain its own sort
@@ -195,7 +197,8 @@ public final class Lists {
 
   /**
    * Returns a copy of the given iterable sorted by an explicit comparator. The
-   * input is not modified.
+   * input is not modified. The returned list is modifiable, serializable, and
+   * implements {@link RandomAccess}.
    * 
    * <p>Unlike {@link Sets#newTreeSet(Comparator, Iterable)}, this method does
    * not collapse elements that the comparator treats as equal, and the
@@ -248,7 +251,7 @@ public final class Lists {
     @Override public E get(int index) {
       return (index == 0) ? first : rest[index - 1]; // allow IOOBE to throw
     }
-    private static final long serialVersionUID = -263507107612916621L;
+    private static final long serialVersionUID = 0;
   }
 
   /**
@@ -298,7 +301,7 @@ public final class Lists {
           return rest[index - 2]; // allow IOOBE to throw
       }
     }
-    private static final long serialVersionUID = -1789891963162733178L;
+    private static final long serialVersionUID = 0;
   }
 
   /**
@@ -322,9 +325,8 @@ public final class Lists {
    * <p>If {@code fromList} implements {@link RandomAccess}, so will the
    * returned list. The returned list always implements {@link Serializable},
    * but serialization will succeed only when {@code fromList} and
-   * {@code function} are serializable.
-   * 
-   * @see Iterators#transform
+   * {@code function} are serializable. The returned list is threadsafe if the
+   * supplied list and function are.
    */
   public static <F, T> List<T> transform(
       List<F> fromList, Function<? super F, ? extends T> function) {
@@ -334,9 +336,7 @@ public final class Lists {
   }
 
   /**
-   * Implementation of a sequential transforming list. We try to implement
-   * as few methods as possible here to avoid duplicating code from {@link
-   * AbstractSequentialList}.
+   * Implementation of a sequential transforming list.
    *
    * @see Lists#transform
    */
@@ -361,8 +361,7 @@ public final class Lists {
     @Override public int size() {
       return fromList.size();
     }
-    @Override
-    public ListIterator<T> listIterator(final int index) {
+    @Override public ListIterator<T> listIterator(final int index) {
       final ListIterator<F> delegate = fromList.listIterator(index);
       return new ListIterator<T>() {
         public void add(T e) {
@@ -402,7 +401,13 @@ public final class Lists {
         }
       };
     }
-    private static final long serialVersionUID = -5874381536079320827L;
+    @Override public boolean removeAll(Collection<?> c) {
+      return super.removeAll(checkNotNull(c));
+    }
+    @Override public boolean retainAll(Collection<?> c) {
+      return super.retainAll(checkNotNull(c));
+    }
+    private static final long serialVersionUID = 0;
   }
 
   /**
@@ -438,6 +443,48 @@ public final class Lists {
     @Override public int size() {
       return fromList.size();
     }
-    private static final long serialVersionUID = -7837562545549389035L;
+    @Override public boolean removeAll(Collection<?> c) {
+      return super.removeAll(checkNotNull(c));
+    }
+    @Override public boolean retainAll(Collection<?> c) {
+      return super.retainAll(checkNotNull(c));
+    }
+    private static final long serialVersionUID = 0;
+  }
+
+  private static class ImmutableArrayList<E> extends AbstractList<E>
+      implements RandomAccess, Serializable {
+    final E[] array;
+
+    /**
+     * @param array underlying array for this ImmutableArrayList. Note that the
+     *     array is <b>not</b> cloned. The caller is responsible for ensuring
+     *     that the array can't "escape".
+     */
+    ImmutableArrayList(E[] array) {
+      this.array = array;
+    }
+    @Override public E get(int index) {
+      return array[index];
+    }
+    @Override public int size() {
+      return array.length;
+    }
+
+    // optimizations
+
+    @Override public Object[] toArray() {
+      Object[] newArray = new Object[array.length];
+      System.arraycopy(array, 0, newArray, 0, array.length);
+      return newArray;
+    }
+    @Override public String toString() {
+      return Arrays.toString(array);
+    }
+    @Override public int hashCode() {
+      return Arrays.hashCode(array);
+    }
+
+    private static final long serialVersionUID = 0;
   }
 }

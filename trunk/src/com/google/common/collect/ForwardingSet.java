@@ -30,66 +30,13 @@ import java.util.Set;
 public abstract class ForwardingSet<E> extends ForwardingCollection<E>
     implements Set<E> {
 
-  /**
-   * Constructs a forwarding set that forwards to the provided delegate.
-   */
-  protected ForwardingSet(Set<E> delegate) {
-    super(delegate);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override protected Set<E> delegate() {
-    return (Set<E>) super.delegate();
-  }
+  @Override protected abstract Set<E> delegate();
 
   @Override public boolean equals(Object obj) {
-    return delegate().equals(obj);
+    return (this == obj) || delegate().equals(obj);
   }
 
   @Override public int hashCode() {
     return delegate().hashCode();
-  }
-
-  /* Standard implementations from AbstractSet. */
-
-  /**
-   * Compares the specified object with the specified set for equality. Returns
-   * true if the specified object is also set, the two sets have the same size,
-   * and every member of the set {@code o} is contained in the set {@code s}.
-   *
-   * <p>This method first checks if the object {@code o} is the set {@code s};
-   * if so it returns true. Then, it checks if {@code o} is a set whose size is
-   * identical to the size of {@code s}; if not, it returns false. If so, it
-   * returns {@code s.containsAll((Collection) o)}.
-   *
-   * @param s the set to be compared for equality with the specified object
-   * @param o the object to be compared for equality with the specified set
-   * @return true if the object {@code o} is equal to the set {@code s}
-   * @see java.util.AbstractSet#equals(Object)
-   */
-  @SuppressWarnings("unchecked")
-  static boolean equalsImpl(Set<?> s, Object o) {
-    if (o == s) {
-      return true;
-    }
-    if (!(o instanceof Set<?>)) {
-      return false;
-    }
-    Set<?> os = (Set) o;
-    if (os.size() != s.size()) {
-      return false;
-    }
-    return s.containsAll(os);
-  }
-
-  /**
-   * Calculates and returns the hashcode of {@code s}.
-   */
-  static int hashCodeImpl(Set<?> s) {
-    int hashCode = 0;
-    for (Object o : s) {
-      hashCode += o != null ? o.hashCode() : 0;
-    }
-    return hashCode;
   }
 }

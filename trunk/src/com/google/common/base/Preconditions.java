@@ -16,11 +16,12 @@
 
 package com.google.common.base;
 
+import java.util.Collection;
 import java.util.NoSuchElementException;
 
 /**
- * Contains simple static methods to be called at the start of your own methods
- * to verify correct arguments and state. This allows constructs such as
+ * Simple static methods to be called at the start of your own methods to verify
+ * correct arguments and state. This allows constructs such as
  * <pre>
  *     if (count <= 0) {
  *       throw new IllegalArgumentException("must be positive: " + count);
@@ -32,7 +33,7 @@ import java.util.NoSuchElementException;
  *
  * Note that the sense of the expression is inverted; with {@code Preconditions}
  * you declare what you expect to be <i>true</i>, just as you do with an
- * <a href="http://java.sun.com/j2se/1.4.2/docs/guide/lang/assert.html">
+ * <a href="http://java.sun.com/j2se/1.5.0/docs/guide/language/assert.html">
  * {@code assert}</a> or a JUnit {@code assertTrue()} call.
  *
  * <p>Take care not to confuse precondition checking with other similar types
@@ -42,15 +43,14 @@ import java.util.NoSuchElementException;
  * <i>calling method</i> has made an error. This tells the caller that it should
  * not have invoked the method when it did, with the arguments it did, or
  * perhaps <i>ever</i>. Postcondition or other invariant failures should not
- * throw these types of exceptions, perhaps using {@link AssertionError}
- * instead.
+ * throw these types of exceptions.
  *
  * <p><b>Note:</b> The methods of the {@code Preconditions} class are highly
  * unusual in one way: they are <i>supposed to</i> throw exceptions, and promise
  * in their specifications to do so even when given perfectly valid input. That
  * is, {@code null} is a valid parameter to the method {@link
  * #checkNotNull(Object)} -- and technically this parameter could be even marked
- * as {@link Nullable}! -- yet the method will still throw an exception anyway,
+ * as {@link Nullable} -- yet the method will still throw an exception anyway,
  * because that's what its contract says to do.
  *
  * @author Kevin Bourrillion
@@ -77,8 +77,7 @@ public final class Preconditions {
    *
    * @param expression a boolean expression
    * @param errorMessage the exception message to use if the check fails; will
-   *     be converted to a string using {@link String#valueOf(Object)} only if
-   *     needed
+   *     be converted to a string using {@link String#valueOf(Object)}
    * @throws IllegalArgumentException if {@code expression} is false
    */
   public static void checkArgument(boolean expression, Object errorMessage) {
@@ -92,20 +91,25 @@ public final class Preconditions {
    * calling method.
    *
    * @param expression a boolean expression
-   * @param errorMessageFormat the {@link java.util.Formatter format string} for
-   *     the desired error message
-   * @param errorMessageArgs the arguments referenced by the format specifiers
-   *     in {@code errorMessageFormat}.
+   * @param errorMessageTemplate a template for the exception message should the
+   *     check fail. The message is formed by replacing each {@code %s}
+   *     placeholder in the template with an argument. These are matched by
+   *     position - the first {@code %s} gets {@code errorMessageArgs[0]}, etc.
+   *     Unmatched arguments will be appended to the formatted message in square
+   *     braces. Unmatched placeholders will be left as-is.
+   * @param errorMessageArgs the arguments to be substituted into the message
+   *     template. Arguments are converted to strings using
+   *     {@link String#valueOf(Object)}.
    * @throws IllegalArgumentException if {@code expression} is false
    * @throws NullPointerException if the check fails and either {@code
-   *     errorMessageFormat} or {@code errorMessageArgs} is null (don't let this
-   *     happen)
+   *     errorMessageTemplate} or {@code errorMessageArgs} is null (don't let
+   *     this happen)
    */
   public static void checkArgument(boolean expression,
-      String errorMessageFormat, Object... errorMessageArgs) {
+      String errorMessageTemplate, Object... errorMessageArgs) {
     if (!expression) {
       throw new IllegalArgumentException(
-          String.format(errorMessageFormat, errorMessageArgs));
+          format(errorMessageTemplate, errorMessageArgs));
     }
   }
 
@@ -128,8 +132,7 @@ public final class Preconditions {
    *
    * @param expression a boolean expression
    * @param errorMessage the exception message to use if the check fails; will
-   *     be converted to a string using {@link String#valueOf(Object)} only if
-   *     needed
+   *     be converted to a string using {@link String#valueOf(Object)}
    * @throws IllegalStateException if {@code expression} is false
    */
   public static void checkState(boolean expression, Object errorMessage) {
@@ -143,26 +146,31 @@ public final class Preconditions {
    * instance, but not involving any parameters to the calling method.
    *
    * @param expression a boolean expression
-   * @param errorMessageFormat the {@link java.util.Formatter format string} for
-   *     the desired error message
-   * @param errorMessageArgs the arguments referenced by the format specifiers
-   *     in {@code errorMessageFormat}.
+   * @param errorMessageTemplate a template for the exception message should the
+   *     check fail. The message is formed by replacing each {@code %s}
+   *     placeholder in the template with an argument. These are matched by
+   *     position - the first {@code %s} gets {@code errorMessageArgs[0]}, etc.
+   *     Unmatched arguments will be appended to the formatted message in square
+   *     braces. Unmatched placeholders will be left as-is.
+   * @param errorMessageArgs the arguments to be substituted into the message
+   *     template. Arguments are converted to strings using
+   *     {@link String#valueOf(Object)}.
    * @throws IllegalStateException if {@code expression} is false
    * @throws NullPointerException if the check fails and either {@code
-   *     errorMessageFormat} or {@code errorMessageArgs} is null (don't let this
-   *     happen)
+   *     errorMessageTemplate} or {@code errorMessageArgs} is null (don't let
+   *     this happen)
    */
   public static void checkState(boolean expression,
-      String errorMessageFormat, Object... errorMessageArgs) {
+      String errorMessageTemplate, Object... errorMessageArgs) {
     if (!expression) {
       throw new IllegalStateException(
-          String.format(errorMessageFormat, errorMessageArgs));
+          format(errorMessageTemplate, errorMessageArgs));
     }
   }
 
   /**
    * Ensures that an object reference passed as a parameter to the calling
-   * method is not null, throwing a {@code NullPointerException} if it is.
+   * method is not null.
    *
    * @param reference an object reference
    * @return the non-null reference that was validated
@@ -177,12 +185,11 @@ public final class Preconditions {
 
   /**
    * Ensures that an object reference passed as a parameter to the calling
-   * method is not null, throwing a {@code NullPointerException} if it is.
+   * method is not null.
    *
    * @param reference an object reference
    * @param errorMessage the exception message to use if the check fails; will
-   *     be converted to a string using {@link String#valueOf(Object)} only if
-   *     needed
+   *     be converted to a string using {@link String#valueOf(Object)}
    * @return the non-null reference that was validated
    * @throws NullPointerException if {@code reference} is null
    */
@@ -195,22 +202,27 @@ public final class Preconditions {
 
   /**
    * Ensures that an object reference passed as a parameter to the calling
-   * method is not null, throwing a {@code NullPointerException} if it is.
+   * method is not null.
    *
    * @param reference an object reference
-   * @param errorMessageFormat the {@link java.util.Formatter format string} for
-   *     the desired error message
-   * @param errorMessageArgs the arguments referenced by the format specifiers
-   *     in {@code errorMessageFormat}.
+   * @param errorMessageTemplate a template for the exception message should the
+   *     check fail. The message is formed by replacing each {@code %s}
+   *     placeholder in the template with an argument. These are matched by
+   *     position - the first {@code %s} gets {@code errorMessageArgs[0]}, etc.
+   *     Unmatched arguments will be appended to the formatted message in square
+   *     braces. Unmatched placeholders will be left as-is.
+   * @param errorMessageArgs the arguments to be substituted into the message
+   *     template. Arguments are converted to strings using
+   *     {@link String#valueOf(Object)}.
    * @return the non-null reference that was validated
    * @throws NullPointerException if {@code reference} is null
    */
-  public static <T> T checkNotNull(T reference, String errorMessageFormat,
+  public static <T> T checkNotNull(T reference, String errorMessageTemplate,
       Object... errorMessageArgs) {
     if (reference == null) {
       // If either of these parameters is null, the right thing happens anyway
       throw new NullPointerException(
-          String.format(errorMessageFormat, errorMessageArgs));
+          format(errorMessageTemplate, errorMessageArgs));
     }
     return reference;
   }
@@ -219,14 +231,14 @@ public final class Preconditions {
    * Ensures that an {@code Iterable} object passed as a parameter to the
    * calling method is not null and contains no null elements.
    *
-   * @param iterable any {@code Iterable} object
+   * @param iterable the iterable to check the contents of
    * @return the non-null {@code iterable} reference just validated
    * @throws NullPointerException if {@code iterable} is null or contains at
    *     least one null element
    */
   public static <T extends Iterable<?>> T checkContentsNotNull(T iterable) {
-    for (Object element : iterable) {
-      checkNotNull(element);
+    if (containsOrIsNull(iterable)) {
+      throw new NullPointerException();
     }
     return iterable;
   }
@@ -235,20 +247,17 @@ public final class Preconditions {
    * Ensures that an {@code Iterable} object passed as a parameter to the
    * calling method is not null and contains no null elements.
    *
-   * @param iterable any {@code Iterable} object
+   * @param iterable the iterable to check the contents of
    * @param errorMessage the exception message to use if the check fails; will
-   *     be converted to a string using {@link String#valueOf(Object)} only if
-   *     needed
+   *     be converted to a string using {@link String#valueOf(Object)}
    * @return the non-null {@code iterable} reference just validated
    * @throws NullPointerException if {@code iterable} is null or contains at
    *     least one null element
    */
   public static <T extends Iterable<?>> T checkContentsNotNull(
       T iterable, Object errorMessage) {
-    checkNotNull(iterable, errorMessage);
-
-    for (Object element : iterable) {
-      checkNotNull(element, errorMessage);
+    if (containsOrIsNull(iterable)) {
+      throw new NullPointerException(String.valueOf(errorMessage));
     }
     return iterable;
   }
@@ -257,22 +266,93 @@ public final class Preconditions {
    * Ensures that an {@code Iterable} object passed as a parameter to the
    * calling method is not null and contains no null elements.
    *
-   * @param iterable any {@code Iterable} object
-   * @param errorMessageFormat the {@link java.util.Formatter format string} for
-   *     the desired error message
-   * @param errorMessageArgs the arguments referenced by the format specifiers
-   *     in {@code errorMessageFormat}.
+   * @param iterable the iterable to check the contents of
+   * @param errorMessageTemplate a template for the exception message should the
+   *     check fail. The message is formed by replacing each {@code %s}
+   *     placeholder in the template with an argument. These are matched by
+   *     position - the first {@code %s} gets {@code errorMessageArgs[0]}, etc.
+   *     Unmatched arguments will be appended to the formatted message in square
+   *     braces. Unmatched placeholders will be left as-is.
+   * @param errorMessageArgs the arguments to be substituted into the message
+   *     template. Arguments are converted to strings using
+   *     {@link String#valueOf(Object)}.
    * @return the non-null {@code iterable} reference just validated
    * @throws NullPointerException if {@code iterable} is null or contains at
    *     least one null element
    */
   public static <T extends Iterable<?>> T checkContentsNotNull(T iterable,
-      String errorMessageFormat, Object... errorMessageArgs) {
-    checkNotNull(iterable, errorMessageFormat, errorMessageArgs);
-
-    for (Object element : iterable) {
-      checkNotNull(element, errorMessageFormat, errorMessageArgs);
+      String errorMessageTemplate, Object... errorMessageArgs) {
+    if (containsOrIsNull(iterable)) {
+      throw new NullPointerException(
+          format(errorMessageTemplate, errorMessageArgs));
     }
     return iterable;
+  }
+  
+  private static boolean containsOrIsNull(Iterable<?> iterable) {
+    if (iterable == null) {
+      return true;
+    }
+    
+    if (iterable instanceof Collection) {
+      Collection<?> collection = (Collection<?>) iterable;
+      try {
+        return collection.contains(null);
+      } catch (NullPointerException e) {
+        // A NPE implies that the collection doesn't contain null.
+        return false;
+      }
+    } else {
+      for (Object element : iterable) {
+        if (element == null) {
+          return true;
+        }
+      }
+      return false;
+    }
+  }
+
+  /**
+   * Substitutes each {@code %s} in {@code template} with an argument. These
+   * are matched by position - the first {@code %s} gets {@code args[0]}, etc.
+   * If there are more arguments than placeholders, the unmatched arguments will
+   * be appended to the end of the formatted message in square braces.
+   *
+   * @param template a non-null string containing 0 or more {@code %s}
+   *     placeholders.
+   * @param args the arguments to be substituted into the message
+   *     template. Arguments are converted to strings using
+   *     {@link String#valueOf(Object)}. Arguments can be null.
+   */
+  // VisibleForTesting
+  static String format(String template, Object... args) {
+    // start substituting the arguments into the '%s' placeholders
+    StringBuilder builder = new StringBuilder(
+        template.length() + 16 * args.length);
+    int templateStart = 0;
+    int i = 0;
+    while (i < args.length) {
+      int placeholderStart = template.indexOf("%s", templateStart);
+      if (placeholderStart == -1) {
+        break;
+      }
+      builder.append(template.substring(templateStart, placeholderStart));
+      builder.append(args[i++]);
+      templateStart = placeholderStart + 2;
+    }
+    builder.append(template.substring(templateStart));
+
+    // if we run out of placeholders, append the extra args in square braces
+    if (i < args.length) {
+      builder.append(" [");
+      builder.append(args[i++]);
+      while (i < args.length) {
+        builder.append(", ");
+        builder.append(args[i++]);
+      }
+      builder.append("]");
+    }
+
+    return builder.toString();
   }
 }

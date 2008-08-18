@@ -18,6 +18,9 @@ package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -51,7 +54,7 @@ public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
   // Default from ArrayList
   /*@VisibleForTesting*/ static final int DEFAULT_CAPACITY = 10;   
   
-  /*@VisibleForTesting*/ final int initialListCapacity;
+  /*@VisibleForTesting*/ transient int initialListCapacity;
 
   /** Constructs an empty {@code ArrayListMultimap}. */
   public ArrayListMultimap() {
@@ -79,7 +82,7 @@ public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
    */
   public ArrayListMultimap(Multimap<? extends K, ? extends V> multimap) {
     this(multimap.keySet().size(),
-        (multimap instanceof ArrayListMultimap<?, ?>) ?
+        (multimap instanceof ArrayListMultimap) ?
             ((ArrayListMultimap<?, ?>) multimap).initialListCapacity :
             DEFAULT_CAPACITY);
     putAll(multimap);
@@ -103,5 +106,24 @@ public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
     }
   }
   
-  private static final long serialVersionUID = -3840170139986607881L;
+  /**
+   * @serialData initial list capacity, number of distinct keys, and then for
+   *     each distinct key: the key, number of values for that key, and the
+   *     key's values
+   */
+  private void writeObject(ObjectOutputStream stream) throws IOException {
+    stream.defaultWriteObject();
+    stream.writeInt(initialListCapacity);
+    Serialization.writeMultimap(this, stream);
+  }
+  
+  private void readObject(ObjectInputStream stream)
+      throws IOException, ClassNotFoundException {
+    stream.defaultReadObject();
+    setMap(new HashMap<K, Collection<V>>());
+    initialListCapacity = stream.readInt();
+    Serialization.populateMultimap(this, stream);
+  }
+  
+  private static final long serialVersionUID = 0;  
 }

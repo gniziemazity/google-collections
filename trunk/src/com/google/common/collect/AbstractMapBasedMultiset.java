@@ -16,11 +16,13 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
+import com.google.common.base.Nullable;
+
+import java.io.InvalidObjectException;
 import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -33,20 +35,27 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Basic implementation of {@code Multiset<E>} backed by an instance of {@code
  * Map<E, AtomicInteger>}.
+ * 
+ * <p>For serialization to work, the subclass must specify explicit {@code
+ * readObject} and {@code writeObject} methods.
  *
  * @author Kevin Bourrillion
  */
 abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
     implements Serializable {
-  private final Map<E, AtomicInteger> backingMap;
+  
+  // TODO: Replace AtomicInteger with a to-be-written IntegerHolder class for
+  // better performance.
+  private transient Map<E, AtomicInteger> backingMap;
 
   /*
    * Cache the size for efficiency. Using a long lets us avoid the need for
    * overflow checking and ensures that size() will function correctly even if
    * the multiset had once been larger than Integer.MAX_VALUE.
    */
-  private long size;
+  private transient long size;
 
+  /** Standard constructor. */
   protected AbstractMapBasedMultiset(Map<E, AtomicInteger> backingMap) {
     this.backingMap = checkNotNull(backingMap);
     this.size = super.size();
@@ -56,6 +65,11 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
     return backingMap;
   }
 
+  /** Used during deserialization only. The backing map must be empty. */  
+  protected void setBackingMap(Map<E, AtomicInteger> backingMap) {
+    this.backingMap = backingMap;
+  }
+  
   // Required Implementations
 
   private transient volatile EntrySet entrySet;
@@ -68,10 +82,11 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
    * opposed to the count at the time the entry was retrieved.
    */
   @Override public Set<Multiset.Entry<E>> entrySet() {
-    if (entrySet == null) {
-      entrySet = new EntrySet();
+    EntrySet result = entrySet;
+    if (result == null) {
+      entrySet = result = new EntrySet();
     }
-    return entrySet;
+    return result;
   }
 
   private class EntrySet extends AbstractSet<Multiset.Entry<E>> {
@@ -119,7 +134,12 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
       return backingMap.size();
     }
 
-    // This seems to be the only method worth overriding for optimization
+    @Override public boolean retainAll(Collection<?> c) {
+      return super.retainAll(checkNotNull(c));
+    }
+    
+    // The following overrides are for better performance.
+    
     @Override public void clear() {
       for (AtomicInteger frequency : backingMap.values()) {
         frequency.set(0);
@@ -127,6 +147,26 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
       backingMap.clear();
       size = 0L;
     }
+    
+    @Override public boolean contains(Object o) {
+      if (o instanceof Entry) {
+        Entry<?> entry = (Entry<?>) o;
+        int count = count(entry.getElement());
+        return (count == entry.getCount()) && (count > 0);
+      }
+      return false;
+    }
+    
+    @Override public boolean remove(Object o) {
+      if (contains(o)) {
+        Entry<?> entry = (Entry<?>) o;
+        AtomicInteger frequency = backingMap.remove(entry.getElement());
+        int numberRemoved = frequency.getAndSet(0);
+        size -= numberRemoved;
+        return true; 
+      }
+      return false;
+    }    
   }
 
   // Optimizations - Query Operations
@@ -261,18 +301,23 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
     return new MapBasedElementSet(backingMap);      
   }
 
-  class MapBasedElementSet extends NonSerializableForwardingSet<E> {
+  class MapBasedElementSet extends ForwardingSet<E> {
     /**
      * This mapping is the usually the same as {@code backingMap}, but can
      * be a submap in some implementations.
      */
     private final Map<E, AtomicInteger> map;
+    private final Set<E> delegate;
     
     MapBasedElementSet(Map<E, AtomicInteger> map) {
-      super(map.keySet());
       this.map = map;
+      delegate = map.keySet();
     }
 
+    @Override protected Set<E> delegate() {
+      return delegate;
+    }
+    
     // TODO: a way to not have to write this much code?
 
     @Override public Iterator<E> iterator() {
@@ -305,11 +350,11 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
     }
 
     @Override public boolean removeAll(Collection<?> elementsToRemove) {
-      return ForwardingSet.removeAllImpl(this, elementsToRemove);
+      return Iterators.removeAll(iterator(), elementsToRemove);
     }
 
     @Override public boolean retainAll(Collection<?> elementsToRetain) {
-      return ForwardingSet.retainAllImpl(this, elementsToRetain);
+      return Iterators.retainAll(iterator(), elementsToRetain);
     }
 
     @Override public void clear() {
@@ -326,6 +371,11 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
 
     public Map<E, AtomicInteger> getMap() {
       return map;
-    }    
+    }
+  }
+  
+  /** Don't allow default serialization. */
+  protected void readObjectNoData() throws InvalidObjectException {
+    throw new InvalidObjectException("Stream data required");
   }
 }

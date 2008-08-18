@@ -31,17 +31,7 @@ import java.util.SortedSet;
 public abstract class ForwardingSortedSet<E> extends ForwardingSet<E>
     implements SortedSet<E> {
 
-  /**
-   * Constructs a forwarding sorted set that forwards to the provided delegate.
-   */
-  protected ForwardingSortedSet(SortedSet<E> delegate) {
-    super(delegate);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override protected SortedSet<E> delegate() {
-    return (SortedSet<E>) super.delegate();
-  }
+  @Override protected abstract SortedSet<E> delegate();
 
   public Comparator<? super E> comparator() {
     return delegate().comparator();

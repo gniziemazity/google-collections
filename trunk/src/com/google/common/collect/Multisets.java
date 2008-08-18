@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.Serializable;
-import java.util.AbstractCollection;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,10 +35,6 @@ import java.util.Set;
  * @author Mike Bostock
  */
 public final class Multisets {
-  private static final Multiset<?> EMPTY_MULTISET = new EmptyMultiset<Object>();
-  private static final Multiset<?> IMMUTABLE_EMPTY_MULTISET =
-      unmodifiableMultiset(new EmptyMultiset<Object>());
-
   private Multisets() {}
 
   /**
@@ -69,7 +64,7 @@ public final class Multisets {
    */
   public static <E> HashMultiset<E> newHashMultiset(
       Iterable<? extends E> elements) {
-    return new HashMultiset<E>(elements);
+    return HashMultiset.create(elements);
   }
 
   /**
@@ -136,17 +131,23 @@ public final class Multisets {
     return new UnmodifiableMultiset<E>(multiset);
   }
 
-  private static class UnmodifiableMultiset<E> extends ForwardingMultiset<E> {
-    transient Set<E> elementSet;
-
+  private static class UnmodifiableMultiset<E> extends ForwardingMultiset<E> 
+      implements Serializable {
+    final Multiset<E> delegate;
     private UnmodifiableMultiset(Multiset<E> delegate) {
-      super(delegate);
+      this.delegate = delegate;
     }
+
+    @Override protected Multiset<E> delegate() {
+      return delegate;      
+    }
+    
+    transient Set<E> elementSet;
 
     @Override public Set<E> elementSet() {
       Set<E> es = elementSet;
       return (es == null)
-          ? elementSet = Collections.unmodifiableSet(super.elementSet())
+          ? elementSet = Collections.unmodifiableSet(delegate.elementSet())
           : es;
     }
 
@@ -155,12 +156,12 @@ public final class Multisets {
     @Override public Set<Multiset.Entry<E>> entrySet() {
       Set<Multiset.Entry<E>> es = entrySet;
       return (es == null)
-          ? entrySet = Collections.unmodifiableSet(super.entrySet())
+          ? entrySet = Collections.unmodifiableSet(delegate.entrySet())
           : es;
     }
 
     @Override public Iterator<E> iterator() {
-      return Iterators.unmodifiableIterator(super.iterator());
+      return Iterators.unmodifiableIterator(delegate.iterator());
     }
 
     @Override public boolean add(E element) {
@@ -234,76 +235,6 @@ public final class Multisets {
     return Synchronized.multiset(multiset, null);
   }
 
-  /** Returns the empty multiset (immutable). This multiset is serializable. */
-  @SuppressWarnings("unchecked")
-  public static <E> Multiset<E> emptyMultiset() {
-    return (Multiset<E>) EMPTY_MULTISET;
-  }
-
-  /** @see Multisets#emptyMultiset */
-  private static class EmptyMultiset<E> extends AbstractCollection<E>
-      implements Multiset<E>, Serializable {
-    @Override public int size() {
-      return 0;
-    }
-
-    @Override public Iterator<E> iterator() {
-      return Iterators.emptyIterator();
-    }
-
-    public int count(Object element) {
-      return 0;
-    }
-
-    public boolean add(E element, int occurrences) {
-      throw new UnsupportedOperationException();
-    }
-
-    /*
-     * The remove methods return 0, for consistency with
-     * Collections.emptySet().remove().
-     */
-
-    public int remove(Object element, int occurrences) {
-      return 0;
-    }
-
-    public int removeAllOccurrences(Object element) {
-      return 0;
-    }
-
-    public Set<E> elementSet() {
-      return Collections.emptySet();
-    }
-
-    public Set<Entry<E>> entrySet() {
-      return Collections.emptySet();
-    }
-
-    @Override public boolean equals(Object obj) {
-      if (obj == this) {
-        return true;
-      }
-      if (!(obj instanceof Multiset<?>)) {
-        return false;
-      }
-      return ((Multiset<?>) obj).isEmpty();
-    }
-
-    @Override public int hashCode() {
-      return 0;
-    }
-
-    @Override public String toString() {
-      return "[]";
-    }
-
-    private Object readResolve() {
-      return EMPTY_MULTISET; // preserve singleton property
-    }
-    private static final long serialVersionUID = -4387083049544049902L;
-  }
-
   /**
    * Returns an immutable multiset entry with the specified element and count.
    *
@@ -335,7 +266,7 @@ public final class Multisets {
    * operations.
    *
    * <p>The returned multiset will be serializable if the specified set is
-   * serializable.
+   * serializable. The multiset is threadsafe if the set is threadsafe.
    *
    * @param set the backing set for the returned multiset view
    */
@@ -346,19 +277,18 @@ public final class Multisets {
   /** @see Multisets#forSet */
   private static class SetMultiset<E> extends ForwardingCollection<E>
       implements Multiset<E>, Serializable {
-    transient volatile Set<E> elementSet;
-    transient volatile Set<Entry<E>> entrySet;
-
+    final Set<E> delegate;
+    
     SetMultiset(Set<E> set) {
-      super(set);
+      delegate = checkNotNull(set);
     }
 
     @Override protected Set<E> delegate() {
-      return (Set<E>) super.delegate();
+      return delegate;
     }
 
     public int count(Object element) {
-      return delegate().contains(element) ? 1 : 0;
+      return delegate.contains(element) ? 1 : 0;
     }
 
     public boolean add(E element, int occurrences) {
@@ -374,21 +304,21 @@ public final class Multisets {
     }
 
     public int removeAllOccurrences(Object element) {
-      return delegate().remove(element) ? 1 : 0;
+      return delegate.remove(element) ? 1 : 0;
     }
 
+    transient Set<E> elementSet;
+    
     public Set<E> elementSet() {
-      if (elementSet == null) {
-        elementSet = new ElementSet();
-      }
-      return elementSet;
+      Set<E> es = elementSet;
+      return (es == null) ? elementSet = new ElementSet() : es;
     }
 
+    transient Set<Entry<E>> entrySet;
+    
     public Set<Entry<E>> entrySet() {
-      if (entrySet == null) {
-        entrySet = new EntrySet();
-      }
-      return entrySet;
+      Set<Entry<E>> es = entrySet;
+      return (es == null) ? entrySet = new EntrySet() : es;
     }
 
     @Override public boolean add(E o) {
@@ -403,11 +333,11 @@ public final class Multisets {
       if (o == this) {
         return true;
       }
-      if (!(o instanceof Multiset<?>)) {
+      if (!(o instanceof Multiset)) {
         return false;
       }
       Multiset<?> m = (Multiset<?>) o;
-      return size() == m.size() && delegate().equals(m.elementSet());
+      return size() == m.size() && delegate.equals(m.elementSet());
     }
 
     @Override public int hashCode() {
@@ -419,9 +349,9 @@ public final class Multisets {
     }
 
     /** @see SetMultiset#elementSet */
-    class ElementSet extends NonSerializableForwardingSet<E> {
-      ElementSet() {
-        super(SetMultiset.this.delegate());
+    class ElementSet extends ForwardingSet<E> {
+      @Override protected Set<E> delegate() {
+        return delegate;
       }
 
       @Override public boolean add(E o) {
@@ -436,11 +366,14 @@ public final class Multisets {
     /** @see SetMultiset#entrySet */
     class EntrySet extends AbstractSet<Entry<E>> {
       @Override public int size() {
-        return delegate().size();
+        return delegate.size();
+      }
+      @Override public boolean retainAll(Collection<?> c) {
+        return super.retainAll(checkNotNull(c));
       }
       @Override public Iterator<Entry<E>> iterator() {
         return new Iterator<Entry<E>>() {
-          final Iterator<E> elements = delegate().iterator();
+          final Iterator<E> elements = delegate.iterator();
 
           public boolean hasNext() {
             return elements.hasNext();
@@ -453,9 +386,10 @@ public final class Multisets {
           }
         };
       }
-      // TODO: faster contains, remove?
+      // TODO: faster contains, remove
     }
-    private static final long serialVersionUID = 7787490547740866319L;
+    
+    private static final long serialVersionUID = 0;
   }
 
   /**
@@ -465,39 +399,10 @@ public final class Multisets {
    * of 11 is returned.
    */
   static int inferDistinctElements(Iterable<?> elements) {
-    if (elements instanceof Multiset<?>) {
+    if (elements instanceof Multiset) {
       return ((Multiset<?>) elements).elementSet().size();
     }
     return 11; // initial capacity will be rounded up to 16
-  }
-
-  /**
-   * Returns an immutable empty {@code Multiset}. Equivalent to {@link
-   * Multisets#emptyMultiset}, except that the returned multiset's
-   * {@code remove} methods throw an {@link UnsupportedOperationException}.
-   */
-  @SuppressWarnings("unchecked")
-  public static <E> Multiset<E> immutableMultiset() {
-    return (Multiset<E>) IMMUTABLE_EMPTY_MULTISET;
-  }
-
-  /**
-   * Returns an immutable {@code Multiset} containing the specified elements.
-   *
-   * <p>Unlike an <i>unmodifiable</i> multiset such as that returned by {@link
-   * Multisets#unmodifiableMultiset}, which provides a read-only view of an
-   * underlying multiset which may itself be mutable, an <i>immutable</i>
-   * multiset makes a copy of the original mappings, so that the returned
-   * multiset is <i>guaranteed</i> never to change. This is critical, for
-   * example, if the multiset is an element of a {@code HashSet} or a key in a
-   * {@code HashMap}.
-   *
-   * @param elements the elements that the returned multiset should contain
-   */
-  public static <E> Multiset<E> immutableMultiset(E... elements) {
-    return (elements.length == 0)
-        ? Multisets.<E>immutableMultiset()
-        : unmodifiableMultiset(newHashMultiset(elements));
   }
 
   /**
@@ -511,9 +416,9 @@ public final class Multisets {
    * (Warning: in this example, {@code Collections.max} throws
    * {@code NoSuchElementException} when {@code m} is empty.)
    *
-   * <p>The returned comparator is a view into the backing multiset, so the
-   * comparator's behavior will change if the backing multiset changes. This can
-   * be dangerous; for example, if the comparator is used by a {@code TreeSet}
+   * <p>The returned {@link Ordering} is a view into the backing multiset, so
+   * the ordering's behavior will change if the backing multiset changes. This
+   * can be dangerous; for example, if the ordering is used by a {@code TreeSet}
    * and the backing multiset changes, the behavior of the {@code TreeSet}
    * becomes undefined. Use a copy of the multiset to isolate against such
    * changes when necessary.
@@ -521,12 +426,12 @@ public final class Multisets {
    * @param multiset the multiset specifying the frequencies of the objects to
    *    compare
    */
-  public static <T> Comparator<T> frequencyOrder(Multiset<?> multiset) {
+  public static <T> Ordering<T> frequencyOrder(Multiset<?> multiset) {
     return new FrequencyOrder<T>(multiset);
   }
 
   /** @see Multisets#frequencyOrder(Multiset) */
-  private static class FrequencyOrder<T> implements SerializableComparator<T> {
+  private static class FrequencyOrder<T> extends Ordering<T> {
     final Multiset<?> multiset;
 
     FrequencyOrder(Multiset<?> multiset) {
@@ -540,7 +445,7 @@ public final class Multisets {
     }
 
     @Override public boolean equals(Object object) {
-      if (object instanceof FrequencyOrder<?>) {
+      if (object instanceof FrequencyOrder) {
         FrequencyOrder<?> that = (FrequencyOrder<?>) object;
         return (this.multiset).equals(that.multiset);
       }
@@ -551,6 +456,10 @@ public final class Multisets {
       return multiset.hashCode();
     }
 
-    private static final long serialVersionUID = -6424503578659119387L;
+    @Override public String toString() {
+      return "FrequencyOrder " + multiset;
+    }
+    
+    private static final long serialVersionUID = 0;
   }
 }

@@ -18,6 +18,9 @@ package com.google.common.collect;
 
 import com.google.common.base.Nullable;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -63,7 +66,7 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
    * Map entries with an iteration order corresponding to the order in which the
    * key-value pairs were added to the multimap.
    */
-  private final Collection<Map.Entry<K, V>> linkedEntries;
+  private transient Collection<Map.Entry<K, V>> linkedEntries;
 
   /** Constructs an empty {@code LinkedHashMultimap}. */
   public LinkedHashMultimap() {
@@ -81,8 +84,8 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
   public LinkedHashMultimap(Multimap<? extends K, ? extends V> multimap) {
     super(new LinkedHashMap<K, Collection<V>>(
         Maps.capacity(multimap.keySet().size())));
-    linkedEntries =
-        new LinkedHashSet<Map.Entry<K, V>>(Maps.capacity(multimap.size()));
+    linkedEntries
+        = new LinkedHashSet<Map.Entry<K, V>>(Maps.capacity(multimap.size()));
     putAll(multimap);
   }
 
@@ -113,17 +116,19 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
     return new SetDecorator(key, createCollection());
   }
 
-  // TODO: Extend NonSerializableForwardingSet after we switch to non-default
-  // LinkedHashMultimap serialization.
   private class SetDecorator extends ForwardingSet<V> {
+    final Set<V> delegate;
     final K key;
 
     SetDecorator(K key, Set<V> delegate) {
-      super(delegate);
+      this.delegate = delegate;
       this.key = key;
     }
 
-    @SuppressWarnings("unchecked")
+    @Override protected Set<V> delegate() {
+      return delegate;
+    }
+    
     <E> Map.Entry<K, E> createEntry(@Nullable E value) {
       return Maps.immutableEntry(key, value);
     }
@@ -139,7 +144,7 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
     }
 
     @Override public boolean add(@Nullable V value) {
-      boolean changed = super.add(value);
+      boolean changed = delegate.add(value);
       if (changed) {
         linkedEntries.add(createEntry(value));
       }
@@ -147,7 +152,7 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
     }
 
     @Override public boolean addAll(Collection<? extends V> values) {
-      boolean changed = super.addAll(values);
+      boolean changed = delegate.addAll(values);
       if (changed) {
         linkedEntries.addAll(createEntries(delegate()));
       }
@@ -156,11 +161,11 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
 
     @Override public void clear() {
       linkedEntries.removeAll(createEntries(delegate()));
-      super.clear();
+      delegate.clear();
     }
 
     @Override public Iterator<V> iterator() {
-      final Iterator<V> delegateIterator = super.iterator();
+      final Iterator<V> delegateIterator = delegate.iterator();
       return new Iterator<V>() {
         V value;
 
@@ -179,7 +184,7 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
     }
 
     @Override public boolean remove(@Nullable Object value) {
-      boolean changed = super.remove(value);
+      boolean changed = delegate.remove(value);
       if (changed) {
         /*
          * linkedEntries.remove() will return false when this method is called
@@ -191,7 +196,7 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
     }
 
     @Override public boolean removeAll(Collection<?> values) {
-      boolean changed = super.removeAll(values);
+      boolean changed = delegate.removeAll(values);
       if (changed) {
         linkedEntries.removeAll(createEntries(values));
       }
@@ -204,7 +209,7 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
        * with other keys.
        */
       boolean changed = false;
-      Iterator<V> iterator = super.iterator();
+      Iterator<V> iterator = delegate.iterator();
       while (iterator.hasNext()) {
         V value = iterator.next();
         if (!values.contains(value)) {
@@ -284,5 +289,38 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
     return super.values();
   }
 
-  private static final long serialVersionUID = -7860829607800920333L;
+  // Unfortunately, the entries() ordering does not determine the key ordering;
+  // see the example in the LinkedListMultimap class Javadoc.
+  
+  /**
+   * @serialData the number of distinct keys, and then for each distinct key:
+   *     the first key, the number of values for that key, and the key's values,
+   *     followed by successive keys and values from the entries() ordering  
+   */
+  private void writeObject(ObjectOutputStream stream) throws IOException {
+    stream.defaultWriteObject();
+    Serialization.writeMultimap(this, stream);
+    for (Map.Entry<K, V> entry : linkedEntries) {
+      stream.writeObject(entry.getKey());
+      stream.writeObject(entry.getValue());
+    }
+  }
+  
+  private void readObject(ObjectInputStream stream)
+      throws IOException, ClassNotFoundException {
+    stream.defaultReadObject();
+    setMap(new LinkedHashMap<K, Collection<V>>());
+    linkedEntries = Sets.newLinkedHashSet();
+    Serialization.populateMultimap(this, stream);
+    linkedEntries.clear(); // will clear and repopulate entries
+    for (int i = 0; i < size(); i++) {
+      @SuppressWarnings("unchecked") // reading data stored by writeObject
+      K key = (K) stream.readObject();
+      @SuppressWarnings("unchecked") // reading data stored by writeObject
+      V value = (V) stream.readObject();
+      linkedEntries.add(Maps.immutableEntry(key, value));
+    }
+  }
+  
+  private static final long serialVersionUID = 0;  
 }

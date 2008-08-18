@@ -18,15 +18,17 @@ package com.google.common.base;
 
 /**
  * A class that can supply objects of a single type.  Semantically, this could
- * be a Factory, Generator, Builder, Closure, or something else entirely. No
+ * be a factory, generator, builder, closure, or something else entirely. No
  * guarantees are implied by this interface.
  *
  * @author Harry Heymann
  */
 public interface Supplier<T> {
   /**
-   * Retrieve an instance of the appropriate type. The returned object may or
+   * Retrieves an instance of the appropriate type. The returned object may or
    * may not be a new instance, depending on the implementation.
+   * 
+   * @return an instance of the appropriate type
    */
   public T get();
 }

@@ -59,6 +59,9 @@ public final class PrimitiveArrays {
       return (o == null) ? -1 : super.lastIndexOf(o);
     }    
   }  
+
+  // TODO: Enhance the to*Array methods to support concurrent collections whose
+  // size changes while the method is running.  
   
   /**
    * Converts a collection of {@code Short} instances into a new array of

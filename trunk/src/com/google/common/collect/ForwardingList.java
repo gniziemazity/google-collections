@@ -25,23 +25,17 @@ import java.util.ListIterator;
  * override one or more methods to modify the behavior of the backing list as
  * desired per the <a
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
+ * 
+ * <p>This class does not implement {@link java.util.RandomAccess}. If the
+ * delegate supports random access, the {@code ForwadingList} subclass should
+ * implement the {@code RandomAccess} interface.
  *
  * @author Mike Bostock
  */
 public abstract class ForwardingList<E> extends ForwardingCollection<E>
     implements List<E> {
 
-  /**
-   * Constructs a forwarding list that forwards to the provided delegate.
-   */
-  protected ForwardingList(List<E> delegate) {
-    super(delegate);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override protected List<E> delegate() {
-    return (List<E>) super.delegate();
-  }
+  @Override protected abstract List<E> delegate();
 
   public void add(int index, E element) {
     delegate().add(index, element);
@@ -84,7 +78,7 @@ public abstract class ForwardingList<E> extends ForwardingCollection<E>
   }
 
   @Override public boolean equals(Object obj) {
-    return delegate().equals(obj);
+    return (this == obj) || delegate().equals(obj);
   }
 
   @Override public int hashCode() {

@@ -18,6 +18,8 @@ package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Comparator;
@@ -30,14 +32,9 @@ import java.util.Set;
 import java.util.SortedSet;
 
 /**
- * Synchronized collection views. This class is package-private because it is
- * intended for use only by other synchronized wrappers within this package. It
- * does not represent a complete set of synchronized wrappers. Also, it's easy
- * to misuse.
+ * Synchronized collection views. The returned synchronized collection views are
+ * serializable if the backing collection and the mutex are serializable.
  *
- * <p>The returned synchronized collection views are serializable if the backing
- * collection and the mutex are serializable.
- * 
  * <p>If a {@code null} is passed as the {@code mutex} parameter to any of this
  * class's top-level methods or inner class constructors, the created object
  * uses itself as the synchronization mutex.
@@ -61,12 +58,18 @@ final class Synchronized {
     protected Object delegate() {
       return delegate;
     }
-    
+
     // No equals and hashCode; see ForwardingObject for details.
 
     @Override public String toString() {
       synchronized (mutex) {
         return delegate.toString();
+      }
+    }
+
+    protected void writeObject(ObjectOutputStream stream) throws IOException {
+      synchronized (mutex) {
+        stream.defaultWriteObject();
       }
     }
 
@@ -107,12 +110,12 @@ final class Synchronized {
     public SynchronizedCollection(Collection<E> delegate, Object mutex) {
       super(delegate, mutex);
     }
-    
+
     @SuppressWarnings("unchecked")
     @Override protected Collection<E> delegate() {
       return (Collection<E>) super.delegate();
     }
-    
+
     public boolean add(E e) {
       synchronized (mutex) {
         return delegate().add(e);
@@ -228,7 +231,7 @@ final class Synchronized {
 
     @Override protected Set<E> delegate() {
       return (Set<E>) super.delegate();
-    }    
+    }
 
     @Override public boolean equals(Object o) {
       if (o == this) {
@@ -285,7 +288,7 @@ final class Synchronized {
 
     @Override protected SortedSet<E> delegate() {
       return (SortedSet<E>) super.delegate();
-    }    
+    }
 
     public Comparator<? super E> comparator() {
       synchronized (mutex) {
@@ -367,7 +370,7 @@ final class Synchronized {
 
     @Override protected List<E> delegate() {
       return (List<E>) super.delegate();
-    }    
+    }
 
     public void add(int index, E element) {
       synchronized (mutex) {
@@ -483,8 +486,8 @@ final class Synchronized {
   /** @see Synchronized#multiset */
   static class SynchronizedMultiset<E> extends SynchronizedCollection<E>
       implements Multiset<E> {
-   private transient volatile Set<E> elementSet;
-    private transient volatile Set<Entry<E>> entrySet;
+    private transient Set<E> elementSet;
+    private transient Set<Entry<E>> entrySet;
 
     public SynchronizedMultiset(Multiset<E> delegate, Object mutex) {
       super(delegate, mutex);
@@ -492,7 +495,7 @@ final class Synchronized {
 
     @Override protected Multiset<E> delegate() {
       return (Multiset<E>) super.delegate();
-    }    
+    }
 
     public int count(Object o) {
       synchronized (mutex) {
@@ -588,16 +591,16 @@ final class Synchronized {
   /** @see Synchronized#multimap */
   private static class SynchronizedMultimap<K, V> extends SynchronizedObject
       implements Multimap<K, V> {
-    transient volatile Set<K> keySet;
-    transient volatile Collection<V> valuesCollection;
-    transient volatile Collection<Map.Entry<K, V>> entries;
-    transient volatile Map<K, Collection<V>> asMap;
-    transient volatile Multiset<K> keys;
+    transient Set<K> keySet;
+    transient Collection<V> valuesCollection;
+    transient Collection<Map.Entry<K, V>> entries;
+    transient Map<K, Collection<V>> asMap;
+    transient Multiset<K> keys;
 
     @SuppressWarnings("unchecked")
     @Override protected Multimap<K, V> delegate() {
       return (Multimap<K, V>) super.delegate();
-    }    
+    }
 
     SynchronizedMultimap(Multimap<K, V> delegate, Object mutex) {
       super(delegate, mutex);
@@ -645,15 +648,15 @@ final class Synchronized {
       }
     }
 
-    public void putAll(K key, Iterable<? extends V> values) {
+    public boolean putAll(K key, Iterable<? extends V> values) {
       synchronized (mutex) {
-        delegate().putAll(key, values);
+        return delegate().putAll(key, values);
       }
     }
 
-    public void putAll(Multimap<? extends K, ? extends V> multimap) {
+    public boolean putAll(Multimap<? extends K, ? extends V> multimap) {
       synchronized (mutex) {
-        delegate().putAll(multimap);
+        return delegate().putAll(multimap);
       }
     }
 
@@ -747,7 +750,7 @@ final class Synchronized {
   /**
    * Returns a synchronized (thread-safe) list multimap backed by the specified
    * multimap using the specified mutex.
-   * 
+   *
    * <p>You must follow the warnings described for {@link #multimap}.
    *
    * @param multimap the multimap to be wrapped in a synchronized view
@@ -766,7 +769,7 @@ final class Synchronized {
     }
     @Override protected ListMultimap<K, V> delegate() {
       return (ListMultimap<K, V>) super.delegate();
-    }    
+    }
     @Override public List<V> get(K key) {
       synchronized (mutex) {
         return list(delegate().get(key), mutex);
@@ -774,24 +777,24 @@ final class Synchronized {
     }
     @Override public List<V> removeAll(Object key) {
       synchronized (mutex) {
-        return list(delegate().removeAll(key), mutex);
+        return delegate().removeAll(key); // copy not synchronized
       }
     }
     @Override public List<V> replaceValues(
         K key, Iterable<? extends V> values) {
       synchronized (mutex) {
-        return list(delegate().replaceValues(key, values), mutex);
+        return delegate().replaceValues(key, values); // copy not synchronized
       }
     }
-    private static final long serialVersionUID = 0;    
+    private static final long serialVersionUID = 0;
   }
-  
+
   /**
    * Returns a synchronized (thread-safe) set multimap backed by the specified
    * multimap using the specified mutex.
-   * 
+   *
    * <p>You must follow the warnings described for {@link #multimap}.
-   * 
+   *
    * @param multimap the multimap to be wrapped in a synchronized view
    * @return a synchronized view of the specified multimap
    */
@@ -803,12 +806,13 @@ final class Synchronized {
   /** @see Synchronized#setMultimap */
   private static class SynchronizedSetMultimap<K, V>
       extends SynchronizedMultimap<K, V> implements SetMultimap<K, V> {
+    transient Set<Map.Entry<K, V>> entrySet;
     SynchronizedSetMultimap(SetMultimap<K, V> delegate, Object mutex) {
       super(delegate, mutex);
     }
     @Override protected SetMultimap<K, V> delegate() {
       return (SetMultimap<K, V>) super.delegate();
-    }    
+    }
     @Override public Set<V> get(K key) {
       synchronized (mutex) {
         return set(delegate().get(key), mutex);
@@ -816,27 +820,30 @@ final class Synchronized {
     }
     @Override public Set<V> removeAll(Object key) {
       synchronized (mutex) {
-        return set(delegate().removeAll(key), mutex);
+        return delegate().removeAll(key); // copy not synchronized
       }
     }
     @Override public Set<V> replaceValues(
         K key, Iterable<? extends V> values) {
       synchronized (mutex) {
-        return set(delegate().replaceValues(key, values), mutex);
+        return delegate().replaceValues(key, values); // copy not synchronized
       }
     }
     @Override public Set<Map.Entry<K, V>> entries() {
       synchronized (mutex) {
-        return set(delegate().entries(), mutex);
+        if (entrySet == null) {
+          entrySet = set(delegate().entries(), mutex);
+        }
+        return entrySet;
       }
     }
-    private static final long serialVersionUID = 0;    
+    private static final long serialVersionUID = 0;
   }
-  
+
   /**
    * Returns a synchronized (thread-safe) sorted set multimap backed by the
    * specified multimap using the specified mutex.
-   * 
+   *
    * <p>You must follow the warnings described for {@link #multimap}.
    *
    * @param multimap the multimap to be wrapped in a synchronized view
@@ -856,7 +863,7 @@ final class Synchronized {
     }
     @Override protected SortedSetMultimap<K, V> delegate() {
       return (SortedSetMultimap<K, V>) super.delegate();
-    }    
+    }
     @Override public SortedSet<V> get(K key) {
       synchronized (mutex) {
         return sortedSet(delegate().get(key), mutex);
@@ -864,13 +871,13 @@ final class Synchronized {
     }
     @Override public SortedSet<V> removeAll(Object key) {
       synchronized (mutex) {
-        return sortedSet(delegate().removeAll(key), mutex);
+        return delegate().removeAll(key); // copy not synchronized
       }
     }
     @Override public SortedSet<V> replaceValues(
         K key, Iterable<? extends V> values) {
       synchronized (mutex) {
-        return sortedSet(delegate().replaceValues(key, values), mutex);
+        return delegate().replaceValues(key, values); // copy not synchronized
       }
     }
     public Comparator<? super V> valueComparator() {
@@ -878,9 +885,9 @@ final class Synchronized {
         return delegate().valueComparator();
       }
     }
-    private static final long serialVersionUID = 0;    
+    private static final long serialVersionUID = 0;
   }
-  
+
   /**
    * Returns a synchronized (thread-safe) collection backed by the specified
    * collection using the specified mutex. In order to guarantee serial access,
@@ -911,11 +918,11 @@ final class Synchronized {
    */
   private static <E> Collection<E> typePreservingCollection(
       Collection<E> collection, Object mutex) {
-    if (collection instanceof SortedSet<?>) {
+    if (collection instanceof SortedSet) {
       return sortedSet((SortedSet<E>) collection, mutex);
-    } else if (collection instanceof Set<?>) {
+    } else if (collection instanceof Set) {
       return set((Set<E>) collection, mutex);
-    } else if (collection instanceof List<?>) {
+    } else if (collection instanceof List) {
       return list((List<E>) collection, mutex);
     } else {
       return collection(collection, mutex);
@@ -950,7 +957,7 @@ final class Synchronized {
    * @return a synchronized view of the specified set
    */
   public static <E> Set<E> typePreservingSet(Set<E> set, Object mutex) {
-    if (set instanceof SortedSet<?>) {
+    if (set instanceof SortedSet) {
       return sortedSet((SortedSet<E>) set, mutex);
     } else {
       return set(set, mutex);
@@ -966,29 +973,37 @@ final class Synchronized {
     }
 
     @Override public Iterator<Map.Entry<K, Collection<V>>> iterator() {
+      final Iterator<Map.Entry<K, Collection<V>>> iterator = super.iterator();
       // The iterator and entry aren't synchronized, but the entry value is.
-      return new ForwardingIterator<Map.Entry<K, Collection<V>>>(
-          super.iterator()) {
+      return new ForwardingIterator<Map.Entry<K, Collection<V>>>() {
+        @Override protected Iterator<Map.Entry<K, Collection<V>>> delegate() {
+          return iterator;
+        }
+        
         @Override public Map.Entry<K, Collection<V>> next() {
-          return new ForwardingMapEntry<K, Collection<V>>(super.next()) {
+          final Map.Entry<K, Collection<V>> entry = iterator.next();
+          return new ForwardingMapEntry<K, Collection<V>>() {
+            @Override protected Map.Entry<K, Collection<V>> delegate() {
+              return entry;
+            }
             @Override public Collection<V> getValue() {
-              return typePreservingCollection(super.getValue(), mutex);
+              return typePreservingCollection(entry.getValue(), mutex);
             }
           };
         }
       };
     }
 
-    // See Collections.CheckedEntrySet for details on attacks.
+    // See Collections.CheckedMap.CheckedEntrySet for details on attacks.
 
     @Override public Object[] toArray() {
       synchronized (mutex) {
-        return ForwardingCollection.toArrayImpl(delegate());
+        return ObjectArrays.toArrayImpl(delegate());
       }
     }
     @Override public <T> T[] toArray(T[] array) {
       synchronized (mutex) {
-        return ForwardingCollection.toArrayImpl(delegate(), array);
+        return ObjectArrays.toArrayImpl(delegate(), array);
       }
     }
     @Override public boolean contains(Object o) {
@@ -998,7 +1013,7 @@ final class Synchronized {
     }
     @Override public boolean containsAll(Collection<?> c) {
       synchronized (mutex) {
-        return ForwardingCollection.containsAllImpl(delegate(), c);
+        return Collections2.containsAll(delegate(), c);
       }
     }
     @Override public boolean equals(Object o) {
@@ -1006,7 +1021,7 @@ final class Synchronized {
         return true;
       }
       synchronized (mutex) {
-        return ForwardingSet.equalsImpl(delegate(), o);
+        return Sets.equalsImpl(delegate(), o);
       }
     }
     @Override public boolean remove(Object o) {
@@ -1016,12 +1031,12 @@ final class Synchronized {
     }
     @Override public boolean removeAll(Collection<?> c) {
       synchronized (mutex) {
-        return ForwardingCollection.removeAllImpl(delegate(), c);
+        return Iterators.removeAll(delegate().iterator(), c);
       }
     }
     @Override public boolean retainAll(Collection<?> c) {
       synchronized (mutex) {
-        return ForwardingCollection.retainAllImpl(delegate(), c);
+        return Iterators.retainAll(delegate().iterator(), c);
       }
     }
 
@@ -1061,9 +1076,9 @@ final class Synchronized {
   /** @see Synchronized#map */
   static class SynchronizedMap<K, V> extends SynchronizedObject
       implements Map<K, V> {
-    private transient volatile Set<K> keySet;
-    private transient volatile Collection<V> values;
-    private transient volatile Set<Map.Entry<K, V>> entrySet;
+    private transient Set<K> keySet;
+    private transient Collection<V> values;
+    private transient Set<Map.Entry<K, V>> entrySet;
 
     public SynchronizedMap(Map<K, V> delegate, Object mutex) {
       super(delegate, mutex);
@@ -1073,7 +1088,7 @@ final class Synchronized {
     @Override protected Map<K, V> delegate() {
       return (Map<K, V>) super.delegate();
     }
-    
+
     public void clear() {
       synchronized (mutex) {
         delegate().clear();
@@ -1155,12 +1170,6 @@ final class Synchronized {
       }
     }
 
-    @Override public String toString() {
-      synchronized (mutex) {
-        return delegate().toString();
-      }
-    }
-
     @Override public boolean equals(Object o) {
       if (o == this) {
         return true;
@@ -1212,8 +1221,8 @@ final class Synchronized {
   /** @see Synchronized#biMap */
   static class SynchronizedBiMap<K, V> extends SynchronizedMap<K, V>
       implements BiMap<K, V>, Serializable {
-    private transient volatile Set<V> valueSet;
-    private transient volatile BiMap<V, K> inverse;
+    private transient Set<V> valueSet;
+    private transient BiMap<V, K> inverse;
 
     public SynchronizedBiMap(
         BiMap<K, V> delegate, Object mutex, BiMap<V, K> inverse) {
@@ -1224,7 +1233,7 @@ final class Synchronized {
     @Override protected BiMap<K, V> delegate() {
       return (BiMap<K, V>) super.delegate();
     }
-    
+
     @Override public Set<V> values() {
       synchronized (mutex) {
         if (valueSet == null) {
@@ -1256,8 +1265,8 @@ final class Synchronized {
   /** @see SynchronizedMultimap#asMap */
   static class SynchronizedAsMap<K, V>
       extends SynchronizedMap<K, Collection<V>> {
-    private transient volatile Set<Map.Entry<K, Collection<V>>> asMapEntrySet;
-    private transient volatile Collection<Collection<V>> asMapValues;
+    private transient Set<Map.Entry<K, Collection<V>>> asMapEntrySet;
+    private transient Collection<Collection<V>> asMapValues;
 
     public SynchronizedAsMap(Map<K, Collection<V>> delegate, Object mutex) {
       super(delegate, mutex);
@@ -1266,8 +1275,8 @@ final class Synchronized {
     @Override public Collection<V> get(Object key) {
       synchronized (mutex) {
         Collection<V> collection = super.get(key);
-        return (collection == null) ? null :
-            typePreservingCollection(collection, mutex);
+        return (collection == null) ? null
+            : typePreservingCollection(collection, mutex);
       }
     }
 
@@ -1303,48 +1312,52 @@ final class Synchronized {
 
     @Override public Iterator<Collection<V>> iterator() {
       // The iterator isn't synchronized, but its value is.
-      return new ForwardingIterator<Collection<V>>(super.iterator()) {
+      final Iterator<Collection<V>> iterator = super.iterator();
+      return new ForwardingIterator<Collection<V>>() {
+        @Override protected Iterator<Collection<V>> delegate() {
+          return iterator;
+        }
         @Override public Collection<V> next() {
-          return typePreservingCollection(super.next(), mutex);
+          return typePreservingCollection(iterator.next(), mutex);
         }
       };
     }
 
-    // See Collections.CheckedEntrySet for details on attacks.
-    
+    // See Collections.CheckedMap.CheckedEntrySet for details on attacks.
+
     @Override public Object[] toArray() {
       synchronized (mutex) {
-        return ForwardingCollection.toArrayImpl(delegate());
+        return ObjectArrays.toArrayImpl(delegate());
       }
     }
     @Override public <T> T[] toArray(T[] array) {
       synchronized (mutex) {
-        return ForwardingCollection.toArrayImpl(delegate(), array);
+        return ObjectArrays.toArrayImpl(delegate(), array);
       }
     }
     @Override public boolean contains(Object o) {
       synchronized (mutex) {
-        return ForwardingCollection.containsImpl(delegate(), o);
+        return Iterators.contains(delegate().iterator(), o);
       }
     }
     @Override public boolean containsAll(Collection<?> c) {
       synchronized (mutex) {
-        return ForwardingCollection.containsAllImpl(delegate(), c);
+        return Collections2.containsAll(delegate(), c);
       }
     }
     @Override public boolean remove(Object o) {
       synchronized (mutex) {
-        return ForwardingCollection.removeImpl(delegate(), o);
+        return Iterables.remove(delegate(), o);
       }
     }
     @Override public boolean removeAll(Collection<?> c) {
       synchronized (mutex) {
-        return ForwardingCollection.removeAllImpl(delegate(), c);
+        return Iterators.removeAll(delegate().iterator(), c);
       }
     }
     @Override public boolean retainAll(Collection<?> c) {
       synchronized (mutex) {
-        return ForwardingCollection.retainAllImpl(delegate(), c);
+        return Iterators.retainAll(delegate().iterator(), c);
       }
     }
 

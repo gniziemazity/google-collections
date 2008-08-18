@@ -23,26 +23,15 @@ import java.util.ListIterator;
  * iterator. Subclasses should override one or more methods to modify the
  * behavior of the backing iterator as desired per the <a
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
- *
+ * 
  * @see ForwardingObject
  * @author Mike Bostock
  */
 public abstract class ForwardingListIterator<E> extends ForwardingIterator<E>
     implements ListIterator<E> {
 
-  /**
-   * Constructs a forwarding list iterator that forwards to the provided
-   * delegate.
-   */
-  protected ForwardingListIterator(ListIterator<E> delegate) {
-    super(delegate);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override protected ListIterator<E> delegate() {
-    return (ListIterator<E>) super.delegate();
-  }
-
+  @Override protected abstract ListIterator<E> delegate();
+  
   public void add(E element) {
     delegate().add(element);
   }

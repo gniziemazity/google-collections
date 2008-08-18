@@ -18,8 +18,9 @@ package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import java.io.InvalidObjectException;
+import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,10 +30,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author Jared Levy
  */
-@SuppressWarnings("serial") // we're overriding default serialization
 public final class EnumMultiset<E extends Enum<E>>
     extends AbstractMapBasedMultiset<E> {
-  private final Class<E> type;
+  private transient Class<E> type;
   
   /** Creates an empty {@code EnumMultiset}. */
   public EnumMultiset(Class<E> type) {
@@ -65,25 +65,26 @@ public final class EnumMultiset<E extends Enum<E>>
     return iterator.next().getDeclaringClass();
   }
 
-  private static class SerializedForm<E extends Enum<E>>
-      extends MultisetSerializedForm<E> {
-    private final Class<E> type;    
-    SerializedForm(EnumMultiset<E> multiset) {
-      super(multiset);
-      this.type = multiset.type;
-    }
-    @Override protected Multiset<E> createEmpty() {
-      return new EnumMultiset<E>(type);
-    }
-    private static final long serialVersionUID = 0;
+  private void writeObject(ObjectOutputStream stream) throws IOException {
+    stream.defaultWriteObject();
+    stream.writeObject(type);
+    Serialization.writeMultiset(this, stream);
   }
-
+  
+  /**
+   * @serialData the {@code Class<E>} for the enum type, the number of distinct
+   *    elements, the first element, its count, the second element, its count,
+   *    and so on
+   */
   private void readObject(ObjectInputStream stream)
-      throws InvalidObjectException {
-    throw new InvalidObjectException("Use SerializedForm");
-  }
-
-  private Object writeReplace() {
-    return new SerializedForm<E>(this);
-  }
+      throws IOException, ClassNotFoundException {
+    stream.defaultReadObject();
+    @SuppressWarnings("unchecked") // reading data stored by writeObject
+    Class<E> localType = (Class<E>) stream.readObject();
+    type = localType;
+    setBackingMap(new EnumMap<E, AtomicInteger>(type));
+    Serialization.populateMultiset(this, stream);
+  }  
+  
+  private static final long serialVersionUID = 0;  
 }
