@@ -1,0 +1,11 @@
+= Release 0.7 (snapshot 20080530) =
+
+= Release 0.6 (snapshot 20080321) =
+
+= Release 0.5 (snapshot 20071022) =
+
+*Initial release*
+
+[http://google-collections.googlecode.com/files/google-collect-snapshot-20071022.zip Download]
+
+[http://repo1.maven.org/maven2/com/google/code/google-collections/google-collect/snapshot-20071022/ Maven bundle]
