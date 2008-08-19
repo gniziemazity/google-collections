@@ -30,7 +30,7 @@
 
  * Removed Functions.TRIM_STRING and trimString()
  * Removed Objects method deepEquals(), deepHashCode(), deepToString(), and nonNull()
- * Removed classes ImmutableBiMapBuilder, ImmtuableMultimapBuilder, and LinkedListMultimap
+ * Removed classes ImmutableBiMapBuilder, ImmutableMultimapBuilder, and LinkedListMultimap
  * Removed interface SerializableComparator
  * Removed constructor ConcurrentMultiset(ConcurrentMap)
  * Removed constructors EnumBiMap(EnumBiMap) and EnumHashBiMap(EnumHashBiMap), 
