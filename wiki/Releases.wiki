@@ -15,10 +15,10 @@
  * Added Comparators.toStringOrder()
  * Added Constraints.notNull()
  * Added HashMultiset.create() methods
- * Added ImmutableList.of() methods taking 2-5 parameters and ImmutableList.copyOf()
- * Added ImmutableSet.copyOf()
+ * Added ImmutableList.of() methods taking 2-5 parameters and ImmutableList.copyOf(Iterator)
+ * Added ImmutableSet.copyOf(Iterator)
  * ImmutableSortedSet now extends ImmutableSet
- * Added ImmutableSet.orderedBy() and reverseOrder()
+ * Added ImmutableSortedSet.orderedBy() and reverseOrder()
  * Added contains(), containsNull(), removeAll() and retainAll() methods to Iterables and Iterators
  * Added Sets.filter()
  * Widespread Javadoc improvements
