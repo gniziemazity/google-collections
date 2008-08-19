@@ -39,6 +39,10 @@
  * Removed Multimaps.immutableMultimap() methods
  * Removed Multisets methods emptyMultiset() and immutableMultiset()
 
+[http://google-collections.googlecode.com/files/google-collect-snapshot-20080818.zip Download]
+
+Maven bundle coming soon
+
 = Release 0.7 (snapshot 20080530) =
 
 ==New functionality==
