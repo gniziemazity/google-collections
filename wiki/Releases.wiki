@@ -1,4 +1,4 @@
-= Release 0.8 (snapshot 20080818) =
+= Release 0.8 (snapshot 20080820) =
 
 ==Added classes==
 
@@ -39,7 +39,7 @@
  * Removed Multimaps.immutableMultimap() methods
  * Removed Multisets methods emptyMultiset() and immutableMultiset()
 
-[http://google-collections.googlecode.com/files/google-collect-snapshot-20080818.zip Download]
+[http://google-collections.googlecode.com/files/google-collect-snapshot-20080820.zip Download]
 
 Maven bundle coming soon
 
