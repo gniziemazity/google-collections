@@ -41,7 +41,7 @@
 
 [http://google-collections.googlecode.com/files/google-collect-snapshot-20080820.zip Download]
 
-Maven bundle coming soon
+[http://code.google.com/p/google-maven-repository/source/browse/#svn/repository/com/google/collections/google-collections/0.8 Maven bundle]
 
 = Release 0.7 (snapshot 20080530) =
 
