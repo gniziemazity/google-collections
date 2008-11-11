@@ -24,12 +24,22 @@ import java.lang.ref.PhantomReference;
  * referent. This is a simpler alternative to using a {@link
  * java.lang.ref.ReferenceQueue}.
  *
+ * <p>Unlike a normal phantom reference, this reference will be cleared
+ * automatically.
+ *
  * @author Bob Lee
  */
 public abstract class FinalizablePhantomReference<T>
     extends PhantomReference<T> implements FinalizableReference {
 
-  protected FinalizablePhantomReference(T referent) {
-    super(referent, FinalizableReferenceQueue.getInstance());
+  /**
+   * Constructs a new finalizable phantom reference.
+   *
+   * @param referent to phantom reference
+   * @param queue that should finalize the referent
+   */
+  protected FinalizablePhantomReference(T referent,
+      FinalizableReferenceQueue queue) {
+    super(referent, queue.queue);
   }
 }
