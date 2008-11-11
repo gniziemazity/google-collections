@@ -16,18 +16,20 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.FinalizableSoftReference;
-import com.google.common.base.FinalizableWeakReference;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+
+import com.google.common.base.FinalizableSoftReference;
+import com.google.common.base.FinalizableWeakReference;
+import com.google.common.base.Nullable;
 import com.google.common.base.ReferenceType;
+import com.google.common.base.FinalizableReferenceQueue;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.ref.Reference;
-import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
@@ -47,7 +49,7 @@ import java.util.concurrent.ConcurrentMap;
  * <p>All nine possible combinations of reference types are supported, although
  * using strong keys with strong values provides no benefit over using a {@code
  * Map} or {@code ConcurrentMap} directly. This implementation does not permit
- * null keys or values.
+ * null keys or values. 
  *
  * <p><b>Note:</b> because garbage collection happens concurrently to your
  * program, it follows that this map is always subject to concurrent
@@ -71,41 +73,53 @@ import java.util.concurrent.ConcurrentMap;
  * only identity-based equality for keys. When possible, {@code ReferenceMap}
  * should be preferred over the JDK collection, for its concurrency and greater
  * flexibility.
- *
+ * 
  * <p>Though this class implements {@link Serializable}, serializing reference
  * maps with weak or soft references leads to unpredictable results.
  *
  * @author Bob Lee
  * @author Kevin Bourrillion
+ * @author Charles Fry
  */
-public final class ReferenceMap<K, V> extends AbstractMap<K, V>
+// TODO: make final
+public class ReferenceMap<K, V> extends NpeThrowingAbstractMap<K, V>
     implements ConcurrentMap<K, V>, Serializable {
   private final ReferenceStrategy keyStrategy;
   private final ReferenceStrategy valueStrategy;
 
-  /*
+  /**
    * The keys in this map are either of type K, SoftReference<K>, or
    * WeakReference<K>, depending on the chosen keyReferenceType; and likewise
    * for the values.
    */
-  private transient ConcurrentMap<Object, Object> delegate;
-
+  // TODO: make private
+  transient ConcurrentMap<Object, Object> delegate;
+  private transient final boolean customBackingMap;
+  
   /**
    * Constructs an empty instance, using the given reference types for keys and
-   * values.
+   * values. It stores the underlying data in a threadsafe map. The returned
+   * instance is serializable.
    */
   public ReferenceMap(
       ReferenceType keyReferenceType, ReferenceType valueReferenceType) {
     this(keyReferenceType, valueReferenceType,
-        new ConcurrentHashMap<Object, Object>());
+        new ConcurrentHashMap<Object, Object>(), false);
   }
 
   /**
    * Constructs an empty instance, using the given backing map and the given
-   * reference types for keys and values.
+   * reference types for keys and values. The returned instance is not
+   * serializable.
    */
   public ReferenceMap(ReferenceType keyReferenceType, ReferenceType
       valueReferenceType, ConcurrentMap<Object, Object> backingMap) {
+    this(keyReferenceType, valueReferenceType, backingMap, true);    
+  }
+  
+  private ReferenceMap(ReferenceType keyReferenceType, ReferenceType
+      valueReferenceType, ConcurrentMap<Object, Object> backingMap,
+      boolean customDelegate) {
     checkArgument(keyReferenceType != ReferenceType.PHANTOM,
         "Phantom references are not supported.");
     checkArgument(valueReferenceType != ReferenceType.PHANTOM,
@@ -115,13 +129,14 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
     keyStrategy = ReferenceStrategy.forType(keyReferenceType);
     valueStrategy = ReferenceStrategy.forType(valueReferenceType);
     delegate = backingMap;
+    this.customBackingMap = customDelegate;
   }
- 
+  
   /*
    * Specifying Javadoc for many classes so the AbstractMap Javadoc, which
    * includes incorrect implementation details, is not displayed.
    */
-
+  
   // Query Operations
 
   /**
@@ -159,7 +174,7 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
     }
     return false;
   }
-
+  
   /**
    * Returns the value to which the specified key is mapped, or {@code null} if
    * this map contains no mapping for the key.
@@ -176,101 +191,142 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
    * Associates the specified value with the specified key in this map.
    */
   @Override public V put(K key, V value) {
-    Object keyReference = referenceKey(key);
-    Object valueReference = referenceValue(keyReference, value);
-    return dereferenceValue(delegate.put(keyReference, valueReference));
+    return executeWrite(putStrategy(), key, value); // TODO: inline
   }
 
   public V putIfAbsent(K key, V value) {
-    Object keyReference = referenceKey(key);
-    Object valueReference = referenceValue(keyReference, value);
-
-    Object existingValueReference;
-    V existingValue;
-    do {
-      existingValueReference
-          = delegate.putIfAbsent(keyReference, valueReference);
-      existingValue = dereferenceValue(existingValueReference);
-    } while (isPartiallyReclaimed(existingValueReference, existingValue));
-
-    return existingValue;
+    return executeWrite(putIfAbsentStrategy(), key, value); // TODO: inline
   }
 
   public V replace(K key, V value) {
-    Object keyReference = referenceKey(key);
-    Object valueReference = referenceValue(keyReference, value);
-
-    // Ensure that the existing value is not collected.
-    do {
-      Object existingValueReference;
-      V existingValue;
-      do {
-        existingValueReference = delegate.get(keyReference);
-
-        /*
-         * This method as a side-effect will proactively call
-         * finalizeReference() as necessary, which prevents this loop from
-         * spinning for a long time.
-         */
-        existingValue = dereferenceValue(existingValueReference);
-      } while (isPartiallyReclaimed(existingValueReference, existingValue));
-
-      if (existingValueReference == null) {
-        return null; // nothing to replace
-      }
-
-      if (delegate.replace(
-          keyReference, existingValueReference, valueReference)) {
-        // existingValue didn't expire since we still have a reference to it
-        return existingValue;
-      }
-    } while (true);
+    return executeWrite(replaceStrategy(), key, value); // TODO: inline
   }
 
   public boolean replace(K key, V oldValue, V newValue) {
-    /*
-     * It's surprising how much simpler this, the "more-discriminating" form of
-     * replace(), is to implement than the other, "less-discriminating" form.
-     * The difference is that, because we have a strong reference to
-     * 'oldValue', we know that it can't have been garbage collected and so we
-     * can skip all the logic that handles that case.
-     */
     Object keyReference = referenceKey(key);
     Object oldValueDummy = valueStrategy.getDummyFor(oldValue);
     Object newValueReference = referenceValue(keyReference, newValue);
     return delegate.replace(keyReference, oldValueDummy, newValueReference);
   }
 
-  /**
-   * Returns {@code true} if the specified value reference has been garbage
-   * collected. The value behind the reference is also passed in, rather than
-   * queried inside this method, to ensure that the return statement of this
-   * method will still hold true after it has returned (that is, a value
-   * reference exists outside of this method which will prevent that value from
-   * being garbage collected). A {@code false} result may indicate either that
-   * the value has been fully reclaimed, or that it has not been reclaimed at
-   * all.
-   *
-   * @param valueReference the value reference to be tested
-   * @param value the object referenced by {@code valueReference}
-   * @return {@code true} if {@code valueReference} is non-null and {@code
-   *     value} is null
-   */
-  private static boolean isPartiallyReclaimed(
-      Object valueReference, Object value) {
-    return (valueReference != null) && (value == null);
+  private V executeWrite(Strategy strategy, K key, V value) {
+    Object keyReference = referenceKey(key);
+    Object valueReference = referenceValue(keyReference, value);
+    return strategy.execute(this, keyReference, valueReference);
+  }
+
+  // TODO: make private and consider eliminating altogether
+  interface Strategy {
+    <V> V execute(
+        ReferenceMap<?, V> map, Object keyReference, Object valueReference);
+  }
+
+  private enum PutStrategy implements Strategy {
+    PUT {
+      public <V> V execute(
+          ReferenceMap<?, V> map, Object keyReference, Object valueReference) {
+        return map.dereferenceValue(
+            map.delegate.put(keyReference, valueReference));
+      }
+    },
+
+    REPLACE {
+      public <V> V execute(
+          ReferenceMap<?, V> map, Object keyReference, Object valueReference) {
+        // Ensure that the existing value is not collected.
+        do {
+          Object existingValueReference;
+          V existingValue;
+          do {
+            existingValueReference = map.delegate.get(keyReference);
+
+            /*
+             * This method as a side-effect will proactively call
+             * finalizeReference() as necessary, which prevents this loop from
+             * spinning for a long time.
+             */
+            existingValue = map.dereferenceValue(existingValueReference);
+          } while (isPartiallyReclaimed(existingValueReference, existingValue));
+
+          if (existingValueReference == null) {
+            // nothing to replace
+            return null;
+          }
+
+          if (map.delegate.replace(
+              keyReference, existingValueReference, valueReference)) {
+            // existingValue didn't expire since we still have a reference to it
+            return existingValue;
+          }
+        } while (true);
+      }
+    },
+
+    PUT_IF_ABSENT {
+      public <V> V execute(
+          ReferenceMap<?, V> map, Object keyReference, Object valueReference) {
+        Object existingValueReference;
+        V existingValue;
+        do {
+          existingValueReference
+              = map.delegate.putIfAbsent(keyReference, valueReference);
+          existingValue = map.dereferenceValue(existingValueReference);
+        } while (isPartiallyReclaimed(existingValueReference, existingValue));
+        return existingValue;
+      }
+    };
+
+    /**
+     * Returns {@code true} if the specified value reference has been garbage
+     * collected. The value behind the reference is also passed in, rather than
+     * queried inside this method, to ensure that the return statement of this
+     * method will still hold true after it has returned (that is, a value
+     * reference exists outside of this method which will prevent that value from
+     * being garbage collected). A {@code false} result may indicate either that
+     * the value has been fully reclaimed, or that it has not been reclaimed at
+     * all.
+     *
+     * @param valueReference the value reference to be tested
+     * @param value the object referenced by {@code valueReference}
+     * @return {@code true} if {@code valueReference} is non-null and {@code
+     *     value} is null
+     */
+    private static boolean isPartiallyReclaimed(
+        Object valueReference, Object value) {
+      return (valueReference != null) && (value == null);
+    }
+  }
+
+  // TODO: inline these
+
+  Strategy putStrategy() {
+    return PutStrategy.PUT;
+  }
+
+  Strategy putIfAbsentStrategy() {
+    return PutStrategy.PUT_IF_ABSENT;
+  }
+
+  Strategy replaceStrategy() {
+    return PutStrategy.REPLACE;
   }
 
   /**
    * Removes the mapping for a key from this map if it is present.
    */
-  @Override public V remove(Object key) {
+  @Override public V remove(@Nullable Object key) {
+    if (key == null) {
+      return null;
+    }
     Object keyDummy = keyStrategy.getDummyFor(key);
     Object valueReference = delegate.remove(keyDummy);
     return dereferenceValue(valueReference);
   }
 
-  public boolean remove(Object key, Object value) {
+  public boolean remove(@Nullable Object key, @Nullable Object value) {
+    if (key == null || value == null) {
+      return false;
+    }
     Object keyDummy = keyStrategy.getDummyFor(key);
     Object valueDummy = valueStrategy.getDummyFor(value);
     return delegate.remove(keyDummy, valueDummy);
@@ -289,9 +345,7 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
 
   // Views
 
-  // Inherit keySet() and values() from AbstractMap
-
-  private transient EntrySet entrySet;
+  // Inherit keySet(), values(), and entrySet() from NpeThrowingAbstractMap
 
   /**
    * {@inheritDoc}
@@ -301,9 +355,8 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
    * value. You should avoid any lingering strong references to {@code Entry}
    * objects.
    */
-  @Override public Set<Map.Entry<K, V>> entrySet() {
-    EntrySet es = entrySet;
-    return (es == null) ? (entrySet = new EntrySet()) : es;
+  @Override protected Set<Map.Entry<K, V>> createEntrySet() {
+    return new EntrySet();
   }
 
   private class EntrySet extends AbstractSet<Map.Entry<K, V>> {
@@ -317,7 +370,7 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
 
     @Override public boolean contains(Object object) {
       checkNotNull(object);
-      if (!(object instanceof Map.Entry<?, ?>)) {
+      if (!(object instanceof Map.Entry)) {
         return false;
       }
       Map.Entry<?, ?> entry = (Map.Entry<?, ?>) object;
@@ -358,7 +411,7 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
 
     @Override public boolean remove(Object object) {
       checkNotNull(object);
-      if (object instanceof Map.Entry<?, ?>) {
+      if (object instanceof Map.Entry) {
         Map.Entry<?, ?> entry = (Map.Entry<?, ?>) object;
         return ReferenceMap.this.remove(entry.getKey(), entry.getValue());
       }
@@ -423,10 +476,16 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
 
   /*
    * "Override" default serialization so that we serialize the wrapped values
-   * themselves (of type K and V), since serializing References would be absurd.
+   * themselves (of type K and V), since serializing references would be absurd.
    */
 
   private void writeObject(ObjectOutputStream out) throws IOException {
+    // Fail noisily, to avoid creating a reserialized version with a different
+    // backing map
+    if (customBackingMap) {
+      throw new UnsupportedOperationException(
+          "Cannot serialize ReferenceMap created from a given backing map");
+    }
     out.defaultWriteObject(); // referenceType fields
     out.writeInt(size());
     for (Map.Entry<K, V> entry : entrySet()) {
@@ -512,7 +571,7 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
       /*
        * It's important that we proactively try to finalize the referent, rather
        * rather than waiting on the queue, in particular because of the
-       * do/while loop in replace().
+       * do/while loop in PutStrategy.REPLACE.
        */
       if (value == null) {
         reference.finalizeReferent(); // The old value was garbage collected.
@@ -521,11 +580,11 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
     }
 
     Object getDummyFor(Object object) {
-      return new DummyReference(checkNotNull(object));
+      return new DummyReference(object);
     }
 
     static ReferenceStrategy forType(ReferenceType type) {
-      switch (checkNotNull(type)) {
+      switch (type) {
         case STRONG:
           return ReferenceStrategy.DIRECT;
         case SOFT:
@@ -536,6 +595,14 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
           throw new AssertionError();
       }
     }
+  }
+
+  /**
+   * Lazy initialization holder for finalizable reference queue.
+   */
+  private static class ReferenceQueue {
+    private static final FinalizableReferenceQueue instance
+        = new FinalizableReferenceQueue();
   }
 
   /*
@@ -552,7 +619,7 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
     final int hashCode;
 
     SoftKeyReference(Object key) {
-      super(key);
+      super(key, ReferenceQueue.instance);
       hashCode = System.identityHashCode(key);
     }
     public void finalizeReferent() {
@@ -571,7 +638,7 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
     final Object keyReference;
 
     SoftValueReference(Object keyReference, Object value) {
-      super(value);
+      super(value, ReferenceQueue.instance);
       this.keyReference = keyReference;
     }
     public void finalizeReferent() {
@@ -596,7 +663,7 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
     final int hashCode;
 
     WeakKeyReference(Object key) {
-      super(key);
+      super(key, ReferenceQueue.instance);
       hashCode = System.identityHashCode(key);
     }
     public void finalizeReferent() {
@@ -615,7 +682,7 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
     final Object keyReference;
 
     WeakValueReference(Object keyReference, Object value) {
-      super(value);
+      super(value, ReferenceQueue.instance);
       this.keyReference = keyReference;
     }
     public void finalizeReferent() {
@@ -641,7 +708,7 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
   private static class DummyReference {
     final Object wrapped;
     DummyReference(Object wrapped) {
-      this.wrapped = wrapped;
+      this.wrapped = checkNotNull(wrapped);
     }
     Object unwrap() {
       return wrapped;
@@ -680,11 +747,13 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
     return ((DummyReference) object).unwrap() == reference.get();
   }
 
-  private Object referenceKey(K key) {
+  // TODO: make private
+  Object referenceKey(K key) {
     return keyStrategy.referenceKey(this, checkNotNull(key));
   }
 
-  private Object referenceValue(Object keyReference, V value) {
+  // TODO: make private
+  Object referenceValue(Object keyReference, V value) {
     return valueStrategy.referenceValue(
         this, keyReference, checkNotNull(value));
   }
@@ -694,7 +763,8 @@ public final class ReferenceMap<K, V> extends AbstractMap<K, V>
    * certain that the object is a reference to a value type (V).
    */
   @SuppressWarnings("unchecked")
-  private V dereferenceValue(Object object) {
+  // TODO: make private, or inline
+  V dereferenceValue(Object object) {
     if (object == null) {
       return null;
     }

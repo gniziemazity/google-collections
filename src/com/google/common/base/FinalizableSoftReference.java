@@ -28,7 +28,14 @@ import java.lang.ref.SoftReference;
 public abstract class FinalizableSoftReference<T> extends SoftReference<T>
     implements FinalizableReference {
 
-  protected FinalizableSoftReference(T referent) {
-    super(referent, FinalizableReferenceQueue.getInstance());
+  /**
+   * Consructs a new finalizable soft reference.
+   *
+   * @param referent to softly reference
+   * @param queue that should finalize the referent
+   */
+  protected FinalizableSoftReference(T referent,
+      FinalizableReferenceQueue queue) {
+    super(referent, queue.queue);
   }
 }
