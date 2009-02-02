@@ -20,6 +20,17 @@
     </copy>
   </target>
 
+  <target name="testfw" description="Compile test framework.">
+    <mkdir dir="${build.dir}/testfwclasses"/>
+    <javac srcdir="${testfw.dir}"
+         debug="on"
+         destdir="${build.dir}/testfwclasses">
+      <classpath>
+        <pathelement location="${lib.dir}/build/junit.jar"/>
+      </classpath>
+    </javac>
+  </target>
+
   <target name="test.compile"
       depends="compile"
       description="Compile test source.">
@@ -58,11 +69,14 @@
     <delete dir="${build.dir}"/>
   </target>
 
-  <target name="jar" depends="compile" description="Build jar.">
+  <target name="jar" depends="compile,testfw" description="Build jars.">
     <mkdir dir="${build.dir}/dist"/>
     <mkdir dir="${build.dir}/dist/google-collect-${version}"/>
     <jar jarfile="${build.dir}/dist/google-collect-${version}/google-collect-${version}.jar">
       <fileset dir="${build.dir}/classes"/>
+    </jar>
+    <jar jarfile="${build.dir}/dist/google-collect-${version}/google-collect-testfw-${version}.jar">
+      <fileset dir="${build.dir}/testfwclasses"/>
     </jar>
   </target>
 
