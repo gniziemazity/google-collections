@@ -1,3 +1,64 @@
+= Release 0.9 (snapshot 20090211) =
+
+==NEW:==
+
+ * MapMaker. Now officially the single coolest thing in our library.  Easily build yourself a ConcurrentMap with any combination of features like timed expiration, weak keys or values, and automatic on-demand computation of values.  Perfect for most typical in-memory caching uses.
+ * CustomConcurrentHashMap.  For extreme power users only.  The guts that underlie MapMaker.  Allows for extremely configurable maps.
+ * ImmutableList.builder() and ImmutableSet.builder().  Yummy builders for creating immutable collections.
+ * New Preconditions methods checkElementIndex and checkPositionIndex(es).  Mostly useful for collection implementations, but if you ever find yourself needing to throw an IndexOutOfBoundsException, these will come in really handy.
+ * ObjectArrays methods concat(T[], T) and concat(T, T[]) to go with the existing concat(T[], T[], Class).
+ * Maps methods filterKeys, filterValues and filterEntries.
+ * New optimized Iterators methods singletonIterator and forArray.
+ * LinkedListMultimap is back!  This is a ListMultimap with insertion-ordered keys and entries.
+ * Ordering.isStrictlyOrdered method to go along with the duplicate-allowing Ordering.isOrdered.
+
+==Removed:==
+
+ * AbstractIterable.  This did nothing except provide a default toString() which is very often not the toString() you want anyway.
+ * AbstractMultiset, AbstractMultisetEntry. These are not properly designed for extensibility and we didn't mean to expose them. You can extend ForwardingMultiset instead.
+ * AbstractRemovableIterator.  This was hard to use correctly and easy to use incorrectly, and didn't have many uses.
+ * PrimitiveArrays, Comparators.compare(a, b).  These libraries will appear later as part of the com.google.common.primitives package (in some cases, in *greatly* improved form).
+ * Map.containsEntry().  Instead, use map.entrySet().contains(Maps.immutableEntry(k, v)).
+ * ObjectArrays.emptyArray()/EMPTY_ARRAY.  These were not useful.
+ * Multisets.frequencyOrder() is not as useful as it seems and can be easily done using Ordering.onResultOf() if necessary.
+ * Multisets.forSet(), immutableEntry() - as far as we know no one used these.  And no one had ever asked for them.  Do you use them?
+ * Collections2.forIterable() was released in the last snapshot by mistake.  You shouldn't use it; it's too weird.
+ * Sets.newIdentityHashSet() has been removed; use MapMaker or Maps.newIdentityHashMap() to construct a map and pass that to Sets.newSetFromMap().  We may support this more directly in the future.
+ * ReferenceMap is gone; use, for example, new MapMaker.weakKeys().softValues().makeMap().
+ * Serialization.setFinalField() should never have been public; our mistake.
+ * Multisets.synchronizedMultiset() is gone now.  Use ConcurrentMultiset instead.
+ * Ordering.sort() added no value over Collections.sort(), so it's gone.  Use Collections.sort() or Ordering.sortedCopy().
+
+==Moved:==
+
+ * Factory methods for BiMap instances in Maps have moved to the BiMap implementation classes in new methods called create(). (Constructors in those classes have also been removed.)
+ * Factory methods for Multiset instances in Multisets have moved to the Multiset implementation classes in new methods called create(). (Constructors in those classes have also been removed.)
+ * The Comparators class is gone.  Its methods have moved to Ordering:
+    * Comparators.compound() -> Ordering.compound()
+    * Comparators.fromFunction() -> Ordering.onResultOf()
+    * Comparators.givenOrder() -> Ordering.givenOrder()
+    * Comparators.min() -> Ordering.min()
+    * Comparators.max() -> Ordering.max()
+    * Comparators.naturalOrder() -> Ordering.natural()
+    * Comparators.nullLeastOrder() -> Ordering.nullsFirst()
+    * Comparators.nullGreatestOrder() -> Ordering.nullsLast()
+    * Comparators.STRING_FORM_ORDER/toStringOrder() -> Ordering.onResultOf(Functions.TO_STRING)
+ * More Ordering renames:
+    * Ordering.forComparator() -> Ordering.from()
+    * Ordering.reverseOrder() -> Ordering.reverse()
+    * Ordering.isSorted() -> Ordering.isOrdered()
+ * Lists.sortedCopy() is now Ordering.sortedCopy().
+ * With these changes, Ordering is now your one-stop shop for comparator-related goodness.
+
+==Changed:==
+
+ * Iterators.partition(Iterator, int, boolean) has been cleaved into new methods Iterators.partition(Iterator, int) and Iterators.paddedPartition(Iterator, int); these also have much nicer semantics now.  The same goes for Iterables.partition().
+ * The three methods in Multimaps called inverseArrayListMultimap, inverseHashMultimap and inverseTreeMultimap have been replaced with a single Multimaps.invertFrom() method.
+ * The syntax for creating an ImmutableSortedSet has been improved using the new ImmutableSortedSet.Builder class (which replaces ImmutableSortedSet.Factory).
+ * Maps.newConcurrentHashMap() has been removed; use new MapMaker().makeMap()!
+ * Many methods that returned Iterator now return UnmodifiableIterator; this change should be transparent to you.
+
+
 = Release 0.8 (snapshot 20080820) =
 
 ==Added classes==
