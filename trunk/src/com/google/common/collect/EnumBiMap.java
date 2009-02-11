@@ -37,19 +37,19 @@ public final class EnumBiMap<K extends Enum<K>, V extends Enum<V>>
   private transient Class<V> valueType;
 
   /**
-   * Constructs a new empty bimap using the specified key type and value type.
+   * Returns a new empty {@code EnumBiMap} using the specified key and value
+   * types.
    *
    * @param keyType the key type
    * @param valueType the value type
    */
-  public EnumBiMap(Class<K> keyType, Class<V> valueType) {
-    super(new EnumMap<K, V>(keyType), new EnumMap<V, K>(valueType));
-    this.keyType = keyType;
-    this.valueType = valueType;
+  public static <K extends Enum<K>, V extends Enum<V>> EnumBiMap<K, V>
+      create(Class<K> keyType, Class<V> valueType) {
+    return new EnumBiMap<K, V>(keyType, valueType);
   }
 
   /**
-   * Constructs a new bimap with the same mappings as the specified map. If the
+   * Returns a new bimap with the same mappings as the specified map. If the
    * specified map is an {@code EnumBiMap}, the new bimap has the same types as
    * the provided map. Otherwise, the specified map must contain at least one
    * mapping, in order to determine the key and value types.
@@ -58,9 +58,17 @@ public final class EnumBiMap<K extends Enum<K>, V extends Enum<V>>
    * @throws IllegalArgumentException if map is not an {@code EnumBiMap}
    *     instance and contains no mappings
    */
-  public EnumBiMap(Map<K, V> map) {
-    this(inferKeyType(map), inferValueType(map));
-    putAll(map); // careful if we make this class non-final
+  public static <K extends Enum<K>, V extends Enum<V>> EnumBiMap<K, V>
+      create(Map<K, V> map) {
+    EnumBiMap<K, V> bimap = create(inferKeyType(map), inferValueType(map));
+    bimap.putAll(map);
+    return bimap;
+  }
+
+  private EnumBiMap(Class<K> keyType, Class<V> valueType) {
+    super(new EnumMap<K, V>(keyType), new EnumMap<V, K>(valueType));
+    this.keyType = keyType;
+    this.valueType = valueType;
   }
 
   static <K extends Enum<K>> Class<K> inferKeyType(Map<K, ?> map) {
@@ -91,7 +99,7 @@ public final class EnumBiMap<K extends Enum<K>, V extends Enum<V>>
   public Class<V> valueType() {
     return valueType;
   }
-  
+
   /**
    * @serialData the key class, value class, number of entries, first key, first
    *     value, second key, second value, and so on.
@@ -99,10 +107,10 @@ public final class EnumBiMap<K extends Enum<K>, V extends Enum<V>>
   private void writeObject(ObjectOutputStream stream) throws IOException {
     stream.defaultWriteObject();
     stream.writeObject(keyType);
-    stream.writeObject(valueType);    
+    stream.writeObject(valueType);
     Serialization.writeMap(this, stream);
   }
-  
+
   @SuppressWarnings("unchecked") // reading fields populated by writeObject
   private void readObject(ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
@@ -112,6 +120,6 @@ public final class EnumBiMap<K extends Enum<K>, V extends Enum<V>>
     setDelegates(new EnumMap<K, V>(keyType), new EnumMap<V, K>(valueType));
     Serialization.populateMap(this, stream);
   }
-  
-  private static final long serialVersionUID = 0;  
+
+  private static final long serialVersionUID = 0;
 }

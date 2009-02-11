@@ -27,6 +27,9 @@ import java.util.Iterator;
 /**
  * Contains static factory methods for creating {@code Predicate} instances.
  *
+ * <p>All methods returns serializable predicates as long as they're given
+ * serializable parameters.
+ *
  * @author Kevin Bourrillion
  */
 public final class Predicates {
@@ -34,7 +37,7 @@ public final class Predicates {
 
   // TODO: considering having these implement a VisitablePredicate interface
   // which specifies an accept(PredicateVisitor) method.
-  
+
   /**
    * Returns a predicate that always evaluates to {@code true}.
    */
@@ -181,7 +184,7 @@ public final class Predicates {
    * being tested is a member of the given collection. It does not defensively
    * copy the collection passed in, so future changes to it will alter the
    * behavior of the predicate.
-   * 
+   *
    * @param target the collection that may contain the function input
    */
   public static <T> Predicate<T> in(Collection<?> target) {
@@ -204,7 +207,7 @@ public final class Predicates {
   // enum singleton pattern
   private enum AlwaysTruePredicate implements Predicate<Object> {
     INSTANCE;
-    
+
     public boolean apply(Object o) {
       return true;
     }
@@ -217,7 +220,7 @@ public final class Predicates {
   // enum singleton pattern
   private enum AlwaysFalsePredicate implements Predicate<Object> {
     INSTANCE;
-    
+
     public boolean apply(Object o) {
       return false;
     }
@@ -383,7 +386,7 @@ public final class Predicates {
   // enum singleton pattern
   private enum IsNullPredicate implements Predicate<Object> {
     INSTANCE;
-    
+
     public boolean apply(Object o) {
       return o == null;
     }
@@ -396,7 +399,7 @@ public final class Predicates {
   // enum singleton pattern
   private enum NotNullPredicate implements Predicate<Object> {
     INSTANCE;
-    
+
     public boolean apply(Object o) {
       return o != null;
     }
@@ -486,7 +489,7 @@ public final class Predicates {
     @Override public String toString() {
       return p.toString() + "(" + f.toString() + ")";
     }
-    
+
     private static final long serialVersionUID = 0;
   }
 

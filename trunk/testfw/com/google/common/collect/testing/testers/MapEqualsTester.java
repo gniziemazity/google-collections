@@ -23,7 +23,6 @@ import com.google.common.collect.testing.features.MapFeature;
 import static com.google.common.collect.testing.features.MapFeature.ALLOWS_NULL_KEYS;
 import static com.google.common.collect.testing.features.MapFeature.ALLOWS_NULL_VALUES;
 
-import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,7 +56,7 @@ public class MapEqualsTester<K, V> extends AbstractMapTester<K, V> {
   @MapFeature.Require(ALLOWS_NULL_KEYS)
   public void testEquals_containingNullKey() {
     Collection<Map.Entry<K, V>> entries = getSampleEntries(getNumEntries() - 1);
-    entries.add(new SimpleImmutableEntry<K, V>(null, samples.e3.getValue()));
+    entries.add(entry(null, samples.e3.getValue()));
 
     resetContainer(getSubjectGenerator().create(entries.toArray()));
     assertTrue("A Map should equal any other Map containing the same entries,"
@@ -68,7 +67,7 @@ public class MapEqualsTester<K, V> extends AbstractMapTester<K, V> {
   @CollectionSize.Require(absent = CollectionSize.ZERO)
   public void testEquals_otherContainsNullKey() {
     Collection<Map.Entry<K, V>> entries = getSampleEntries(getNumEntries() - 1);
-    entries.add(new SimpleImmutableEntry<K, V>(null, samples.e3.getValue()));
+    entries.add(entry(null, samples.e3.getValue()));
     Map<K, V> other = newHashMap(entries);
 
     assertFalse(
@@ -81,7 +80,7 @@ public class MapEqualsTester<K, V> extends AbstractMapTester<K, V> {
   @MapFeature.Require(ALLOWS_NULL_VALUES)
   public void testEquals_containingNullValue() {
     Collection<Map.Entry<K, V>> entries = getSampleEntries(getNumEntries() - 1);
-    entries.add(new SimpleImmutableEntry<K, V>(samples.e3.getKey(), null));
+    entries.add(entry(samples.e3.getKey(), null));
 
     resetContainer(getSubjectGenerator().create(entries.toArray()));
     assertTrue("A Map should equal any other Map containing the same entries,"
@@ -92,7 +91,7 @@ public class MapEqualsTester<K, V> extends AbstractMapTester<K, V> {
   @CollectionSize.Require(absent = CollectionSize.ZERO)
   public void testEquals_otherContainsNullValue() {
     Collection<Map.Entry<K, V>> entries = getSampleEntries(getNumEntries() - 1);
-    entries.add(new SimpleImmutableEntry<K, V>(samples.e3.getKey(), null));
+    entries.add(entry(samples.e3.getKey(), null));
     Map<K, V> other = newHashMap(entries);
 
     assertFalse(

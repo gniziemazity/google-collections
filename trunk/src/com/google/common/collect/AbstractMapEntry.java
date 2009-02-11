@@ -16,6 +16,7 @@
 
 package com.google.common.collect;
 
+import com.google.common.base.Nullable;
 import com.google.common.base.Objects;
 
 import java.util.Map.Entry;
@@ -46,16 +47,13 @@ public abstract class AbstractMapEntry<K, V> implements Entry<K, V> {
    * Indicates whether an object equals this entry, following the behavior
    * specified in {@link Entry#equals}.
    */
-  @Override public boolean equals(Object o) {
-    if (o == this) {
-      return true;
+  @Override public boolean equals(@Nullable Object object) {
+    if (object instanceof Entry) {
+      Entry<?, ?> that = (Entry<?, ?>) object;
+      return Objects.equal(this.getKey(), that.getKey())
+          && Objects.equal(this.getValue(), that.getValue());
     }
-    if (!(o instanceof Entry)) {
-      return false;
-    }
-    Entry<?, ?> e = (Entry<?, ?>) o;
-    return Objects.equal(e.getKey(), getKey())
-        && Objects.equal(e.getValue(), getValue());
+    return false;
   }
 
   /**

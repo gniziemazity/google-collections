@@ -56,7 +56,7 @@ abstract class StandardSortedSetMultimap<K, V>
       K key, Iterable<? extends V> values) {
     return (SortedSet<V>) super.replaceValues(key, values);
   }
-  
+
   /**
    * {@inheritDoc}
    *
@@ -65,5 +65,5 @@ abstract class StandardSortedSetMultimap<K, V>
    */
   @Override public Collection<V> values() {
     return super.values();
-  }  
+  }
 }

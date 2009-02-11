@@ -175,5 +175,6 @@ public class Finalizer extends Thread {
   }
 
   /** Indicates that it's time to shut down the Finalizer. */
-  private class ShutDown extends Exception {}
+  @SuppressWarnings("serial") // Never serialized or thrown out of this class.
+  private static class ShutDown extends Exception { }
 }

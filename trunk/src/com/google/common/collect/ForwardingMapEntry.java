@@ -16,6 +16,8 @@
 
 package com.google.common.collect;
 
+import com.google.common.base.Nullable;
+
 import java.util.Map;
 
 /**
@@ -23,7 +25,7 @@ import java.util.Map;
  * Subclasses should override one or more methods to modify the behavior of the
  * backing map entry as desired per the <a
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
- * 
+ *
  * @see ForwardingObject
  * @author Mike Bostock
  */
@@ -44,8 +46,8 @@ public abstract class ForwardingMapEntry<K, V>
     return delegate().setValue(value);
   }
 
-  @Override public boolean equals(Object obj) {
-    return delegate().equals(obj);
+  @Override public boolean equals(@Nullable Object object) {
+    return delegate().equals(object);
   }
 
   @Override public int hashCode() {

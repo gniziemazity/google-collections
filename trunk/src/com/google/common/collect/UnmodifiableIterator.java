@@ -20,11 +20,11 @@ import java.util.Iterator;
 
 /**
  * An iterator that does not support {@link #remove}.
- * 
+ *
  * @author Jared Levy
  */
 public abstract class UnmodifiableIterator<E> implements Iterator<E> {
-  
+
   /**
    * Guaranteed to throw an exception and leave the underlying data unmodified.
    *

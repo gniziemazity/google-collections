@@ -16,10 +16,9 @@
 
 package com.google.common.collect;
 
+import com.google.common.base.Nullable;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-
-import com.google.common.base.Objects;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -39,19 +38,19 @@ import java.util.SortedSet;
  * Some instances are ordered by an explicit comparator, while others follow the
  * natural sort ordering of their elements. Either way, null elements are not
  * supported.
- * 
+ *
  * <p>Unlike {@link Collections#unmodifiableSortedSet}, which is a <i>view</i>
  * of a separate collection that can still change, an instance of {@code
  * ImmutableSortedSet} contains its own private data and will <i>never</i>
  * change. This class is convenient for {@code public static final} sets
  * ("constant sets") and also lets you easily make a "defensive copy" of a set
  * provided to your class by a caller.
- * 
+ *
  * <p>The sets returned by {@link #headSet}, {@link #tailSet}, and
  * {@link #subSet} methods share the same array as the original set, preventing
  * that array from being garbage collected. If this is a concern, the data may
  * be copied into a correctly-sized array by calling {@link #copyOfSorted}.
- * 
+ *
  * <p><b>Note on element equivalence:</b> The {@link #contains(Object)},
  * {@link #containsAll(Collection)}, and {@link #equals(Object)}
  * implementations must check whether a provided object is equivalent to an
@@ -72,11 +71,11 @@ import java.util.SortedSet;
  * function correctly if an element is modified after being placed in the set.
  * For this reason, and to avoid general confusion, it is strongly recommended
  * to place only immutable objects into this collection.
- * 
+ *
  * <p><b>Note</b>: Although this class is not final, it cannot be subclassed as
  * it has no public or protected constructors. Thus, instances of this type are
  * guaranteed to be immutable.
- * 
+ *
  * @see ImmutableSet
  * @author Jared Levy
  */
@@ -86,7 +85,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
 
   // TODO: Can we find a way to remove these @SuppressWarnings?
   @SuppressWarnings("unchecked")
-  private static final Comparator NATURAL_ORDER = Comparators.naturalOrder();
+  private static final Comparator NATURAL_ORDER = Ordering.natural();
   @SuppressWarnings("unchecked")
   private static final ImmutableSortedSet<Object> NATURAL_EMPTY_SET =
       new EmptyImmutableSortedSet<Object>(NATURAL_ORDER);
@@ -114,7 +113,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
 
   /**
    * Returns an immutable sorted set containing a single element.
-   * 
+   *
    * <p>The type specification is {@code <E extends Comparable>}, instead of the
    * more specific {@code <E extends Comparable<? super E>>}, to support
    * classes defined without generics.
@@ -124,24 +123,24 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
     Object[] array = { checkNotNull(element) };
     return new RegularImmutableSortedSet<E>(array, NATURAL_ORDER);
   }
-  
+
   // TODO: Consider adding factory methods that throw an exception when given
   // duplicate elements.
-  
+
   /**
    * Returns an immutable sorted set containing the given elements sorted by
    * their natural ordering. When multiple elements are equivalent according to
    * {@link Comparable#compareTo}, only the first one specified is included.
-   * 
+   *
    * <p>The type specification is {@code <E extends Comparable>}, instead of the
    * more specific {@code <E extends Comparable<? super E>>}, to support
    * classes defined without generics.
-   * 
+   *
    * @throws NullPointerException if any of {@code elements} is null
    */
   @SuppressWarnings("unchecked") // See method Javadoc
   public static <E extends Comparable> ImmutableSortedSet<E> of(E... elements) {
-    return ofInternal(Comparators.naturalOrder(), elements);
+    return ofInternal(Ordering.natural(), elements);
   }
 
   private static <E> ImmutableSortedSet<E> ofInternal(
@@ -150,7 +149,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
       case 0:
         return emptySet(comparator);
       default:
-        Object[] array = elements.clone();
+        Object[] array = Platform.clone(elements);
         for (Object element : array) {
           checkNotNull(element);
         }
@@ -198,28 +197,29 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
    * their natural ordering. When multiple elements are equivalent according to
    * {@code compareTo()}, only the first one specified is included. To create a
    * copy of a {@code SortedSet} that preserves the comparator, call
-   * {@link #copyOfSorted} instead.
-   * 
+   * {@link #copyOfSorted} instead. This method iterates over {@code elements}
+   * at most once.
+   *
    * <p>Note that if {@code s} is a {@code Set<String>}, then
    * {@code ImmutableSortedSet.copyOf(s)} returns a
    * {@code ImmutableSortedSet<String>} containing each of the strings in
    * {@code s}, while {@code ImmutableSortedSet.of(s)} returns a
    * {@code ImmutableSortedSet<Set<String>>} containing one element (the given
    * set itself).
-   * 
+   *
    * <p><b>Note:</b> Despite what the method name suggests, if {@code elements}
    * is an {@code ImmutableSortedSet}, it may be returned instead of a copy.
-   * 
+   *
    * <p>The type specification is {@code <E extends Comparable>}, instead of the
    * more specific {@code <E extends Comparable<? super E>>}, to support
    * classes defined without generics.
-   * 
+   *
    * @throws NullPointerException if any of {@code elements} is null
    */
   @SuppressWarnings("unchecked")
   public static <E extends Comparable> ImmutableSortedSet<E> copyOf(
       Iterable<? extends E> elements) {
-    return copyOfInternal(Comparators.naturalOrder(), elements, false);
+    return copyOfInternal(Ordering.natural(), elements, false);
   }
 
   /**
@@ -236,7 +236,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
   @SuppressWarnings("unchecked")
   public static <E extends Comparable> ImmutableSortedSet<E> copyOf(
       Iterator<? extends E> elements) {
-    return copyOfInternal(Comparators.naturalOrder(), elements);
+    return copyOfInternal(Ordering.natural(), elements);
   }
 
   /**
@@ -244,10 +244,10 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
    * sorted by the same {@code Comparator}. That behavior differs from
    * {@link #copyOf(Iterable)}, which always uses the natural ordering of the
    * elements.
-   * 
+   *
    * <p><b>Note:</b> Despite what the method name suggests, if {@code sortedSet}
    * is an {@code ImmutableSortedSet}, it may be returned instead of a copy.
-   * 
+   *
    * @throws NullPointerException if any of {@code elements} is null
    */
   @SuppressWarnings("unchecked")
@@ -310,104 +310,167 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
    * {@code comparator} to order its elements. Note that equivalent comparators
    * may still return {@code false}, if {@code equals} doesn't consider them
    * equal. If one comparator is {@code null} and the other is
-   * {@link Comparators#naturalOrder()}, this method returns {@code true}.
+   * {@link Ordering#natural()}, this method returns {@code true}.
    */
-  private static boolean hasSameComparator(Object elements,
-      Comparator<?> comparator) {
+  private static boolean hasSameComparator(
+      Iterable<?> elements, Comparator<?> comparator) {
     if (elements instanceof SortedSet) {
       SortedSet<?> sortedSet = (SortedSet<?>) elements;
       Comparator<?> comparator2 = sortedSet.comparator();
-      return Objects.equal(comparator2, comparator)
-          || (comparator == null && comparator2 == Comparators.naturalOrder())
-          || (comparator2 == null && comparator == Comparators.naturalOrder());
+      return (comparator2 == null)
+          ? comparator == Ordering.natural()
+          : comparator.equals(comparator2);
     }
     return false;
   }
 
   /**
-   * Returns a factory that creates immutable sorted sets with an explicit
+   * Returns a builder that creates immutable sorted sets with an explicit
    * comparator. If the comparator has a more general type than the set being
    * generated, such as creating a {@code SortedSet<Integer>} with a
-   * {@code Comparator<Number>}, use the {@link Factory#Factory(Comparator)}
-   * constructor instead.
-   * 
+   * {@code Comparator<Number>}, use the {@link Builder} constructor instead.
+   *
    * @throws NullPointerException if {@code comparator} is null
    */
-  public static <E> Factory<E> orderedBy(Comparator<E> comparator) {
-    return new Factory<E>(comparator);
+  public static <E> Builder<E> orderedBy(Comparator<E> comparator) {
+    return new Builder<E>(comparator);
   }
-  
+
   /**
-   * Returns a factory that creates immutable sorted sets whose elements are
+   * Returns a builder that creates immutable sorted sets whose elements are
    * ordered by the reverse of their natural ordering. The sorted sets use
    * {@link Collections#reverseOrder()} as the comparator.
-   * 
+   *
    * <p>The type specification is {@code <E extends Comparable>}, instead of the
    * more specific {@code <E extends Comparable<? super E>>}, to support
    * classes defined without generics.
    */
   @SuppressWarnings("unchecked") // See method Javadoc
-  public static <E extends Comparable> Factory<E> reverseOrder() {
-    return new Factory<E>(Collections.reverseOrder());
+  public static <E extends Comparable> Builder<E> reverseOrder() {
+    return new Builder<E>(Collections.reverseOrder());
   }
-  
+
   /**
-   * A factory for creating immutable sorted sets with an explicit comparator.
-   * 
-   * <p>The factory is immutable and may be used to create multiple
-   * {@code ImmutableSortedSet} instances.
+   * Returns a builder that creates immutable sorted sets whose elements are
+   * ordered by their natural ordering. The sorted sets use
+   * {@link Ordering#natural()} as the comparator. This method provides
+   * more type-safety than {@link #builder()}, as it can be called only for
+   * classes that implement {@link Comparable}.
+   *
+   * <p>The type specification is {@code <E extends Comparable>}, instead of the
+   * more specific {@code <E extends Comparable<? super E>>}, to support
+   * classes defined without generics.
    */
-  public static class Factory<E> {
+  @SuppressWarnings("unchecked") // See method Javadoc
+  public static <E extends Comparable> Builder<E> naturalOrder() {
+    return new Builder<E>(Ordering.natural());
+  }
+
+  /**
+   * Not supported. Use {@link #naturalOrder()}, which offers better
+   * type-safety, instead. This method exists only to hide
+   * {@link ImmutableSet#builder()} from consumers of
+   * {@code ImmutableSortedSet}.
+   *
+   * @throws UnsupportedOperationException always
+   *
+   * @deprecated Use {@link #naturalOrder()}, which offers better type-safety.
+   */
+  @Deprecated public static <E> Builder<E> builder() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * A builder for creating immutable sorted set instances, especially
+   * {@code public static final} sets ("constant sets"), with a given
+   * comparator.
+   *
+   * <p>Example:
+   * <pre>{@code
+   *   public static final ImmutableSortedSet<Number> LUCKY_NUMBERS
+   *       = new ImmutableSortedSet.Builder<Number>(ODDS_FIRST_COMPARATOR)
+   *           .addAll(SINGLE_DIGIT_PRIMES)
+   *           .add(42)
+   *           .build();}</pre>
+   *
+   * <p>Builder instances can be reused - it is safe to call {@link #build}
+   * multiple times to build multiple sets in series. Each set
+   * is a superset of the set created before it.
+   */
+  public static class Builder<E> extends ImmutableSet.Builder<E> {
     private final Comparator<? super E> comparator;
 
     /**
-     * Creates a new factory. The returned factory is equivalent to the factory
+     * Creates a new builder. The returned builder is equivalent to the builder
      * generated by {@link ImmutableSortedSet#orderedBy}.
-     * 
-     * @throws NullPointerException if {@code comparator} is null
      */
-    public Factory(Comparator<? super E> comparator) {
+    public Builder(Comparator<? super E> comparator) {
       this.comparator = checkNotNull(comparator);
     }
 
     /**
-     * Returns an immutable sorted set containing the given elements sorted by
-     * the factory's comparator. When multiple elements are equivalent according
-     * to the comparator, only the first one specified is included.
-     * 
-     * @throws NullPointerException if any of {@code elements} is null
+     * Adds {@code element} to the {@code ImmutableSortedSet}.  If the
+     * {@code ImmutableSortedSet} already contains {@code element}, then
+     * {@code add} has no effect. (only the previously added element
+     * is retained).
+     *
+     * @param element the element to add
+     * @return this {@code Builder} object
+     * @throws NullPointerException if {@code element} is null
      */
-    public ImmutableSortedSet<E> of(E... elements) {
-      return ofInternal(comparator, elements);
-    }
-    
-    /**
-     * Returns an immutable sorted set containing the given elements sorted by
-     * the factory's comparator. When multiple elements are equivalent according
-     * to the comparator, only the first one specified is included.
-     * 
-     * <p><b>Note:</b> Despite what the method name suggests, if
-     * {@code elements} is an {@code ImmutableSortedSet} with an equivalent
-     * comparator, it may be returned instead of a copy.
-     * 
-     * @throws NullPointerException if any of {@code elements} is null
-     */
-    public ImmutableSortedSet<E> copyOf(Iterable<? extends E> elements) {
-      return copyOfInternal(comparator, elements, false);
+    @Override public Builder<E> add(E element) {
+      super.add(element);
+      return this;
     }
 
     /**
-     * Returns an immutable sorted set containing the given elements sorted by
-     * the factory's comparator. When multiple elements are equivalent according
-     * to the comparator, only the first one specified is included.
-     * 
-     * @throws NullPointerException if any of {@code elements} is null
+     * Adds each element of {@code elements} to the {@code ImmutableSortedSet},
+     * ignoring duplicate elements (only the first duplicate element is added).
+     *
+     * @param elements the elements to add
+     * @return this {@code Builder} object
+     * @throws NullPointerException if {@code elements} is or contains null
      */
-    public ImmutableSortedSet<E> copyOf(Iterator<? extends E> elements) {
-      return copyOfInternal(comparator, elements);
+    @Override public Builder<E> add(E... elements) {
+      super.add(elements);
+      return this;
+    }
+
+    /**
+     * Adds each element of {@code elements} to the {@code ImmutableSortedSet},
+     * ignoring duplicate elements (only the first duplicate element is added).
+     *
+     * @param elements the elements to add to the {@code ImmutableSortedSet}
+     * @return this {@code Builder} object
+     * @throws NullPointerException if {@code elements} is or contains null
+     */
+    @Override public Builder<E> addAll(Iterable<? extends E> elements) {
+      super.addAll(elements);
+      return this;
+    }
+
+    /**
+     * Adds each element of {@code elements} to the {@code ImmutableSortedSet},
+     * ignoring duplicate elements (only the first duplicate element is added).
+     *
+     * @param elements the elements to add to the {@code ImmutableSortedSet}
+     * @return this {@code Builder} object
+     * @throws NullPointerException if {@code elements} is or contains null
+     */
+    @Override public Builder<E> addAll(Iterator<? extends E> elements) {
+      super.addAll(elements);
+      return this;
+    }
+
+    /**
+     * Returns a newly-created {@code ImmutableSortedSet} based on the contents
+     * of the {@code Builder} and its comparator.
+     */
+    @Override public ImmutableSortedSet<E> build() {
+      return copyOfInternal(comparator, contents.iterator());
     }
   }
-  
+
   @SuppressWarnings("unchecked")
   private static <E> int compare(Comparator<? super E> comparator, Object a,
       Object b) {
@@ -422,7 +485,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
 
   /**
    * Returns the comparator that orders the elements, which is
-   * {@link Comparators#naturalOrder()} when the natural ordering of the
+   * {@link Ordering#natural()} when the natural ordering of the
    * elements is used. Note that its behavior is not consistent with
    * {@link SortedSet#comparator()}, which returns {@code null} to indicate
    * natural ordering.
@@ -433,9 +496,9 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * <p>This method returns a serializable {@code ImmutableSortedSet}.
-   * 
+   *
    * <p>The {@link SortedSet#headSet} documentation states that a subset of a
    * subset throws an {@link IllegalArgumentException} if passed a
    * {@code toElement} greater than an earlier {@code toElement}. However, this
@@ -448,9 +511,9 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * <p>This method returns a serializable {@code ImmutableSortedSet}.
-   * 
+   *
    * <p>The {@link SortedSet#subSet} documentation states that a subset of a
    * subset throws an {@link IllegalArgumentException} if passed a
    * {@code fromElement} smaller than an earlier {@code toElement}. However,
@@ -468,9 +531,9 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * <p>This method returns a serializable {@code ImmutableSortedSet}.
-   * 
+   *
    * <p>The {@link SortedSet#tailSet} documentation states that a subset of a
    * subset throws an {@link IllegalArgumentException} if passed a
    * {@code fromElement} smaller than an earlier {@code fromElement}. However,
@@ -512,12 +575,14 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
       return false;
     }
 
-    public Iterator<E> iterator() {
+    @Override public UnmodifiableIterator<E> iterator() {
       return Iterators.emptyIterator();
     }
 
+    private static final Object[] EMPTY_ARRAY = new Object[0];
+
     @Override public Object[] toArray() {
-      return ObjectArrays.EMPTY_ARRAY;
+      return EMPTY_ARRAY;
     }
 
     @Override public <T> T[] toArray(T[] a) {
@@ -531,8 +596,12 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
       return targets.isEmpty();
     }
 
-    @Override public boolean equals(Object object) {
-      return (object instanceof Set) && ((Set<?>) object).isEmpty();
+    @Override public boolean equals(@Nullable Object object) {
+      if (object instanceof Set) {
+        Set<?> that = (Set<?>) object;
+        return that.isEmpty();
+      }
+      return false;
     }
 
     @Override public int hashCode() {
@@ -606,8 +675,9 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
 
     // The factory methods ensure that every element is an E.
     @SuppressWarnings("unchecked")
-    public Iterator<E> iterator() {
-      return (Iterator<E>) Iterators.forArray(elements, fromIndex, size());
+    @Override public UnmodifiableIterator<E> iterator() {
+      return (UnmodifiableIterator<E>)
+          Iterators.forArray(elements, fromIndex, size());
     }
 
     @Override public boolean isEmpty() {
@@ -668,7 +738,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
     int binarySearch(Object key) {
       int lower = fromIndex;
       int upper = toIndex - 1;
-      
+
       while (lower <= upper) {
         int middle = lower + (upper - lower) / 2;
         int c = compare(comparator, key, elements[middle]);
@@ -680,7 +750,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
           return middle;
         }
       }
-      
+
       return -lower - 1;
     }
 
@@ -702,25 +772,26 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
       return array;
     }
 
-    @Override public boolean equals(Object object) {
+    @Override public boolean equals(@Nullable Object object) {
       if (object == this) {
         return true;
       }
       if (!(object instanceof Set)) {
         return false;
       }
-      Set<?> set = (Set<?>) object;
-      if (size() != set.size()) {
+
+      Set<?> that = (Set<?>) object;
+      if (size() != that.size()) {
         return false;
       }
 
-      if (hasSameComparator(object, comparator)) {
-        Iterator<?> iterator = set.iterator();
+      if (hasSameComparator(that, comparator)) {
+        Iterator<?> iterator = that.iterator();
         try {
           for (int i = fromIndex; i < toIndex; i++) {
             Object otherElement = iterator.next();
-            if ((otherElement == null)
-                || (compare(comparator, elements[i], otherElement) != 0)) {
+            if (otherElement == null
+                || compare(comparator, elements[i], otherElement) != 0) {
               return false;
             }
           }
@@ -728,11 +799,10 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
         } catch (ClassCastException e) {
           return false;
         } catch (NoSuchElementException e) {
-          return false;   // concurrent change to other set
+          return false; // concurrent change to other set
         }
       }
-
-      return containsAll(set);
+      return this.containsAll(that);
     }
 
     @Override public int hashCode() {
@@ -815,7 +885,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
 
     @SuppressWarnings("unchecked")
     Object readResolve() {
-      return new Factory<E>(comparator).of((E[]) elements);
+      return new Builder<E>(comparator).add((E[]) elements).build();
     }
 
     private static final long serialVersionUID = 0;

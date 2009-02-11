@@ -45,9 +45,9 @@ public abstract class ForwardingCollection<E> extends ForwardingObject
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * <p>This method always throws a {@link NullPointerException} when
-   * {@code collection} is null.  
+   * {@code collection} is null.
    */
   public boolean removeAll(Collection<?> collection) {
     return delegate().removeAll(checkNotNull(collection));
@@ -87,9 +87,9 @@ public abstract class ForwardingCollection<E> extends ForwardingObject
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * <p>This method always throws a {@link NullPointerException} when
-   * {@code collection} is null.  
+   * {@code collection} is null.
    */
   public boolean retainAll(Collection<?> collection) {
     return delegate().retainAll(checkNotNull(collection));

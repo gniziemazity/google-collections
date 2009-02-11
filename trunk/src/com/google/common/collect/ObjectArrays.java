@@ -30,9 +30,6 @@ import java.util.Collection;
 public final class ObjectArrays {
   private ObjectArrays() {}
 
-  /** An empty object array. */
-  public static final Object[] EMPTY_ARRAY = new Object[0];
-
   /**
    * Returns a new array of the given length with the specified component type.
    *
@@ -61,15 +58,6 @@ public final class ObjectArrays {
   }
 
   /**
-   * Returns an empty array with the same component type as the specified array.
-   *
-   * @param array the array from which to infer the component type
-   */
-  public static <T> T[] emptyArray(T[] array) {
-    return (array.length == 0) ? array : newArray(array, 0);
-  }
-
-  /**
    * Returns a new array that contains the concatenated contents of two arrays.
    *
    * @param first the first array of elements to concatenate
@@ -80,6 +68,43 @@ public final class ObjectArrays {
     T[] result = newArray(type, first.length + second.length);
     System.arraycopy(first, 0, result, 0, first.length);
     System.arraycopy(second, 0, result, first.length, second.length);
+    return result;
+  }
+
+  /**
+   * Returns a new array that prepends {@code element} to {@code array}.
+   *
+   * @param element the element to prepend to the front of {@code array}
+   * @param array the array of elements to append
+   * @return an array whose size is one larger than {@code array}, with
+   *     {@code element} occupying the first position, and the
+   *     elements of {@code array} occupying the remaining elements.
+   */
+
+  public static <T> T[] concat(@Nullable T element, T[] array) {
+    @SuppressWarnings("unchecked")
+    T[] result =
+        (T[]) newArray(array.getClass().getComponentType(), array.length + 1);
+    result[0] = element;
+    System.arraycopy(array, 0, result, 1, array.length);
+    return result;
+  }
+
+  /**
+   * Returns a new array that appends {@code element} to {@code array}.
+   *
+   * @param array the array of elements to prepend
+   * @param element the element to append to the end
+   * @return an array whose size is one larger than {@code array}, with
+   *     the same contents as {@code array}, plus {@code element} occupying the
+   *     last position.
+   */
+  public static <T> T[] concat(T[] array, @Nullable T element) {
+    @SuppressWarnings("unchecked")
+    T[] result =
+        (T[]) newArray(array.getClass().getComponentType(), array.length + 1);
+    System.arraycopy(array, 0, result, 0, array.length);
+    result[array.length] = element;
     return result;
   }
 
@@ -98,7 +123,7 @@ public final class ObjectArrays {
    *
    * <p>This method returns the elements in the order they are returned by the
    * collection's iterator.
-   * 
+   *
    * <p>TODO: Support concurrent collections whose size can change while the
    * method is running.
    *
@@ -126,7 +151,7 @@ public final class ObjectArrays {
    * by the collection's iterator. The returned array is "safe" in that no
    * references to it are maintained by the collection. The caller is thus free
    * to modify the returned array.
-   * 
+   *
    * <p>This method assumes that the collection size doesn't change while the
    * method is running.
    *

@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Nullable;
+import com.google.common.collect.Serialization.FieldSetter;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -49,9 +50,38 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
    * read-modify-write sequences, and so are implemented as loops that wrap
    * ConcurrentMap's compare-and-set operations (like putIfAbsent).
    */
-  
+
   /** The number of occurrences of each element. */
   private transient final ConcurrentMap<E, Integer> countMap;
+
+  // This constant allows the deserialization code to set a final field. This
+  // holder class makes sure it is not initialized unless an instance is
+  // deserialized.
+  private static class FieldSettersHolder {
+    @SuppressWarnings("unchecked")
+    // References to ConcurrentMultiSet should be parameterized but there
+    // doesn't seem to be a syntactically valid way of specifying one.
+    static final FieldSetter<ConcurrentMultiset> COUNT_MAP_FIELD_SETTER
+        = Serialization.getFieldSetter(ConcurrentMultiset.class, "countMap");
+  }
+  /**
+   * Creates a new empty {@code ConcurrentMultiset} using the default initial
+   * capacity, load factor, and concurrency settings.
+   */
+  public static <E> ConcurrentMultiset<E> create() {
+    return new ConcurrentMultiset<E>();
+  }
+
+  /**
+   * Creates a new {@code ConcurrentMultiset} containing the specified elements,
+   * using the default initial capacity, load factor, and concurrency settings.
+   *
+   * @param elements the elements that the multiset should contain
+   */
+  public static <E> ConcurrentMultiset<E> create(
+      Iterable<? extends E> elements) {
+    return new ConcurrentMultiset<E>(elements);
+  }
 
   /**
    * Creates an empty instance.
@@ -69,12 +99,26 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
   }
 
   /**
+   * Creates an instance using a {@link ConcurrentHashMap} to store elements
+   * and their counts, and initially containing all the elements from a given
+   * iterable.
+   *
+   * <p>The {@code ConcurrentHashMap} will have default capacity, load factor,
+   * and concurrency settings. For more control, use
+   * {@link #ConcurrentMultiset(ConcurrentMap)}.
+   */
+  private ConcurrentMultiset(Iterable<? extends E> iterable) {
+    this(new ConcurrentHashMap<E, Integer>());
+    Iterables.addAll(this, iterable);
+  }
+
+  /**
    * Creates an instance using {@code countMap} to store elements and their
    * counts.
-   * 
+   *
    * <p>This instance will assume ownership of {@code countMap}, and other code
    * should not maintain references to the map or modify it in any way.
-   * 
+   *
    * @param countMap backing map for storing the elements in the multiset and
    *     their counts. It must be empty.
    * @throws IllegalArgumentException if {@code countMap} is not empty
@@ -295,7 +339,7 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
    * only if the count is currently {@code oldCount}. If {@code element} does
    * not appear in the multiset exactly {@code oldCount} times, no changes will
    * be made.
-   * 
+   *
    * @return {@code true} if the change was successful. This usually indicates
    *     that the multiset has been modified, but not always: in the case that
    *     {@code oldCount == newCount}, the method will return {@code true} if
@@ -335,7 +379,7 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
     }
     return result;
   }
-  
+
   private class EntrySet extends AbstractSet<Multiset.Entry<E>> {
     @Override public int size() {
       return countMap.size();
@@ -413,11 +457,11 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
     @Override public boolean retainAll(Collection<?> c) {
       return super.retainAll(checkNotNull(c));
     }
-    
+
     @Override public void clear() {
       countMap.clear();
     }
-    
+
     /**
      * The hash code is the same as countMap's, though the objects aren't equal.
      */
@@ -442,14 +486,14 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
     // creating HashMultiset to handle concurrent changes
     Serialization.writeMultiset(HashMultiset.create(this), stream);
   }
-  
+
   private void readObject(ObjectInputStream stream)
-      throws IOException, ClassNotFoundException, NoSuchFieldException {
+      throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
-    Serialization.setFinalField(ConcurrentMultiset.class, this, "countMap",
-        Maps.newConcurrentHashMap());
+    FieldSettersHolder.COUNT_MAP_FIELD_SETTER.set(
+        this, new MapMaker().makeMap());
     Serialization.populateMultiset(this, stream);
   }
-  
+
   private static final long serialVersionUID = 0L;
 }

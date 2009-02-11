@@ -16,6 +16,8 @@
 
 package com.google.common.collect;
 
+import com.google.common.base.Nullable;
+import com.google.common.base.Objects;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -38,90 +40,13 @@ public final class Multisets {
   private Multisets() {}
 
   /**
-   * Creates an empty {@code HashMultiset} using the default initial capacity
-   * (16 distinct elements).
-   */
-  public static <E> HashMultiset<E> newHashMultiset() {
-    return new HashMultiset<E>();
-  }
-
-  /**
-   * Creates a {@code HashMultiset} containing the specified elements, using the
-   * default initial capacity (16 distinct elements).
-   *
-   * @param elements the elements that the multiset should contain
-   */
-  public static <E> HashMultiset<E> newHashMultiset(E... elements) {
-    HashMultiset<E> multiset = new HashMultiset<E>();
-    Collections.addAll(multiset, elements);
-    return multiset;
-  }
-
-  /**
-   * Creates a {@code HashMultiset} containing the specified elements.
-   *
-   * @param elements the elements that the multiset should contain
-   */
-  public static <E> HashMultiset<E> newHashMultiset(
-      Iterable<? extends E> elements) {
-    return HashMultiset.create(elements);
-  }
-
-  /**
-   * Creates an empty {@code TreeMultiset} instance.
-   *
-   * @return a newly-created, initially-empty TreeMultiset
-   */
-  @SuppressWarnings("unchecked")  // allow ungenerified Comparable types
-  public static <E extends Comparable> TreeMultiset<E> newTreeMultiset() {
-    return new TreeMultiset<E>();
-  }
-
-  /**
-   * Creates an empty {@code TreeMultiset} instance, sorted according to the
-   * specified comparator.
-   *
-   * @return a newly-created, initially-empty TreeMultiset
-   */
-  public static <E> TreeMultiset<E> newTreeMultiset(Comparator<? super E> c) {
-    return new TreeMultiset<E>(c);
-  }
-
-  /** Creates an empty {@code EnumMultiset}. */
-  public static <E extends Enum<E>> EnumMultiset<E> newEnumMultiset(
-      Class<E> type) {
-    return new EnumMultiset<E>(type);
-  }
-
-  /**
-   * Creates an {@code EnumMultiset} containing the specified elements.
-   *
-   * @throws IllegalArgumentException if {@code elements} is empty
-   */
-  public static <E extends Enum<E>> EnumMultiset<E> newEnumMultiset(
-      Iterable<E> elements) {
-    return new EnumMultiset<E>(elements);
-  }
-
-  /**
-   * Creates an {@code EnumMultiset} containing the specified elements.
-   *
-   * @throws IllegalArgumentException if {@code elements} is empty
-   */
-  public static <E extends Enum<E>> EnumMultiset<E> newEnumMultiset(
-      E... elements) {
-    checkArgument(elements.length > 0,
-        "newEnumMultiset requires at least one element");
-    EnumMultiset<E> multiset = newEnumMultiset(elements[0].getDeclaringClass());
-    Collections.addAll(multiset, elements);
-    return multiset;
-  }
-
-  /**
    * Returns an unmodifiable view of the specified multiset. Query operations on
    * the returned multiset "read through" to the specified multiset, and
    * attempts to modify the returned multiset result in an
    * {@link UnsupportedOperationException}.
+   *
+   * <p>The returned multiset will be serializable if the specified multiset is
+   * serializable.
    *
    * @param multiset the multiset for which an unmodifiable view is to be
    *     generated
@@ -131,7 +56,7 @@ public final class Multisets {
     return new UnmodifiableMultiset<E>(multiset);
   }
 
-  private static class UnmodifiableMultiset<E> extends ForwardingMultiset<E> 
+  private static class UnmodifiableMultiset<E> extends ForwardingMultiset<E>
       implements Serializable {
     final Multiset<E> delegate;
     private UnmodifiableMultiset(Multiset<E> delegate) {
@@ -139,9 +64,9 @@ public final class Multisets {
     }
 
     @Override protected Multiset<E> delegate() {
-      return delegate;      
+      return delegate;
     }
-    
+
     transient Set<E> elementSet;
 
     @Override public Set<E> elementSet() {
@@ -200,39 +125,7 @@ public final class Multisets {
       throw new UnsupportedOperationException();
     }
 
-    private static final long serialVersionUID = 0;    
-  }
-
-  /**
-   * Returns a synchronized (thread-safe) multiset backed by the specified
-   * multiset. In order to guarantee serial access, <b>all</b> access to the
-   * backing multiset must go through the returned multiset.
-   *
-   * <p>It is imperative that the user manually synchronize on the returned
-   * multiset when iterating over any of its collection views:
-   *
-   * <pre>  Multiset&lt;E&gt; m = Multisets.synchronizedMultiset(
-   *      new HashMultiset&lt;E&gt;());
-   *   ...
-   *  Set&lt;E&gt; s = m.elementSet(); // Needn't be in synchronized block
-   *   ...
-   *  synchronized (m) { // Synchronizing on m, not s!
-   *    Iterator&lt;E&gt; i = s.iterator(); // Must be in synchronized block
-   *    while (i.hasNext()) {
-   *      foo(i.next());
-   *    }
-   *  }</pre>
-   *
-   * Failure to follow this advice may result in non-deterministic behavior.
-   *
-   * <p>For a greater degree of concurrency, you may use a {@link
-   * ConcurrentMultiset}.
-   *
-   * @param multiset the multiset to be wrapped
-   * @return a synchronized view of the specified multiset
-   */
-  public static <E> Multiset<E> synchronizedMultiset(Multiset<E> multiset) {
-    return Synchronized.multiset(multiset, null);
+    private static final long serialVersionUID = 0;
   }
 
   /**
@@ -242,9 +135,10 @@ public final class Multisets {
    * @param n the count to be associated with the returned entry
    * @throws IllegalArgumentException if {@code n} is negative
    */
-  public static <E> Multiset.Entry<E> immutableEntry(final E e, final int n) {
+  static <E> Multiset.Entry<E> immutableEntry(
+      @Nullable final E e, final int n) {
     checkArgument(n >= 0);
-    return new AbstractMultisetEntry<E>() {
+    return new AbstractEntry<E>() {
       public E getElement() {
         return e;
       }
@@ -270,7 +164,7 @@ public final class Multisets {
    *
    * @param set the backing set for the returned multiset view
    */
-  public static <E> Multiset<E> forSet(Set<E> set) {
+  static <E> Multiset<E> forSet(Set<E> set) {
     return new SetMultiset<E>(set);
   }
 
@@ -278,7 +172,7 @@ public final class Multisets {
   private static class SetMultiset<E> extends ForwardingCollection<E>
       implements Multiset<E>, Serializable {
     final Set<E> delegate;
-    
+
     SetMultiset(Set<E> set) {
       delegate = checkNotNull(set);
     }
@@ -308,14 +202,14 @@ public final class Multisets {
     }
 
     transient Set<E> elementSet;
-    
+
     public Set<E> elementSet() {
       Set<E> es = elementSet;
       return (es == null) ? elementSet = new ElementSet() : es;
     }
 
     transient Set<Entry<E>> entrySet;
-    
+
     public Set<Entry<E>> entrySet() {
       Set<Entry<E>> es = entrySet;
       return (es == null) ? entrySet = new EntrySet() : es;
@@ -329,15 +223,12 @@ public final class Multisets {
       throw new UnsupportedOperationException();
     }
 
-    @Override public boolean equals(Object o) {
-      if (o == this) {
-        return true;
+    @Override public boolean equals(@Nullable Object object) {
+      if (object instanceof Multiset) {
+        Multiset<?> that = (Multiset<?>) object;
+        return this.size() == that.size() && delegate.equals(that.elementSet());
       }
-      if (!(o instanceof Multiset)) {
-        return false;
-      }
-      Multiset<?> m = (Multiset<?>) o;
-      return size() == m.size() && delegate.equals(m.elementSet());
+      return false;
     }
 
     @Override public int hashCode() {
@@ -388,7 +279,7 @@ public final class Multisets {
       }
       // TODO: faster contains, remove
     }
-    
+
     private static final long serialVersionUID = 0;
   }
 
@@ -406,60 +297,43 @@ public final class Multisets {
   }
 
   /**
-   * Returns a comparator that orders elements according to their increasing
-   * frequency in a multiset. For example, suppose {@code m} is a non-empty
-   * multiset of strings. Then:
-   *
-   * <pre>  Collections.max(m.elementSet(), frequencyOrder(m));</pre>
-   *
-   * returns a string that occurs most frequently in {@code m}.
-   * (Warning: in this example, {@code Collections.max} throws
-   * {@code NoSuchElementException} when {@code m} is empty.)
-   *
-   * <p>The returned {@link Ordering} is a view into the backing multiset, so
-   * the ordering's behavior will change if the backing multiset changes. This
-   * can be dangerous; for example, if the ordering is used by a {@code TreeSet}
-   * and the backing multiset changes, the behavior of the {@code TreeSet}
-   * becomes undefined. Use a copy of the multiset to isolate against such
-   * changes when necessary.
-   *
-   * @param multiset the multiset specifying the frequencies of the objects to
-   *    compare
+   * Implementation of the {@code equals}, {@code hashCode}, and
+   * {@code toString} methods of {@link Multiset.Entry}.
    */
-  public static <T> Ordering<T> frequencyOrder(Multiset<?> multiset) {
-    return new FrequencyOrder<T>(multiset);
-  }
-
-  /** @see Multisets#frequencyOrder(Multiset) */
-  private static class FrequencyOrder<T> extends Ordering<T> {
-    final Multiset<?> multiset;
-
-    FrequencyOrder(Multiset<?> multiset) {
-      this.multiset = checkNotNull(multiset);
-    }
-
-    public int compare(T left, T right) {
-      int leftCount = multiset.count(left);
-      int rightCount = multiset.count(right);
-      return Comparators.compare(leftCount, rightCount);
-    }
-
-    @Override public boolean equals(Object object) {
-      if (object instanceof FrequencyOrder) {
-        FrequencyOrder<?> that = (FrequencyOrder<?>) object;
-        return (this.multiset).equals(that.multiset);
+  abstract static class AbstractEntry<E> implements Multiset.Entry<E> {
+    /**
+     * Indicates whether an object equals this entry, following the behavior
+     * specified in {@link Multiset.Entry#equals}.
+     */
+    @Override public boolean equals(@Nullable Object object) {
+      if (object instanceof Multiset.Entry) {
+        Multiset.Entry<?> that = (Multiset.Entry<?>) object;
+        return this.getCount() == that.getCount()
+            && Objects.equal(this.getElement(), that.getElement());
       }
       return false;
     }
 
+    /**
+     * Return this entry's hash code, following the behavior specified in
+     * {@link Multiset.Entry#hashCode}.
+     */
     @Override public int hashCode() {
-      return multiset.hashCode();
+      E e = getElement();
+      return ((e == null) ? 0 : e.hashCode()) ^ getCount();
     }
 
+    /**
+     * Returns a string representation of this multiset entry. The string
+     * representation consists of the associated element if the associated count
+     * is one, and otherwise the associated element followed by the characters
+     * " x " (space, x and space) followed by the count. Elements and counts are
+     * converted to strings as by {@code String.valueOf}.
+     */
     @Override public String toString() {
-      return "FrequencyOrder " + multiset;
+      String text = String.valueOf(getElement());
+      int n = getCount();
+      return (n == 1) ? text : (text + " x " + n);
     }
-    
-    private static final long serialVersionUID = 0;
   }
 }

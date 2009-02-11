@@ -36,7 +36,7 @@ public interface Predicate<T> {
   /**
    * Applies this predicate to the given object.
    *
-   * @param input the input that the predicate should act on 
+   * @param input the input that the predicate should act on
    * @return the value of this predicate when applied to the input {@code t}
    */
   boolean apply(@Nullable T input);

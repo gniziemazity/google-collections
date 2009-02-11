@@ -21,6 +21,9 @@ import java.io.Serializable;
 /**
  * Useful suppliers.
  *
+ * <p>All methods returns serializable suppliers as long as they're given
+ * serializable parameters.
+ *
  * @author Laurence Gonsalves
  * @author Harry Heymann
  */
@@ -36,15 +39,17 @@ public final class Suppliers {
    */
   public static <F, T> Supplier<T> compose(
       Function<? super F, ? extends T> function, Supplier<? extends F> first) {
+    Preconditions.checkNotNull(function);
+    Preconditions.checkNotNull(first);
     return new SupplierComposition<F, T>(function, first);
   }
-  
+
   private static class SupplierComposition<F, T>
       implements Supplier<T>, Serializable {
-    private final Function<? super F, ? extends T> function;
-    private final Supplier<? extends F> first;
-    
-    public SupplierComposition(Function<? super F, ? extends T> function,
+    final Function<? super F, ? extends T> function;
+    final Supplier<? extends F> first;
+
+    SupplierComposition(Function<? super F, ? extends T> function,
         Supplier<? extends F> first) {
       this.function = function;
       this.first = first;
@@ -66,16 +71,16 @@ public final class Suppliers {
    * supplier is <i>not</i> thread-safe.
    */
   public static <T> Supplier<T> memoize(Supplier<T> delegate) {
-    return new MemoizingSupplier<T>(delegate);
+    return new MemoizingSupplier<T>(Preconditions.checkNotNull(delegate));
   }
 
   private static class MemoizingSupplier<T>
       implements Supplier<T>, Serializable {
-    private final Supplier<T> delegate;
-    private MemoizationState state = MemoizationState.NOT_YET;
-    private T value;
+    final Supplier<T> delegate;
+    MemoizationState state = MemoizationState.NOT_YET;
+    T value;
 
-    public MemoizingSupplier(Supplier<T> delegate) {
+    MemoizingSupplier(Supplier<T> delegate) {
       this.delegate = delegate;
     }
     public T get() {
@@ -96,7 +101,7 @@ public final class Suppliers {
     }
     private static final long serialVersionUID = 0;
   }
-  
+
   private enum MemoizationState { NOT_YET, COMPUTING, DONE }
 
   /**
@@ -115,16 +120,39 @@ public final class Suppliers {
   public static <T> Supplier<T> ofInstance(@Nullable T instance) {
     return new SupplierOfInstance<T>(instance);
   }
-  
+
   private static class SupplierOfInstance<T>
       implements Supplier<T>, Serializable {
-    private final T instance;
-    
-    public SupplierOfInstance(T instance) {
+    final T instance;
+
+    SupplierOfInstance(T instance) {
       this.instance = instance;
     }
     public T get() {
       return instance;
+    }
+    private static final long serialVersionUID = 0;
+  }
+
+  /**
+   * Returns a supplier whose {@code get()} method synchronizes on
+   * {@code delegate} before calling it, making it thread-safe.
+   */
+  public static <T> Supplier<T> synchronizedSupplier(Supplier<T> delegate) {
+    return new ThreadSafeSupplier<T>(Preconditions.checkNotNull(delegate));
+  }
+
+  private static class ThreadSafeSupplier<T>
+      implements Supplier<T>, Serializable {
+    final Supplier<T> delegate;
+
+    ThreadSafeSupplier(Supplier<T> delegate) {
+      this.delegate = delegate;
+    }
+    public T get() {
+      synchronized(delegate) {
+        return delegate.get();
+      }
     }
     private static final long serialVersionUID = 0;
   }

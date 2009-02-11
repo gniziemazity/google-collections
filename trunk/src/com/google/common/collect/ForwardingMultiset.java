@@ -16,6 +16,8 @@
 
 package com.google.common.collect;
 
+import com.google.common.base.Nullable;
+
 import java.util.Set;
 
 /**
@@ -23,7 +25,7 @@ import java.util.Set;
  * Subclasses should override one or more methods to modify the behavior of the
  * backing multiset as desired per the <a
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
- * 
+ *
  * @see ForwardingObject
  * @author Kevin Bourrillion
  */
@@ -56,8 +58,8 @@ public abstract class ForwardingMultiset<E> extends ForwardingCollection<E>
     return delegate().entrySet();
   }
 
-  @Override public boolean equals(Object obj) {
-    return (this == obj) || delegate().equals(obj);
+  @Override public boolean equals(@Nullable Object object) {
+    return object == this || delegate().equals(object);
   }
 
   @Override public int hashCode() {

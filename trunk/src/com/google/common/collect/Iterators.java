@@ -16,15 +16,14 @@
 
 package com.google.common.collect;
 
+import com.google.common.base.Function;
+import com.google.common.base.Nullable;
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkContentsNotNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-
-import com.google.common.base.Function;
-import com.google.common.base.Join;
-import com.google.common.base.Nullable;
-import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 
 import java.util.Arrays;
@@ -47,24 +46,22 @@ import java.util.NoSuchElementException;
 public final class Iterators {
   private Iterators() {}
 
-  static final Iterator<Object> EMPTY_ITERATOR = new Iterator<Object>() {
-    public boolean hasNext() {
-      return false;
-    }
-    public Object next() {
-      throw new NoSuchElementException();
-    }
-    public void remove() {
-      throw new UnsupportedOperationException();
-    }
-  };
+  static final Iterator<Object> EMPTY_ITERATOR
+      = new UnmodifiableIterator<Object>() {
+        public boolean hasNext() {
+          return false;
+        }
+        public Object next() {
+          throw new NoSuchElementException();
+        }
+      };
 
 
   /** Returns the empty {@code Iterator}. */
   // Casting to any type is safe since there are no actual elements.
   @SuppressWarnings("unchecked")
-  public static <T> Iterator<T> emptyIterator() {
-    return (Iterator<T>) EMPTY_ITERATOR;
+  public static <T> UnmodifiableIterator<T> emptyIterator() {
+    return (UnmodifiableIterator<T>) EMPTY_ITERATOR;
   }
 
   private static final ListIterator<Object> EMPTY_LIST_ITERATOR =
@@ -133,18 +130,15 @@ public final class Iterators {
   }
 
   /** Returns an unmodifiable view of {@code iterator}. */
-  public static <T> Iterator<T> unmodifiableIterator(
+  public static <T> UnmodifiableIterator<T> unmodifiableIterator(
       final Iterator<T> iterator) {
     checkNotNull(iterator);
-    return new Iterator<T>() {
+    return new UnmodifiableIterator<T>() {
       public boolean hasNext() {
         return iterator.hasNext();
       }
       public T next() {
         return iterator.next();
-      }
-      public void remove() {
-        throw new UnsupportedOperationException();
       }
     };
   }
@@ -196,7 +190,7 @@ public final class Iterators {
    * Traverses an iterator and removes every element that belongs to the
    * provided collection. The iterator will be left exhausted: its
    * {@code hasNext()} method will return {@code false}.
-   * 
+   *
    * @param iterator the iterator to (potentially) remove elements from
    * @param c the elements to remove
    * @return {@code true} if any elements are removed from {@code iterator}
@@ -212,12 +206,12 @@ public final class Iterators {
     }
     return modified;
   }
-  
+
   /**
    * Traverses an iterator and removes every element that does not belong to the
    * provided collection. The iterator will be left exhausted: its
    * {@code hasNext()} method will return {@code false}.
-   * 
+   *
    * @param iterator the iterator to (potentially) remove elements from
    * @param c the elements to retain
    * @return {@code true} if any elements are removed from {@code iterator}
@@ -233,7 +227,7 @@ public final class Iterators {
     }
     return modified;
   }
-  
+
   /**
    * Determines whether two iterators contain equal elements in the same order.
    * More specifically, this method returns {@code true} if {@code iterator1}
@@ -265,8 +259,14 @@ public final class Iterators {
    * {@code hasNext()} method will return {@code false}.
    */
   public static String toString(Iterator<?> iterator) {
-    StringBuilder builder = new StringBuilder().append('[');
-    Join.join(builder, ", ", iterator);
+    if (!iterator.hasNext()) {
+      return "[]";
+    }
+    StringBuilder builder = new StringBuilder();
+    builder.append('[').append(iterator.next());
+    while (iterator.hasNext()) {
+      builder.append(", ").append(iterator.next());
+    }
     return builder.append(']').toString();
   }
 
@@ -340,7 +340,7 @@ public final class Iterators {
     }
     return wasModified;
   }
-  
+
   /**
    * Returns the number of elements in the specified iterator that equal the
    * specified object. The iterator will be left exhausted: its
@@ -442,6 +442,44 @@ public final class Iterators {
   }
 
   /**
+   * Combines three iterators into a single iterator. The returned iterator
+   * iterates across the elements in {@code a}, followed by the elements in
+   * {@code b}, followed by the elements in {@code c}. The source iterators
+   * are not polled until necessary.
+   *
+   * <p>The returned iterator supports {@code remove()} when the corresponding
+   * input iterator supports it.
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> Iterator<T> concat(Iterator<? extends T> a,
+      Iterator<? extends T> b, Iterator<? extends T> c) {
+    checkNotNull(a);
+    checkNotNull(b);
+    checkNotNull(c);
+    return concat(Arrays.asList(a, b, c).iterator());
+  }
+
+  /**
+   * Combines four iterators into a single iterator. The returned iterator
+   * iterates across the elements in {@code a}, followed by the elements in
+   * {@code b}, followed by the elements in {@code c}, followed by the elements
+   * in {@code d}. The source iterators are not polled until necessary.
+   *
+   * <p>The returned iterator supports {@code remove()} when the corresponding
+   * input iterator supports it.
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> Iterator<T> concat(Iterator<? extends T> a,
+      Iterator<? extends T> b, Iterator<? extends T> c,
+      Iterator<? extends T> d) {
+    checkNotNull(a);
+    checkNotNull(b);
+    checkNotNull(c);
+    checkNotNull(d);
+    return concat(Arrays.asList(a, b, c, d).iterator());
+  }
+
+  /**
    * Combines multiple iterators into a single iterator. The returned iterator
    * iterates across the elements of each iterator in {@code inputs}. The input
    * iterators are not polled until necessary.
@@ -494,55 +532,68 @@ public final class Iterators {
   }
 
   /**
-   * Partition an iterator into sub-iterators of the given size. For example,
-   * <code>{A, B, C, D, E, F}</code> with partition size 3 yields
-   * <code>{A, B, C}</code> and <code>{D, E, F}</code>. The returned
-   * iterators do not support {@code remove()}.
+   * Divides an iterator into unmodifiable sublists of the given size (the final
+   * list may be smaller). For example, partitioning an iterator containing
+   * {@code [a, b, c, d, e]} with a partition size of 3 yields {@code
+   * [[a, b, c], [d, e]]} -- an outer iterator containing two inner lists of
+   * three and two elements, all in the original order.
    *
-   * <p>After {@code next()} is called on the returned iterator, the iterators
-   * from prior {@code next()} calls become invalid.
+   * <p>The iterator does not support the {@link Iterator#remove()} method.
    *
-   * @param iterator the iterator to partition
-   * @param partitionSize the size of each partition
-   * @param padToSize whether to pad the last partition to the partition size
-   *     with {@code null}
-   * @return an iterator across partitioned iterators
+   * @param iterator the iterator to return a partitioned view of
+   * @param size the desired size of each partition (the last may be smaller)
+   * @return an iterator of immutable lists containing the elements of {@code
+   *     iterator} divided into partitions
+   * @throws IllegalArgumentException if {@code size} is nonpositive
    */
-  public static <T> Iterator<Iterator<T>> partition(
-      final Iterator<? extends T> iterator,
-      final int partitionSize, final boolean padToSize) {
+  public static <T> UnmodifiableIterator<List<T>> partition(
+      Iterator<T> iterator, int size) {
+    return partitionImpl(iterator, size, false);
+  }
+
+  /**
+   * Divides an iterator into unmodifiable sublists of the given size, padding
+   * the final iterator with null values if necessary. For example, partitioning
+   * an iterator containing {@code [a, b, c, d, e]} with a partition size of 3
+   * yields {@code [[a, b, c], [d, e, null]]} -- an outer iterator containing
+   * two inner lists of three elements each, all in the original order.
+   *
+   * <p>The iterator does not support the {@link Iterator#remove()} method.
+   *
+   * @param iterator the iterator to return a partitioned view of
+   * @param size the desired size of each partition
+   * @return an iterator of immutable lists containing the elements of {@code
+   *     iterator} divided into partitions (the final iterable may have
+   *     trailing null elements)
+   * @throws IllegalArgumentException if {@code size} is nonpositive
+   */
+  public static <T> UnmodifiableIterator<List<T>> paddedPartition(
+      Iterator<T> iterator, int size) {
+    return partitionImpl(iterator, size, true);
+  }
+
+  private static <T> UnmodifiableIterator<List<T>> partitionImpl(
+      final Iterator<T> iterator, final int size, final boolean pad) {
     checkNotNull(iterator);
-    return new AbstractIterator<Iterator<T>>() {
-      Iterator<T> currentRow;
-
-      @Override protected Iterator<T> computeNext() {
-        if (currentRow != null) {
-          while (currentRow.hasNext()) {
-            currentRow.next();
-          }
+    checkArgument(size > 0);
+    return new UnmodifiableIterator<List<T>>() {
+      public boolean hasNext() {
+        return iterator.hasNext();
+      }
+      public List<T> next() {
+        if (!hasNext()) {
+          throw new NoSuchElementException();
         }
-        if (!iterator.hasNext()) {
-          return endOfData();
+        Object[] array = new Object[size];
+        int count = 0;
+        for (; count < size && iterator.hasNext(); count++) {
+          array[count] = iterator.next();
         }
-        currentRow = new AbstractIterator<T>() {
-          int count = partitionSize;
 
-          @Override protected T computeNext() {
-            if (count == 0) {
-              return endOfData();
-            }
-            count--;
-            if (iterator.hasNext()) {
-              return iterator.next();
-            } else {
-              if (!padToSize) {
-                endOfData();
-              }
-              return null;
-            }
-          }
-        };
-        return currentRow;
+        @SuppressWarnings("unchecked") // we only put Ts in it
+        List<T> list = Collections.unmodifiableList(
+            (List<T>) Arrays.asList(array));
+        return (pad || count == size) ? list : Platform.subList(list, 0, count);
       }
     };
   }
@@ -584,7 +635,7 @@ public final class Iterators {
     checkNotNull(type);
     Predicate<Object> predicate = new Predicate<Object>() {
       public boolean apply(Object object) {
-        return type.isInstance(object);
+        return Platform.isInstance(type, object);
       }
     };
     return (Iterator<T>) filter(unfiltered, predicate);
@@ -634,7 +685,7 @@ public final class Iterators {
    * @throws NoSuchElementException if no element in {@code iterator} matches
    *     the given predicate
    */
-  public static <E> E find(Iterator<E> iterator, Predicate<? super E> predicate)
+  public static <T> T find(Iterator<T> iterator, Predicate<? super T> predicate)
   {
     return filter(iterator, predicate).next();
   }
@@ -678,15 +729,15 @@ public final class Iterators {
   public static <T> T get(Iterator<T> iterator, int position) {
     checkNotNull(iterator);
     if (position < 0) {
-      throw new IndexOutOfBoundsException(
-          "position cannot be negative: " + position);
+      throw new IndexOutOfBoundsException("position (" + position
+          + ") must not be negative");
     }
 
     int skipped = skip(iterator, position);
     if (skipped < position || !iterator.hasNext()) {
-      throw new IndexOutOfBoundsException(String.format(
-          "position (%d) must be less than the number of elements that " +
-          "remained (%d)", position, skipped));
+      throw new IndexOutOfBoundsException(
+          "position (" + position + ") must be less than the number of " +
+          "elements that remained (" + skipped + ")");
     } else {
       return iterator.next();
     }
@@ -763,45 +814,61 @@ public final class Iterators {
   // Methods only in Iterators, not in Iterables
 
   /**
-   * Returns an iterator containing the elements of {@code array} in order. Note
-   * that you can also use the iterator of {@link Arrays#asList}.
+   * Returns an iterator containing the elements of {@code array} in order. The
+   * returned iterator is a view of the array; subsequent changes to the array
+   * will be reflected in the iterator.
+   *
+   * <p><b>Note:</b> It is often preferable to represent your data using a
+   * collection type, for example using {@link Arrays#asList(Object[])}, making
+   * this method unnecessary.
    */
-  static <T> Iterator<T> forArray(T[] array) {
-    return forArray(array, 0, array.length);
+  public static <T> UnmodifiableIterator<T> forArray(final T... array) {
+    // optimized. benchmarks at nearly 2x of the straightforward impl
+    return new UnmodifiableIterator<T>() {
+      final int length = array.length;
+      int i = 0;
+      public boolean hasNext() {
+        return i < length;
+      }
+      public T next() {
+        try {
+          // 'return array[i++];' almost works
+          T t = array[i];
+          i++;
+          return t;
+        } catch (ArrayIndexOutOfBoundsException e) {
+          throw new NoSuchElementException();
+        }
+      }
+    };
   }
 
   /**
    * Returns an iterator containing the elements in the specified range of
-   * {@code array} in order.
-   * 
+   * {@code array} in order. The returned iterator is a view of the array;
+   * subsequent changes to the array will be reflected in the iterator.
+   *
    * @param array array to read elements out of
    * @param offset index of first array element to retrieve
-   * @length length number of elements in iteration
-   * 
+   * @param length number of elements in iteration
+   *
    * @throws IndexOutOfBoundsException if {@code offset} is negative,
    *    {@code length} is negative, or {@code offset + length > array.length}
    */
-  public static <T> Iterator<T> forArray(
+  public static <T> UnmodifiableIterator<T> forArray(
       final T[] array, final int offset, final int length) {
-    checkNotNull(array);
-    if (length < 0) {
-      throw new IndexOutOfBoundsException("Negative length " + length);
-    }
-    if (offset < 0) {
-      throw new IndexOutOfBoundsException("Negative offset " + offset);
-    }
-    if (offset + length > array.length) {
-      throw new IndexOutOfBoundsException(
-          "offset (" + offset + ") + length (" + length + ") > "
-          + "array.length (" + array.length + ")");
-    }
-    if (length == 0) {
-      return emptyIterator();
-    }
-    return new Iterator<T>() {
+    checkArgument(length >= 0);
+    final int end = offset + length;
+
+    // Technically we should give a slightly more descriptive error on overflow
+    Preconditions.checkPositionIndexes(offset, end, array.length);
+
+    // If length == 0 is a common enough case, we could return emptyIterator().
+
+    return new UnmodifiableIterator<T>() {
       int i = offset;
       public boolean hasNext() {
-        return i < offset + length;
+        return i < end;
       }
       public T next() {
         if (!hasNext()) {
@@ -809,17 +876,15 @@ public final class Iterators {
         }
         return array[i++];
       }
-      public void remove() {
-        throw new UnsupportedOperationException();
-      }
     };
   }
 
   /**
    * Returns an iterator containing only {@code value}.
    */
-  static <T> Iterator<T> singletonIterator(final T value) {
-    return new Iterator<T>() {
+  public static <T> UnmodifiableIterator<T> singletonIterator(
+      @Nullable final T value) {
+    return new UnmodifiableIterator<T>() {
       boolean done;
       public boolean hasNext() {
         return !done;
@@ -830,9 +895,6 @@ public final class Iterators {
         }
         done = true;
         return value;
-      }
-      public void remove() {
-        throw new UnsupportedOperationException();
       }
     };
   }

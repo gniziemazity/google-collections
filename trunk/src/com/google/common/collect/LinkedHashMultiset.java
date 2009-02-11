@@ -29,15 +29,45 @@ import java.util.concurrent.atomic.AtomicInteger;
  * element, those instances are consecutive in the iteration order. If all
  * occurrences of an element are removed, after which that element is added to
  * the multiset, the element will appear at the end of the iteration.
- * 
+ *
  * @author Kevin Bourrillion
  * @author Jared Levy
  */
 @SuppressWarnings("serial") // we're overriding default serialization
 public final class LinkedHashMultiset<E> extends AbstractMapBasedMultiset<E> {
+
+  /**
+   * Creates a new empty {@code LinkedHashMultiset} using the default initial
+   * capacity.
+   */
+  public static <E> LinkedHashMultiset<E> create() {
+    return new LinkedHashMultiset<E>();
+  }
+
+  /**
+   * Creates a new empty {@code LinkedHashMultiset} with the specified expected
+   * number of distinct elements.
+   *
+   * @param distinctElements the expected number of distinct elements
+   * @throws IllegalArgumentException if {@code distinctElements} is negative
+   */
+  public static <E> LinkedHashMultiset<E> create(int distinctElements) {
+    return new LinkedHashMultiset<E>(distinctElements);
+  }
+
+  /**
+   * Creates a new {@code LinkedHashMultiset} containing the specified elements.
+   *
+   * @param elements the elements that the multiset should contain
+   */
+  public static <E> LinkedHashMultiset<E> create(
+      Iterable<? extends E> elements) {
+    return new LinkedHashMultiset<E>(elements);
+  }
+
   /**
    * Constructs a new empty {@code LinkedHashMultiset} using the default initial
-   * capacity (16 distinct elements) and load factor (0.75).
+   * capacity.
    */
   public LinkedHashMultiset() {
     super(new LinkedHashMap<E, AtomicInteger>());
@@ -45,12 +75,12 @@ public final class LinkedHashMultiset<E> extends AbstractMapBasedMultiset<E> {
 
   /**
    * Constructs a new empty {@code LinkedHashMultiset} with the specified
-   * expected number of distinct elements and the default load factor (0.75).
+   * expected number of distinct elements.
    *
    * @param distinctElements the expected number of distinct elements
    * @throws IllegalArgumentException if {@code distinctElements} is negative
    */
-  public LinkedHashMultiset(int distinctElements) {
+  private LinkedHashMultiset(int distinctElements) {
     // Could use newLinkedHashMapWithExpectedSize() if it existed
     super(new LinkedHashMap<E, AtomicInteger>(Maps.capacity(distinctElements)));
   }
@@ -58,10 +88,10 @@ public final class LinkedHashMultiset<E> extends AbstractMapBasedMultiset<E> {
   /**
    * Constructs a new {@code LinkedHashMultiset} containing the specified
    * elements.
-   * 
+   *
    * @param elements the elements that the multiset should contain
    */
-  public LinkedHashMultiset(Iterable<? extends E> elements) {
+  private LinkedHashMultiset(Iterable<? extends E> elements) {
     this(Multisets.inferDistinctElements(elements));
     Iterables.addAll(this, elements); // careful if we make this class non-final
   }
@@ -74,13 +104,13 @@ public final class LinkedHashMultiset<E> extends AbstractMapBasedMultiset<E> {
     stream.defaultWriteObject();
     Serialization.writeMultiset(this, stream);
   }
-  
+
   private void readObject(ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
     setBackingMap(new LinkedHashMap<E, AtomicInteger>());
     Serialization.populateMultiset(this, stream);
   }
-  
-  private static final long serialVersionUID = 0;  
+
+  private static final long serialVersionUID = 0;
 }

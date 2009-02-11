@@ -46,7 +46,7 @@ public interface Constraint<E> {
    * illegal. Typically this is either a {@link NullPointerException}, an
    * {@link IllegalArgumentException}, or a {@link ClassCastException}, though
    * an application-specific exception class may be used if appropriate.
-   * 
+   *
    * @param element the element to check
    * @return the provided element
    */

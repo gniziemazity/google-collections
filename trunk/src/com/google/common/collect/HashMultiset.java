@@ -37,7 +37,7 @@ public final class HashMultiset<E> extends AbstractMapBasedMultiset<E> {
   public static <E> HashMultiset<E> create() {
     return new HashMultiset<E>();
   }
-  
+
   /**
    * Creates a new empty {@code HashMultiset} with the specified expected number
    * of distinct elements.
@@ -48,7 +48,7 @@ public final class HashMultiset<E> extends AbstractMapBasedMultiset<E> {
   public static <E> HashMultiset<E> create(int distinctElements) {
     return new HashMultiset<E>(distinctElements);
   }
-  
+
   /**
    * Creates a new {@code HashMultiset} containing the specified elements.
    *
@@ -57,7 +57,7 @@ public final class HashMultiset<E> extends AbstractMapBasedMultiset<E> {
   public static <E> HashMultiset<E> create(Iterable<? extends E> elements) {
     return new HashMultiset<E>(elements);
   }
-  
+
   /**
    * Constructs a new empty {@code HashMultiset} using the default initial
    * capacity.
@@ -95,13 +95,13 @@ public final class HashMultiset<E> extends AbstractMapBasedMultiset<E> {
     stream.defaultWriteObject();
     Serialization.writeMultiset(this, stream);
   }
-  
+
   private void readObject(ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
     setBackingMap(new HashMap<E, AtomicInteger>());
     Serialization.populateMultiset(this, stream);
   }
-  
-  private static final long serialVersionUID = 0;  
+
+  private static final long serialVersionUID = 0;
 }

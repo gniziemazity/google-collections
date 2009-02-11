@@ -38,15 +38,13 @@ public final class EnumHashBiMap<K extends Enum<K>, V>
   private transient Class<K> keyType;
 
   /**
-   * Constructs a new empty bimap using the specified key type, sized to contain
-   * an entry for every possible key.
+   * Returns a new empty {@code EnumHashBiMap} using the specified key type.
    *
    * @param keyType the key type
    */
-  public EnumHashBiMap(Class<K> keyType) {
-    super(new EnumMap<K, V>(keyType),
-        new HashMap<V, K>(keyType.getEnumConstants().length * 3 / 2));
-    this.keyType = keyType;
+  public static <K extends Enum<K>, V> EnumHashBiMap<K, V>
+      create(Class<K> keyType) {
+    return new EnumHashBiMap<K, V>(keyType);
   }
 
   /**
@@ -59,9 +57,17 @@ public final class EnumHashBiMap<K extends Enum<K>, V>
    * @throws IllegalArgumentException if map is not an {@code EnumBiMap} or an
    *     {@code EnumHashBiMap} instance and contains no mappings
    */
-  public EnumHashBiMap(Map<K, ? extends V> map) {
-    this(EnumBiMap.inferKeyType(map));
-    putAll(map); // careful if we make this class non-final
+  public static <K extends Enum<K>, V> EnumHashBiMap<K, V>
+      create(Map<K, ? extends V> map) {
+    EnumHashBiMap<K, V> bimap = create(EnumBiMap.inferKeyType(map));
+    bimap.putAll(map);
+    return bimap;
+  }
+
+  private EnumHashBiMap(Class<K> keyType) {
+    super(new EnumMap<K, V>(keyType), Maps.<V, K>newHashMapWithExpectedSize(
+        keyType.getEnumConstants().length));
+    this.keyType = keyType;
   }
 
   // Overriding these two methods to show that values may be null (but not keys)
@@ -78,7 +84,7 @@ public final class EnumHashBiMap<K extends Enum<K>, V>
   public Class<K> keyType() {
     return keyType;
   }
-  
+
   /**
    * @serialData the key class, number of entries, first key, first value,
    *     second key, second value, and so on.
@@ -88,7 +94,7 @@ public final class EnumHashBiMap<K extends Enum<K>, V>
     stream.writeObject(keyType);
     Serialization.writeMap(this, stream);
   }
-  
+
   @SuppressWarnings("unchecked") // reading field populated by writeObject
   private void readObject(ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
@@ -98,6 +104,6 @@ public final class EnumHashBiMap<K extends Enum<K>, V>
         new HashMap<V, K>(keyType.getEnumConstants().length * 3 / 2));
     Serialization.populateMap(this, stream);
   }
-  
-  private static final long serialVersionUID = 0;  
+
+  private static final long serialVersionUID = 0;
 }

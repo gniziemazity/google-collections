@@ -120,9 +120,30 @@ public final class Multimaps {
   }
 
   /**
+   * Creates an empty {@code LinkedListMultimap} instance.
+   *
+   * @return a newly-created, initially-empty {@code LinkedListMultimap}
+   */
+  public static <K, V> LinkedListMultimap<K, V> newLinkedListMultimap() {
+    return new LinkedListMultimap<K, V>();
+  }
+
+  /**
+   * Creates a {@code LinkedListMultimap} instance initialized with all elements
+   * from the supplied {@code Multimap}. The new multimap has the same
+   * {@link Multimap#entries()} iteration order as the input multimap.
+   *
+   * @param multimap the multimap whose contents are copied to this multimap.
+   * @return a newly-created and initialized {@code LinkedListMultimap}
+   */
+  public static <K, V> LinkedListMultimap<K, V> newLinkedListMultimap(
+      Multimap<? extends K, ? extends V> multimap) {
+    return new LinkedListMultimap<K, V>(multimap);
+  }
+
+  /**
    * Creates an empty {@code TreeMultimap} instance using the natural ordering
-   * of keys and values. If the supplied multimap contains duplicate key-value
-   * pairs, those duplicate pairs will only be stored once in the new multimap.
+   * of keys and values.
    *
    * @return a newly-created, initially-empty {@code TreeMultimap}
    */
@@ -169,7 +190,9 @@ public final class Multimaps {
 
   /**
    * Creates a {@code TreeMultimap} instance using explicit comparators,
-   * initialized with all elements from the supplied {@code Multimap}.
+   * initialized with all elements from the supplied {@code Multimap}. If the
+   * supplied multimap contains duplicate key-value pairs, those duplicate
+   * pairs will only be stored once in the new multimap.
    *
    * @param multimap the multimap whose contents are copied to this multimap.
    * @return a newly-created and initialized {@code TreeMultimap}
@@ -189,7 +212,7 @@ public final class Multimaps {
    * <p>The {@code factory}-generated and {@code map} classes determine the
    * multimap iteration order. They also specify the behavior of the
    * {@code equals}, {@code hashCode}, and {@code toString} methods for the
-   * multimap and its returned views. However, the multimaps's {@code get}
+   * multimap and its returned views. However, the multimap's {@code get}
    * method returns instances of a different class than {@code factory.get()}
    * does.
    *
@@ -205,8 +228,8 @@ public final class Multimaps {
    *
    * <p>Call this method only when the simpler methods
    * {@link #newArrayListMultimap()}, {@link #newHashMultimap()},
-   * {@link #newLinkedHashMultimap()} and {@link #newTreeMultimap()} won't
-   * suffice.
+   * {@link #newLinkedHashMultimap()}, {@link #newLinkedListMultimap()}, and
+   * {@link #newTreeMultimap()} won't suffice.
    *
    * @param map place to store the mapping from each key to its corresponding
    *     values
@@ -262,7 +285,7 @@ public final class Multimaps {
    * <p>The {@code factory}-generated and {@code map} classes determine the
    * multimap iteration order. They also specify the behavior of the
    * {@code equals}, {@code hashCode}, and {@code toString} methods for the
-   * multimap and its returned views. However, the multimaps's {@code get}
+   * multimap and its returned views. However, the multimap's {@code get}
    * method returns instances of a different class than {@code factory.get()}
    * does.
    *
@@ -276,8 +299,9 @@ public final class Multimaps {
    * allow concurrent update operations, wrap the multimap with a call to
    * {@link #synchronizedListMultimap}.
    *
-   * <p>Call this method only when the simpler method {@link
-   * #newArrayListMultimap()} won't suffice.
+   * <p>Call this method only when the simpler methods
+   * {@link #newArrayListMultimap()} and {@link #newLinkedListMultimap()} won't
+   * suffice.
    *
    * @param map place to store the mapping from each key to its corresponding
    *     values
@@ -331,7 +355,7 @@ public final class Multimaps {
    * <p>The {@code factory}-generated and {@code map} classes determine the
    * multimap iteration order. They also specify the behavior of the
    * {@code equals}, {@code hashCode}, and {@code toString} methods for the
-   * multimap and its returned views. However, the multimaps's {@code get}
+   * multimap and its returned views. However, the multimap's {@code get}
    * method returns instances of a different class than {@code factory.get()}
    * does.
    *
@@ -401,7 +425,7 @@ public final class Multimaps {
    * <p>The {@code factory}-generated and {@code map} classes determine the
    * multimap iteration order. They also specify the behavior of the
    * {@code equals}, {@code hashCode}, and {@code toString} methods for the
-   * multimap and its returned views. However, the multimaps's {@code get}
+   * multimap and its returned views. However, the multimap's {@code get}
    * method returns instances of a different class than {@code factory.get()}
    * does.
    *
@@ -471,74 +495,19 @@ public final class Multimaps {
   }
 
   /**
-   * Creates a {@code HashMultimap} that's the inverse of the provided multimap.
-   * If the input multimap includes the mapping from a key to a value, the
-   * returned multimap contains a mapping from the value to the key.
+   * Copies each key-value mapping in {@code source} into {@code dest}, with
+   * its key and value reversed.
    *
-   * <p>If the input multimap has duplicate key-value mappings, the returned
-   * multimap includes the inverse mapping once.
-   *
-   * <p>The returned multimap is modifiable. Updating it will not affect the
-   * input multimap, and vice versa.
-   *
-   * @param multimap the multimap to invert
-   * @return the inverse of the input multimap
+   * @param source any multimap
+   * @param dest the multimap to copy into; usually empty
+   * @return {@code dest}
    */
-  public static <K, V> HashMultimap<V, K> inverseHashMultimap(
-      Multimap<K, V> multimap) {
-    HashMultimap<V, K> inverse = new HashMultimap<V, K>();
-    addInverse(inverse, multimap);
-    return inverse;
-  }
-
-  /**
-   * Creates an {@code ArrayListMultimap} that's the inverse of the provided
-   * multimap. If the input multimap includes the mapping from a key to a value,
-   * the returned multimap contains a mapping from the value to the key.
-   *
-   * <p>The returned multimap is modifiable. Updating it will not affect the
-   * input multimap, and vice versa.
-   *
-   * @param multimap the multimap to invert
-   * @return the inverse of the input multimap
-   */
-  public static <K, V> ArrayListMultimap<V, K> inverseArrayListMultimap(
-      Multimap<K, V> multimap) {
-    ArrayListMultimap<V, K> inverse = new ArrayListMultimap<V, K>();
-    addInverse(inverse, multimap);
-    return inverse;
-  }
-
-  /**
-   * Creates a {@code TreeMultimap} that's the inverse of the provided multimap.
-   * If the input multimap includes the mapping from a key to a value, the
-   * returned multimap contains a mapping from the value to the key. The
-   * returned multimap follows the natural ordering of its keys and values.
-   *
-   * <p>If the input multimap has duplicate key-value mappings, the returned
-   * multimap includes the inverse mapping once.
-   *
-   * <p>The returned multimap is modifiable. Updating it will not affect the
-   * input map, and vice versa. The returned multimap orders the keys and values
-   * according to their natural ordering.
-   *
-   * @param multimap the multimap to invert
-   * @return the inverse of the input multimap
-   */
-  @SuppressWarnings("unchecked")  // allow ungenerified Comparable types
-  public static <K extends Comparable, V extends Comparable> TreeMultimap<V, K>
-      inverseTreeMultimap(Multimap<K, V> multimap) {
-    TreeMultimap<V, K> inverse = new TreeMultimap<V, K>();
-    addInverse(inverse, multimap);
-    return inverse;
-  }
-
-  /** Inverts a multimap's entries and puts them in the inverse multimap. */
-  private static <K, V> void addInverse(Multimap<V, K> inverse,
-      Multimap<K, V> multimap) {
-    for (Map.Entry<K, V> entry : multimap.entries()) {
-      inverse.put(entry.getValue(), entry.getKey());
+  public static <K, V, M extends Multimap<K, V>> M invertFrom(
+      Multimap<? extends V, ? extends K> source, M dest) {
+    for (Map.Entry<? extends V, ? extends K> entry : source.entries()) {
+      dest.put(entry.getValue(), entry.getKey());
     }
+    return dest;
   }
 
   /**
@@ -547,8 +516,8 @@ public final class Multimaps {
    * <b>all</b> access to the backing multimap is accomplished through the
    * returned multimap.
    *
-   * <p>It is imperative that the user manually synchronize on the returned map
-   * when accessing any of its collection views:
+   * <p>It is imperative that the user manually synchronize on the returned
+   * multimap when accessing any of its collection views:
    *
    * <pre>  Multimap&lt;K,V> m = Multimaps.synchronizedMultimap(
    *      new HashMultimap&lt;K,V>());
@@ -568,6 +537,9 @@ public final class Multimaps {
    * {@link Multimap#replaceValues} methods return collections that aren't
    * synchronized.
    *
+   * <p>The returned multimap will be serializable if the specified multimap is
+   * serializable.
+   *
    * @param multimap the multimap to be wrapped in a synchronized view
    * @return a synchronized view of the specified multimap
    */
@@ -585,6 +557,9 @@ public final class Multimaps {
    * <p>Note that the generated multimap's {@link Multimap#removeAll} and
    * {@link Multimap#replaceValues} methods return collections that are
    * modifiable.
+   *
+   * <p>The returned multimap will be serializable if the specified multimap is
+   * serializable.
    *
    * @param delegate the multimap for which an unmodifiable view is to be
    *     returned
@@ -611,7 +586,7 @@ public final class Multimaps {
     @Override protected Multimap<K, V> delegate() {
       return delegate;
     }
-    
+
     @Override public void clear() {
       throw new UnsupportedOperationException();
     }
@@ -624,13 +599,13 @@ public final class Multimaps {
           @Override protected Map<K, Collection<V>> delegate() {
             return unmodifiableMap;
           }
-          
+
           Set<Entry<K, Collection<V>>> entrySet;
 
           @Override public Set<Map.Entry<K, Collection<V>>> entrySet() {
             Set<Entry<K, Collection<V>>> result = entrySet;
             return (result == null)
-                ? entrySet 
+                ? entrySet
                     = unmodifiableAsMapEntries(unmodifiableMap.entrySet())
                 : result;
           }
@@ -642,13 +617,13 @@ public final class Multimaps {
           }
 
           Collection<Collection<V>> asMapValues;
-          
+
           @Override public Collection<Collection<V>> values() {
             Collection<Collection<V>> result = asMapValues;
             return (result == null)
-                ? asMapValues 
+                ? asMapValues
                     = new UnmodifiableAsMapValues<V>(unmodifiableMap.values())
-                : result; 
+                : result;
           }
 
           @Override public boolean containsValue(Object o) {
@@ -722,7 +697,7 @@ public final class Multimaps {
       }
       return values;
     }
-    
+
     private static final long serialVersionUID = 0;
   }
 
@@ -842,6 +817,9 @@ public final class Multimaps {
    *
    * <p>You must follow the warnings described in {@link #synchronizedMultimap}.
    *
+   * <p>The returned multimap will be serializable if the specified multimap is
+   * serializable.
+   *
    * @param multimap the multimap to be wrapped
    * @return a synchronized view of the specified multimap
    */
@@ -861,6 +839,9 @@ public final class Multimaps {
    * {@link Multimap#replaceValues} methods return collections that are
    * modifiable.
    *
+   * <p>The returned multimap will be serializable if the specified multimap is
+   * serializable.
+   *
    * @param delegate the multimap for which an unmodifiable view is to be
    *     returned
    * @return an unmodifiable view of the specified multimap
@@ -875,6 +856,9 @@ public final class Multimaps {
    * the specified multimap.
    *
    * <p>You must follow the warnings described in {@link #synchronizedMultimap}.
+   *
+   * <p>The returned multimap will be serializable if the specified multimap is
+   * serializable.
    *
    * @param multimap the multimap to be wrapped
    * @return a synchronized view of the specified multimap
@@ -894,6 +878,9 @@ public final class Multimaps {
    * <p>Note that the generated multimap's {@link Multimap#removeAll} and
    * {@link Multimap#replaceValues} methods return collections that are
    * modifiable.
+   *
+   * <p>The returned multimap will be serializable if the specified multimap is
+   * serializable.
    *
    * @param delegate the multimap for which an unmodifiable view is to be
    *     returned
@@ -928,6 +915,9 @@ public final class Multimaps {
    * <p>Note that the generated multimap's {@link Multimap#removeAll} and
    * {@link Multimap#replaceValues} methods return collections that are
    * modifiable.
+   *
+   * <p>The returned multimap will be serializable if the specified multimap is
+   * serializable.
    *
    * @param delegate the multimap for which an unmodifiable view is to be
    *     returned
@@ -1028,7 +1018,7 @@ public final class Multimaps {
     @Override protected Set<Entry<K, Collection<V>>> delegate() {
       return delegate;
     }
-    
+
     @Override public Iterator<Entry<K, Collection<V>>> iterator() {
       final Iterator<Entry<K, Collection<V>>> iterator = delegate.iterator();
       return new ForwardingIterator<Entry<K, Collection<V>>>() {
@@ -1057,8 +1047,8 @@ public final class Multimaps {
       return Collections2.containsAll(this, c);
     }
 
-    @Override public boolean equals(Object o) {
-      return Sets.equalsImpl(this, o);
+    @Override public boolean equals(@Nullable Object object) {
+      return Collections2.setEquals(this, object);
     }
   }
 
@@ -1201,23 +1191,15 @@ public final class Multimaps {
       return asMap;
     }
 
-    @Override public boolean equals(Object o) {
-      if (this == o) {
+    @Override public boolean equals(@Nullable Object object) {
+      if (object == this) {
         return true;
       }
-      if (!(o instanceof SetMultimap)) {
-        return false;
+      if (object instanceof Multimap) {
+        Multimap<?, ?> that = (Multimap<?, ?>) object;
+        return this.size() == that.size() && asMap().equals(that.asMap());
       }
-      Multimap<?, ?> m = (Multimap<?, ?>) o;
-      if (map.size() != m.size()) {
-        return false;
-      }
-      for (Entry<K, V> e : map.entrySet()) {
-        if (!m.containsEntry(e.getKey(), e.getValue())) {
-          return false;
-        }
-      }
-      return true;
+      return false;
     }
 
     @Override public int hashCode() {
@@ -1345,6 +1327,9 @@ public final class Multimaps {
    *
    * <pre class="code">
    * {4=[Inky], 5=[Pinky, Pinky, Clyde], 6=[Blinky]} </pre>
+   *
+   * <p>The returned multimap is serializable if its keys and values are all
+   * serializable.
    *
    * @param values the values to use when constructing the {@code ListMultimap}
    * @param keyFunction the function used to produce the key for each value

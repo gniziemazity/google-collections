@@ -28,7 +28,7 @@ import java.util.Map.Entry;
 public abstract class TestEnumMapGenerator
     implements TestMapGenerator<AnEnum, String> {
 
-  @Override public SampleElements<Entry<AnEnum, String>> samples() {
+  public SampleElements<Entry<AnEnum, String>> samples() {
     return new SampleElements<Entry<AnEnum, String>>(
         Helpers.mapEntry(AnEnum.A, "January"),
         Helpers.mapEntry(AnEnum.B, "February"),
@@ -38,7 +38,7 @@ public abstract class TestEnumMapGenerator
     );
   }
 
-  @Override public final Map<AnEnum, String> create(Object... entries) {
+  public final Map<AnEnum, String> create(Object... entries) {
     @SuppressWarnings("unchecked")
     Entry<AnEnum, String>[] array = new Entry[entries.length];
     int i = 0;
@@ -54,20 +54,20 @@ public abstract class TestEnumMapGenerator
       Entry<AnEnum, String>[] entries);
 
   @SuppressWarnings("unchecked")
-  @Override public final Entry<AnEnum, String>[] createArray(int length) {
+  public final Entry<AnEnum, String>[] createArray(int length) {
     return new Entry[length];
   }
 
-  @Override public final AnEnum[] createKeyArray(int length) {
+  public final AnEnum[] createKeyArray(int length) {
     return new AnEnum[length];
   }
 
-  @Override public final String[] createValueArray(int length) {
+  public final String[] createValueArray(int length) {
     return new String[length];
   }
 
   /** Returns the original element list, unchanged. */
-  @Override public Iterable<Entry<AnEnum, String>> order(
+  public Iterable<Entry<AnEnum, String>> order(
       List<Entry<AnEnum, String>> insertionOrder) {
     return insertionOrder;
   }

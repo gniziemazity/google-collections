@@ -21,9 +21,14 @@ import com.google.common.base.Nullable;
 import com.google.common.base.Objects;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.collect.MapConstraints.ConstrainedMap;
 
 import java.io.Serializable;
+import java.util.AbstractCollection;
+import java.util.AbstractMap;
+import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -34,6 +39,7 @@ import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
@@ -46,6 +52,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Kevin Bourrillion
  * @author Mike Bostock
+ * @author Isaac Shum
  */
 public final class Maps {
   private Maps() {}
@@ -59,7 +66,7 @@ public final class Maps {
    * <p><b>Note:</b> if you don't actually need the resulting map to be mutable,
    * use {@link Collections#emptyMap} instead.
    *
-   * @return a newly-created, initially-empty {@code HashMap}
+   * @return a new, empty {@code HashMap}
    */
   public static <K, V> HashMap<K, V> newHashMap() {
     return new HashMap<K, V>();
@@ -68,15 +75,15 @@ public final class Maps {
   /**
    * Creates a {@code HashMap} instance with enough capacity to hold the
    * specified number of elements without rehashing.
-   * 
+   *
    * @param expectedSize the expected size
-   * @return a newly-created {@code HashMap}, initially empty, with enough
+   * @return a new empty {@code HashMap} with enough
    *     capacity to hold {@code expectedSize} elements without rehashing
    * @throws IllegalArgumentException if {@code expectedSize} is negative
    */
   public static <K, V> HashMap<K, V> newHashMapWithExpectedSize(
       int expectedSize) {
-    /* 
+    /*
      * The HashMap is constructed with an initialCapacity that's greater than
      * expectedSize. The larger value is necessary because HashMap resizes
      * its internal array if the map size exceeds loadFactor * initialCapacity.
@@ -105,7 +112,7 @@ public final class Maps {
    * #newEnumMap} instead.
    *
    * @param map the mappings to be placed in the new map
-   * @return a newly-created {@code HashMap} initialized with the mappings from
+   * @return a new {@code HashMap} initialized with the mappings from
    *     {@code map}
    */
   public static <K, V> HashMap<K, V> newHashMap(
@@ -116,7 +123,7 @@ public final class Maps {
   /**
    * Creates an insertion-ordered {@code LinkedHashMap} instance.
    *
-   * @return a newly-created, initially-empty {@code LinkedHashMap}
+   * @return a new, empty {@code LinkedHashMap}
    */
   public static <K, V> LinkedHashMap<K, V> newLinkedHashMap() {
     return new LinkedHashMap<K, V>();
@@ -127,28 +134,19 @@ public final class Maps {
    * mappings as the specified map.
    *
    * @param map the mappings to be placed in the new map
-   * @return a newly-created, {@code LinkedHashMap} initialized with the
+   * @return a new, {@code LinkedHashMap} initialized with the
    *     mappings from {@code map}
    */
-  public static <K, V> LinkedHashMap<K, V> 
+  public static <K, V> LinkedHashMap<K, V>
       newLinkedHashMap(Map<? extends K, ? extends V> map) {
     return new LinkedHashMap<K, V>(map);
-  }
-
-  /**
-   * Creates a {@code ConcurrentHashMap} instance.
-   *
-   * @return a newly-created, initially-empty {@code ConcurrentHashMap}
-   */
-  public static <K, V> ConcurrentHashMap<K, V> newConcurrentHashMap() {
-    return new ConcurrentHashMap<K, V>();
   }
 
   /**
    * Creates a {@code TreeMap} instance using the natural ordering of its
    * elements.
    *
-   * @return a newly-created, initially-empty {@code TreeMap}
+   * @return a new, empty {@code TreeMap}
    */
   @SuppressWarnings("unchecked")  // allow ungenerified Comparable types
   public static <K extends Comparable, V> TreeMap<K, V> newTreeMap() {
@@ -156,10 +154,23 @@ public final class Maps {
   }
 
   /**
+   * Creates a {@code TreeMap} instance with the same mappings as the specified
+   * map and using the same ordering as the specified map.
+   *
+   * @param map the sorted map whose mappings are to be placed in the new map
+   *     and whose comparator is to be used to sort the new map
+   * @return a newly-created {@code TreeMap} initialized with the mappings
+   *     from {@code map} and using the comparator of {@code map}
+   */
+  public static <K, V> TreeMap<K, V> newTreeMap(SortedMap<K, ? extends V> map) {
+    return new TreeMap<K, V>(map);
+  }
+
+  /**
    * Creates a {@code TreeMap} instance using the given comparator.
    *
    * @param comparator the comparator to sort the keys with
-   * @return a newly-created, initially-empty {@code TreeMap}
+   * @return a new, empty {@code TreeMap}
    */
   public static <C, K extends C, V> TreeMap<K, V> newTreeMap(
       @Nullable Comparator<C> comparator) {
@@ -175,32 +186,33 @@ public final class Maps {
    * Creates an {@code EnumMap} instance.
    *
    * @param type the key type for this map
-   * @return a newly-created, initially-empty {@code EnumMap}
+   * @return a new, empty {@code EnumMap}
    */
   public static <K extends Enum<K>, V> EnumMap<K, V> newEnumMap(Class<K> type) {
     return new EnumMap<K, V>(type);
   }
 
   /**
+   * Creates an {@code EnumMap} initialized from the specified map.
+   *
+   * @param map the map from which to initialize this {@code EnumMap}
+   * @return a newly-created {@code EnumMap} initialized from the specified map
+   * @throws IllegalArgumentException if {@code m} is not an {@code EnumMap}
+   *     instance and contains no mappings
+   */
+  public static <K extends Enum<K>, V> EnumMap<K, V> newEnumMap(
+      Map<K, ? extends V> map) {
+    return new EnumMap<K, V>(map);
+  }
+
+
+  /**
    * Creates an {@code IdentityHashMap} instance.
    *
-   * @return a newly-created, initially-empty {@code IdentityHashMap}
+   * @return a new, empty {@code IdentityHashMap}
    */
   public static <K, V> IdentityHashMap<K, V> newIdentityHashMap() {
     return new IdentityHashMap<K, V>();
-  }
-
-  /**
-   * Returns {@code true} if {@code map} contains an entry mapping {@code key}
-   * to {@code value}. If you are not concerned with null-safety you can simply
-   * use {@code map.get(key).equals(value)}.
-   */
-  public static boolean containsEntry(
-      Map<?, ?> map, @Nullable Object key, @Nullable Object value) {
-    Object valueForKey = map.get(key);
-    return (valueForKey == null)
-        ? value == null && map.containsKey(key)
-        : valueForKey.equals(value);
   }
 
   /**
@@ -225,6 +237,9 @@ public final class Maps {
    *
    * Failure to follow this advice may result in non-deterministic behavior.
    *
+   * <p>The returned bimap will be serializable if the specified bimap is
+   * serializable.
+   *
    * @param bimap the bimap to be wrapped in a synchronized view
    * @return a sychronized view of the specified bimap
    */
@@ -248,8 +263,9 @@ public final class Maps {
    */
   // TODO: consider returning a bimap, whose inverse view does lookups by
   // invoking the function.
+  // TODO: remove the '? extends' from values
   public static <K, V> ImmutableMap<K, V> uniqueIndex(
-      Iterable<V> values, Function<? super V, K> keyFunction) {
+      Iterable<? extends V> values, Function<? super V, K> keyFunction) {
     checkNotNull(keyFunction);
     ImmutableMap.Builder<K, V> builder = ImmutableMap.builder();
     for (V value : values) {
@@ -297,25 +313,6 @@ public final class Maps {
     return new ImmutableEntry<K, V>(key, value);
   }
 
-  /** @see Maps#immutableEntry(Object,Object) */
-  private static class ImmutableEntry<K, V> extends AbstractMapEntry<K, V>
-      implements Serializable {
-    final K key;
-    final V value;
-
-    ImmutableEntry(K key, V value) {
-      this.key = key;
-      this.value = value;
-    }
-    @Override public K getKey() {
-      return key;
-    }
-    @Override public V getValue() {
-      return value;
-    }
-    private static final long serialVersionUID = 0;
-  }
-
   /**
    * Returns an unmodifiable view of the specified set of entries. The {@link
    * Entry#setValue} operation throws an {@link UnsupportedOperationException},
@@ -356,7 +353,7 @@ public final class Maps {
   static class UnmodifiableEntries<K, V>
       extends ForwardingCollection<Entry<K, V>> {
     private final Collection<Entry<K, V>> entries;
-    
+
     UnmodifiableEntries(Collection<Entry<K, V>> entries) {
       this.entries = entries;
     }
@@ -364,7 +361,7 @@ public final class Maps {
     @Override protected Collection<Entry<K, V>> delegate() {
       return entries;
     }
-    
+
    @Override public Iterator<Entry<K, V>> iterator() {
       final Iterator<Entry<K, V>> delegate = super.iterator();
       return new ForwardingIterator<Entry<K, V>>() {
@@ -406,43 +403,13 @@ public final class Maps {
 
     // See java.util.Collections.UnmodifiableEntrySet for details on attacks.
 
-    @Override public boolean equals(Object o) {
-      return Sets.equalsImpl(this, o);
+    @Override public boolean equals(@Nullable Object object) {
+      return Collections2.setEquals(this, object);
     }
-    
+
     @Override public int hashCode() {
       return Sets.hashCodeImpl(this);
     }
-  }
-
-  /**
-   * Returns a new empty {@code HashBiMap} with the default initial capacity
-   * (16).
-   */
-  public static <K, V> HashBiMap<K, V> newHashBiMap() {
-    return new HashBiMap<K, V>();
-  }
-
-  /**
-   * Returns a new empty {@code EnumHashBiMap} using the specified key type.
-   *
-   * @param keyType the key type
-   */
-  public static <K extends Enum<K>, V> EnumHashBiMap<K, V> newEnumHashBiMap(
-      Class<K> keyType) {
-    return new EnumHashBiMap<K, V>(keyType);
-  }
-
-  /**
-   * Returns a new empty {@code EnumBiMap} using the specified key and value
-   * types.
-   *
-   * @param keyType the key type
-   * @param valueType the value type
-   */
-  public static <K extends Enum<K>, V extends Enum<V>> EnumBiMap<K, V>
-      newEnumBiMap(Class<K> keyType, Class<V> valueType) {
-    return new EnumBiMap<K, V>(keyType, valueType);
   }
 
   /**
@@ -465,13 +432,13 @@ public final class Maps {
   /** @see Maps#unmodifiableBiMap(BiMap) */
   private static class UnmodifiableBiMap<K, V> extends ForwardingMap<K, V>
       implements BiMap<K, V>, Serializable {
-    final Map<K, V> unmodifiableMap; 
+    final Map<K, V> unmodifiableMap;
     final BiMap<K, V> delegate;
     transient BiMap<V, K> inverse;
     transient Set<V> values;
-    
-    UnmodifiableBiMap(BiMap<K, V> delegate, BiMap<V, K> inverse) {
-      unmodifiableMap = Collections.unmodifiableMap(delegate);      
+
+    UnmodifiableBiMap(BiMap<K, V> delegate, @Nullable BiMap<V, K> inverse) {
+      unmodifiableMap = Collections.unmodifiableMap(delegate);
       this.delegate = delegate;
       this.inverse = inverse;
     }
@@ -539,6 +506,8 @@ public final class Maps {
 
   @SuppressWarnings("unchecked")
   private static <T> Class<T> wrap(Class<T> c) {
+    // This is correct and safe because both Long.class and
+    // long.class are of type Class<Long>.
     return c.isPrimitive() ? (Class<T>) PRIMITIVES_TO_WRAPPERS.get(c) : c;
   }
 
@@ -593,5 +562,595 @@ public final class Maps {
       return false;
     }
     return c.remove(unmodifiableEntry((Entry<?, ?>) o));
+  }
+
+  /**
+   * Returns a view of a map where each value is transformed by a function. All
+   * other properties of the map, such as iteration order, are left intact. For
+   * example, the code:
+   * <pre>   {@code
+   *
+   *   Map<String, Integer> map = ImmutableMap.of("a", 4, "b", 9);
+   *   Function<Integer, Double> sqrt = new Function<Integer, Double>() {
+   *     public Double apply(Integer in) {
+   *       return Math.sqrt((int) in);
+   *     }
+   *   };
+   *   Map<String, Double> transformed = Maps.transformValues(sqrt, map);
+   *   System.out.println(transformed);}</pre>
+   *
+   * ... prints {@code {a=2.0, b=3.0}}.
+   *
+   * <p>Changes in the underlying map are reflected in this view. Conversely,
+   * this view supports removal operations, and these are reflected in the
+   * underlying map.
+   *
+   * <p>It's acceptable for the underlying map to contain null keys, and even
+   * null values provided that the function is capable of accepting null input.
+   * The transformed map might contain null values, if the function sometimes
+   * gives a null result.
+   *
+   * <p>The returned map is not thread-safe or serializable, even if the
+   * underlying map is.
+   *
+   * <p>The function is applied lazily, invoked when needed. This is necessary
+   * for the returned map to be a view, but it means that the function will be
+   * applied many times for bulk operations like {@link Map#containsValue} and
+   * {@code Map.toString()}. For this to perform well, {@code function} should
+   * be fast. To avoid lazy evaluation when the returned map doesn't need to be
+   * a view, copy the returned map into a new map of your choosing.
+   */
+  public static <K, V1, V2> Map<K, V2> transformValues(
+      Map<K, V1> fromMap, Function<? super V1, V2> function) {
+    return new TransformedValuesMap<K, V1, V2>(fromMap, function);
+  }
+
+  private static class TransformedValuesMap<K, V1, V2>
+      extends AbstractMap<K, V2> {
+    final Map<K, V1> fromMap;
+    final Function<? super V1, V2> function;
+
+    TransformedValuesMap(Map<K, V1> fromMap, Function<? super V1, V2> function)
+    {
+      this.fromMap = checkNotNull(fromMap);
+      this.function = checkNotNull(function);
+    }
+
+    @Override public int size() {
+      return fromMap.size();
+    }
+
+    @Override public boolean containsKey(Object key) {
+      return fromMap.containsKey(key);
+    }
+
+    @Override public V2 get(Object key) {
+      V1 value = fromMap.get(key);
+      return (value != null || fromMap.containsKey(key))
+          ? function.apply(value) : null;
+    }
+
+    @Override public V2 remove(Object key) {
+      return fromMap.containsKey(key)
+          ? function.apply(fromMap.remove(key))
+          : null;
+    }
+
+    @Override public void clear() {
+      fromMap.clear();
+    }
+
+    volatile Set<K> keySet;
+
+    // Work around JDK retainAll(null) bug
+    @Override public Set<K> keySet() {
+      if (keySet == null) {
+        final Set<K> delegate = fromMap.keySet();
+        keySet = new ForwardingSet<K>() {
+          @Override protected Set<K> delegate() {
+            return delegate;
+          }
+        };
+      }
+      return keySet;
+    }
+
+    volatile EntrySet entrySet;
+
+    @Override public Set<Entry<K, V2>> entrySet() {
+      if (entrySet == null) {
+        entrySet = new EntrySet();
+      }
+      return entrySet;
+    }
+
+    class EntrySet extends AbstractSet<Entry<K, V2>> {
+      @Override public int size() {
+        return TransformedValuesMap.this.size();
+      }
+
+      @Override public Iterator<Entry<K, V2>> iterator() {
+        final Iterator<Entry<K, V1>> mapIterator
+            = fromMap.entrySet().iterator();
+
+        return new Iterator<Entry<K, V2>>() {
+          public boolean hasNext() {
+            return mapIterator.hasNext();
+          }
+
+          public Entry<K, V2> next() {
+            final Entry<K, V1> entry = mapIterator.next();
+            return new AbstractMapEntry<K, V2>() {
+              @Override public K getKey() {
+                return entry.getKey();
+              }
+              @Override public V2 getValue() {
+                return function.apply(entry.getValue());
+              }
+            };
+          }
+
+          public void remove() {
+            mapIterator.remove();
+          }
+        };
+      }
+
+      @Override public void clear() {
+        fromMap.clear();
+      }
+
+      @Override public boolean contains(Object o) {
+        if (!(o instanceof Entry)) {
+          return false;
+        }
+        Entry<?, ?> entry = (Entry<?, ?>) o;
+        Object entryKey = entry.getKey();
+        Object entryValue = entry.getValue();
+        V2 mapValue = TransformedValuesMap.this.get(entryKey);
+        if (mapValue != null) {
+          return mapValue.equals(entryValue);
+        }
+        return entryValue == null && containsKey(entryKey);
+      }
+
+      @Override public boolean remove(Object o) {
+        if (contains(o)) {
+          Entry<?, ?> entry = (Entry<?, ?>) o;
+          Object key = entry.getKey();
+          fromMap.remove(key);
+          return true;
+        }
+        return false;
+      }
+
+      // Work around JDK retainAll(null) bug
+      @Override public boolean retainAll(Collection<?> keepers) {
+        return super.retainAll(checkNotNull(keepers));
+      }
+    }
+
+    // Work around JDK retainAll(null) bug
+
+    volatile Collection<V2> values;
+
+    @Override public Collection<V2> values() {
+      if (values == null) {
+        final Collection<V2> delegate = super.values();
+        values = new ForwardingCollection<V2>() {
+          @Override protected Collection<V2> delegate() {
+            return delegate;
+          }
+        };
+      }
+      return values;
+    }
+  }
+
+  /**
+   * Returns a map containing the mappings in {@code unfiltered} whose keys
+   * satisfy a predicate. The returned map is a live view of {@code unfiltered};
+   * changes to one affect the other.
+   *
+   * <p>The resulting map's {@code keySet()}, {@code entrySet()}, and {@code
+   * values()} views have iterators that don't support {@code remove()}, but all
+   * other methods are supported by the map and its views. The map's {@code
+   * put()} and {@code putAll()} methods throw an {@link
+   * IllegalArgumentException} if a key that doesn't satisfy the predicate is
+   * provided.
+   *
+   * <p>When methods such as {@code removeAll()} and {@code clear()} are called
+   * on the filtered map or its views, only mappings whose keys satisfy the
+   * filter will be removed from the underlying map.
+   *
+   * <p>The returned map isn't threadsafe or serializable, even if {@code
+   * unfiltered} is.
+   *
+   * <p>Many of the filtered map's methods, such as {@code size()},
+   * iterate across every key/value mapping in the underlying map and determine
+   * which satisfy the filter. When a live view is <i>not</i> needed, it may be
+   * faster to copy the filtered map and use the copy.
+   */
+  public static <K, V> Map<K, V> filterKeys(
+      Map<K, V> unfiltered, final Predicate<? super K> keyPredicate) {
+    checkNotNull(keyPredicate);
+    Predicate<Entry<K, V>> entryPredicate = new Predicate<Entry<K, V>>() {
+      public boolean apply(Entry<K, V> input) {
+        return keyPredicate.apply(input.getKey());
+      }
+    };
+    return (unfiltered instanceof AbstractFilteredMap)
+        ? filterFiltered((AbstractFilteredMap<K, V>) unfiltered, entryPredicate)
+        : new FilteredKeyMap<K, V>(
+            checkNotNull(unfiltered), keyPredicate, entryPredicate);
+  }
+
+  /**
+   * Returns a map containing the mappings in {@code unfiltered} whose values
+   * satisfy a predicate. The returned map is a live view of {@code unfiltered};
+   * changes to one affect the other.
+   *
+   * <p>The resulting map's {@code keySet()}, {@code entrySet()}, and {@code
+   * values()} views have iterators that don't support {@code remove()}, but all
+   * other methods are supported by the map and its views. The {@link Map#put},
+   * {@link Map#putAll}, and {@link Entry#setValue} methods throw an {@link
+   * IllegalArgumentException} if a value that doesn't satisfy the predicate is
+   * provided.
+   *
+   * <p>When methods such as {@code removeAll()} and {@code clear()} are called
+   * on the filtered map or its views, only mappings whose values satisfy the
+   * filter will be removed from the underlying map.
+   *
+   * <p>The returned map isn't threadsafe or serializable, even if {@code
+   * unfiltered} is.
+   *
+   * <p>Many of the filtered map's methods, such as {@code size()},
+   * iterate across every key/value mapping in the underlying map and determine
+   * which satisfy the filter. When a live view is <i>not</i> needed, it may be
+   * faster to copy the filtered map and use the copy.
+   */
+  public static <K, V> Map<K, V> filterValues(
+      Map<K, V> unfiltered, final Predicate<? super V> valuePredicate) {
+    checkNotNull(valuePredicate);
+    Predicate<Entry<K, V>> entryPredicate = new Predicate<Entry<K, V>>() {
+      public boolean apply(Entry<K, V> input) {
+        return valuePredicate.apply(input.getValue());
+      }
+    };
+    return filterEntries(unfiltered, entryPredicate);
+  }
+
+  /**
+   * Returns a map containing the mappings in {@code unfiltered} that satisfy a
+   * predicate. The returned map is a live view of {@code unfiltered}; changes
+   * to one affect the other.
+   *
+   * <p>The resulting map's {@code keySet()}, {@code entrySet()}, and {@code
+   * values()} views have iterators that don't support {@code remove()}, but all
+   * other methods are supported by the map and its views. The map's {@code
+   * put()} and {@code putAll()} methods throw an {@link
+   * IllegalArgumentException} if a key/value pair that doesn't satisfy the
+   * predicate is provided. Similarly, the map's entries have a {@link
+   * Entry#setValue} method that throws an {@link IllegalArgumentException} when
+   * the existing key and the provided value don't satisfy the predicate.
+   *
+   * <p>When methods such as {@code removeAll()} and {@code clear()} are called
+   * on the filtered map or its views, only mappings that satisfy the filter
+   * will be removed from the underlying map.
+   *
+   * <p>The returned map isn't threadsafe or serializable, even if {@code
+   * unfiltered} is.
+   *
+   * <p>Many of the filtered map's methods, such as {@code size()},
+   * iterate across every key/value mapping in the underlying map and determine
+   * which satisfy the filter. When a live view is <i>not</i> needed, it may be
+   * faster to copy the filtered map and use the copy.
+   */
+  public static <K, V> Map<K, V> filterEntries(
+      Map<K, V> unfiltered, Predicate<Entry<K, V>> entryPredicate) {
+    checkNotNull(entryPredicate);
+    return (unfiltered instanceof AbstractFilteredMap)
+        ? filterFiltered((AbstractFilteredMap<K, V>) unfiltered, entryPredicate)
+        : new FilteredEntryMap<K, V>(checkNotNull(unfiltered), entryPredicate);
+  }
+
+  /**
+   * Support {@code clear()}, {@code removeAll()}, and {@code retainAll()} when
+   * filtering a filtered map.
+   */
+  private static <K, V> Map<K, V> filterFiltered(
+      AbstractFilteredMap<K, V> map, Predicate<Entry<K, V>> entryPredicate) {
+    Predicate<Entry<K, V>> predicate
+        = Predicates.and(map.predicate, entryPredicate);
+    return new FilteredEntryMap<K, V>(map.unfiltered, predicate);
+  }
+
+  private static abstract class AbstractFilteredMap<K, V>
+      extends AbstractMap<K, V> {
+
+    final Map<K, V> unfiltered;
+    final Predicate<Entry<K, V>> predicate;
+
+    AbstractFilteredMap(Map<K, V> unfiltered,
+        Predicate<Entry<K, V>> predicate) {
+      this.unfiltered = unfiltered;
+      this.predicate = predicate;
+    }
+
+    boolean apply(Object key, V value) {
+      // This method is called only when the key is in the map, implying that
+      // key is a K.
+      @SuppressWarnings("unchecked")
+      K k = (K) key;
+      return predicate.apply(Maps.immutableEntry(k, value));
+    }
+
+    @Override public V put(K key, V value) {
+      checkArgument(apply(key, value));
+      return unfiltered.put(key, value);
+    }
+
+    @Override public void putAll(Map<? extends K, ? extends V> map) {
+      for (Entry<? extends K, ? extends V> entry : map.entrySet()) {
+        checkArgument(apply(entry.getKey(), entry.getValue()));
+      }
+      unfiltered.putAll(map);
+    }
+
+    @Override public boolean containsKey(Object key) {
+      return unfiltered.containsKey(key) && apply(key, unfiltered.get(key));
+    }
+
+    @Override public V get(Object key) {
+      V value = unfiltered.get(key);
+      return ((value != null) && apply(key, value)) ? value : null;
+    }
+
+    @Override public boolean isEmpty() {
+      return entrySet().isEmpty();
+    }
+
+    @Override public V remove(Object key) {
+      return containsKey(key) ? unfiltered.remove(key) : null;
+    }
+
+    Collection<V> values;
+
+    @Override public Collection<V> values() {
+      Collection<V> result = values;
+      return (result == null) ? values = new Values() : values;
+    }
+
+    class Values extends AbstractCollection<V> {
+      @Override public Iterator<V> iterator() {
+        final Iterator<Entry<K, V>> entryIterator = entrySet().iterator();
+        return new UnmodifiableIterator<V>() {
+          public boolean hasNext() {
+            return entryIterator.hasNext();
+          }
+          public V next() {
+            return entryIterator.next().getValue();
+          }
+        };
+      }
+
+      @Override public int size() {
+        return entrySet().size();
+      }
+
+      @Override public void clear() {
+        entrySet().clear();
+      }
+
+      @Override public boolean isEmpty() {
+        return entrySet().isEmpty();
+      }
+
+      @Override public boolean remove(Object o) {
+        Iterator<Entry<K, V>> iterator = unfiltered.entrySet().iterator();
+        while (iterator.hasNext()) {
+          Entry<K, V> entry = iterator.next();
+          if (Objects.equal(o, entry.getValue()) && predicate.apply(entry)) {
+            iterator.remove();
+            return true;
+          }
+        }
+        return false;
+      }
+
+      @Override public boolean removeAll(Collection<?> collection) {
+        checkNotNull(collection);
+        boolean changed = false;
+        Iterator<Entry<K, V>> iterator = unfiltered.entrySet().iterator();
+        while (iterator.hasNext()) {
+          Entry<K, V> entry = iterator.next();
+          if (collection.contains(entry.getValue()) && predicate.apply(entry)) {
+            iterator.remove();
+            changed = true;
+          }
+        }
+        return changed;
+      }
+
+      @Override public boolean retainAll(Collection<?> collection) {
+        checkNotNull(collection);
+        boolean changed = false;
+        Iterator<Entry<K, V>> iterator = unfiltered.entrySet().iterator();
+        while (iterator.hasNext()) {
+          Entry<K, V> entry = iterator.next();
+          if (!collection.contains(entry.getValue())
+              && predicate.apply(entry)) {
+            iterator.remove();
+            changed = true;
+          }
+        }
+        return changed;
+      }
+
+      @Override public Object[] toArray() {
+        // creating an ArrayList so filtering happens once
+        return Lists.newArrayList(iterator()).toArray();
+      }
+
+      @Override public <T> T[] toArray(T[] array) {
+        return Lists.newArrayList(iterator()).toArray(array);
+      }
+    }
+  }
+
+  private static class FilteredKeyMap<K, V> extends AbstractFilteredMap<K, V> {
+    Predicate<? super K> keyPredicate;
+
+    FilteredKeyMap(Map<K, V> unfiltered, Predicate<? super K> keyPredicate,
+        Predicate<Entry<K, V>> entryPredicate) {
+      super(unfiltered, entryPredicate);
+      this.keyPredicate = keyPredicate;
+    }
+
+    Set<Entry<K, V>> entrySet;
+
+    @Override public Set<Entry<K, V>> entrySet() {
+      Set<Entry<K, V>> result = entrySet;
+      return (result == null)
+          ? entrySet = Sets.filter(unfiltered.entrySet(), predicate)
+          : result;
+    }
+
+    Set<K> keySet;
+
+    @Override public Set<K> keySet() {
+      Set<K> result = keySet;
+      return (result == null)
+          ? keySet = Sets.filter(unfiltered.keySet(), keyPredicate)
+          : result;
+    }
+
+    // The cast is called only when the key is in the unfiltered map, implying
+    // that key is a K.
+    @SuppressWarnings("unchecked")
+    @Override public boolean containsKey(Object key) {
+      return unfiltered.containsKey(key) && keyPredicate.apply((K) key);
+    }
+  }
+
+  private static class FilteredEntryMap<K, V>
+      extends AbstractFilteredMap<K, V> {
+    /**
+     * Entries in this set satisfy the predicate, but they don't validate the
+     * input to {@code Entry.setValue()}.
+     */
+    final Set<Entry<K, V>> filteredEntrySet;
+
+    FilteredEntryMap(Map<K, V> unfiltered,
+        Predicate<Entry<K, V>> entryPredicate) {
+      super(unfiltered, entryPredicate);
+      filteredEntrySet = Sets.filter(unfiltered.entrySet(), predicate);
+    }
+
+    Set<Entry<K, V>> entrySet;
+
+    @Override public Set<Entry<K, V>> entrySet() {
+      Set<Entry<K, V>> result = entrySet;
+      return (result == null) ? entrySet = new EntrySet() : result;
+    }
+
+    private class EntrySet extends ForwardingSet<Entry<K, V>> {
+      @Override protected Set<Entry<K, V>> delegate() {
+        return filteredEntrySet;
+      }
+
+      @Override public Iterator<Entry<K, V>> iterator() {
+        final Iterator<Entry<K, V>> iterator = filteredEntrySet.iterator();
+        return new UnmodifiableIterator<Entry<K,V>>() {
+          public boolean hasNext() {
+            return iterator.hasNext();
+          }
+          public Entry<K, V> next() {
+            final Entry<K, V> entry = iterator.next();
+            return new ForwardingMapEntry<K, V>() {
+              @Override protected Entry<K, V> delegate() {
+                return entry;
+              }
+              @Override public V setValue(V value) {
+                checkArgument(apply(entry.getKey(), value));
+                return super.setValue(value);
+              }
+            };
+          }
+        };
+      }
+    }
+
+    Set<K> keySet;
+
+    @Override public Set<K> keySet() {
+      Set<K> result = keySet;
+      return (result == null) ? keySet = new KeySet() : result;
+    }
+
+    private class KeySet extends AbstractSet<K> {
+      @Override public Iterator<K> iterator() {
+        final Iterator<Entry<K, V>> iterator = filteredEntrySet.iterator();
+        return new UnmodifiableIterator<K>() {
+          public boolean hasNext() {
+            return iterator.hasNext();
+          }
+          public K next() {
+            return iterator.next().getKey();
+          }
+        };
+      }
+
+      @Override public int size() {
+        return filteredEntrySet.size();
+      }
+
+      @Override public void clear() {
+        filteredEntrySet.clear();
+      }
+
+      @Override public boolean contains(Object o) {
+        return containsKey(o);
+      }
+
+      @Override public boolean remove(Object o) {
+        if (containsKey(o)) {
+          unfiltered.remove(o);
+          return true;
+        }
+        return false;
+      }
+
+      @Override public boolean removeAll(Collection<?> collection) {
+        boolean changed = false;
+        for (Object obj : collection) {
+          changed |= remove(obj);
+        }
+        return changed;
+      }
+
+      @Override public boolean retainAll(Collection<?> collection) {
+        checkNotNull(collection);
+        boolean changed = false;
+        Iterator<Entry<K, V>> iterator = unfiltered.entrySet().iterator();
+        while (iterator.hasNext()) {
+          Entry<K, V> entry = iterator.next();
+          if (!collection.contains(entry.getKey()) && predicate.apply(entry)) {
+            iterator.remove();
+            changed = true;
+          }
+        }
+        return changed;
+      }
+
+      @Override public Object[] toArray() {
+        // creating an ArrayList so filtering happens once
+        return Lists.newArrayList(iterator()).toArray();
+      }
+
+      @Override public <T> T[] toArray(T[] array) {
+        return Lists.newArrayList(iterator()).toArray(array);
+      }
+    }
   }
 }

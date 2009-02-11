@@ -31,7 +31,7 @@ import java.util.Map.Entry;
 public abstract class TestStringMapGenerator
     implements TestMapGenerator<String, String> {
 
-  @Override public SampleElements<Map.Entry<String, String>> samples() {
+  public SampleElements<Map.Entry<String, String>> samples() {
     return new SampleElements<Map.Entry<String, String>>(
         Helpers.mapEntry("one", "January"),
         Helpers.mapEntry("two", "February"),
@@ -41,7 +41,7 @@ public abstract class TestStringMapGenerator
     );
   }
 
-  @Override public final Map<String, String> create(Object... entries) {
+  public final Map<String, String> create(Object... entries) {
     @SuppressWarnings("unchecked")
     Entry<String, String>[] array = new Entry[entries.length];
     int i = 0;
@@ -57,20 +57,20 @@ public abstract class TestStringMapGenerator
       Entry<String, String>[] entries);
 
   @SuppressWarnings("unchecked")
-  @Override public final Entry<String, String>[] createArray(int length) {
+  public final Entry<String, String>[] createArray(int length) {
     return new Entry[length];
   }
 
-  @Override public final String[] createKeyArray(int length) {
+  public final String[] createKeyArray(int length) {
     return new String[length];
   }
 
-  @Override public final String[] createValueArray(int length) {
+  public final String[] createValueArray(int length) {
     return new String[length];
   }
 
   /** Returns the original element list, unchanged. */
-  @Override public Iterable<Entry<String, String>> order(
+  public Iterable<Entry<String, String>> order(
       List<Entry<String, String>> insertionOrder) {
     return insertionOrder;
   }

@@ -197,7 +197,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
     }
   }
 
-  private Collection<V> getOrCreateCollection(K key) {
+  private Collection<V> getOrCreateCollection(@Nullable K key) {
     Collection<V> collection = map.get(key);
     if (collection == null) {
       collection = createCollection(key);
@@ -319,7 +319,8 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
    * the multimap for the provided key. Changes to the multimap may alter the
    * returned collection, and vice versa.
    */
-  private Collection<V> wrapCollection(K key, Collection<V> collection) {
+  private Collection<V> wrapCollection(
+      @Nullable K key, Collection<V> collection) {
     if (collection instanceof SortedSet) {
       return new WrappedSortedSet(key, (SortedSet<V>) collection, null);
     } else if (collection instanceof Set) {
@@ -331,7 +332,8 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
     }
   }
 
-  private List<V> wrapList(K key, List<V> list, WrappedCollection ancestor) {
+  private List<V> wrapList(
+      K key, List<V> list, @Nullable WrappedCollection ancestor) {
     return (list instanceof RandomAccess)
         ? new RandomAccessWrappedList(key, list, ancestor)
         : new WrappedList(key, list, ancestor);
@@ -360,8 +362,8 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
     final WrappedCollection ancestor;
     final Collection<V> ancestorDelegate;
 
-    WrappedCollection(K key, Collection<V> delegate,
-        WrappedCollection ancestor) {
+    WrappedCollection(@Nullable K key, Collection<V> delegate,
+        @Nullable WrappedCollection ancestor) {
       this.key = key;
       this.delegate = delegate;
       this.ancestor = ancestor;
@@ -426,12 +428,12 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
       return delegate.size();
     }
 
-    @Override public boolean equals(Object other) {
-      if (this == other) {
+    @Override public boolean equals(@Nullable Object object) {
+      if (object == this) {
         return true;
       }
       refreshIfEmpty();
-      return delegate.equals(other);
+      return delegate.equals(object);
     }
 
     @Override public int hashCode() {
@@ -609,7 +611,8 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
    */
   private class WrappedSortedSet extends WrappedCollection
       implements SortedSet<V> {
-    WrappedSortedSet(K key, SortedSet<V> delegate, WrappedCollection ancestor) {
+    WrappedSortedSet(@Nullable K key, SortedSet<V> delegate,
+        @Nullable WrappedCollection ancestor) {
       super(key, delegate, ancestor);
     }
 
@@ -655,7 +658,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
 
   /** List decorator that stays in sync with the multimap values for a key. */
   private class WrappedList extends WrappedCollection implements List<V> {
-    WrappedList(K key, List<V> delegate, WrappedCollection ancestor) {
+    WrappedList(K key, List<V> delegate, @Nullable WrappedCollection ancestor) {
       super(key, delegate, ancestor);
     }
 
@@ -784,7 +787,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
   private class RandomAccessWrappedList extends WrappedList
       implements RandomAccess {
     RandomAccessWrappedList(K key, List<V> delegate,
-        WrappedCollection ancestor) {
+        @Nullable WrappedCollection ancestor) {
       super(key, delegate, ancestor);
     }
   }
@@ -863,8 +866,8 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
       return subMap.keySet().containsAll(c);
     }
 
-    @Override public boolean equals(Object o) {
-      return (o == this) || subMap.keySet().equals(o);
+    @Override public boolean equals(@Nullable Object object) {
+      return this == object || this.subMap.keySet().equals(object);
     }
 
     @Override public int hashCode() {
@@ -931,7 +934,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
       } catch (ClassCastException e) {
         return 0;
       }
-      
+
       if (collection == null) {
         return 0;
       }
@@ -1026,7 +1029,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
    * Removes all values for the provided key. Unlike {@link #removeAll}, it
    * returns the number of removed mappings.
    */
-  private int removeValuesForKey(Object key) {   
+  private int removeValuesForKey(Object key) {
     Collection<V> collection;
     try {
       collection = map.remove(key);
@@ -1035,7 +1038,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
     } catch (ClassCastException e) {
       return 0;
     }
-    
+
     int count = 0;
     if (collection != null) {
       count = collection.size();
@@ -1061,7 +1064,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
     }
   }
 
-  private class MultisetEntry extends AbstractMultisetEntry<K> {
+  private class MultisetEntry extends Multisets.AbstractEntry<K> {
     final Map.Entry<K, Collection<V>> entry;
 
     public MultisetEntry(Map.Entry<K, Collection<V>> entry) {
@@ -1150,6 +1153,10 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
    *
    * <p>The iterator generated by the returned collection traverses the values
    * for one key, followed by the values of a second key, and so on.
+   *
+   * <p>Each entry is an immutable snapshot of a key-value mapping in the
+   * multimap, taken at the time the entry is returned by a method call to the
+   * collection or its iterator.
    */
   public Collection<Map.Entry<K, V>> entries() {
     Collection<Map.Entry<K, V>> result = entries;
@@ -1231,7 +1238,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
       Map.Entry<K, Collection<V>> entry = keyIterator.next();
       key = entry.getKey();
       collection = entry.getValue();
-      valueIterator = iteratorOrListIterator(collection);
+      valueIterator = collection.iterator();
     }
 
     public boolean hasNext() {
@@ -1242,9 +1249,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
       if (!valueIterator.hasNext()) {
         findValueIteratorAndKey();
       }
-      return (valueIterator instanceof ListIterator)
-          ? new ListMapEntry(key, (ListIterator<V>) valueIterator)
-          : Maps.immutableEntry(key, valueIterator.next());
+      return Maps.immutableEntry(key, valueIterator.next());
     }
 
     public void remove() {
@@ -1256,37 +1261,10 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
     }
   }
 
-  /**
-   * Map entry that allows value modification through provided list iterator.
-   */
-  private class ListMapEntry extends AbstractMapEntry<K, V> {
-    final K key;
-    V value;
-    final ListIterator<V> iterator;
-
-    ListMapEntry(K key, ListIterator<V> iterator) {
-      this.key = key;
-      this.value = iterator.next();
-      this.iterator = iterator;
-    }
-    @Override public K getKey() {
-      return key;
-    }
-    @Override public V getValue() {
-      return value;
-    }
-    @Override public V setValue(V newValue) {
-      V oldValue = value;
-      iterator.set(newValue);
-      value = newValue;
-      return oldValue;
-    }
-  }
-
   /** Entry set for a {@link SetMultimap}. */
   private class EntrySet extends Entries implements Set<Map.Entry<K, V>> {
-    @Override public boolean equals(Object other) {
-      return Sets.equalsImpl(this, other);
+    @Override public boolean equals(@Nullable Object object) {
+      return Collections2.setEquals(this, object);
     }
     @Override public int hashCode() {
       return Sets.hashCodeImpl(this);
@@ -1337,8 +1315,8 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
       return collection.isEmpty() ? null : collection;
     }
 
-    @Override public boolean equals(Object other) {
-      return (this == other) || map.equals(other);
+    @Override public boolean equals(@Nullable Object object) {
+      return this == object || map.equals(object);
     }
 
     @Override public int hashCode() {
@@ -1407,15 +1385,15 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
 
   // Comparison and hashing
 
-  @Override public boolean equals(@Nullable Object other) {
-    if (this == other) {
+  @Override public boolean equals(@Nullable Object object) {
+    if (object == this) {
       return true;
     }
-    if (!(other instanceof Multimap)) {
-      return false;
+    if (object instanceof Multimap) {
+      Multimap<?, ?> that = (Multimap<?, ?>) object;
+      return this.map.equals(that.asMap());
     }
-    Multimap<?, ?> otherMultimap = (Multimap<?, ?>) other;
-    return map.equals(otherMultimap.asMap());
+    return false;
   }
 
   /**

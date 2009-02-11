@@ -25,7 +25,6 @@ import com.google.common.collect.testing.features.MapFeature;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.AbstractMap.SimpleImmutableEntry;
 
 /**
  * Tests {@link java.util.Map#hashCode}.
@@ -48,7 +47,7 @@ public class MapHashCodeTester<K, V> extends AbstractMapTester<K, V> {
   @MapFeature.Require(ALLOWS_NULL_KEYS)
   public void testHashCode_containingNullKey() {
     Map.Entry<K, V> entryWithNull
-        = new SimpleImmutableEntry<K, V>(null, samples.e3.getValue());
+        = entry(null, samples.e3.getValue());
 
     runEntryWithNullTest(entryWithNull);
   }
@@ -57,7 +56,7 @@ public class MapHashCodeTester<K, V> extends AbstractMapTester<K, V> {
   @MapFeature.Require(ALLOWS_NULL_VALUES)
   public void testHashCode_containingNullValue() {
     Map.Entry<K, V> entryWithNull
-        = new SimpleImmutableEntry<K, V>(samples.e3.getKey(), null);
+        = entry(samples.e3.getKey(), null);
 
     runEntryWithNullTest(entryWithNull);
   }

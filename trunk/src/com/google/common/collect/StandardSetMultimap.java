@@ -64,7 +64,7 @@ abstract class StandardSetMultimap<K, V>
       @Nullable K key, Iterable<? extends V> values) {
     return (Set<V>) super.replaceValues(key, values);
   }
-  
+
   /**
    * Stores a key-value pair in the multimap.
    *
@@ -74,9 +74,9 @@ abstract class StandardSetMultimap<K, V>
    *     {@code false} if the multimap already contained the key-value pair
    */
   @Override public boolean put(K key, V value) {
-    return super.put(key, value);    
+    return super.put(key, value);
   }
-  
+
   /**
    * Compares the specified object to this multimap for equality.
    *
@@ -84,7 +84,7 @@ abstract class StandardSetMultimap<K, V>
    * contain the same values. Equality does not depend on the ordering of keys
    * or values.
    */
-  @Override public boolean equals(@Nullable Object obj) {
-    return super.equals(obj);
+  @Override public boolean equals(@Nullable Object object) {
+    return super.equals(object);
   }
 }

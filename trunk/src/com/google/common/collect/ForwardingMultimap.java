@@ -109,8 +109,8 @@ public abstract class ForwardingMultimap<K, V> extends ForwardingObject
     return delegate().values();
   }
 
-  @Override public boolean equals(@Nullable Object obj) {
-    return (this == obj) || delegate().equals(obj);
+  @Override public boolean equals(@Nullable Object object) {
+    return object == this || delegate().equals(object);
   }
 
   @Override public int hashCode() {

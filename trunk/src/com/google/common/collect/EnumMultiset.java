@@ -32,12 +32,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class EnumMultiset<E extends Enum<E>>
     extends AbstractMapBasedMultiset<E> {
-  private transient Class<E> type;
-  
   /** Creates an empty {@code EnumMultiset}. */
-  public EnumMultiset(Class<E> type) {
-    super(new EnumMap<E, AtomicInteger>(type));
-    this.type = type;
+  public static <E extends Enum<E>> EnumMultiset<E> create(Class<E> type) {
+    return new EnumMultiset<E>(type);
   }
 
   /**
@@ -46,23 +43,23 @@ public final class EnumMultiset<E extends Enum<E>>
    * @param elements the elements that the multiset should contain
    * @throws IllegalArgumentException if {@code elements} is empty
    */
-  public EnumMultiset(Iterable<E> elements) {
-    this(findClass(elements));
-    Iterables.addAll(this, elements);
-  }
-
-  /**
-   * Determine the class of the first element in an {@link Iterable}.
-   *
-   * @param elements the elements to examine
-   * @return the {@link Class} of the first element
-   * @throws IllegalArgumentException if {@code elements} is empty
-   */
-  private static <E extends Enum<E>> Class<E> findClass(Iterable<E> elements) {
+  public static <E extends Enum<E>> EnumMultiset<E> create(
+      Iterable<E> elements) {
     Iterator<E> iterator = elements.iterator();
     checkArgument(iterator.hasNext(),
         "EnumMultiset constructor passed empty Iterable");
-    return iterator.next().getDeclaringClass();
+    EnumMultiset<E> multiset
+        = new EnumMultiset<E>(iterator.next().getDeclaringClass());
+    Iterables.addAll(multiset, elements);
+    return multiset;
+  }
+
+  private transient Class<E> type;
+
+  /** Creates an empty {@code EnumMultiset}. */
+  private EnumMultiset(Class<E> type) {
+    super(new EnumMap<E, AtomicInteger>(type));
+    this.type = type;
   }
 
   private void writeObject(ObjectOutputStream stream) throws IOException {
@@ -70,11 +67,11 @@ public final class EnumMultiset<E extends Enum<E>>
     stream.writeObject(type);
     Serialization.writeMultiset(this, stream);
   }
-  
+
   /**
    * @serialData the {@code Class<E>} for the enum type, the number of distinct
-   *    elements, the first element, its count, the second element, its count,
-   *    and so on
+   *     elements, the first element, its count, the second element, its count,
+   *     and so on
    */
   private void readObject(ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
@@ -84,7 +81,7 @@ public final class EnumMultiset<E extends Enum<E>>
     type = localType;
     setBackingMap(new EnumMap<E, AtomicInteger>(type));
     Serialization.populateMultiset(this, stream);
-  }  
-  
-  private static final long serialVersionUID = 0;  
+  }
+
+  private static final long serialVersionUID = 0;
 }

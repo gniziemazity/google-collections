@@ -17,10 +17,12 @@
 package com.google.common.collect;
 
 import com.google.common.base.Nullable;
+import com.google.common.base.Preconditions;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -128,12 +130,13 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
   }
 
   /**
-   * Returns an immutable list containing the given elements, in order. Note
-   * that if {@code list} is a {@code List<String>}, then {@code
-   * ImmutableList.copyOf(list)} returns an {@code ImmutableList<String>}
-   * containing each of the strings in {@code list}, while
-   * ImmutableList.of(list)} returns an {@code ImmutableList<List<String>>}
-   * containing one element (the given list itself).
+   * Returns an immutable list containing the given elements, in order. This
+   * method iterates over {@code elements} at most once. Note that if {@code
+   * list} is a {@code List<String>}, then {@code ImmutableList.copyOf(list)}
+   * returns an {@code ImmutableList<String>} containing each of the strings
+   * in {@code list}, while ImmutableList.of(list)} returns an {@code
+   * ImmutableList<List<String>>} containing one element (the given list
+   * itself).
    *
    * <p><b>Note:</b> Despite what the method name suggests, if {@code elements}
    * is an {@code ImmutableList}, no copy will actually be performed, and the
@@ -143,11 +146,20 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
    */
   public static <E> ImmutableList<E> copyOf(Iterable<? extends E> elements) {
     if (elements instanceof ImmutableList) {
+      /*
+       * TODO: If the given ImmutableList is a sublist, copy the referenced
+       * portion of the array into a new array to save space?
+       */
       @SuppressWarnings("unchecked") // all supported methods are covariant
       ImmutableList<E> list = (ImmutableList<E>) elements;
       return list;
+    } else if (elements instanceof Collection) {
+      @SuppressWarnings("unchecked")
+      Collection<? extends E> coll = (Collection<? extends E>) elements;
+      return copyOfInternal(coll);
+    } else {
+      return copyOfInternal(Lists.newArrayList(elements));
     }
-    return copyOfInternal(Collections2.toCollection(elements));
   }
 
   /**
@@ -159,16 +171,41 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
     return copyOfInternal(Lists.newArrayList(elements));
   }
 
-  private static <E> ImmutableList<E> copyOfInternal(Collection<?> collection) {
-    // TODO: Support concurrent collections that change while this method is
-    // running.
+  private static <E> ImmutableList<E> copyOfInternal(
+      ArrayList<? extends E> list) {
+    return (list.isEmpty())
+        ? ImmutableList.<E>of()
+        : new RegularImmutableList<E>(nullChecked(list.toArray()));
+  }
+
+  /**
+   * Checks that all the array elements are non-null.
+   *
+   * @return the argument array
+   * @throws NullPointerException if any element is null
+   */
+  private static Object[] nullChecked(Object[] array) {
+    for (int i = 0, len = array.length; i < len; i++) {
+      if (array[i] == null) {
+        throw new NullPointerException("at index " + i);
+      }
+    }
+    return array;
+  }
+
+  private static <E> ImmutableList<E> copyOfInternal(
+      Collection<? extends E> collection) {
     int size = collection.size();
     return (size == 0)
         ? ImmutableList.<E>of()
-        : new RegularImmutableList<E>(copyIntoArray(collection, size));
+        : ImmutableList.<E>createFromIterable(collection, size);
   }
 
   private ImmutableList() {}
+
+  // This declaration is needed to make List.iterator() and
+  // ImmutableCollection.iterator() consistent.
+  @Override public abstract UnmodifiableIterator<E> iterator();
 
   // Mark these two methods with @Nullable
 
@@ -235,12 +272,14 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
       return false;
     }
 
-    public Iterator<Object> iterator() {
+    @Override public UnmodifiableIterator<Object> iterator() {
       return Iterators.emptyIterator();
     }
 
+    private static final Object[] EMPTY_ARRAY = new Object[0];
+
     @Override public Object[] toArray() {
-      return ObjectArrays.EMPTY_ARRAY;
+      return EMPTY_ARRAY;
     }
 
     @Override public <T> T[] toArray(T[] a) {
@@ -251,8 +290,9 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
     }
 
     public Object get(int index) {
-      throw new IndexOutOfBoundsException(
-          "Invalid index: " + index + ", list size is 0");
+      // guaranteed to fail, but at least we get a consistent message
+      Preconditions.checkElementIndex(index, 0);
+      throw new AssertionError("unreachable");
     }
 
     @Override public int indexOf(Object target) {
@@ -264,10 +304,7 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
     }
 
     @Override public ImmutableList<Object> subList(int fromIndex, int toIndex) {
-      if (fromIndex != 0 || toIndex != 0) {
-        throw new IndexOutOfBoundsException("Invalid range: " + fromIndex
-            + ".." + toIndex + ", list size is 0");
-      }
+      Preconditions.checkPositionIndexes(fromIndex, toIndex, 0);
       return this;
     }
 
@@ -276,10 +313,7 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
     }
 
     public ListIterator<Object> listIterator(int start) {
-      if (start != 0) {
-        throw new IndexOutOfBoundsException(
-            "Invalid index: " + start + ", list size is 0");
-      }
+      Preconditions.checkPositionIndex(start, 0);
       return Iterators.emptyListIterator();
     }
 
@@ -287,9 +321,12 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
       return targets.isEmpty();
     }
 
-    @Override public boolean equals(Object object) {
-      return object == this
-          || (object instanceof List && ((List<?>) object).isEmpty());
+    @Override public boolean equals(@Nullable Object object) {
+      if (object instanceof List) {
+        List<?> that = (List<?>) object;
+        return that.isEmpty();
+      }
+      return false;
     }
 
     @Override public int hashCode() {
@@ -298,10 +335,6 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
 
     @Override public String toString() {
       return "[]";
-    }
-
-    private Object readResolve() {
-      return EMPTY_IMMUTABLE_LIST;
     }
   }
 
@@ -334,8 +367,8 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
 
     // The fake cast to E is safe because the creation methods only allow E's
     @SuppressWarnings("unchecked")
-    public Iterator<E> iterator() {
-      return (Iterator<E>) Iterators.forArray(array, offset, size);
+    @Override public UnmodifiableIterator<E> iterator() {
+      return (UnmodifiableIterator<E>) Iterators.forArray(array, offset, size);
     }
 
     @Override public Object[] toArray() {
@@ -357,10 +390,7 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
     // The fake cast to E is safe because the creation methods only allow E's
     @SuppressWarnings("unchecked")
     public E get(int index) {
-      if (index < 0 || index >= size) {
-        throw new IndexOutOfBoundsException(
-            "Invalid index: " + index + ", list size is " + size);
-      }
+      Preconditions.checkElementIndex(index, size);
       return (E) array[index + offset];
     }
 
@@ -387,11 +417,7 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
     }
 
     @Override public ImmutableList<E> subList(int fromIndex, int toIndex) {
-      if (fromIndex < 0 || toIndex > size || fromIndex > toIndex) {
-        throw new IndexOutOfBoundsException("Invalid range: " + fromIndex
-            + ".." + toIndex + ", list size is " + size);
-      }
-
+      Preconditions.checkPositionIndexes(fromIndex, toIndex, size);
       return (fromIndex == toIndex)
           ? ImmutableList.<E>of()
           : new RegularImmutableList<E>(
@@ -403,10 +429,7 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
     }
 
     public ListIterator<E> listIterator(final int start) {
-      if ((start < 0) || (start > size)) {
-        throw new IndexOutOfBoundsException(
-            "Invalid index: " + start + ", list size is " + size);
-      }
+      Preconditions.checkPositionIndex(start, size);
 
       return new ListIterator<E>() {
         int index = start;
@@ -458,7 +481,7 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
       };
     }
 
-    @Override public boolean equals(Object object) {
+    @Override public boolean equals(@Nullable Object object) {
       if (object == this) {
         return true;
       }
@@ -467,7 +490,7 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
       }
 
       List<?> that = (List<?>) object;
-      if (that.size() != size()) {
+      if (this.size() != that.size()) {
         return false;
       }
 
@@ -521,16 +544,40 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
     return array;
   }
 
-  private static Object[] copyIntoArray(Iterable<?> source, int size) {
-    Object[] array = new Object[size];
+  private static <E> ImmutableList<E> createFromIterable(
+      Iterable<?> source, int estimatedSize) {
+    Object[] array = new Object[estimatedSize];
     int index = 0;
+
     for (Object element : source) {
+      if (index == estimatedSize) {
+        // At least one element was added after our call to size().
+        estimatedSize = ((estimatedSize / 2) + 1) * 3;
+        array = copyOf(array, estimatedSize);
+      }
       if (element == null) {
         throw new NullPointerException("at index " + index);
       }
       array[index++] = element;
     }
-    return array;
+
+    if (index == 0) {
+      return of();
+    }
+
+    if (index != estimatedSize) {
+      array = copyOf(array, index);
+    }
+
+    return new RegularImmutableList<E>(array, 0, index);
+  }
+
+  // Avoid using Arrays.copyOf(), which is not present until JDK6.
+  private static Object[] copyOf(Object[] oldArray, int newSize) {
+    Object[] newArray = new Object[newSize];
+    System.arraycopy(oldArray, 0, newArray, 0,
+        Math.min(oldArray.length, newSize));
+    return newArray;
   }
 
   /*
@@ -555,5 +602,80 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
 
   @Override Object writeReplace() {
     return new SerializedForm(toArray());
+  }
+
+  /**
+   * Returns a new builder. The generated builder is equivalent to the builder
+   * created by the {@link Builder} constructor.
+   */
+  public static <E> Builder<E> builder() {
+    return new Builder<E>();
+  }
+
+  /**
+   * A builder for creating immutable list instances, especially
+   * {@code public static final} lists ("constant lists").
+   *
+   * <p>Example:
+   * <pre>{@code
+   *   public static final ImmutableList<Color> GOOGLE_COLORS
+   *       = new ImmutableList.Builder<Color>()
+   *           .addAll(WEBSAFE_COLORS)
+   *           .add(new Color(0, 191, 255))
+   *           .build();}</pre>
+   *
+   * <p>Builder instances can be reused - it is safe to call {@link #build}
+   * multiple times to build multiple lists in series. Each new list
+   * contains the one created before it.
+   */
+  public static class Builder<E> {
+    private final ArrayList<E> contents = Lists.newArrayList();
+
+    /**
+     * Creates a new builder. The returned builder is equivalent to the builder
+     * generated by {@link ImmutableList#builder}.
+     */
+    public Builder() {}
+
+    /**
+     * Adds {@code element} to the {@code ImmutableList}.
+     *
+     * @param element the element to add
+     * @return this {@code Builder} object
+     * @throws NullPointerException if {@code element} is null
+     */
+    public Builder<E> add(E element) {
+      Preconditions.checkNotNull(element, "element cannot be null");
+      contents.add(element);
+      return this;
+    }
+
+    /**
+     * Adds each element of {@code elements} to the {@code ImmutableList}.
+     *
+     * @param elements the {@code Iterable} to add to the {@code ImmutableList}
+     * @return this {@code Builder} object
+     * @throws NullPointerException if {@code elements} is or contains null
+     */
+    public Builder<E> addAll(Iterable<? extends E> elements) {
+      if (elements instanceof Collection) {
+        @SuppressWarnings("unchecked")
+        Collection<? extends E> collection = (Collection<? extends E>) elements;
+        contents.ensureCapacity(contents.size() + collection.size());
+      }
+      for (E elem : elements) {
+        Preconditions.checkNotNull(elem, "elements contains a null");
+        contents.add(elem);
+      }
+      return this;
+    }
+
+    /**
+     * Returns a newly-created {@code ImmutableList} based on the contents of
+     * the {@code Builder}.
+     */
+    public ImmutableList<E> build() {
+      return copyOf(contents);
+    }
   }
 }

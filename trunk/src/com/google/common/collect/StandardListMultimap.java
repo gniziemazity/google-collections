@@ -56,7 +56,7 @@ abstract class StandardListMultimap<K, V>
       @Nullable K key, Iterable<? extends V> values) {
     return (List<V>) super.replaceValues(key, values);
   }
-  
+
   /**
    * Stores a key-value pair in the multimap.
    *
@@ -67,7 +67,7 @@ abstract class StandardListMultimap<K, V>
   @Override public boolean put(@Nullable K key, @Nullable V value) {
     return super.put(key, value);
   }
-  
+
   /**
    * Compares the specified object to this multimap for equality.
    *
@@ -75,7 +75,7 @@ abstract class StandardListMultimap<K, V>
    * contain the same values in the same order. If the value orderings disagree,
    * the multimaps will not be considered equal.
    */
-  @Override public boolean equals(@Nullable Object obj) {
-    return super.equals(obj);
-  }  
+  @Override public boolean equals(@Nullable Object object) {
+    return super.equals(object);
+  }
 }
