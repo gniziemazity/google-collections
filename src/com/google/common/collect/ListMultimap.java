@@ -35,7 +35,7 @@ import java.util.Map;
 public interface ListMultimap<K, V> extends Multimap<K, V> {
   /**
    * {@inheritDoc}
-   * 
+   *
    * <p>Because the values for a given key may have duplicates and follow the
    * insertion ordering, this method returns a {@link List}, instead of the
    * {@link java.util.Collection} specified in the {@link Multimap} interface.
@@ -44,7 +44,7 @@ public interface ListMultimap<K, V> extends Multimap<K, V> {
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * <p>Because the values for a given key may have duplicates and follow the
    * insertion ordering, this method returns a {@link List}, instead of the
    * {@link java.util.Collection} specified in the {@link Multimap} interface.
@@ -53,7 +53,7 @@ public interface ListMultimap<K, V> extends Multimap<K, V> {
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * <p>Because the values for a given key may have duplicates and follow the
    * insertion ordering, this method returns a {@link List}, instead of the
    * {@link java.util.Collection} specified in the {@link Multimap} interface.

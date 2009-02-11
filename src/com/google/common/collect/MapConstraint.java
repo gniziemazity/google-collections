@@ -49,10 +49,10 @@ public interface MapConstraint<K, V> {
    * an application-specific exception class may be used if appropriate.
    */
   void checkKeyValue(@Nullable K key, @Nullable V value);
-  
+
   /**
    * Returns a brief human readable description of this constraint, such as
    * "Not null".
    */
-  String toString();  
+  String toString();
 }

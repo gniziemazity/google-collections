@@ -30,13 +30,65 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Multiset implementation backed by a {@code TreeMap}. The multiset elements
- * are ordered by their natural sort ordering or by a comparator.  
+ * are ordered by their natural sort ordering or by a comparator.
  *
  * @author Neal Kanodia
  * @author Jared Levy
  */
 @SuppressWarnings("serial") // we're overriding default serialization
 public final class TreeMultiset<E> extends AbstractMapBasedMultiset<E> {
+
+  /**
+   * Creates a new, empty multiset, sorted according to the elements' natural
+   * order. All elements inserted into the multiset must implement the
+   * {@code Comparable} interface. Furthermore, all such elements must be
+   * <i>mutually comparable</i>: {@code e1.compareTo(e2)} must not throw a
+   * {@code ClassCastException} for any elements {@code e1} and {@code e2} in
+   * the multiset. If the user attempts to add an element to the multiset that
+   * violates this constraint (for example, the user attempts to add a string
+   * element to a set whose elements are integers), the {@code add(Object)}
+   * call will throw a {@code ClassCastException}.
+   *
+   * <p>The type specification is {@code <E extends Comparable>}, instead of the
+   * more specific {@code <E extends Comparable<? super E>>}, to support
+   * classes defined without generics.
+   */
+  @SuppressWarnings("unchecked") // See method Javadoc
+  public static <E extends Comparable> TreeMultiset<E> create() {
+    return new TreeMultiset<E>();
+  }
+
+  /**
+   * Creates a new, empty multiset, sorted according to the specified
+   * comparator. All elements inserted into the multiset must be <i>mutually
+   * comparable</i> by the specified comparator: {@code comparator.compare(e1,
+   * e2)} must not throw a {@code ClassCastException} for any elements {@code
+   * e1} and {@code e2} in the multiset. If the user attempts to add an element
+   * to the multiset that violates this constraint, the {@code add(Object)} call
+   * will throw a {@code ClassCastException}.
+   *
+   * @param comparator the comparator that will be used to sort this multiset. A
+   *     null value indicates that the elements' <i>natural ordering</i> should
+   *     be used.
+   */
+  public static <E> TreeMultiset<E> create(Comparator<? super E> comparator) {
+    return new TreeMultiset<E>(comparator);
+  }
+
+  /**
+   * Creates an empty multiset containing the given initial elements, sorted
+   * according to the elements' natural order.
+   *
+   * <p>The type specification is {@code <E extends Comparable>}, instead of the
+   * more specific {@code <E extends Comparable<? super E>>}, to support
+   * classes defined without generics.
+   */
+  @SuppressWarnings("unchecked") // See method Javadoc
+  public static <E extends Comparable> TreeMultiset<E> create(
+      Iterable<? extends E> elements) {
+    return new TreeMultiset<E>(elements);
+  }
+
   /**
    * Constructs a new, empty multiset, sorted according to the elements' natural
    * order. All elements inserted into the multiset must implement the
@@ -65,7 +117,7 @@ public final class TreeMultiset<E> extends AbstractMapBasedMultiset<E> {
    *     null value indicates that the elements' <i>natural ordering</i> should
    *     be used.
    */
-  public TreeMultiset(Comparator<? super E> comparator) {
+  private TreeMultiset(Comparator<? super E> comparator) {
     super(new TreeMap<E, AtomicInteger>(comparator));
   }
 
@@ -73,12 +125,12 @@ public final class TreeMultiset<E> extends AbstractMapBasedMultiset<E> {
    * Constructs an empty multiset containing the given initial elements, sorted
    * according to the elements' natural order.
    */
-  public TreeMultiset(Iterable<? extends E> elements) {
+  private TreeMultiset(Iterable<? extends E> elements) {
     this();
     Iterables.addAll(this, elements); // careful if we make this class non-final
   }
 
-  
+
   /**
    * {@inheritDoc}
    *
@@ -88,7 +140,7 @@ public final class TreeMultiset<E> extends AbstractMapBasedMultiset<E> {
   @Override public SortedSet<E> elementSet() {
     return (SortedSet<E>) super.elementSet();
   }
-  
+
   @Override public int count(@Nullable Object element) {
     try {
       return super.count(element);
@@ -113,7 +165,7 @@ public final class TreeMultiset<E> extends AbstractMapBasedMultiset<E> {
      return new SortedMapBasedElementSet(
          (SortedMap<E, AtomicInteger>) backingMap());
   }
-  
+
   private class SortedMapBasedElementSet extends MapBasedElementSet
       implements SortedSet<E> {
 
@@ -150,14 +202,14 @@ public final class TreeMultiset<E> extends AbstractMapBasedMultiset<E> {
       return new SortedMapBasedElementSet(sortedMap().tailMap(fromElement));
     }
   }
-  
+
   /*
    * TODO: Decide whether entrySet() should return entries with an equals()
    * method that calls the comparator to compare the two keys. If that change
    * is made, AbstractMultiset.equals() can simply check whether two multisets
    * have equal entry sets.
    */
-  
+
   /**
    * @serialData the comparator, the number of distinct elements, the first
    *     element, its count, the second element, its count, and so on
@@ -167,7 +219,7 @@ public final class TreeMultiset<E> extends AbstractMapBasedMultiset<E> {
     stream.writeObject(elementSet().comparator());
     Serialization.writeMultiset(this, stream);
   }
-  
+
   private void readObject(ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
@@ -177,6 +229,6 @@ public final class TreeMultiset<E> extends AbstractMapBasedMultiset<E> {
     setBackingMap(new TreeMap<E, AtomicInteger>(comparator));
     Serialization.populateMultiset(this, stream);
   }
-  
-  private static final long serialVersionUID = 0;  
+
+  private static final long serialVersionUID = 0;
 }

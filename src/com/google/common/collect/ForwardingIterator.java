@@ -23,7 +23,7 @@ import java.util.Iterator;
  * Subclasses should override one or more methods to modify the behavior of the
  * backing iterator as desired per the <a
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
- * 
+ *
  * @see ForwardingObject
  * @author Kevin Bourrillion
  */

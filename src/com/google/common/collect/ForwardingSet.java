@@ -16,6 +16,8 @@
 
 package com.google.common.collect;
 
+import com.google.common.base.Nullable;
+
 import java.util.Set;
 
 /**
@@ -32,8 +34,8 @@ public abstract class ForwardingSet<E> extends ForwardingCollection<E>
 
   @Override protected abstract Set<E> delegate();
 
-  @Override public boolean equals(Object obj) {
-    return (this == obj) || delegate().equals(obj);
+  @Override public boolean equals(@Nullable Object object) {
+    return object == this || delegate().equals(object);
   }
 
   @Override public int hashCode() {

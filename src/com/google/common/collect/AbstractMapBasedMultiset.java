@@ -23,6 +23,7 @@ import static com.google.common.base.Preconditions.checkState;
 import com.google.common.base.Nullable;
 
 import java.io.InvalidObjectException;
+import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -35,7 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Basic implementation of {@code Multiset<E>} backed by an instance of {@code
  * Map<E, AtomicInteger>}.
- * 
+ *
  * <p>For serialization to work, the subclass must specify explicit {@code
  * readObject} and {@code writeObject} methods.
  *
@@ -43,7 +44,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
     implements Serializable {
-  
+
   // TODO: Replace AtomicInteger with a to-be-written IntegerHolder class for
   // better performance.
   private transient Map<E, AtomicInteger> backingMap;
@@ -61,22 +62,22 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
     this.size = super.size();
   }
 
-  protected Map<E, AtomicInteger> backingMap() {
+  Map<E, AtomicInteger> backingMap() {
     return backingMap;
   }
 
-  /** Used during deserialization only. The backing map must be empty. */  
-  protected void setBackingMap(Map<E, AtomicInteger> backingMap) {
+  /** Used during deserialization only. The backing map must be empty. */
+  void setBackingMap(Map<E, AtomicInteger> backingMap) {
     this.backingMap = backingMap;
   }
-  
+
   // Required Implementations
 
   private transient volatile EntrySet entrySet;
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * <p>Invoking {@link Multiset.Entry#getCount} on an entry in the returned
    * set always returns the current count of that element in the multiset, as
    * opposed to the count at the time the entry was retrieved.
@@ -103,7 +104,7 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
         public Multiset.Entry<E> next() {
           final Map.Entry<E, AtomicInteger> mapEntry = backingEntries.next();
           toRemove = mapEntry;
-          return new AbstractMultisetEntry<E>() {
+          return new Multisets.AbstractEntry<E>() {
             public E getElement() {
               return mapEntry.getKey();
             }
@@ -137,9 +138,9 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
     @Override public boolean retainAll(Collection<?> c) {
       return super.retainAll(checkNotNull(c));
     }
-    
+
     // The following overrides are for better performance.
-    
+
     @Override public void clear() {
       for (AtomicInteger frequency : backingMap.values()) {
         frequency.set(0);
@@ -147,7 +148,7 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
       backingMap.clear();
       size = 0L;
     }
-    
+
     @Override public boolean contains(Object o) {
       if (o instanceof Entry) {
         Entry<?> entry = (Entry<?>) o;
@@ -156,17 +157,17 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
       }
       return false;
     }
-    
+
     @Override public boolean remove(Object o) {
       if (contains(o)) {
         Entry<?> entry = (Entry<?>) o;
         AtomicInteger frequency = backingMap.remove(entry.getElement());
         int numberRemoved = frequency.getAndSet(0);
         size -= numberRemoved;
-        return true; 
+        return true;
       }
       return false;
-    }    
+    }
   }
 
   // Optimizations - Query Operations
@@ -179,7 +180,7 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
     return new MapBasedMultisetIterator();
   }
 
-  /* 
+  /*
    * Not subclassing AbstractMultiset$MultisetIterator because next() needs to
    * retrieve the Map.Entry<E, AtomicInteger> entry, which can then be used for
    * a more efficient remove() call.
@@ -212,7 +213,7 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
       checkState(canRemove,
           "no calls to next() since the last call to remove()");
       int frequency = currentEntry.getValue().get();
-      if (frequency <= 0) { 
+      if (frequency <= 0) {
         throw new ConcurrentModificationException();
       }
       if (currentEntry.getValue().addAndGet(-1) == 0) {
@@ -235,7 +236,7 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
    *
    * @throws IllegalArgumentException if the call would result in more than
    *     {@link Integer#MAX_VALUE} occurrences of {@code element} in this
-   *     multiset. 
+   *     multiset.
    */
   @Override public boolean add(@Nullable E element, int occurrences) {
     if (occurrences == 0) {
@@ -274,7 +275,7 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
       numberRemoved = frequency.get();
       backingMap.remove(element);
     }
-    
+
     frequency.addAndGet(-numberRemoved);
     size -= numberRemoved;
     return numberRemoved;
@@ -283,7 +284,7 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
   @Override public int removeAllOccurrences(@Nullable Object element) {
     return removeAllOccurrences(element, backingMap);
   }
-  
+
   private int removeAllOccurrences(@Nullable Object element,
       Map<E, AtomicInteger> map) {
     AtomicInteger frequency = map.remove(element);
@@ -291,14 +292,14 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
       return 0;
     }
     int numberRemoved = frequency.getAndSet(0);
-    size -= numberRemoved;    
+    size -= numberRemoved;
     return numberRemoved;
   }
 
   // Views
 
   @Override protected Set<E> createElementSet() {
-    return new MapBasedElementSet(backingMap);      
+    return new MapBasedElementSet(backingMap);
   }
 
   class MapBasedElementSet extends ForwardingSet<E> {
@@ -308,7 +309,7 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
      */
     private final Map<E, AtomicInteger> map;
     private final Set<E> delegate;
-    
+
     MapBasedElementSet(Map<E, AtomicInteger> map) {
       this.map = map;
       delegate = map.keySet();
@@ -317,7 +318,7 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
     @Override protected Set<E> delegate() {
       return delegate;
     }
-    
+
     // TODO: a way to not have to write this much code?
 
     @Override public Iterator<E> iterator() {
@@ -373,9 +374,10 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
       return map;
     }
   }
-  
+
   /** Don't allow default serialization. */
-  protected void readObjectNoData() throws InvalidObjectException {
+  @SuppressWarnings("unused") // actually used during deserialization
+  private void readObjectNoData() throws ObjectStreamException {
     throw new InvalidObjectException("Stream data required");
   }
 }

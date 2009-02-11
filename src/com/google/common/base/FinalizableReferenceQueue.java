@@ -23,7 +23,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.URISyntaxException;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 
@@ -222,7 +221,7 @@ public class FinalizableReferenceQueue {
     /**
      * Gets URL for base of path containing Finalizer.class.
      */
-    URL getBaseUrl() throws IOException, URISyntaxException {
+    URL getBaseUrl() throws IOException {
       // Find URL pointing to Finalizer.class file.
       String finalizerPath = FINALIZER_CLASS_NAME.replace('.', '/') + ".class";
       URL finalizerUrl = getClass().getClassLoader().getResource(finalizerPath);

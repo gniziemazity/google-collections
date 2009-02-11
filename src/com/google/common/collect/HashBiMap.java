@@ -32,10 +32,16 @@ import java.util.Map;
  * @author Mike Bostock
  */
 public final class HashBiMap<K, V> extends StandardBiMap<K, V> {
+
   /**
-   * Constructs a new empty bimap with the default initial capacity (16).
+   * Returns a new empty {@code HashBiMap} with the default initial capacity
+   * (16).
    */
-  public HashBiMap() {
+  public static <K, V> HashBiMap<K, V> create() {
+    return new HashBiMap<K, V>();
+  }
+
+  private HashBiMap() {
     super(new HashMap<K, V>(), new HashMap<V, K>());
   }
 
@@ -79,13 +85,13 @@ public final class HashBiMap<K, V> extends StandardBiMap<K, V> {
     stream.defaultWriteObject();
     Serialization.writeMap(this, stream);
   }
-  
+
   private void readObject(ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
     setDelegates(new HashMap<K, V>(), new HashMap<V, K>());
     Serialization.populateMap(this, stream);
   }
-  
-  private static final long serialVersionUID = 0;  
+
+  private static final long serialVersionUID = 0;
 }

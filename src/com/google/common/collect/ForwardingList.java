@@ -16,6 +16,8 @@
 
 package com.google.common.collect;
 
+import com.google.common.base.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
@@ -25,7 +27,7 @@ import java.util.ListIterator;
  * override one or more methods to modify the behavior of the backing list as
  * desired per the <a
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
- * 
+ *
  * <p>This class does not implement {@link java.util.RandomAccess}. If the
  * delegate supports random access, the {@code ForwadingList} subclass should
  * implement the {@code RandomAccess} interface.
@@ -77,8 +79,8 @@ public abstract class ForwardingList<E> extends ForwardingCollection<E>
     return delegate().subList(fromIndex, toIndex);
   }
 
-  @Override public boolean equals(Object obj) {
-    return (this == obj) || delegate().equals(obj);
+  @Override public boolean equals(@Nullable Object object) {
+    return object == this || delegate().equals(object);
   }
 
   @Override public int hashCode() {

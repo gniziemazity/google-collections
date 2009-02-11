@@ -131,12 +131,12 @@ public interface Multiset<E> extends Collection<E> {
    *     zero - TODO: make this the actual behavior!
    * @throws IllegalArgumentException if {@code occurrences} is negative, or if
    *     this operation would result in more than {@link Integer#MAX_VALUE}
-   *     occurrences of the element 
+   *     occurrences of the element
    * @throws NullPointerException if {@code element} is null and this
    *     implementation does not permit null elements. Note that if {@code
    *     occurrences} is zero, the implementation may opt to return normally.
    */
-  boolean /*int*/ add(E element, int occurrences);
+  boolean /*int*/ add(@Nullable E element, int occurrences);
 
   /**
    * Conditionally removes a number of occurrences of an element from this
@@ -340,7 +340,7 @@ public interface Multiset<E> extends Collection<E> {
    * result of invoking {@link #toString} on the {@link #entrySet}, yielding a
    * result such as
    * <pre>
-   *     [a x 3, c, d x 2, b x 0, e]
+   *     [a x 3, c, d x 2, e]
    * </pre>
    */
   String toString();

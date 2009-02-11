@@ -31,7 +31,7 @@ package com.google.common.base;
  * encouraged to state this fact clearly in their API documentation.
  *
  * @param <F> the type of the function input
- * @param <T> the type of the function output 
+ * @param <T> the type of the function output
  * @author Kevin Bourrillion
  * @author Scott Bonneau
  */
@@ -41,7 +41,7 @@ public interface Function<F, T> {
    * Applies the function to an object of type {@code F}, resulting in an object
    * of type {@code T}.  Note that types {@code F} and {@code T} may or may not
    * be the same.
-   * 
+   *
    * @param from the source object
    * @return the resulting object
    */

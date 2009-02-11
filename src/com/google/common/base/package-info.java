@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-/** 
+/**
  * Miscellaneous common util classes and annotations.
  */
 package com.google.common.base;

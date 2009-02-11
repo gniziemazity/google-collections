@@ -40,11 +40,11 @@ import java.util.Set;
  * <p>The {@link #contains}, {@link #containsAll}, {@link #count}, and
  * {@link #size} implementations all iterate across the set returned by
  * {@link Multiset#entrySet()}, as do many methods acting on the set returned by
- * {@link #elementSet}. Override those methods for better performance.
- * 
+ * {@link #elementSet()}. Override those methods for better performance.
+ *
  * @author Kevin Bourrillion
  */
-public abstract class AbstractMultiset<E> extends AbstractCollection<E>
+abstract class AbstractMultiset<E> extends AbstractCollection<E>
     implements Multiset<E> {
   public abstract Set<Entry<E>> entrySet();
 
@@ -150,10 +150,10 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
   // Modification Operations
 
   /**
-   * Ensures that this collection contains the specified element. 
-   * 
+   * Ensures that this collection contains the specified element.
+   *
    * <p>This implementation calls {@link #add(Object, int)} with one occurrence.
-   * 
+   *
    * @return {@code true} always
    */
   @Override public boolean add(@Nullable E element) {
@@ -174,7 +174,7 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
 
   /**
    * Removes a single instance of the specified element from this collection, if
-   * it is present. 
+   * it is present.
    *
    * <p>This implementation calls {@link #remove(Object, int)} with 1
    * occurrence.
@@ -261,7 +261,7 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
   @Override public boolean removeAll(Collection<?> elementsToRemove) {
     Iterable<?> iterable = (elementsToRemove instanceof Multiset)
         ? ((Multiset<?>) elementsToRemove).elementSet() : elementsToRemove;
-    
+
     boolean modified = false;
     for (Object element : iterable) {
       if (removeAllOccurrences(element) != 0) {
@@ -296,7 +296,7 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
   }
 
   /**
-   * Removes all of the elements from this multiset. 
+   * Removes all of the elements from this multiset.
    *
    * <p>This implementation calls {@code clear} on {@link Multiset#entrySet()}.
    */
@@ -324,7 +324,7 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
 
   /**
    * Creates a new instance of this multiset's element set, which will be
-   * returned by {@link #elementSet}.
+   * returned by {@link #elementSet()}.
    */
   protected Set<E> createElementSet() {
     return new ElementSet();
@@ -359,28 +359,28 @@ public abstract class AbstractMultiset<E> extends AbstractCollection<E>
    * of the same size and if, for each element, the two multisets have the same
    * count.
    */
-  @Override public boolean equals(@Nullable Object other) {
-    if (other instanceof Multiset) {
-      Multiset<?> that = (Multiset<?>) other;
+  @Override public boolean equals(@Nullable Object object) {
+    if (object == this) {
+      return true;
+    }
+    if (object instanceof Multiset) {
+      Multiset<?> that = (Multiset<?>) object;
       /*
        * We can't simply check whether the entry sets are equal, since that
        * approach fails when a TreeMultiset has a comparator that returns 0
        * when passed unequal elements.
        */
-      
+
       if (this.size() != that.size()) {
         return false;
       }
-      
       for (Entry<?> entry : that.entrySet()) {
         if (count(entry.getElement()) != entry.getCount()) {
           return false;
         }
       }
-      
       return true;
     }
-    
     return false;
   }
 

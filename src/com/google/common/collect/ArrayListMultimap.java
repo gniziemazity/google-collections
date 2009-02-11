@@ -52,9 +52,9 @@ import java.util.List;
  */
 public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
   // Default from ArrayList
-  /*@VisibleForTesting*/ static final int DEFAULT_CAPACITY = 10;   
-  
-  /*@VisibleForTesting*/ transient int initialListCapacity;
+  static final int DEFAULT_CAPACITY = 10;
+
+  transient int initialListCapacity;
 
   /** Constructs an empty {@code ArrayListMultimap}. */
   public ArrayListMultimap() {
@@ -105,7 +105,7 @@ public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
       arrayList.trimToSize();
     }
   }
-  
+
   /**
    * @serialData initial list capacity, number of distinct keys, and then for
    *     each distinct key: the key, number of values for that key, and the
@@ -116,7 +116,7 @@ public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
     stream.writeInt(initialListCapacity);
     Serialization.writeMultimap(this, stream);
   }
-  
+
   private void readObject(ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
@@ -124,6 +124,6 @@ public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
     initialListCapacity = stream.readInt();
     Serialization.populateMultimap(this, stream);
   }
-  
-  private static final long serialVersionUID = 0;  
+
+  private static final long serialVersionUID = 0;
 }

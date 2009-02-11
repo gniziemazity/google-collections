@@ -36,7 +36,7 @@ import java.util.Set;
 public interface SetMultimap<K, V> extends Multimap<K, V> {
   /**
    * {@inheritDoc}
-   * 
+   *
    * <p>Because a {@code SetMultimap} has unique values for a given key, this
    * method returns a {@link Set}, instead of the {@link java.util.Collection}
    * specified in the {@link Multimap} interface.
@@ -45,7 +45,7 @@ public interface SetMultimap<K, V> extends Multimap<K, V> {
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * <p>Because a {@code SetMultimap} has unique values for a given key, this
    * method returns a {@link Set}, instead of the {@link java.util.Collection}
    * specified in the {@link Multimap} interface.
@@ -54,7 +54,7 @@ public interface SetMultimap<K, V> extends Multimap<K, V> {
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * <p>Because a {@code SetMultimap} has unique values for a given key, this
    * method returns a {@link Set}, instead of the {@link java.util.Collection}
    * specified in the {@link Multimap} interface.
@@ -65,7 +65,7 @@ public interface SetMultimap<K, V> extends Multimap<K, V> {
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * <p>Because a {@code SetMultimap} has unique values for a given key, this
    * method returns a {@link Set}, instead of the {@link java.util.Collection}
    * specified in the {@link Multimap} interface.
@@ -79,7 +79,7 @@ public interface SetMultimap<K, V> extends Multimap<K, V> {
    * has {@link Set} values.
    */
   Map<K, Collection<V>> asMap();
-  
+
   /**
    * Compares the specified object to this multimap for equality.
    *
@@ -87,5 +87,5 @@ public interface SetMultimap<K, V> extends Multimap<K, V> {
    * contain the same values. Equality does not depend on the ordering of keys
    * or values.
    */
-  boolean equals(@Nullable Object obj);  
+  boolean equals(@Nullable Object obj);
 }

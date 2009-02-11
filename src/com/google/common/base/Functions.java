@@ -24,12 +24,15 @@ import java.util.Map;
 /**
  * Useful functions.
  *
+ * <p>All methods returns serializable functions as long as they're given
+ * serializable parameters.
+ *
  * @author Mike Bostock
  * @author Vlad Patryshev
  * @author Jared Levy
  */
 public final class Functions {
-  private Functions() { }
+  private Functions() {}
 
   /**
    * A function that calls {@code toString()} on its argument. This function
@@ -90,19 +93,6 @@ public final class Functions {
     }
   }
 
-  // enum singleton pattern
-  private enum TrimStringFunction implements Function<String, String> {
-    INSTANCE;
-
-    public String apply(String string) {
-      return string.trim();
-    }
-
-    @Override public String toString() {
-      return "String.trim";
-    }
-  }
-  
   /**
    * Returns the identity function.
    */
@@ -144,8 +134,7 @@ public final class Functions {
       implements Function<A, B>, Serializable {
     private final Map<? super A, ? extends B> map;
 
-    public FunctionForMapNoDefault(
-        Map<? super A, ? extends B> map) {
+    public FunctionForMapNoDefault(Map<? super A, ? extends B> map) {
       this.map = checkNotNull(map);
     }
     public B apply(A a) {
@@ -253,19 +242,6 @@ public final class Functions {
     }
 
     @Override public int hashCode() {
-      /*
-       * TODO: To leave the door open for future enhancement, this
-       * calculation should be coordinated with the hashCode() method of the
-       * corresponding composition method in Predicates. To construct the
-       * composition:
-       *    predicate(function2(function1(x)))
-       *
-       * There are two different ways of composing it:
-       *    compose(predicate, compose(function2, function1))
-       *    compose(compose(predicate, function2), function1)
-       *
-       * It would be nice if these could be equal.
-       */
       return f.hashCode() ^ g.hashCode();
     }
     @Override public String toString() {

@@ -169,7 +169,7 @@ public final class TreeMultimap<K, V> extends StandardSortedSetMultimap<K, V> {
   /**
    * @serialData key comparator, value comparator, number of distinct keys, and
    *     then for each distinct key: the key, number of values for that key, and
-   *     key values  
+   *     key values
    */
   private void writeObject(ObjectOutputStream stream) throws IOException {
     stream.defaultWriteObject();
@@ -177,7 +177,7 @@ public final class TreeMultimap<K, V> extends StandardSortedSetMultimap<K, V> {
     stream.writeObject(valueComparator());
     Serialization.writeMultimap(this, stream);
   }
-  
+
   @SuppressWarnings("unchecked") // reading data stored by writeObject
   private void readObject(ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
@@ -187,6 +187,6 @@ public final class TreeMultimap<K, V> extends StandardSortedSetMultimap<K, V> {
     setMap(new TreeMap<K, Collection<V>>(keyComparator));
     Serialization.populateMultimap(this, stream);
   }
-  
+
   private static final long serialVersionUID = 0;
 }

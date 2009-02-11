@@ -50,7 +50,7 @@ public abstract class ForwardingObject {
 
   /** Sole constructor. */
   protected ForwardingObject() {}
-  
+
   /**
    * Returns the backing delegate instance that methods are forwarded to.
    * Abstract subclasses generally override the {@link ForwardingObject} method
@@ -67,6 +67,6 @@ public abstract class ForwardingObject {
   @Override public String toString() {
     return delegate().toString();
   }
-  
+
   /* No equals or hashCode. See class comments for details. */
 }

@@ -101,7 +101,7 @@ public interface Multimap<K, V> {
    *     {@code false} if the multimap already contained the key-value pair and
    *     doesn't allow duplicates
    */
-  boolean put(K key, V value);
+  boolean put(@Nullable K key, @Nullable V value);
 
   /**
    * Removes a key-value pair from the multimap.
@@ -144,7 +144,7 @@ public interface Multimap<K, V> {
    *     <i>may</i> be modifiable, but updating it will have no effect on the
    *     multimap.
    */
-  Collection<V> replaceValues(K key, Iterable<? extends V> values);
+  Collection<V> replaceValues(@Nullable K key, Iterable<? extends V> values);
 
   /**
    * Removes all values associated with a given key.

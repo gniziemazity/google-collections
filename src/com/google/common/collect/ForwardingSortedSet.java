@@ -24,7 +24,7 @@ import java.util.SortedSet;
  * Subclasses should override one or more methods to modify the behavior of the
  * backing sorted set as desired per the <a
  * href="http://en.wikipedia.org/wiki/Decorator_pattern">decorator pattern</a>.
- * 
+ *
  * @see ForwardingObject
  * @author Mike Bostock
  */

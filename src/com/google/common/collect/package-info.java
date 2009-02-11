@@ -63,10 +63,10 @@
  *     the {@linkplain com.google.common.collect.SortedSetMultimap#get
  *     collection values} associated with a given key is a
  *     {@link java.util.SortedSet}.
- *     
+ *
  * <dt>{@link com.google.common.collect.ClassToInstanceMap}
  * <dd>An extension of {@link java.util.Map} that associates a raw type with an
- *     instance of that type.          
+ *     instance of that type.
  * </dl>
  *
  * <h2>Collection Implementations</h2>
@@ -89,7 +89,6 @@
  * <h3>of {@link java.util.Map}</h3>
  * <dl>
  * <dt>{@link com.google.common.collect.ImmutableMap}
- * <dt>{@link com.google.common.collect.ReferenceMap}
  * </ul>
  *
  * <h3>of {@link com.google.common.collect.BiMap}</h3>
@@ -115,17 +114,13 @@
  * <dt>{@link com.google.common.collect.HashMultimap}
  * <dt>{@link com.google.common.collect.ImmutableMultimap}
  * <dt>{@link com.google.common.collect.LinkedHashMultimap}
+ * <dt>{@link com.google.common.collect.LinkedListMultimap}
  * <dt>{@link com.google.common.collect.TreeMultimap}
  * </dl>
  *
  * <h2>Skeletal implementations</h2>
  * <dl>
  * <dt>{@link com.google.common.collect.AbstractIterator}
- * <dt>{@link com.google.common.collect.AbstractIterable}
- * <dt>{@link com.google.common.collect.AbstractMapEntry}
- * <dt>{@link com.google.common.collect.AbstractMultiset}
- * <dt>{@link com.google.common.collect.AbstractMultisetEntry}
- * <dt>{@link com.google.common.collect.AbstractRemovableIterator}
  * <dt>{@link com.google.common.collect.UnmodifiableIterator}
  * </dl>
  *
@@ -141,25 +136,23 @@
  * <dt>{@link com.google.common.collect.Multisets}
  * <dt>{@link com.google.common.collect.Multimaps}
  * <dt>{@link com.google.common.collect.ObjectArrays}
- * <dt>{@link com.google.common.collect.PrimitiveArrays}
  * <dt>{@link com.google.common.collect.Serialization}
  * </dl>
 
  * <h2>Comparators</h2>
  * <dl>
- * <dt>{@link com.google.common.collect.Comparators}
  * <dt>{@link com.google.common.collect.Ordering}
- * </ul> 
+ * </ul>
  *
  * <h2>Constraints</h2>
- * 
+ *
  * <dt>{@link com.google.common.collect.Constraint}
  * <dt>{@link com.google.common.collect.Constraints}
  * <dt>{@link com.google.common.collect.MapConstraint}
- * <dt>{@link com.google.common.collect.MapConstraints} 
+ * <dt>{@link com.google.common.collect.MapConstraints}
  *
  * <h2>Forwarding collections</h2>
- * 
+ *
  * <dl>
  * <dt>{@link com.google.common.collect.ForwardingCollection }
  * <dt>{@link com.google.common.collect.ForwardingConcurrentMap }
@@ -183,7 +176,7 @@
  * java.lang.NullPointerException} in response to a null value being supplied
  * for any parameter that is not explicitly annotated as being {@link
  * com.google.common.base.Nullable @Nullable}.
- * 
+ *
  * @author Mike Bostock
  * @author Kevin Bourrillion
  * @author Jared Levy

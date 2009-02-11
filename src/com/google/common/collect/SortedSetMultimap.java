@@ -88,10 +88,10 @@ public interface SortedSetMultimap<K, V> extends SetMultimap<K, V> {
    * has {@link SortedSet} values.
    */
   Map<K, Collection<V>> asMap();
-  
+
   /**
    * Returns the comparator that orders the multimap values, with a {@code null}
    * indicating that natural ordering is used.
    */
-  Comparator<? super V> valueComparator();  
+  Comparator<? super V> valueComparator();
 }

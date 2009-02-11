@@ -30,7 +30,7 @@ import java.util.Map;
  * iterators, collections, arrays, and varargs, and can append to any
  * {@link Appendable} or just return a {@link String}. For example,
  * {@code join(":", "a", "b", "c")} returns {@code "a:b:c"}.
- *  
+ *
  * <p>All methods of this class throw {@link NullPointerException} when a value
  * of {@code null} is supplied for any parameter. The elements within the
  * collection, iterator, array, or varargs parameter list <i>may</i> be null --
@@ -153,7 +153,7 @@ public final class Join {
    * {@link String#valueOf(Object)}, if it isn't a {@link CharSequence} already.
    * Note that this implies that null tokens will be appended as the
    * four-character string {@code "null"}.
-   * 
+   *
    * @param appendable the object to append the results to
    * @param delimiter a string to append between every element, but not at the
    *     beginning or end
@@ -174,7 +174,7 @@ public final class Join {
    * {@link String#valueOf(Object)}, if it isn't a {@link CharSequence} already.
    * Note that this implies that null tokens will be appended as the
    * four-character string {@code "null"}.
-   * 
+   *
    * @param appendable the object to append the results to
    * @param delimiter a string to append between every element, but not at the
    *     beginning or end
@@ -195,7 +195,7 @@ public final class Join {
    * {@link String#valueOf(Object)}, if it isn't a {@link CharSequence} already.
    * Note that this implies that null tokens will be appended as the
    * four-character string {@code "null"}.
-   * 
+   *
    * @param appendable the object to append the results to
    * @param delimiter a string to append between every element, but not at the
    *     beginning or end

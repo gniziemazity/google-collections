@@ -303,7 +303,7 @@ public class TestsForSetsInJavaUtil {
   public Test testsForBadlyCollidingHashSet() {
     return SetTestSuiteBuilder
         .using(new TestCollidingSetGenerator() {
-            @Override public Set<Object> create(Object... elements) {
+            public Set<Object> create(Object... elements) {
               return new HashSet<Object>(MinimalCollection.of(elements));
             }
           })

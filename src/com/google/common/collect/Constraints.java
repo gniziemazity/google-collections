@@ -56,13 +56,13 @@ public final class Constraints {
   public static final <E> Constraint<E> notNull() {
     return (Constraint<E>) NotNullConstraint.INSTANCE;
   }
-  
+
   /**
    * Returns a constrained view of the specified collection, using the specified
    * constraint. Any operations that add new elements to the collection will
    * call the provided constraint. However, this method does not verify that
    * existing elements satisfy the constraint.
-   * 
+   *
    * <p>The returned collection is not serializable.
    *
    * @param collection the collection to constrain
@@ -78,7 +78,7 @@ public final class Constraints {
   static class ConstrainedCollection<E> extends ForwardingCollection<E> {
     private final Collection<E> delegate;
     private final Constraint<? super E> constraint;
-    
+
     public ConstrainedCollection(
         Collection<E> delegate, Constraint<? super E> constraint) {
       this.delegate = checkNotNull(delegate);
@@ -101,9 +101,9 @@ public final class Constraints {
    * constraint. Any operations that add new elements to the set will call the
    * provided constraint. However, this method does not verify that existing
    * elements satisfy the constraint.
-   * 
+   *
    * <p>The returned set is not serializable.
-   * 
+   *
    * @param set the set to constrain
    * @param constraint the constraint that validates added elements
    * @return a constrained view of the set
@@ -139,7 +139,7 @@ public final class Constraints {
    * constraint. Any operations that add new elements to the sorted set will
    * call the provided constraint. However, this method does not verify that
    * existing elements satisfy the constraint.
-   *  
+   *
    * <p>The returned set is not serializable.
    *
    * @param sortedSet the sorted set to constrain
@@ -188,10 +188,10 @@ public final class Constraints {
    * constraint. Any operations that add new elements to the list will call the
    * provided constraint. However, this method does not verify that existing
    * elements satisfy the constraint.
-   * 
+   *
    * <p>If {@code list} implements {@link RandomAccess}, so will the returned
    * list. The returned list is not serializable.
-   *  
+   *
    * @param list the list to constrain
    * @param constraint the constraint that validates added elements
    * @return a constrained view of the list
@@ -259,7 +259,7 @@ public final class Constraints {
    * Returns a constrained view of the specified list iterator, using the
    * specified constraint. Any operations that would add new elements to the
    * underlying list will be verified by the constraint.
-   * 
+   *
    * @param listIterator the iterator for which to return a constrained view
    * @param constraint the constraint for elements in the list
    * @return a constrained view of the specified iterator
@@ -312,10 +312,10 @@ public final class Constraints {
    * Returns a constrained view of the specified multiset, using the specified
    * constraint. Any operations that add new elements to the multiset will call
    * the provided constraint. However, this method does not verify that
-   * existing elements satisfy the constraint. 
+   * existing elements satisfy the constraint.
    *
    * <p>The returned multiset is not serializable.
-   * 
+   *
    * @param multiset the multiset to constrain
    * @param constraint the constraint that validates added elements
    * @return a constrained view of the multiset
@@ -354,7 +354,7 @@ public final class Constraints {
 
   // TODO: For better performance, avoid making a copy of the elements by having
   // addAll() call add() repeatedly instead.
-  
+
   private static <E> Collection<E> checkElements(
       Collection<E> elements, Constraint<? super E> constraint) {
     Collection<E> copy = Lists.newArrayList(elements);

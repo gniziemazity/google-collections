@@ -24,18 +24,18 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * Provides static method for serializing collection classes. 
+ * Provides static method for serializing collection classes.
  *
  * @author Jared Levy
  */
 public final class Serialization {
-  private Serialization() {}  
-  
+  private Serialization() {}
+
   /**
    * Stores the contents of a map in an output stream, as part of serialization.
    * It does not support concurrent maps whose content may change while the
    * method is running.
-   * 
+   *
    * <p>The serialized output consists of the number of entries, first key,
    * first value, second key, second value, and so on.
    */
@@ -47,7 +47,7 @@ public final class Serialization {
       stream.writeObject(entry.getValue());
     }
   }
-  
+
   /**
    * Populates a map by reading an input stream, as part of deserialization.
    * See {@link #writeMap} for the data format.
@@ -66,8 +66,8 @@ public final class Serialization {
   /**
    * Stores the contents of a multiset in an output stream, as part of
    * serialization. It does not support concurrent multisets whose content may
-   * change while the method is running. 
-   * 
+   * change while the method is running.
+   *
    * <p>The serialized output consists of the number of distinct elements, the
    * first element, its count, the second element, its count, and so on.
    */
@@ -79,8 +79,8 @@ public final class Serialization {
       stream.writeObject(entry.getElement());
       stream.writeInt(entry.getCount());
     }
-  }  
-  
+  }
+
   /**
    * Populates a multiset by reading an input stream, as part of
    * deserialization. See {@link #writeMultiset} for the data format.
@@ -96,16 +96,16 @@ public final class Serialization {
       multiset.add(element, count);
     }
   }
-  
+
   /**
    * Stores the contents of a multimap in an output stream, as part of
    * serialization. It does not support concurrent multimaps whose content may
    * change while the method is running. The {@link Multimap#asMap} view
    * determines the ordering in which data is written to the stream.
-   * 
+   *
    * <p>The serialized output consists of the number of distinct keys, and then
    * for each distinct key: the key, the number of values for that key, and the
-   * key's values.  
+   * key's values.
    */
   public static <K, V> void writeMultimap(
       Multimap<K, V> multimap, ObjectOutputStream stream) throws IOException {
@@ -118,7 +118,7 @@ public final class Serialization {
       }
     }
   }
-  
+
   /**
    * Populates a multimap by reading an input stream, as part of
    * deserialization. See {@link #writeMultimap} for the data format.
@@ -140,30 +140,40 @@ public final class Serialization {
     }
   }
 
-  /**
-   * Updates the value of a final field, to support field initialization during
-   * deserialization.
-   * 
-   * @param clazz the class in which the field is declared
-   * @param instance the instance containing the field to be updated
-   * @param fieldName the name of the field to update
-   * @param value the value to store in the field
-   * @throws NoSuchFieldException if no field has the specified name
-   * @throws SecurityException if a security manager denies the request
-   * @throws IllegalArgumentException if the value cannot be converted to the
-   *     type of the field
-   */
-  public static <T> void setFinalField(
-      Class<T> clazz, T instance, String fieldName, Object value)
-      throws SecurityException, NoSuchFieldException {
-    Field field = clazz.getDeclaredField(fieldName);
-    field.setAccessible(true);
+  // Secret sauce for setting final fields; don't make it public.
+  static <T> FieldSetter<T> getFieldSetter(
+      final Class<T> clazz, String fieldName) {
     try {
-      field.set(instance, value);
-    } catch (IllegalAccessException e) {
-      throw new AssertionError(
-          "Field should be accessible after setAccessible(true) call: "
-              + e.getMessage());
+      Field field = clazz.getDeclaredField(fieldName);
+      return new FieldSetter<T>(field);
+    } catch (NoSuchFieldException e) {
+      throw new AssertionError(e); // programmer error
+    }
+  }
+
+  // Secret sauce for setting final fields; don't make it public.
+  static final class FieldSetter<T> {
+    private final Field field;
+
+    private FieldSetter(Field field) {
+      this.field = field;
+      field.setAccessible(true);
+    }
+
+    void set(T instance, Object value) {
+      try {
+        field.set(instance, value);
+      } catch (IllegalAccessException impossible) {
+        throw new AssertionError(impossible);
+      }
+    }
+
+    void set(T instance, int value) {
+      try {
+        field.set(instance, value);
+      } catch (IllegalAccessException impossible) {
+        throw new AssertionError(impossible);
+      }
     }
   }
 }

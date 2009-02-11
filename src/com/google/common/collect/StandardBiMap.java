@@ -19,6 +19,7 @@ package com.google.common.collect;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
+import com.google.common.base.Nullable;
 import com.google.common.base.Objects;
 
 import java.io.IOException;
@@ -39,10 +40,10 @@ import java.util.Set;
  */
 class StandardBiMap<K, V> extends ForwardingMap<K, V>
     implements BiMap<K, V>, Serializable {
-  
+
   private transient Map<K, V> delegate;
   private transient StandardBiMap<V, K> inverse;
-  
+
   /** Package-private constructor for creating a map-backed bimap. */
   StandardBiMap(Map<K, V> forward, Map<V, K> backward) {
     setDelegates(forward, backward);
@@ -55,9 +56,9 @@ class StandardBiMap<K, V> extends ForwardingMap<K, V>
   }
 
   @Override protected Map<K, V> delegate() {
-    return delegate;    
+    return delegate;
   }
-  
+
   /**
    * Specifies the delegate maps going in each direction. Called by the
    * constructor and by subclasses during deserialization.
@@ -69,13 +70,13 @@ class StandardBiMap<K, V> extends ForwardingMap<K, V>
     checkArgument(backward.isEmpty());
     checkArgument(forward != backward);
     delegate = forward;
-    inverse = new Inverse<V, K>(backward, this);    
+    inverse = new Inverse<V, K>(backward, this);
   }
-  
+
   void setInverse(StandardBiMap<V, K> inverse) {
     this.inverse = inverse;
   }
-  
+
   // Query Operations (optimizations)
 
   @Override public boolean containsValue(Object value) {
@@ -92,7 +93,7 @@ class StandardBiMap<K, V> extends ForwardingMap<K, V>
     return putInBothMaps(key, value, true);
   }
 
-  private V putInBothMaps(K key, V value, boolean force) {
+  private V putInBothMaps(@Nullable K key, @Nullable V value, boolean force) {
     boolean containedKey = containsKey(key);
     if (containedKey && Objects.equal(value, get(key))) {
       return value;
@@ -159,7 +160,7 @@ class StandardBiMap<K, V> extends ForwardingMap<K, V>
     @Override protected Set<K> delegate() {
       return delegate.keySet();
     }
-    
+
     @Override public void clear() {
       StandardBiMap.this.clear();
     }
@@ -213,7 +214,7 @@ class StandardBiMap<K, V> extends ForwardingMap<K, V>
 
   private class ValueSet extends ForwardingSet<V> {
     final Set<V> valuesDelegate = inverse.keySet();
-    
+
     @Override protected Set<V> delegate() {
       return valuesDelegate;
     }
@@ -260,11 +261,11 @@ class StandardBiMap<K, V> extends ForwardingMap<K, V>
 
   private class EntrySet extends ForwardingSet<Entry<K, V>> {
     final Set<Entry<K, V>> esDelegate = delegate.entrySet();
-    
+
     @Override protected Set<Entry<K, V>> delegate() {
       return esDelegate;
     }
-    
+
     @Override public void clear() {
       StandardBiMap.this.clear();
     }
@@ -286,16 +287,16 @@ class StandardBiMap<K, V> extends ForwardingMap<K, V>
         /*@Override*/ public boolean hasNext() {
           return iterator.hasNext();
         }
-        
+
         /*@Override*/ public Entry<K, V> next() {
           entry = iterator.next();
           final Entry<K, V> finalEntry = entry;
-          
+
           return new ForwardingMapEntry<K, V>() {
             @Override protected Entry<K, V> delegate() {
               return finalEntry;
             }
-            
+
             @Override public V setValue(V value) {
               // Preconditions keep the map and inverse consistent.
               checkState(contains(this), "entry no longer in map");
@@ -348,16 +349,16 @@ class StandardBiMap<K, V> extends ForwardingMap<K, V>
     private Inverse(Map<K, V> backward, StandardBiMap<V, K> forward) {
       super(backward, forward);
     }
-    
+
     /*
      * Serialization stores the forward bimap, the inverse of this inverse.
      * Deserialization calls inverse() on the forward bimap and returns that
      * inverse.
-     * 
+     *
      * If a bimap and its inverse are serialized together, the deserialized
-     * instances have inverse() methods that return the other. 
+     * instances have inverse() methods that return the other.
      */
-    
+
     /**
      * @serialData the forward bimap
      */
@@ -365,20 +366,20 @@ class StandardBiMap<K, V> extends ForwardingMap<K, V>
       stream.defaultWriteObject();
       stream.writeObject(inverse());
     }
- 
+
     @SuppressWarnings("unchecked") // reading data stored by writeObject
     private void readObject(ObjectInputStream stream)
         throws IOException, ClassNotFoundException {
       stream.defaultReadObject();
       setInverse((StandardBiMap<V, K>) stream.readObject());
     }
-    
+
     Object readResolve() {
       return inverse().inverse();
     }
-    
+
     private static final long serialVersionUID = 0;
   }
-  
+
   private static final long serialVersionUID = 0;
 }

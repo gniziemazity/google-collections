@@ -53,8 +53,8 @@ import java.util.NoSuchElementException;
  *   }}</pre>
  *
  * This class supports iterators that include null elements. The {@link
- * #remove()} method throws an {@link UnsupportedOperationException}, but the
- * similar class {@link AbstractRemovableIterator} does support {@code remove}.
+ * #remove()} method throws an {@link UnsupportedOperationException}, but
+ * this can be overridden to support removal.
  *
  * @author Kevin Bourrillion
  */

@@ -73,19 +73,19 @@ public final class HashMultimap<K, V> extends StandardSetMultimap<K, V> {
 
   /**
    * @serialData number of distinct keys, and then for each distinct key: the
-   *     key, the number of values for that key, and the key's values  
+   *     key, the number of values for that key, and the key's values
    */
   private void writeObject(ObjectOutputStream stream) throws IOException {
     stream.defaultWriteObject();
     Serialization.writeMultimap(this, stream);
   }
-  
+
   private void readObject(ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
     setMap(new HashMap<K, Collection<V>>());
     Serialization.populateMultimap(this, stream);
   }
-  
-  private static final long serialVersionUID = 0;  
+
+  private static final long serialVersionUID = 0;
 }

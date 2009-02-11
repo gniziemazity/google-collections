@@ -18,6 +18,8 @@ package com.google.common.collect;
 
 import com.google.common.base.Function;
 import com.google.common.base.Nullable;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkElementIndex;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.Serializable;
@@ -52,7 +54,7 @@ public final class Lists {
    * <p><b>Note:</b> if you need an immutable empty list, use {@link
    * Collections#emptyList} instead.
    *
-   * @return a newly-created, initially-empty {@code ArrayList}
+   * @return a new, empty {@code ArrayList}
    */
   public static <E> ArrayList<E> newArrayList() {
     return new ArrayList<E>();
@@ -75,7 +77,7 @@ public final class Lists {
    * <p>{@code List<Base> list = Lists.<Base>newArrayList(sub1, sub2);}
    *
    * @param elements the elements that the list should contain, in order
-   * @return a newly-created {@code ArrayList} containing those elements
+   * @return a new {@code ArrayList} containing those elements
    */
   public static <E> ArrayList<E> newArrayList(E... elements) {
     // Avoid integer overflow when a large array is passed in
@@ -84,16 +86,19 @@ public final class Lists {
     Collections.addAll(list, elements);
     return list;
   }
-  
+
   static int computeArrayListCapacity(int arraySize) {
+    checkArgument(arraySize >= 0);
+
+    // TODO: Figure out the right behavior, and document it
     return (int) Math.min(5L + arraySize + (arraySize / 10), Integer.MAX_VALUE);
   }
-  
+
   /**
    * Creates an {@code ArrayList} instance containing the given elements.
    *
    * @param elements the elements that the list should contain, in order
-   * @return a newly-created {@code ArrayList} containing those elements
+   * @return a new {@code ArrayList} containing those elements
    */
   public static <E> ArrayList<E> newArrayList(Iterable<? extends E> elements) {
     // Let ArrayList's sizing logic work, if possible
@@ -110,7 +115,7 @@ public final class Lists {
    * Creates an {@code ArrayList} instance containing the given elements.
    *
    * @param elements the elements that the list should contain, in order
-   * @return a newly-created {@code ArrayList} containing those elements
+   * @return a new {@code ArrayList} containing those elements
    */
   public static <E> ArrayList<E> newArrayList(Iterator<? extends E> elements) {
     ArrayList<E> list = newArrayList();
@@ -121,16 +126,48 @@ public final class Lists {
   }
 
   /**
-   * Creates an {@code ArrayList} instance with the given expected size.
+   * Creates an {@code ArrayList} instance backed by an array of the
+   * <i>exact</i> size specified; equivalent to
+   * {@link ArrayList#ArrayList(int)}.
    *
-   * @param expectedSize the expected size of the list
-   * @return a newly-created, initially empty {@code ArrayList} with enough
-   *     capacity for the given expected size
-   * @throws IllegalArgumentException if the specified expected size is negative
+   * <p><b>Note:</b> if you know the exact size your list will be, consider
+   * using a fixed-size list ({@link Arrays#asList(Object[])}) or an {@link
+   * ImmutableList} instead of a growable {@link ArrayList}.
+   *
+   * <p><b>Note:</b> If you have only an <i>estimate</i> of the eventual size of
+   * the list, consider padding this estimate by a suitable amount, or simply
+   * use {@link #newArrayListWithExpectedSize(int)} instead.
+   *
+   * @param initialArraySize the exact size of the initial backing array for
+   *     the returned array list ({@code ArrayList} documentation calls this
+   *     value the "capacity")
+   * @return a new, empty {@code ArrayList}, which is guaranteed not to resize
+   *     itself unless its size reaches {@code initialArraySize + 1}
+   * @throws IllegalArgumentException if {@code initialArraySize} is negative
    */
-  public static <E> ArrayList<E> newArrayListWithExpectedSize(int expectedSize)
-  {
-    return new ArrayList<E>(computeArrayListCapacity(expectedSize));
+  public static <E> ArrayList<E> newArrayListWithCapacity(
+      int initialArraySize) {
+    return new ArrayList<E>(initialArraySize);
+  }
+
+  /**
+   * Creates an {@code ArrayList} instance sized appropriately to hold an
+   * <i>estimated</i> number of elements without resizing. A small amount of
+   * padding is added in case the estimate is low.
+   *
+   * <p><b>Note:</b> If you know the <i>exact</i> number of elements the list
+   * will hold, or prefer to calculate your own amount of padding, refer to
+   * {@link #newArrayListWithCapacity(int)}.
+   *
+   * @param estimatedSize an estimate of the eventual {@link List#size()} of
+   *     the new list
+   * @return a new, empty {@code ArrayList}, sized appropriately to hold the
+   *     estimated number of elements
+   * @throws IllegalArgumentException if {@code estimatedSize} is negative
+   */
+  public static <E> ArrayList<E> newArrayListWithExpectedSize(
+      int estimatedSize) {
+    return new ArrayList<E>(computeArrayListCapacity(estimatedSize));
   }
 
   // LinkedList
@@ -141,7 +178,7 @@ public final class Lists {
    * <p><b>Note:</b> if you need an immutable empty {@link List}, use
    * {@link Collections#emptyList} instead.
    *
-   * @return a newly-created, initially-empty {@code LinkedList}
+   * @return a new, empty {@code LinkedList}
    */
   public static <E> LinkedList<E> newLinkedList() {
     return new LinkedList<E>();
@@ -151,67 +188,14 @@ public final class Lists {
    * Creates a {@code LinkedList} instance containing the given elements.
    *
    * @param elements the elements that the list should contain, in order
-   * @return a newly-created {@code LinkedList} containing those elements
+   * @return a new {@code LinkedList} containing those elements
    */
   public static <E> LinkedList<E> newLinkedList(
       Iterable<? extends E> elements) {
-    return newLinkedList(elements.iterator());
-  }
-
-  /**
-   * Creates a {@code LinkedList} instance containing the given elements.
-   *
-   * @param elements the elements that the list should contain, in order
-   * @return a newly-created {@code LinkedList} containing those elements
-   */
-  private static <E> LinkedList<E> newLinkedList(
-      Iterator<? extends E> elements) {
     LinkedList<E> list = newLinkedList();
-    while (elements.hasNext()) {
-      list.add(elements.next());
+    for (E element : elements) {
+      list.add(element);
     }
-    return list;
-  }
-
-  /**
-   * Returns a copy of the given iterable sorted by the natural ordering of its
-   * elements. The input is not modified. The returned list is modifiable,
-   * serializable, and implements {@link RandomAccess}.
-   *
-   * <p>Unlike {@link Sets#newTreeSet(Iterable)}, this method does not collapse
-   * equal elements, and the resulting collection does not maintain its own sort
-   * order.
-   *
-   * @param iterable the elements to be copied and sorted
-   * @return a new list containing the given elements in sorted order
-   * @throws ClassCastException if {@code iterable} contains elements that are
-   *     not mutually comparable
-   */  
-  @SuppressWarnings("unchecked")
-  public static <E extends Comparable> List<E> sortedCopy(Iterable<E> iterable)
-  {
-    List<E> list = Lists.newArrayList(iterable);
-    Collections.sort(list);
-    return list;
-  }
-
-  /**
-   * Returns a copy of the given iterable sorted by an explicit comparator. The
-   * input is not modified. The returned list is modifiable, serializable, and
-   * implements {@link RandomAccess}.
-   * 
-   * <p>Unlike {@link Sets#newTreeSet(Comparator, Iterable)}, this method does
-   * not collapse elements that the comparator treats as equal, and the
-   * resulting collection does not maintain its own sort order.
-   * 
-   * @param iterable the elements to be copied and sorted
-   * @param comparator a comparator capable of sorting the given elements
-   * @return a new list containing the given elements in sorted order
-   */
-  public static <E> List<E> sortedCopy(
-      Iterable<E> iterable, Comparator<? super E> comparator) {
-    List<E> list = Lists.newArrayList(iterable);
-    Collections.sort(list, checkNotNull(comparator));
     return list;
   }
 
@@ -452,39 +436,42 @@ public final class Lists {
     private static final long serialVersionUID = 0;
   }
 
-  private static class ImmutableArrayList<E> extends AbstractList<E>
-      implements RandomAccess, Serializable {
-    final E[] array;
-
-    /**
-     * @param array underlying array for this ImmutableArrayList. Note that the
-     *     array is <b>not</b> cloned. The caller is responsible for ensuring
-     *     that the array can't "escape".
-     */
-    ImmutableArrayList(E[] array) {
-      this.array = array;
-    }
-    @Override public E get(int index) {
-      return array[index];
-    }
-    @Override public int size() {
-      return array.length;
-    }
-
-    // optimizations
-
-    @Override public Object[] toArray() {
-      Object[] newArray = new Object[array.length];
-      System.arraycopy(array, 0, newArray, 0, array.length);
-      return newArray;
-    }
-    @Override public String toString() {
-      return Arrays.toString(array);
-    }
-    @Override public int hashCode() {
-      return Arrays.hashCode(array);
-    }
-
-    private static final long serialVersionUID = 0;
+  /**
+   * Returns consecutive {@linkplain List#subList(int, int) sublists} of a list,
+   * each of the same size (the final list may be smaller). For example,
+   * partitioning a list containing {@code [a, b, c, d, e]} with a partition
+   * size of 3 yields {@code [[a, b, c], [d, e]]} -- an outer list containing
+   * two inner lists of three and two elements, all in the original order.
+   *
+   * <p>The outer list is unmodifiable, but reflects the latest state of the
+   * source list. The inner lists are sublist views of the original list,
+   * produced on demand using {@link List#subList(int, int)}, and are subject
+   * to all the usual caveats about modification as explained in that API.
+   *
+   * @param list the list to return consecutive sublists of
+   * @param size the desired size of each sublist (the last may be
+   *     smaller)
+   * @return a list of consecutive sublists
+   * @throws IllegalArgumentException if {@code partitionSize} is nonpositive
+   */
+  public static <T> List<List<T>> partition(
+      final List<T> list, final int size) {
+    checkNotNull(list);
+    checkArgument(size > 0);
+    return new AbstractList<List<T>>() {
+      public List<T> get(int index) {
+        int listSize = size();
+        checkElementIndex(index, listSize);
+        int start = index * size;
+        int end = Math.min(start + size, list.size());
+        return Platform.subList(list, start, end);
+      }
+      public int size() {
+        return (list.size() + size - 1) / size;
+      }
+      @Override public boolean isEmpty() {
+        return list.isEmpty();
+      }
+    };
   }
 }

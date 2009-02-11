@@ -26,24 +26,28 @@ import java.util.Set;
  * {@code retainAll} methods that always throw an exception when given a null
  * collection. It provides a workaround for <a
  * href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4802647">Sun bug
- * 4802647</a>.
- * 
+ * 4802647</a>. It also implements {@link #isEmpty()} as
+ * {@code entrySet().isEmpty()} instead of {@code size() == 0} to speed up
+ * implementations where {@code size()} is O(n), and it delegates the
+ * {@code isEmpty()} methods of its key set and value collection to this
+ * implementation.
+ *
  * @author Jared Levy
  */
 abstract class NpeThrowingAbstractMap<K, V> extends AbstractMap<K, V> {
-  
+
   /**
    * Supplies an entry set, a wrapped version of which is returned by
    * {@code entrySet()}. That way, {@link #entrySet} retrieves an entry set
    * whose {@link Set#retainAll} method always throws an exception.
-   * 
+   *
    * <p>This method is invoked at most once on a given map, at the time when
    * {@code entrySet()} is first called.
    */
   protected abstract Set<Map.Entry<K, V>> createEntrySet();
-  
+
   private transient Set<Map.Entry<K, V>> entrySet;
-  
+
   @Override public synchronized Set<Map.Entry<K, V>> entrySet() {
     if (entrySet == null) {
       final Set<Map.Entry<K, V>> delegate = createEntrySet();
@@ -55,15 +59,18 @@ abstract class NpeThrowingAbstractMap<K, V> extends AbstractMap<K, V> {
     }
     return entrySet;
   }
-  
+
   private transient Set<K> keySet;
-  
+
   @Override public synchronized Set<K> keySet() {
     if (keySet == null) {
       final Set<K> delegate = super.keySet();
       keySet = new ForwardingSet<K>() {
         @Override protected Set<K> delegate() {
           return delegate;
+        }
+        @Override public boolean isEmpty() {
+          return NpeThrowingAbstractMap.this.isEmpty();
         }
       };
     }
@@ -78,9 +85,23 @@ abstract class NpeThrowingAbstractMap<K, V> extends AbstractMap<K, V> {
       values = new ForwardingCollection<V>() {
         @Override protected Collection<V> delegate() {
           return delegate;
-        }        
+        }
+        @Override public boolean isEmpty() {
+          return NpeThrowingAbstractMap.this.isEmpty();
+        }
       };
     }
     return values;
+  }
+
+  /**
+   * Returns {@code true} if this map contains no key-value mappings.
+   *
+   * <p>The implementation returns {@code entrySet().isEmpty()}.
+   *
+   * @return {@code true} if this map contains no key-value mappings
+   */
+  @Override public boolean isEmpty() {
+    return entrySet().isEmpty();
   }
 }

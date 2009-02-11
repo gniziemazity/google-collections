@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import com.google.common.base.Nullable;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -63,9 +64,9 @@ public final class MapConstraints {
    * constraint. Any operations that add new mappings will call the provided
    * constraint. However, this method does not verify that existing mappings
    * satisfy the constraint.
-   * 
+   *
    * <p>The returned map is not serializable.
-   * 
+   *
    * @param map the map to constrain
    * @param constraint the constraint that validates added entries
    * @return a constrained view of the specified map
@@ -84,6 +85,7 @@ public final class MapConstraints {
    * <p>Note that the generated multimap's {@link Multimap#removeAll} and
    * {@link Multimap#replaceValues} methods return collections that are not
    * constrained.
+   *
    * <p>The returned multimap is not serializable.
    *
    * @param multimap the multimap to constrain
@@ -104,9 +106,9 @@ public final class MapConstraints {
    * <p>Note that the generated multimap's {@link Multimap#removeAll} and
    * {@link Multimap#replaceValues} methods return collections that are not
    * constrained.
-   * 
+   *
    * <p>The returned multimap is not serializable.
-   * 
+   *
    * @param multimap the multimap to constrain
    * @param constraint the constraint that validates added entries
    * @return a constrained view of the specified multimap
@@ -261,7 +263,7 @@ public final class MapConstraints {
    * {@code add} and {@code addAll} operations simply forward to the underlying
    * set, which throws an {@link UnsupportedOperationException} per the map and
    * multimap specification.
-   * 
+   *
    * <p>The returned multimap is not serializable.
    *
    * @param entries the entries to constrain
@@ -309,7 +311,7 @@ public final class MapConstraints {
    * keys and values verified with the constraint.
    *
    * <p>The returned bimap is not serializable.
-   * 
+   *
    * @param map the bimap to constrain
    * @param constraint the constraint that validates added entries
    * @return a constrained view of the specified bimap
@@ -324,7 +326,7 @@ public final class MapConstraints {
       implements BiMap<K, V> {
     transient volatile BiMap<V, K> inverse;
 
-    ConstrainedBiMap(BiMap<K, V> delegate, BiMap<V, K> inverse,
+    ConstrainedBiMap(BiMap<K, V> delegate, @Nullable BiMap<V, K> inverse,
         MapConstraint<? super K, ? super V> constraint) {
       super(delegate, constraint);
       this.inverse = inverse;
@@ -386,7 +388,7 @@ public final class MapConstraints {
     @Override public Map<K, Collection<V>> asMap() {
       if (asMap == null) {
         final Map<K, Collection<V>> asMapDelegate = delegate.asMap();
-        
+
         asMap = new ForwardingMap<K, Collection<V>>() {
           volatile Set<Entry<K, Collection<V>>> entrySet;
           volatile Collection<Collection<V>> values;
@@ -394,7 +396,7 @@ public final class MapConstraints {
           @Override protected Map<K, Collection<V>> delegate() {
             return asMapDelegate;
           }
-          
+
           @Override public Set<Entry<K, Collection<V>>> entrySet() {
             if (entrySet == null) {
               entrySet = constrainedAsMapEntries(
@@ -403,7 +405,7 @@ public final class MapConstraints {
             return entrySet;
           }
 
-          
+
           @SuppressWarnings("unchecked")
           @Override public Collection<V> get(Object key) {
             try {
@@ -456,8 +458,13 @@ public final class MapConstraints {
       return delegate.putAll(key, checkValues(key, values, constraint));
     }
 
-    @Override public boolean putAll(Multimap<? extends K, ? extends V> multimap) {
-      return delegate.putAll(checkMultimap(multimap, constraint));
+    @Override public boolean putAll(
+        Multimap<? extends K, ? extends V> multimap) {
+      boolean changed = false;
+      for (Entry<? extends K, ? extends V> entry : multimap.entries()) {
+        changed |= put(entry.getKey(), entry.getValue());
+      }
+      return changed;
     }
 
     @Override public Collection<V> replaceValues(
@@ -471,7 +478,7 @@ public final class MapConstraints {
       extends ForwardingCollection<Collection<V>> {
     final Collection<Collection<V>> delegate;
     final Set<Entry<K, Collection<V>>> entrySet;
-    
+
     /**
      * @param entrySet map entries, linking each key with its corresponding
      *     values, that already enforce the constraint
@@ -528,7 +535,7 @@ public final class MapConstraints {
       extends ForwardingCollection<Entry<K, V>> {
     final MapConstraint<? super K, ? super V> constraint;
     final Collection<Entry<K, V>> entries;
-    
+
     ConstrainedEntries(Collection<Entry<K, V>> entries,
         MapConstraint<? super K, ? super V> constraint) {
       this.entries = entries;
@@ -585,8 +592,8 @@ public final class MapConstraints {
 
     // See Collections.CheckedMap.CheckedEntrySet for details on attacks.
 
-    @Override public boolean equals(Object o) {
-      return Sets.equalsImpl(this, o);
+    @Override public boolean equals(@Nullable Object object) {
+      return Collections2.setEquals(this, object);
     }
 
     @Override public int hashCode() {
@@ -609,7 +616,7 @@ public final class MapConstraints {
     @Override protected Set<Entry<K, Collection<V>>> delegate() {
       return entries;
     }
-    
+
     @Override public Iterator<Entry<K, Collection<V>>> iterator() {
       final Iterator<Entry<K, Collection<V>>> iterator = entries.iterator();
       return new ForwardingIterator<Entry<K, Collection<V>>>() {
@@ -640,8 +647,8 @@ public final class MapConstraints {
       return Collections2.containsAll(this, c);
     }
 
-    @Override public boolean equals(Object o) {
-      return Sets.equalsImpl(this, o);
+    @Override public boolean equals(@Nullable Object object) {
+      return Collections2.setEquals(this, object);
     }
 
     @Override public int hashCode() {
@@ -735,16 +742,6 @@ public final class MapConstraints {
       MapConstraint<? super K, ? super V> constraint) {
     Map<K, V> copy = new LinkedHashMap<K, V>(map);
     for (Entry<K, V> entry : copy.entrySet()) {
-      constraint.checkKeyValue(entry.getKey(), entry.getValue());
-    }
-    return copy;
-  }
-
-  private static <K, V> Multimap<K, V> checkMultimap(
-      Multimap<? extends K, ? extends V> map,
-      MapConstraint<? super K, ? super V> constraint) {
-    Multimap<K, V> copy = new ArrayListMultimap<K, V>(map);
-    for (Entry<K, V> entry : copy.entries()) {
       constraint.checkKeyValue(entry.getKey(), entry.getValue());
     }
     return copy;

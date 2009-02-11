@@ -111,7 +111,7 @@
           For some unknown reason, {@inheritDoc} only appears to work when using
           javadoc from 1.5.0_01, and pulling the source from 1.5.0_06.
         -->
-        <pathelement location="${env.JAVA_HOME}/src/"/>
+	<pathelement location="${env.JAVA6_HOME}/src/"/>
         <pathelement location="${src.dir}"/>
       </sourcepath>
       <link href="http://java.sun.com/javase/6/docs/api"/>
