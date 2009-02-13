@@ -134,7 +134,7 @@ public final class MapMaker {
     return this;
   }
 
-  /**C
+  /**
    * Guides the allowed concurrency among update operations. Used as a
    * hint for internal sizing. The table is internally partitioned to try
    * to permit the indicated number of concurrent updates without
