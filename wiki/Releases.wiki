@@ -58,6 +58,9 @@
  * Maps.newConcurrentHashMap() has been removed; use new MapMaker().makeMap()!
  * Many methods that returned Iterator now return UnmodifiableIterator; this change should be transparent to you.
 
+[http://google-collections.googlecode.com/files/google-collect-snapshot-20090211.zip Download]
+
+[http://repo1.maven.org/maven2/com/google/collections/google-collections/0.9/ Maven bundle]
 
 = Release 0.8 (snapshot 20080820) =
 
