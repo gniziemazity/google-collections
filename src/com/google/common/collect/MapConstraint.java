@@ -16,11 +16,12 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
+import com.google.common.annotations.GwtCompatible;
+import javax.annotation.Nullable;
 
 /**
  * A constraint on the keys and values that may be added to a {@code Map} or
- * {@code Multimap}. For example, {@link MapConstraints#NOT_NULL}, which
+ * {@code Multimap}. For example, {@link MapConstraints#notNull()}, which
  * prevents a map from including any null keys or values, could be implemented
  * like this: <pre>   {@code
  *
@@ -41,6 +42,7 @@ import com.google.common.base.Nullable;
  * @see MapConstraints
  * @see Constraint
  */
+@GwtCompatible
 public interface MapConstraint<K, V> {
   /**
    * Throws a suitable {@code RuntimeException} if the specified key or value is

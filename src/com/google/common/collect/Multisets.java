@@ -16,18 +16,17 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
+import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Objects;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 /**
  * Provides static utility methods for creating and working with {@link
@@ -36,6 +35,7 @@ import java.util.Set;
  * @author Kevin Bourrillion
  * @author Mike Bostock
  */
+@GwtCompatible
 public final class Multisets {
   private Multisets() {}
 
@@ -52,19 +52,23 @@ public final class Multisets {
    *     generated
    * @return an unmodifiable view of the multiset
    */
-  public static <E> Multiset<E> unmodifiableMultiset(Multiset<E> multiset) {
+  public static <E> Multiset<E> unmodifiableMultiset(
+      Multiset<? extends E> multiset) {
     return new UnmodifiableMultiset<E>(multiset);
   }
 
-  private static class UnmodifiableMultiset<E> extends ForwardingMultiset<E>
-      implements Serializable {
-    final Multiset<E> delegate;
-    private UnmodifiableMultiset(Multiset<E> delegate) {
+  private static class UnmodifiableMultiset<E>
+      extends ForwardingMultiset<E> implements Serializable {
+    final Multiset<? extends E> delegate;
+    
+    UnmodifiableMultiset(Multiset<? extends E> delegate) {
       this.delegate = delegate;
     }
 
+    @SuppressWarnings("unchecked")
     @Override protected Multiset<E> delegate() {
-      return delegate;
+      // This is safe because all non-covariant methods are overriden
+      return (Multiset) delegate;
     }
 
     transient Set<E> elementSet;
@@ -72,28 +76,33 @@ public final class Multisets {
     @Override public Set<E> elementSet() {
       Set<E> es = elementSet;
       return (es == null)
-          ? elementSet = Collections.unmodifiableSet(delegate.elementSet())
+          ? elementSet = Collections.<E>unmodifiableSet(delegate.elementSet())
           : es;
     }
 
     transient Set<Multiset.Entry<E>> entrySet;
 
+    @SuppressWarnings("unchecked")
     @Override public Set<Multiset.Entry<E>> entrySet() {
       Set<Multiset.Entry<E>> es = entrySet;
       return (es == null)
-          ? entrySet = Collections.unmodifiableSet(delegate.entrySet())
+          // Safe because the returned set is made unmodifiable and Entry
+          // itself is readonly
+          ? entrySet = (Set) Collections.unmodifiableSet(delegate.entrySet())
           : es;
     }
 
+    @SuppressWarnings("unchecked")
     @Override public Iterator<E> iterator() {
-      return Iterators.unmodifiableIterator(delegate.iterator());
+      // Safe because the returned Iterator is made unmodifiable
+      return (Iterator) Iterators.unmodifiableIterator(delegate.iterator());
     }
 
     @Override public boolean add(E element) {
       throw new UnsupportedOperationException();
     }
 
-    @Override public boolean add(E element, int occurences) {
+    @Override public int add(E element, int occurences) {
       throw new UnsupportedOperationException();
     }
 
@@ -109,10 +118,6 @@ public final class Multisets {
       throw new UnsupportedOperationException();
     }
 
-    @Override public int removeAllOccurrences(Object element) {
-      throw new UnsupportedOperationException();
-    }
-
     @Override public boolean removeAll(Collection<?> elementsToRemove) {
       throw new UnsupportedOperationException();
     }
@@ -122,6 +127,14 @@ public final class Multisets {
     }
 
     @Override public void clear() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override public int setCount(E element, int count) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override public boolean setCount(E element, int oldCount, int newCount) {
       throw new UnsupportedOperationException();
     }
 
@@ -135,7 +148,7 @@ public final class Multisets {
    * @param n the count to be associated with the returned entry
    * @throws IllegalArgumentException if {@code n} is negative
    */
-  static <E> Multiset.Entry<E> immutableEntry(
+  public static <E> Multiset.Entry<E> immutableEntry(
       @Nullable final E e, final int n) {
     checkArgument(n >= 0);
     return new AbstractEntry<E>() {
@@ -157,7 +170,8 @@ public final class Multisets {
    *
    * <p>The multiset supports element removal, which removes the corresponding
    * element from the set. It does not support the {@code add} or {@code addAll}
-   * operations.
+   * operations, nor does it support the use of {@code setCount} to add
+   * elements.
    *
    * <p>The returned multiset will be serializable if the specified set is
    * serializable. The multiset is threadsafe if the set is threadsafe.
@@ -185,19 +199,15 @@ public final class Multisets {
       return delegate.contains(element) ? 1 : 0;
     }
 
-    public boolean add(E element, int occurrences) {
+    public int add(E element, int occurrences) {
       throw new UnsupportedOperationException();
     }
 
     public int remove(Object element, int occurrences) {
       if (occurrences == 0) {
-        return 0;
+        return count(element);
       }
       checkArgument(occurrences > 0);
-      return removeAllOccurrences(element);
-    }
-
-    public int removeAllOccurrences(Object element) {
       return delegate.remove(element) ? 1 : 0;
     }
 
@@ -221,6 +231,23 @@ public final class Multisets {
 
     @Override public boolean addAll(Collection<? extends E> c) {
       throw new UnsupportedOperationException();
+    }
+
+    public int setCount(E element, int count) {
+      checkNonnegative(count, "count");
+
+      if (count == count(element)) {
+        return count;
+      } else if (count == 0) {
+        remove(element);
+        return 1;
+      } else {
+        throw new UnsupportedOperationException();
+      }
+    }
+
+    public boolean setCount(E element, int oldCount, int newCount) {
+      return setCountImpl(this, element, oldCount, newCount);
     }
 
     @Override public boolean equals(@Nullable Object object) {
@@ -258,9 +285,6 @@ public final class Multisets {
     class EntrySet extends AbstractSet<Entry<E>> {
       @Override public int size() {
         return delegate.size();
-      }
-      @Override public boolean retainAll(Collection<?> c) {
-        return super.retainAll(checkNotNull(c));
       }
       @Override public Iterator<Entry<E>> iterator() {
         return new Iterator<Entry<E>>() {
@@ -335,5 +359,37 @@ public final class Multisets {
       int n = getCount();
       return (n == 1) ? text : (text + " x " + n);
     }
+  }
+
+  static <E> int setCountImpl(Multiset<E> self, E element, int count) {
+    checkNonnegative(count, "count");
+
+    int oldCount = self.count(element);
+
+    int delta = count - oldCount;
+    if (delta > 0) {
+      self.add(element, delta);
+    } else if (delta < 0) {
+      self.remove(element, -delta);
+    }
+
+    return oldCount;
+  }
+
+  static <E> boolean setCountImpl(
+      Multiset<E> self, E element, int oldCount, int newCount) {
+    checkNonnegative(oldCount, "oldCount");
+    checkNonnegative(newCount, "newCount");
+
+    if (self.count(element) == oldCount) {
+      self.setCount(element, newCount);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  static void checkNonnegative(int count, String name) {
+    checkArgument(count >= 0, "%s cannot be negative: %s", name, count);
   }
 }

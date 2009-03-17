@@ -17,6 +17,7 @@
 package com.google.common.base;
 
 import java.io.Serializable;
+import javax.annotation.Nullable;
 
 /**
  * Useful suppliers.
@@ -38,7 +39,7 @@ public final class Suppliers {
    * call {@code first} or invoke {@code function} until it is called.
    */
   public static <F, T> Supplier<T> compose(
-      Function<? super F, ? extends T> function, Supplier<? extends F> first) {
+      Function<? super F, T> function, Supplier<F> first) {
     Preconditions.checkNotNull(function);
     Preconditions.checkNotNull(first);
     return new SupplierComposition<F, T>(function, first);

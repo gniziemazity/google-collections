@@ -16,14 +16,14 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
-
+import com.google.common.annotations.GwtCompatible;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import javax.annotation.Nullable;
 
 /**
  * A collection that supports order-independent equality, like {@link Set}, but
@@ -95,6 +95,7 @@ import java.util.TreeSet;
  *
  * @author Kevin Bourrillion
  */
+@GwtCompatible
 public interface Multiset<E> extends Collection<E> {
   // Query Operations
 
@@ -125,10 +126,9 @@ public interface Multiset<E> extends Collection<E> {
    *
    * @param element the element to add occurrences of; may be {@code null} only
    *     if explicitly allowed by the implementation
-   * @param occurrences the number of occurrences of this element to add. May
-   *     be zero, in which case no change will be made.
-   * @return the previous count of this element before the operation; possibly
-   *     zero - TODO: make this the actual behavior!
+   * @param occurrences the number of occurrences of the element to add. May be
+   *     zero, in which case no change will be made.
+   * @return the count of the element before the operation; possibly zero
    * @throws IllegalArgumentException if {@code occurrences} is negative, or if
    *     this operation would result in more than {@link Integer#MAX_VALUE}
    *     occurrences of the element
@@ -136,38 +136,22 @@ public interface Multiset<E> extends Collection<E> {
    *     implementation does not permit null elements. Note that if {@code
    *     occurrences} is zero, the implementation may opt to return normally.
    */
-  boolean /*int*/ add(@Nullable E element, int occurrences);
+  int add(@Nullable E element, int occurrences);
 
   /**
-   * Conditionally removes a number of occurrences of an element from this
-   * multiset, provided that at least this many occurrences are present. If the
-   * count of the element is less than {@code occurrences}, no change is made.
-   * Note that if
+   * Removes a number of occurrences of the specified element from this
+   * multiset. If the multiset contains fewer than this number of occurrences to
+   * begin with, all occurrences will be removed.  Note that if
    * {@code occurrences == 1}, this is functionally equivalent to the call
    * {@code remove(element)}.
    *
-   *
    * @param element the element to conditionally remove occurrences of
-   * @param occurrences the number of occurrences of this element to remove. May
+   * @param occurrences the number of occurrences of the element to remove. May
    *     be zero, in which case no change will be made.
-   * @return {@code true} if the condition for modification was met. Unless
-   *     {@code occurrences} is zero, this implies that the multiset was indeed
-   *     modified.
+   * @return the count of the element before the operation; possibly zero
    * @throws IllegalArgumentException if {@code occurrences} is negative
    */
-  int /*boolean*/ remove(@Nullable Object element, int occurrences);
-
-  /**
-   * Removes <b>all</b> occurrences of the specified element from this multiset.
-   * This method complements {@link Multiset#remove(Object)}, which removes only
-   * one occurrence at a time.
-   *
-   * TODO: Nuke this.  Use setCount(e, 0).
-   *
-   * @param element the element whose occurrences should all be removed
-   * @return the number of occurrences successfully removed, possibly zero
-   */
-  int removeAllOccurrences(@Nullable Object element);
+  int remove(@Nullable Object element, int occurrences);
 
   /**
    * Adds or removes the necessary occurrences of an element such that the
@@ -175,15 +159,14 @@ public interface Multiset<E> extends Collection<E> {
    *
    * @param element the element to add or remove occurrences of; may be null
    *     only if explicitly allowed by the implementation
-   * @param count the desired count of this element in this multiset
-   * @return the previous count of this element before the operation; possibly
-   *     zero
+   * @param count the desired count of the element in this multiset
+   * @return the count of the element before the operation; possibly zero
    * @throws IllegalArgumentException if {@code count} is negative
    * @throws NullPointerException if {@code element} is null and this
    *     implementation does not permit null elements. Note that if {@code
    *     count} is zero, the implementor may optionally return zero instead.
    */
-  // int setCount(E element, int count);
+   int setCount(E element, int count);
 
   /**
    * Conditionally sets the count of an element to a new value, as described in
@@ -193,6 +176,8 @@ public interface Multiset<E> extends Collection<E> {
    *
    * @param element the element to conditionally set the count of; may be null
    *     only if explicitly allowed by the implementation
+   * @param oldCount the expected present count of the element in this multiset
+   * @param newCount the desired count of the element in this multiset
    * @return {@code true} if the condition for modification was met. Unless
    *     {@code oldCount == newCount}, this implies that the multiset was
    *     indeed modified.
@@ -203,7 +188,7 @@ public interface Multiset<E> extends Collection<E> {
    *     oldCount} and {@code newCount} are both zero, the implementor may
    *     optionally return {@code true} instead.
    */
-  // boolean setCount(E element, int oldCount, int newCount);
+   boolean setCount(E element, int oldCount, int newCount);
 
   // Views
 
@@ -356,7 +341,7 @@ public interface Multiset<E> extends Collection<E> {
    *
    * @param element the element to check for
    * @return {@code true} if this multiset contains at least one occurrence of
-   *     this element
+   *     the element
    */
   boolean contains(@Nullable Object element);
 

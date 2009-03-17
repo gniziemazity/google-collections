@@ -16,10 +16,10 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
+import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Objects;
-
 import java.util.Map.Entry;
+import javax.annotation.Nullable;
 
 /**
  * Implementation of the {@code equals}, {@code hashCode}, and {@code toString}
@@ -27,7 +27,8 @@ import java.util.Map.Entry;
  *
  * @author Jared Levy
  */
-public abstract class AbstractMapEntry<K, V> implements Entry<K, V> {
+@GwtCompatible
+abstract class AbstractMapEntry<K, V> implements Entry<K, V> {
 
   public abstract K getKey();
 

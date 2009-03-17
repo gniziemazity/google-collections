@@ -16,13 +16,12 @@
 
 package com.google.common.collect;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.base.Joiner.MapJoiner;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-
-import com.google.common.base.Function;
-import com.google.common.base.Nullable;
 import com.google.common.base.Supplier;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -35,10 +34,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.Map.Entry;
+import javax.annotation.Nullable;
 
 /**
  * Provides static methods acting on or generating a {@code Multimap}.
@@ -51,103 +51,12 @@ public final class Multimaps {
   private Multimaps() {}
 
   /**
-   * Creates an empty {@code HashMultimap} instance.
-   *
-   * @return a newly-created, initially-empty {@code HashMultimap}
-   */
-  public static <K, V> HashMultimap<K, V> newHashMultimap() {
-    return new HashMultimap<K, V>();
-  }
-
-  /**
-   * Creates a {@code HashMultimap} instance initialized with all elements from
-   * the supplied {@code Multimap}. If the supplied multimap contains duplicate
-   * key-value pairs, those duplicate pairs will only be stored once in the new
-   * multimap.
-   *
-   * @param multimap the multimap whose contents are copied to this multimap.
-   * @return a newly-created and initialized {@code HashMultimap}
-   */
-  public static <K, V> HashMultimap<K, V> newHashMultimap(
-      Multimap<? extends K, ? extends V> multimap) {
-    return new HashMultimap<K, V>(multimap);
-  }
-
-  /**
-   * Creates an empty {@code ArrayListMultimap} instance.
-   *
-   * @return a newly-created, initially-empty {@code ArrayListMultimap}
-   */
-  public static <K, V> ArrayListMultimap<K, V> newArrayListMultimap() {
-    return new ArrayListMultimap<K, V>();
-  }
-
-  /**
-   * Creates an {@code ArrayListMultimap} instance initialized with all elements
-   * from the supplied {@code Multimap}.
-   *
-   * @param multimap the multimap whose contents are copied to this multimap.
-   * @return a newly-created and initialized {@code ArrayListMultimap}
-   */
-  public static <K, V> ArrayListMultimap<K, V> newArrayListMultimap(
-      Multimap<? extends K, ? extends V> multimap) {
-    return new ArrayListMultimap<K, V>(multimap);
-  }
-
-  /**
-   * Creates an empty {@code LinkedHashMultimap} instance.
-   *
-   * @return a newly-created, initially-empty {@code LinkedHashMultimap}
-   */
-  public static <K, V> LinkedHashMultimap<K, V> newLinkedHashMultimap() {
-    return new LinkedHashMultimap<K, V>();
-  }
-
-  /**
-   * Creates a {@code LinkedHashMultimap} instance initialized with all elements
-   * from the supplied {@code Multimap}. If the supplied multimap contains
-   * duplicate key-value pairs, those duplicate pairs will only be stored once
-   * in the new multimap. The new multimap has the same
-   * {@link Multimap#entries()} iteration order as the input multimap, except
-   * for excluding duplicate mappings.
-   *
-   * @param multimap the multimap whose contents are copied to this multimap.
-   * @return a newly-created and initialized {@code LinkedHashMultimap}
-   */
-  public static <K, V> LinkedHashMultimap<K, V> newLinkedHashMultimap(
-      Multimap<? extends K, ? extends V> multimap) {
-    return new LinkedHashMultimap<K, V>(multimap);
-  }
-
-  /**
-   * Creates an empty {@code LinkedListMultimap} instance.
-   *
-   * @return a newly-created, initially-empty {@code LinkedListMultimap}
-   */
-  public static <K, V> LinkedListMultimap<K, V> newLinkedListMultimap() {
-    return new LinkedListMultimap<K, V>();
-  }
-
-  /**
-   * Creates a {@code LinkedListMultimap} instance initialized with all elements
-   * from the supplied {@code Multimap}. The new multimap has the same
-   * {@link Multimap#entries()} iteration order as the input multimap.
-   *
-   * @param multimap the multimap whose contents are copied to this multimap.
-   * @return a newly-created and initialized {@code LinkedListMultimap}
-   */
-  public static <K, V> LinkedListMultimap<K, V> newLinkedListMultimap(
-      Multimap<? extends K, ? extends V> multimap) {
-    return new LinkedListMultimap<K, V>(multimap);
-  }
-
-  /**
    * Creates an empty {@code TreeMultimap} instance using the natural ordering
    * of keys and values.
    *
    * @return a newly-created, initially-empty {@code TreeMultimap}
    */
-  @SuppressWarnings("unchecked")  // allow ungenerified Comparable types
+  @SuppressWarnings("unchecked") // eclipse doesn't like the raw Comparable
   public static <K extends Comparable, V extends Comparable>
       TreeMultimap<K, V> newTreeMultimap() {
     return new TreeMultimap<K, V>();
@@ -227,9 +136,13 @@ public final class Multimaps {
    * {@link #synchronizedMultimap}.
    *
    * <p>Call this method only when the simpler methods
-   * {@link #newArrayListMultimap()}, {@link #newHashMultimap()},
-   * {@link #newLinkedHashMultimap()}, {@link #newLinkedListMultimap()}, and
-   * {@link #newTreeMultimap()} won't suffice.
+   * {@link ArrayListMultimap#create()}, {@link HashMultimap#create()},
+   * {@link LinkedHashMultimap#create()}, {@link LinkedListMultimap#create()},
+   * and {@link #newTreeMultimap()} won't suffice.
+   * 
+   * <p>Note: the multimap assumes complete ownership over of {@code map} and
+   * the collections returned by {@code factory}. Those objects should not be
+   * manually updated and they should not use soft, weak, or phantom references. 
    *
    * @param map place to store the mapping from each key to its corresponding
    *     values
@@ -300,8 +213,12 @@ public final class Multimaps {
    * {@link #synchronizedListMultimap}.
    *
    * <p>Call this method only when the simpler methods
-   * {@link #newArrayListMultimap()} and {@link #newLinkedListMultimap()} won't
-   * suffice.
+   * {@link ArrayListMultimap#create()} and {@link LinkedListMultimap#create()}
+   * won't suffice.
+   *
+   * <p>Note: the multimap assumes complete ownership over of {@code map} and
+   * the lists returned by {@code factory}. Those objects should not be manually
+   * updated and they should not use soft, weak, or phantom references. 
    *
    * @param map place to store the mapping from each key to its corresponding
    *     values
@@ -370,8 +287,12 @@ public final class Multimaps {
    * {@link #synchronizedSetMultimap}.
    *
    * <p>Call this method only when the simpler methods
-   * {@link #newHashMultimap()}, {@link #newLinkedHashMultimap()}, and
+   * {@link HashMultimap#create()}, {@link LinkedHashMultimap#create()}, and
    * {@link #newTreeMultimap()} won't suffice.
+   *
+   * <p>Note: the multimap assumes complete ownership over of {@code map} and
+   * the sets returned by {@code factory}. Those objects should not be manually
+   * updated and they should not use soft, weak, or phantom references. 
    *
    * @param map place to store the mapping from each key to its corresponding
    *     values
@@ -441,6 +362,10 @@ public final class Multimaps {
    *
    * <p>Call this method only when the simpler method {@link #newTreeMultimap()}
    * won't suffice.
+   *
+   * <p>Note: the multimap assumes complete ownership over of {@code map} and
+   * the sets returned by {@code factory}. Those objects should not be manually
+   * updated and they should not use soft, weak, or phantom references. 
    *
    * @param map place to store the mapping from each key to its corresponding
    *     values
@@ -1206,18 +1131,16 @@ public final class Multimaps {
       return map.hashCode();
     }
 
+    private static final MapJoiner joiner
+        = Joiner.on("], ").withKeyValueSeparator("=[").useForNull("null");
+
     @Override public String toString() {
-      StringBuilder builder = new StringBuilder();
-      builder.append('{');
-      for (Entry<K, V> e : map.entrySet()) {
-        builder.append(e.getKey()).append("=[")
-            .append(e.getValue()).append("], ");
+      if (map.isEmpty()) {
+        return "{}";
       }
-      if (builder.length() > 1) {
-        builder.setLength(builder.length() - 2); // delete last comma and space
-      }
-      builder.append('}');
-      return builder.toString();
+      StringBuilder builder = new StringBuilder(map.size() * 16).append('{');
+      joiner.appendTo(builder, map);
+      return builder.append("]}").toString();
     }
 
     /** @see MapMultimap#asMap */
@@ -1279,7 +1202,7 @@ public final class Multimaps {
     }
 
     /** @see MapMultimap#asMap */
-    class AsMap extends NpeThrowingAbstractMap<K, Collection<V>> {
+    class AsMap extends Maps.ImprovedAbstractMap<K, Collection<V>> {
       @Override protected Set<Entry<K, Collection<V>>> createEntrySet() {
         return new AsMapEntries();
       }
@@ -1310,18 +1233,19 @@ public final class Multimaps {
    * value will be stored as a value in the resulting multimap, yielding a
    * multimap with the same size as the input iterable. The key used to
    * store that value in the multimap will be the result of calling the function
-   * on that value. The resulting multimap is created as an unmodifiable snapshot,
-   * it does <em>not</em> reflect subsequent changes on the input iterable.
+   * on that value. The resulting multimap is created as an unmodifiable
+   * snapshot, it does <em>not</em> reflect subsequent changes on the input
+   * iterable.
    *
    * <p>For example,
    *
-   * <pre class="code">
-   * List&lt;String> badGuys =
-   *   Arrays.asList("Inky", "Blinky", "Pinky", "Pinky", "Clyde");
-   * Function&lt;String, Integer> stringLengthFunction = ...;
-   * Multimap&lt;Integer, String> index
-   *   = Multimaps.index(badGuys, stringLengthFunction);
-   * System.out.println(index); </pre>
+   * <pre class="code"> {@code
+   * List<String> badGuys
+   *     = Arrays.asList("Inky", "Blinky", "Pinky", "Pinky", "Clyde");
+   * Function<String, Integer> stringLengthFunction = ...;
+   * Multimap<Integer, String> index
+   *     = Multimaps.index(badGuys, stringLengthFunction);
+   * System.out.println(index);}</pre>
    *
    * prints
    *
@@ -1336,9 +1260,9 @@ public final class Multimaps {
    * @return {@code ListMultimap} mapping the result of evaluating the function
    *     {@code keyFunction} on each value in the input collection to that value
    */
-  public static <K, V> ListMultimap<K, V> index(Iterable<? extends V> values,
-      Function<? super V, ? extends K> keyFunction) {
-    ArrayListMultimap<K, V> index = newArrayListMultimap();
+  public static <K, V> ListMultimap<K, V> index(Iterable<V> values,
+      Function<? super V, K> keyFunction) {
+    ArrayListMultimap<K, V> index = ArrayListMultimap.create();
     index(values, keyFunction, index);
     return unmodifiableListMultimap(index);
   }
@@ -1353,13 +1277,13 @@ public final class Multimaps {
    *
    * <p>For example,
    *
-   * <pre class="code">
-   * List&lt;String> badGuys =
-   *   Arrays.asList("Inky", "Blinky", "Pinky", "Pinky", "Clyde");
-   * Function&lt;String, Integer> stringLengthFunction = ...;
-   * Multimap&lt;Integer, String> index = Multimaps.newHashMultimap();
+   * <pre class="code"> {@code
+   * List<String> badGuys
+   *     = Arrays.asList("Inky", "Blinky", "Pinky", "Pinky", "Clyde");
+   * Function<String, Integer> stringLengthFunction = ...;
+   * Multimap<Integer, String> index = HashMultimaps.create();
    * Multimaps.index(badGuys, stringLengthFunction, index);
-   * System.out.println(index); </pre>
+   * System.out.println(index);}</pre>
    *
    * prints
    *

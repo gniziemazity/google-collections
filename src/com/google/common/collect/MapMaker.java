@@ -22,7 +22,6 @@ import com.google.common.base.FinalizableWeakReference;
 import com.google.common.base.Function;
 import com.google.common.collect.CustomConcurrentHashMap.ComputingStrategy;
 import com.google.common.collect.CustomConcurrentHashMap.Internals;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -1024,7 +1023,7 @@ public final class MapMaker {
       return new SoftValueReference<K, V>(get(), entry);
     }
 
-    public V waitForValue() throws InterruptedException {
+    public V waitForValue() {
       return get();
     }
   }
@@ -1047,7 +1046,7 @@ public final class MapMaker {
       return this;
     }
 
-    public V waitForValue() throws InterruptedException {
+    public V waitForValue() {
       return get();
     }
   }

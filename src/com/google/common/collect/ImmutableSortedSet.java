@@ -16,10 +16,9 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
+import com.google.common.annotations.GwtCompatible;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
@@ -32,6 +31,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
+import javax.annotation.Nullable;
 
 /**
  * An immutable {@code SortedSet} that stores its elements in a sorted array.
@@ -79,13 +79,15 @@ import java.util.SortedSet;
  * @see ImmutableSet
  * @author Jared Levy
  */
+@GwtCompatible
 @SuppressWarnings("serial") // we're overriding default serialization
 public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
     implements SortedSet<E> {
 
-  // TODO: Can we find a way to remove these @SuppressWarnings?
+  // TODO: Can we find a way to remove this @SuppressWarnings even for eclipse?
   @SuppressWarnings("unchecked")
   private static final Comparator NATURAL_ORDER = Ordering.natural();
+
   @SuppressWarnings("unchecked")
   private static final ImmutableSortedSet<Object> NATURAL_EMPTY_SET =
       new EmptyImmutableSortedSet<Object>(NATURAL_ORDER);
@@ -97,7 +99,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
 
   private static <E> ImmutableSortedSet<E> emptySet(
       Comparator<? super E> comparator) {
-    if (comparator == NATURAL_ORDER) {
+    if (NATURAL_ORDER.equals(comparator)) {
       return emptySet();
     } else {
       return new EmptyImmutableSortedSet<E>(comparator);
@@ -113,15 +115,11 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
 
   /**
    * Returns an immutable sorted set containing a single element.
-   *
-   * <p>The type specification is {@code <E extends Comparable>}, instead of the
-   * more specific {@code <E extends Comparable<? super E>>}, to support
-   * classes defined without generics.
    */
-  @SuppressWarnings("unchecked") // See method Javadoc
-  public static <E extends Comparable> ImmutableSortedSet<E> of(E element) {
+  public static <E extends Comparable<? super E>> ImmutableSortedSet<E> of(
+      E element) {
     Object[] array = { checkNotNull(element) };
-    return new RegularImmutableSortedSet<E>(array, NATURAL_ORDER);
+    return new RegularImmutableSortedSet<E>(array, Ordering.natural());
   }
 
   // TODO: Consider adding factory methods that throw an exception when given
@@ -132,14 +130,10 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
    * their natural ordering. When multiple elements are equivalent according to
    * {@link Comparable#compareTo}, only the first one specified is included.
    *
-   * <p>The type specification is {@code <E extends Comparable>}, instead of the
-   * more specific {@code <E extends Comparable<? super E>>}, to support
-   * classes defined without generics.
-   *
    * @throws NullPointerException if any of {@code elements} is null
    */
-  @SuppressWarnings("unchecked") // See method Javadoc
-  public static <E extends Comparable> ImmutableSortedSet<E> of(E... elements) {
+  public static <E extends Comparable<? super E>> ImmutableSortedSet<E> of(
+      E... elements) {
     return ofInternal(Ordering.natural(), elements);
   }
 
@@ -176,7 +170,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
     int size = 1;
     for (int i = 1; i < array.length; i++) {
       Object element = array[i];
-      if ((compare(comparator, array[size - 1], element) != 0)) {
+      if (unsafeCompare(comparator, array[size - 1], element) != 0) {
         array[size] = element;
         size++;
       }
@@ -210,14 +204,9 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
    * <p><b>Note:</b> Despite what the method name suggests, if {@code elements}
    * is an {@code ImmutableSortedSet}, it may be returned instead of a copy.
    *
-   * <p>The type specification is {@code <E extends Comparable>}, instead of the
-   * more specific {@code <E extends Comparable<? super E>>}, to support
-   * classes defined without generics.
-   *
    * @throws NullPointerException if any of {@code elements} is null
    */
-  @SuppressWarnings("unchecked")
-  public static <E extends Comparable> ImmutableSortedSet<E> copyOf(
+  public static <E extends Comparable<? super E>> ImmutableSortedSet<E> copyOf(
       Iterable<? extends E> elements) {
     return copyOfInternal(Ordering.natural(), elements, false);
   }
@@ -227,14 +216,9 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
    * their natural ordering. When multiple elements are equivalent according to
    * {@code compareTo()}, only the first one specified is included.
    *
-   * <p>The type specification is {@code <E extends Comparable>}, instead of the
-   * more specific {@code <E extends Comparable<? super E>>}, to support
-   * classes defined without generics.
-   *
    * @throws NullPointerException if any of {@code elements} is null
    */
-  @SuppressWarnings("unchecked")
-  public static <E extends Comparable> ImmutableSortedSet<E> copyOf(
+  public static <E extends Comparable<? super E>> ImmutableSortedSet<E> copyOf(
       Iterator<? extends E> elements) {
     return copyOfInternal(Ordering.natural(), elements);
   }
@@ -273,9 +257,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
       }
     }
 
-    @SuppressWarnings("unchecked")
-    Object[] array
-        = Iterables.newArray((Iterable<Object>) elements, Object.class);
+    Object[] array = newObjectArray(elements);
     if (array.length == 0) {
       return emptySet(comparator);
     }
@@ -288,6 +270,14 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
       array = removeDupes(array, comparator);
     }
     return new RegularImmutableSortedSet<E>(array, comparator);
+  }
+
+  /** Simplified version of {@link Iterables#toArray} that is GWT safe. */
+  private static <T> Object[] newObjectArray(Iterable<T> iterable) {
+    Collection<T> collection = (iterable instanceof Collection)
+        ? (Collection<T>) iterable : Lists.newArrayList(iterable);
+    Object[] array = new Object[collection.size()];
+    return collection.toArray(array);
   }
 
   private static <E> ImmutableSortedSet<E> copyOfInternal(
@@ -338,31 +328,32 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
 
   /**
    * Returns a builder that creates immutable sorted sets whose elements are
-   * ordered by the reverse of their natural ordering. The sorted sets use
-   * {@link Collections#reverseOrder()} as the comparator.
+   * ordered by the reverse of their natural ordering.
    *
-   * <p>The type specification is {@code <E extends Comparable>}, instead of the
-   * more specific {@code <E extends Comparable<? super E>>}, to support
-   * classes defined without generics.
+   * <p>Unfortunately, until <a
+   * href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6468354">bug
+   * 6468354</a> is fixed in your JDK, you are forced to supply an explicit
+   * type parameter to this method, for example, {@code
+   * ImmutableSortedSet.<String>reverseOrder()}.
    */
-  @SuppressWarnings("unchecked") // See method Javadoc
-  public static <E extends Comparable> Builder<E> reverseOrder() {
-    return new Builder<E>(Collections.reverseOrder());
+  public static <E extends Comparable<? super E>> Builder<E> reverseOrder() {
+    return new Builder<E>(Ordering.natural().reverse());
   }
 
   /**
    * Returns a builder that creates immutable sorted sets whose elements are
-   * ordered by their natural ordering. The sorted sets use
-   * {@link Ordering#natural()} as the comparator. This method provides
-   * more type-safety than {@link #builder()}, as it can be called only for
-   * classes that implement {@link Comparable}.
+   * ordered by their natural ordering. The sorted sets use {@link
+   * Ordering#natural()} as the comparator. This method provides more
+   * type-safety than {@link #builder()}, as it can be called only for classes
+   * that implement {@link Comparable}.
    *
-   * <p>The type specification is {@code <E extends Comparable>}, instead of the
-   * more specific {@code <E extends Comparable<? super E>>}, to support
-   * classes defined without generics.
+   * <p>Unfortunately, until <a
+   * href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6468354">bug
+   * 6468354</a> is fixed in your JDK, you are forced to supply an explicit
+   * type parameter to this method, for example, {@code
+   * ImmutableSortedSet.<String>naturalOrder()}.
    */
-  @SuppressWarnings("unchecked") // See method Javadoc
-  public static <E extends Comparable> Builder<E> naturalOrder() {
+  public static <E extends Comparable<? super E>> Builder<E> naturalOrder() {
     return new Builder<E>(Ordering.natural());
   }
 
@@ -471,10 +462,18 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
     }
   }
 
-  @SuppressWarnings("unchecked")
-  private static <E> int compare(Comparator<? super E> comparator, Object a,
-      Object b) {
-    return comparator.compare((E) a, (E) b);
+  int unsafeCompare(Object a, Object b) {
+    return unsafeCompare(comparator, a, b);
+  }
+
+  private static int unsafeCompare(
+      Comparator<?> comparator, Object a, Object b) {
+    // Pretend the comparator can compare anything. If it turns out it can't
+    // compare a and b, we should get a CCE on the subsequent line. Only methods
+    // that are spec'd to throw CCE should call this.
+    @SuppressWarnings("unchecked")
+    Comparator<Object> unsafeComparator = (Comparator<Object>) comparator;
+    return unsafeComparator.compare(a, b);
   }
 
   final Comparator<? super E> comparator;
@@ -525,7 +524,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
   public ImmutableSortedSet<E> subSet(E fromElement, E toElement) {
     checkNotNull(fromElement);
     checkNotNull(toElement);
-    checkArgument(compare(comparator, fromElement, toElement) <= 0);
+    checkArgument(comparator.compare(fromElement, toElement) <= 0);
     return subSetImpl(fromElement, toElement);
   }
 
@@ -719,7 +718,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
           return false;
         }
 
-        int cmp = compare(comparator, elements[i], target);
+        int cmp = unsafeCompare(elements[i], target);
 
         if (cmp < 0) {
           i++;
@@ -741,7 +740,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
 
       while (lower <= upper) {
         int middle = lower + (upper - lower) / 2;
-        int c = compare(comparator, key, elements[middle]);
+        int c = unsafeCompare(key, elements[middle]);
         if (c < 0) {
           upper = middle - 1;
         } else if (c > 0) {
@@ -791,7 +790,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
           for (int i = fromIndex; i < toIndex; i++) {
             Object otherElement = iterator.next();
             if (otherElement == null
-                || compare(comparator, elements[i], otherElement) != 0) {
+                || unsafeCompare(elements[i], otherElement) != 0) {
               return false;
             }
           }
@@ -813,15 +812,6 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
         hash += elements[i].hashCode();
       }
       return hash;
-    }
-
-    @Override public String toString() {
-      StringBuilder result = new StringBuilder(size() * 16);
-      result.append('[').append(elements[fromIndex]);
-      for (int i = fromIndex + 1; i < toIndex; i++) {
-        result.append(", ").append(elements[i]);
-      }
-      return result.append(']').toString();
     }
 
     // The factory methods ensure that every element is an E.

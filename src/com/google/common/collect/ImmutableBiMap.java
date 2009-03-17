@@ -16,9 +16,9 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
-
+import com.google.common.annotations.GwtCompatible;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 /**
  * An immutable {@link BiMap} with reliable user-specified iteration order. Does
@@ -36,6 +36,7 @@ import java.util.Map;
  *
  * @author Jared Levy
  */
+@GwtCompatible
 public abstract class ImmutableBiMap<K, V> extends ImmutableMap<K,V>
     implements BiMap<K, V> {
 

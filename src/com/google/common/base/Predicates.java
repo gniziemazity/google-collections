@@ -16,13 +16,15 @@
 
 package com.google.common.base;
 
-import static com.google.common.base.Preconditions.checkContentsNotNull;
+import com.google.common.annotations.GwtCompatible;
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import javax.annotation.Nullable;
 
 /**
  * Contains static factory methods for creating {@code Predicate} instances.
@@ -32,6 +34,7 @@ import java.util.Iterator;
  *
  * @author Kevin Bourrillion
  */
+@GwtCompatible
 public final class Predicates {
   private Predicates() {}
 
@@ -76,7 +79,7 @@ public final class Predicates {
    * Returns a predicate that evaluates to {@code true} if the given predicate
    * evaluates to {@code false}.
    */
-  public static <T> Predicate<T> not(Predicate<? super T> predicate) {
+  public static <T> Predicate<T> not(Predicate<T> predicate) {
     return new NotPredicate<T>(predicate);
   }
 
@@ -84,27 +87,27 @@ public final class Predicates {
    * Returns a predicate that evaluates to {@code true} if each of its
    * components evaluates to {@code true}. The components are evaluated in
    * order, and evaluation will be "short-circuited" as soon as a false
-   * predicate is found. It does not defensively copy the iterable passed in, so
-   * future changes to it will alter the behavior of this predicate. If
-   * {@code components} is empty, the returned predicate will always evaluate to
-   * {@code true}.
+   * predicate is found. It defensively copies the iterable passed in, so future
+   * changes to it won't alter the behavior of this predicate. If {@code
+   * components} is empty, the returned predicate will always evaluate to {@code
+   * true}.
    */
   public static <T> Predicate<T> and(
       Iterable<? extends Predicate<? super T>> components) {
-    return new AndPredicate<T>(components);
+    return new AndPredicate<T>(defensiveCopy(components));
   }
 
   /**
    * Returns a predicate that evaluates to {@code true} if each of its
    * components evaluates to {@code true}. The components are evaluated in
    * order, and evaluation will be "short-circuited" as soon as a false
-   * predicate is found. It does not defensively copy the array passed in, so
-   * future changes to it will alter the behavior of this predicate. If
-   * {@code components} is empty, the returned predicate will always evaluate to
-   * {@code true}.
+   * predicate is found. It defensively copies the array passed in, so future
+   * changes to it won't alter the behavior of this predicate. If {@code
+   * components} is empty, the returned predicate will always evaluate to {@code
+   * true}.
    */
   public static <T> Predicate<T> and(Predicate<? super T>... components) {
-    return and(Arrays.asList(components));
+    return new AndPredicate<T>(defensiveCopy(components));
   }
 
   /**
@@ -113,37 +116,37 @@ public final class Predicates {
    * order, and evaluation will be "short-circuited" as soon as a false
    * predicate is found.
    */
-  @SuppressWarnings("unchecked")
   public static <T> Predicate<T> and(Predicate<? super T> first,
       Predicate<? super T> second) {
-    return and(Arrays.<Predicate<? super T>> asList(first, second));
+    return new AndPredicate<T>(Predicates.<T>asList(
+        checkNotNull(first), checkNotNull(second)));
   }
 
   /**
    * Returns a predicate that evaluates to {@code true} if any one of its
    * components evaluates to {@code true}. The components are evaluated in
    * order, and evaluation will be "short-circuited" as soon as as soon as a
-   * true predicate is found. It does not defensively copy the iterable passed
-   * in, so future changes to it will alter the behavior of this predicate. If
-   * {@code components} is empty, the returned predicate will always evaluate to
-   * {@code false}.
+   * true predicate is found. It defensively copies the iterable passed in, so
+   * future changes to it won't alter the behavior of this predicate. If {@code
+   * components} is empty, the returned predicate will always evaluate to {@code
+   * false}.
    */
   public static <T> Predicate<T> or(
       Iterable<? extends Predicate<? super T>> components) {
-    return new OrPredicate<T>(components);
+    return new OrPredicate<T>(defensiveCopy(components));
   }
 
   /**
    * Returns a predicate that evaluates to {@code true} if any one of its
    * components evaluates to {@code true}. The components are evaluated in
    * order, and evaluation will be "short-circuited" as soon as as soon as a
-   * true predicate is found. It does not defensively copy the array passed in,
-   * so future changes to it will alter the behavior of this predicate. If
-   * {@code components} is empty, the returned predicate will always evaluate to
-   * {@code false}.
+   * true predicate is found. It defensively copies the array passed in, so
+   * future changes to it won't alter the behavior of this predicate. If {@code
+   * components} is empty, the returned predicate will always evaluate to {@code
+   * false}.
    */
   public static <T> Predicate<T> or(Predicate<? super T>... components) {
-    return or(Arrays.asList(components));
+    return new OrPredicate<T>(defensiveCopy(components));
   }
 
   /**
@@ -152,31 +155,21 @@ public final class Predicates {
    * order, and evaluation will be "short-circuited" as soon as as soon as a
    * true predicate is found.
    */
-  @SuppressWarnings("unchecked")
   public static <T> Predicate<T> or(Predicate<? super T> first,
       Predicate<? super T> second) {
-    return or(Arrays.<Predicate<? super T>> asList(first, second));
+    return new OrPredicate<T>(Predicates.<T>asList(
+        checkNotNull(first), checkNotNull(second)));
   }
 
   /**
    * Returns a predicate that evaluates to {@code true} if the object being
    * tested {@code equals()} the given target or both are null.
    */
-  public static <T> Predicate<T> isEqualTo(@Nullable T target) {
+  public static <T> Predicate<T> equalTo(@Nullable T target) {
     // TODO: Change signature to return Predicate<Object>.
     return (target == null)
         ? Predicates.<T>isNull()
         : new IsEqualToPredicate<T>(target);
-  }
-
-  /**
-   * Returns a predicate that evaluates to {@code true} if the object being
-   * tested refers to the same object as the given target or both are null.
-   */
-  public static Predicate<Object> isSameAs(@Nullable Object target) {
-    return (target == null)
-        ? Predicates.isNull()
-        : new IsSameAsPredicate(target);
   }
 
   /**
@@ -198,8 +191,7 @@ public final class Predicates {
    * @return the composition of the provided function and predicate
    */
   public static <A, B> Predicate<A> compose(
-      Predicate<? super B> predicate,
-      Function<? super A, ? extends B> function) {
+      Predicate<B> predicate, Function<A, ? extends B> function) {
     return new CompositionPredicate<A, B>(predicate, function);
   }
 
@@ -232,9 +224,9 @@ public final class Predicates {
   /** @see Predicates#not(Predicate) */
   private static class NotPredicate<T>
       implements Predicate<T>, Serializable {
-    private final Predicate<? super T> predicate;
+    private final Predicate<T> predicate;
 
-    private NotPredicate(Predicate<? super T> predicate) {
+    private NotPredicate(Predicate<T> predicate) {
       this.predicate = checkNotNull(predicate);
     }
     public boolean apply(T t) {
@@ -256,13 +248,15 @@ public final class Predicates {
     private static final long serialVersionUID = 0;
   }
 
+  private static final Joiner commaJoiner = Joiner.on(",");
+
   /** @see Predicates#and(Iterable) */
   private static class AndPredicate<T>
       implements Predicate<T>, Serializable {
     private final Iterable<? extends Predicate<? super T>> components;
 
     private AndPredicate(Iterable<? extends Predicate<? super T>> components) {
-      this.components = checkContentsNotNull(components);
+      this.components = components;
     }
     public boolean apply(T t) {
       for (Predicate<? super T> predicate : components) {
@@ -287,7 +281,7 @@ public final class Predicates {
       return false;
     }
     @Override public String toString() {
-      return "And(" + Join.join(",", components) + ")";
+      return "And(" + commaJoiner.join(components) + ")";
     }
     private static final long serialVersionUID = 0;
   }
@@ -298,7 +292,7 @@ public final class Predicates {
     private final Iterable<? extends Predicate<? super T>> components;
 
     private OrPredicate(Iterable<? extends Predicate<? super T>> components) {
-      this.components = checkContentsNotNull(components);
+      this.components = components;
     }
     public boolean apply(T t) {
       for (Predicate<? super T> predicate : components) {
@@ -323,12 +317,12 @@ public final class Predicates {
       return false;
     }
     @Override public String toString() {
-      return "Or(" + Join.join(",", components) + ")";
+      return "Or(" + commaJoiner.join(components) + ")";
     }
     private static final long serialVersionUID = 0;
   }
 
-  /** @see Predicates#isEqualTo(Object) */
+  /** @see Predicates#equalTo(Object) */
   private static class IsEqualToPredicate<T>
       implements Predicate<T>, Serializable {
     private final T target;
@@ -351,33 +345,6 @@ public final class Predicates {
     }
     @Override public String toString() {
       return "IsEqualTo(" + target + ")";
-    }
-    private static final long serialVersionUID = 0;
-  }
-
-  /** @see Predicates#isSameAs(Object) */
-  private static class IsSameAsPredicate
-      implements Predicate<Object>, Serializable {
-    private final Object target;
-
-    private IsSameAsPredicate(Object target) {
-      this.target = target;
-    }
-    public boolean apply(Object o) {
-      return target == o;
-    }
-    @Override public int hashCode() {
-      return target.hashCode();
-    }
-    @Override public boolean equals(Object obj) {
-      if (obj instanceof IsSameAsPredicate) {
-        IsSameAsPredicate that = (IsSameAsPredicate) obj;
-        return target == that.target;
-      }
-      return false;
-    }
-    @Override public String toString() {
-      return "IsSameAs(" + target + ")";
     }
     private static final long serialVersionUID = 0;
   }
@@ -448,11 +415,10 @@ public final class Predicates {
   /** @see Predicates#compose(Predicate, Function) */
   private static class CompositionPredicate<A, B>
       implements Predicate<A>, Serializable {
-    final Predicate<? super B> p;
-    final Function<? super A, ? extends B> f;
+    final Predicate<B> p;
+    final Function<A, ? extends B> f;
 
-    private CompositionPredicate(
-        Predicate<? super B> p, Function<? super A, ? extends B> f) {
+    private CompositionPredicate(Predicate<B> p, Function<A, ? extends B> f) {
       this.p = checkNotNull(p);
       this.f = checkNotNull(f);
     }
@@ -516,5 +482,23 @@ public final class Predicates {
       }
     }
     return !iterator2.hasNext();
+  }
+  
+  @SuppressWarnings("unchecked")
+  private static <T> List<Predicate<? super T>> asList(
+      Predicate<? super T> first, Predicate<? super T> second) {
+    return Arrays.<Predicate<? super T>>asList(first, second);
+  }
+  
+  private static <T> List<T> defensiveCopy(T... array) {
+    return defensiveCopy(Arrays.asList(array));
+  }
+  
+  static <T> List<T> defensiveCopy(Iterable<T> iterable) {
+    ArrayList<T> list = new ArrayList<T>();
+    for (T element : iterable) {
+      list.add(checkNotNull(element));
+    }
+    return list;
   }
 }

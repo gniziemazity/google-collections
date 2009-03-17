@@ -16,6 +16,7 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
 import java.util.ListIterator;
 
 /**
@@ -27,6 +28,7 @@ import java.util.ListIterator;
  * @see ForwardingObject
  * @author Mike Bostock
  */
+@GwtCompatible
 public abstract class ForwardingListIterator<E> extends ForwardingIterator<E>
     implements ListIterator<E> {
 

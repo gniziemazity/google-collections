@@ -2,13 +2,18 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.GwtIncompatible;
+import java.lang.reflect.Array;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Methods factored out so that they can be emulated differently in GWT.
  *
  * @author Hayward Chan
  */
+@GwtCompatible(emulated = true)
 class Platform {
 
   /**
@@ -19,6 +24,7 @@ class Platform {
    * href="http://code.google.com/p/google-web-toolkit/issues/detail?id=1791">
    * GWT issue 1791</a>
    */
+  @GwtIncompatible("List.subList")
   static <T> List<T> subList(List<T> list, int fromIndex, int toIndex) {
     return list.subList(fromIndex, toIndex);
   }
@@ -26,9 +32,8 @@ class Platform {
   /**
    * Calls {@link Class#isInstance(Object)}.  Factored out so that it can be
    * emulated in GWT.
-   *
-   * <p>This method is not supported in GWT yet.
    */
+  @GwtIncompatible("Class.isInstance")
   static boolean isInstance(Class<?> clazz, Object obj) {
     return clazz.isInstance(obj);
   }
@@ -39,6 +44,41 @@ class Platform {
    */
   static <T> T[] clone(T[] array) {
     return array.clone();
+  }
+
+  /**
+   * Returns a new array of the given length with the specified component type.
+   *
+   * @param type the component type
+   * @param length the length of the new array
+   */
+  @GwtIncompatible("Array.newInstance(Class, int)")
+  @SuppressWarnings("unchecked")
+  static <T> T[] newArray(Class<T> type, int length) {
+    return (T[]) Array.newInstance(type, length);
+  }
+
+  /**
+   * Returns a new array of the given length with the same type as a reference
+   * array.
+   *
+   * @param reference any array of the desired type
+   * @param length the length of the new array
+   */
+  static <T> T[] newArray(T[] reference, int length) {
+    Class<?> type = reference.getClass().getComponentType();
+
+    // the cast is safe because 
+    // result.getClass() == reference.getClass().getComponentType()
+    @SuppressWarnings("unchecked")
+    T[] result = (T[]) Array.newInstance(type, length);
+    return result;
+  }
+
+  @GwtIncompatible("com.google.common.collect.SimpleClassToInstanceMap")
+  static <B> ClassToInstanceMap<B> newClassToInstanceMap(
+      Map<Class<? extends B>, B> backingMap) {
+    return new SimpleClassToInstanceMap<B>(backingMap);
   }
 
   private Platform() {}

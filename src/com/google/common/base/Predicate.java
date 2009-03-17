@@ -16,6 +16,9 @@
 
 package com.google.common.base;
 
+import com.google.common.annotations.GwtCompatible;
+import javax.annotation.Nullable;
+
 /**
  * Determines a true or false value for a given input. For example, a
  * {@code RegexPredicate} might implement {@code Predicate<String>}, and return
@@ -26,6 +29,7 @@ package com.google.common.base;
  *
  * @author Kevin Bourrillion
  */
+@GwtCompatible
 public interface Predicate<T> {
 
   /*

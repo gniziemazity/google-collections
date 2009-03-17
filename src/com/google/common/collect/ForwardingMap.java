@@ -16,11 +16,11 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
-
+import com.google.common.annotations.GwtCompatible;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 /**
  * A map which forwards all its method calls to another map. Subclasses should
@@ -32,6 +32,7 @@ import java.util.Set;
  * @author Kevin Bourrillion
  * @author Jared Levy
  */
+@GwtCompatible
 public abstract class ForwardingMap<K, V> extends ForwardingObject
     implements Map<K, V> {
 
@@ -75,12 +76,6 @@ public abstract class ForwardingMap<K, V> extends ForwardingObject
 
   private transient Set<K> keySet;
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>The returned set's {@code removeAll} and {@code retainAll} methods
-   * always throw a {@link NullPointerException} when given a null collection.
-   */
   public Set<K> keySet() {
     return (keySet == null) ? keySet = createKeySet() : keySet;
   }
@@ -90,30 +85,18 @@ public abstract class ForwardingMap<K, V> extends ForwardingObject
    *
    * <p>ForwardingMap's implementation of keySet() calls this method to
    * generate a collection of values, and then reuses that Set
-   * for subsequent invocations.  By default, this Set is essentially the
+   * for subsequent invocations.  By default, this Set is the
    * result of invoking keySet() on the delegate.  Override this method if you
    * want to provide another implementation.
    *
    * @return A set for use by keySet().
    */
   protected Set<K> createKeySet() {
-    final Set<K> delegate = delegate().keySet();
-    return new ForwardingSet<K>() {
-      @Override protected Set<K> delegate() {
-        return delegate;
-      }
-    };
+    return delegate().keySet();
   }
 
   private transient Collection<V> values;
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>The returned collection's {@code removeAll} and {@code retainAll}
-   * methods always throw a {@link NullPointerException} when given a null
-   * collection.
-   */
   public Collection<V> values() {
     return (values == null) ? values = createValues() : values;
   }
@@ -123,29 +106,18 @@ public abstract class ForwardingMap<K, V> extends ForwardingObject
    *
    * <p>ForwardingMap's implementation of {@code values()} calls this method to
    * generate a collection of values, and then reuses that collection
-   * for subsequent invocations.  By default, this collection is essentially the
+   * for subsequent invocations.  By default, this collection is the
    * result of invoking values() on the delegate.  Override this method if you
    * want to provide another implementation.
    *
    * @return A set for use by values().
    */
   protected Collection<V> createValues() {
-    final Collection<V> delegate = delegate().values();
-    return new ForwardingCollection<V>() {
-      @Override protected Collection<V> delegate() {
-        return delegate;
-      }
-    };
+    return delegate().values();
   }
 
   private transient Set<Entry<K, V>> entrySet;
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>The returned set's {@code removeAll} and {@code retainAll} methods
-   * always throw a {@link NullPointerException} when given a null collection.
-   */
   public Set<Entry<K, V>> entrySet() {
     return (entrySet == null) ? entrySet = createEntrySet() : entrySet;
   }
@@ -155,19 +127,14 @@ public abstract class ForwardingMap<K, V> extends ForwardingObject
    *
    * <p>ForwardingMap's implementation of entrySet() calls this method to
    * generate a set of entries, and then reuses that set for subsequent
-   * invocations.  By default, this set is essentially the result of invoking
+   * invocations.  By default, this set is the result of invoking
    * entrySet() on the delegate.  Override this method if you want to
    * provide another implementation.
    *
    * @return A set for use by entrySet().
    */
   protected Set<Entry<K, V>> createEntrySet() {
-    final Set<Entry<K, V>> delegate = delegate().entrySet();
-    return new ForwardingSet<Entry<K, V>>() {
-      @Override protected Set<Entry<K, V>> delegate() {
-        return delegate;
-      }
-    };
+    return delegate().entrySet();
   }
 
   @Override public boolean equals(@Nullable Object object) {

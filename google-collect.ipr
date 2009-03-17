@@ -10,6 +10,7 @@
       <properties />
     </buildFile>
   </component>
+  <component name="BlazePluginSettings" buildBeforeRefresh="true" />
   <component name="BuildJarProjectSettings">
     <option name="BUILD_JARS_ON_MAKE" value="false" />
   </component>
@@ -312,10 +313,11 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/google-collect.iml" filepath="$PROJECT_DIR$/google-collect.iml" />
+      <module fileurl="file://$PROJECT_DIR$/test/test.iml" filepath="$PROJECT_DIR$/test/test.iml" />
       <module fileurl="file://$PROJECT_DIR$/testfw/testfw.iml" filepath="$PROJECT_DIR$/testfw/testfw.iml" />
     </modules>
   </component>
-  <component name="ProjectRootManager" version="2" assert-keyword="true" jdk-15="true" project-jdk-name="java version &quot;1.5.0_06&quot;" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" assert-keyword="true" jdk-15="true" project-jdk-name="OpenJDK 6" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/ideaclasses" />
   </component>
   <component name="RmicSettings">

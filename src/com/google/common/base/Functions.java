@@ -16,10 +16,11 @@
 
 package com.google.common.base;
 
+import com.google.common.annotations.GwtCompatible;
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.io.Serializable;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 /**
  * Useful functions.
@@ -31,31 +32,17 @@ import java.util.Map;
  * @author Vlad Patryshev
  * @author Jared Levy
  */
+@GwtCompatible
 public final class Functions {
   private Functions() {}
-
-  /**
-   * A function that calls {@code toString()} on its argument. This function
-   * does not accept nulls; it will throw a {@link NullPointerException} when
-   * applied to {@code null}.
-   *
-   * <p>TODO: Consider deprecating this in favor of {@link #toStringFunction()}.
-   */
-  public static final Function<Object, String> TO_STRING =
-      ToStringFunction.INSTANCE;
 
   /**
    * Returns a function that calls {@code toString()} on its argument. The
    * function does not accept nulls; it will throw a
    * {@link NullPointerException} when applied to {@code null}.
    */
-  @SuppressWarnings("unchecked") // see comment below
-  public static <F> Function<F, String> toStringFunction() {
-    /*
-     * Function<F, T> is contravariant on F, so this is essentially a widening
-     * cast. Note: IntelliJ incorrectly colors the following line red.
-     */
-    return (Function<F, String>) ToStringFunction.INSTANCE;
+  public static Function<Object, String> toStringFunction() {
+    return ToStringFunction.INSTANCE;
   }
 
   // enum singleton pattern
@@ -68,28 +55,6 @@ public final class Functions {
 
     @Override public String toString() {
       return "toString";
-    }
-  }
-
-  /**
-   * Returns a function that determines the hash code of its argument. For null
-   * arguments, the function returns 0, for consistency with the hash code
-   * calculations in the Java Collections classes.
-   */
-  public static Function<Object, Integer> toHashCode() {
-    return HashCodeFunction.INSTANCE;
-  }
-
-  // enum singleton pattern
-  private enum HashCodeFunction implements Function<Object, Integer> {
-    INSTANCE;
-
-    public Integer apply(Object o) {
-      return (o == null) ? 0 : o.hashCode();
-    }
-
-    @Override public String toString() {
-      return "hashCode";
     }
   }
 
@@ -125,19 +90,18 @@ public final class Functions {
    * @param map source map that determines the function behavior
    * @return function that returns {@code map.get(a)} for each {@code a}
    */
-  public static <A, B> Function<A, B> forMap(
-      final Map<? super A, ? extends B> map) {
-    return new FunctionForMapNoDefault<A, B>(map);
+  public static <K, V> Function<K, V> forMap(Map<K, V> map) {
+    return new FunctionForMapNoDefault<K, V>(map);
   }
 
-  private static class FunctionForMapNoDefault<A, B>
-      implements Function<A, B>, Serializable {
-    private final Map<? super A, ? extends B> map;
+  private static class FunctionForMapNoDefault<K, V>
+      implements Function<K, V>, Serializable {
+    private final Map<K, V> map;
 
-    public FunctionForMapNoDefault(Map<? super A, ? extends B> map) {
+    public FunctionForMapNoDefault(Map<K, V> map) {
       this.map = checkNotNull(map);
     }
-    public B apply(A a) {
+    public V apply(K a) {
       return map.get(a);
     }
     @Override public boolean equals(Object o) {
@@ -166,24 +130,21 @@ public final class Functions {
    * @return function that returns {@code map.get(a)} when {@code a} is a key,
    *     or {@code defaultValue} otherwise
    */
-  public static <A, B> Function<A, B> forMap(
-      Map<? super A, ? extends B> map, @Nullable final B defaultValue) {
-    if (defaultValue == null) {
-      return forMap(map);
-    }
-    return new ForMapWithDefault<A, B>(map, defaultValue);
+  public static <K, V> Function<K, V> forMap(
+      Map<K, ? extends V> map, @Nullable V defaultValue) {
+    return new ForMapWithDefault<K, V>(map, defaultValue);
   }
 
-  private static class ForMapWithDefault<A, B>
-      implements Function<A, B>, Serializable {
-    private final Map<? super A, ? extends B> map;
-    private final B defaultValue;
+  private static class ForMapWithDefault<K, V>
+      implements Function<K, V>, Serializable {
+    private final Map<K, ? extends V> map;
+    private final V defaultValue;
 
-    public ForMapWithDefault(Map<? super A, ? extends B> map, B defaultValue) {
+    public ForMapWithDefault(Map<K, ? extends V> map, V defaultValue) {
       this.map = checkNotNull(map);
       this.defaultValue = defaultValue;
     }
-    public B apply(A a) {
+    public V apply(K a) {
       return map.containsKey(a) ? map.get(a) : defaultValue;
     }
     @Override public boolean equals(Object o) {
@@ -215,18 +176,17 @@ public final class Functions {
    * @return the composition of {@code f} and {@code g}
    */
   public static <A, B, C> Function<A, C> compose(
-      final Function<? super B, ? extends C> g,
-      final Function<? super A, ? extends B> f) {
+      Function<B, C> g, Function<A, ? extends B> f) {
     return new FunctionComposition<A, B, C>(g, f);
   }
 
   private static class FunctionComposition<A, B, C>
       implements Function<A, C>, Serializable {
-    private final Function<? super B, ? extends C> g;
-    private final Function<? super A, ? extends B> f;
+    private final Function<B, C> g;
+    private final Function<A, ? extends B> f;
 
-    public FunctionComposition(Function<? super B, ? extends C> g,
-        Function<? super A, ? extends B> f) {
+    public FunctionComposition(Function<B, C> g,
+        Function<A, ? extends B> f) {
       this.g = checkNotNull(g);
       this.f = checkNotNull(f);
     }
@@ -254,17 +214,16 @@ public final class Functions {
    * Creates a function that returns the same boolean output as the given
    * predicate for all inputs.
    */
-  public static <T> Function<T, Boolean> forPredicate(
-      Predicate<? super T> predicate) {
+  public static <T> Function<T, Boolean> forPredicate(Predicate<T> predicate) {
     return new PredicateFunction<T>(predicate);
   }
 
   /** @see Functions#forPredicate */
   private static class PredicateFunction<T>
       implements Function<T, Boolean>, Serializable {
-    private final Predicate<? super T> predicate;
+    private final Predicate<T> predicate;
 
-    private PredicateFunction(Predicate<? super T> predicate) {
+    private PredicateFunction(Predicate<T> predicate) {
       this.predicate = checkNotNull(predicate);
     }
 

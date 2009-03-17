@@ -16,8 +16,7 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
-
+import com.google.common.annotations.GwtCompatible;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -27,6 +26,7 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.annotation.Nullable;
 
 /**
  * Multiset implementation backed by a {@code TreeMap}. The multiset elements
@@ -35,6 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Neal Kanodia
  * @author Jared Levy
  */
+@GwtCompatible
 @SuppressWarnings("serial") // we're overriding default serialization
 public final class TreeMultiset<E> extends AbstractMapBasedMultiset<E> {
 
@@ -53,7 +54,7 @@ public final class TreeMultiset<E> extends AbstractMapBasedMultiset<E> {
    * more specific {@code <E extends Comparable<? super E>>}, to support
    * classes defined without generics.
    */
-  @SuppressWarnings("unchecked") // See method Javadoc
+  @SuppressWarnings("unchecked") // eclipse doesn't like the raw Comparable
   public static <E extends Comparable> TreeMultiset<E> create() {
     return new TreeMultiset<E>();
   }
@@ -83,7 +84,7 @@ public final class TreeMultiset<E> extends AbstractMapBasedMultiset<E> {
    * more specific {@code <E extends Comparable<? super E>>}, to support
    * classes defined without generics.
    */
-  @SuppressWarnings("unchecked") // See method Javadoc
+  @SuppressWarnings("unchecked") // eclipse doesn't like the raw Comparable
   public static <E extends Comparable> TreeMultiset<E> create(
       Iterable<? extends E> elements) {
     return new TreeMultiset<E>(elements);
@@ -151,16 +152,6 @@ public final class TreeMultiset<E> extends AbstractMapBasedMultiset<E> {
     }
   }
 
-  @Override public int removeAllOccurrences(@Nullable Object element) {
-    try {
-      return super.removeAllOccurrences(element);
-    } catch (NullPointerException e) {
-      return 0;
-    } catch (ClassCastException e) {
-      return 0;
-    }
-  }
-
   @Override protected Set<E> createElementSet() {
      return new SortedMapBasedElementSet(
          (SortedMap<E, AtomicInteger>) backingMap());
@@ -200,6 +191,16 @@ public final class TreeMultiset<E> extends AbstractMapBasedMultiset<E> {
 
     public SortedSet<E> tailSet(E fromElement) {
       return new SortedMapBasedElementSet(sortedMap().tailMap(fromElement));
+    }
+
+    @Override public boolean remove(Object element) {
+      try {
+        return super.remove(element);
+      } catch (NullPointerException e) {
+        return false;
+      } catch (ClassCastException e) {
+        return false;
+      }
     }
   }
 

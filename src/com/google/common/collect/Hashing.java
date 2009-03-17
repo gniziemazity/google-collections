@@ -16,6 +16,7 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
 import static com.google.common.base.Preconditions.checkArgument;
 
 /**
@@ -24,6 +25,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  * @author Kevin Bourrillion
  * @author Jesse Wilson
  */
+@GwtCompatible
 final class Hashing {
   private Hashing() {}
 

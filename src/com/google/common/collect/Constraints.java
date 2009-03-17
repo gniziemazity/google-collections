@@ -16,8 +16,8 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
@@ -32,6 +32,7 @@ import java.util.SortedSet;
  * @author Mike Bostock
  * @author Jared Levy
  */
+@GwtCompatible
 public final class Constraints {
   private Constraints() {}
 
@@ -52,7 +53,9 @@ public final class Constraints {
    * Returns a constraint that verifies that the element is not null. If the
    * element is null, a {@link NullPointerException} is thrown.
    */
-  @SuppressWarnings("unchecked")  // the cast is safe
+  // javac doesn't need this suppressed. eclipse does. and idea thinks it's an
+  // error! TODO: justify safety
+  @SuppressWarnings("unchecked")
   public static final <E> Constraint<E> notNull() {
     return (Constraint<E>) NotNullConstraint.INSTANCE;
   }
@@ -204,6 +207,7 @@ public final class Constraints {
   }
 
   /** @see Constraints#constrainedList */
+  @GwtCompatible
   private static class ConstrainedList<E> extends ForwardingList<E> {
     final List<E> delegate;
     final Constraint<? super E> constraint;
@@ -242,7 +246,8 @@ public final class Constraints {
       return delegate.set(index, element);
     }
     @Override public List<E> subList(int fromIndex, int toIndex) {
-      return constrainedList(delegate.subList(fromIndex, toIndex), constraint);
+      return constrainedList(
+          Platform.subList(delegate, fromIndex, toIndex), constraint);
     }
   }
 
@@ -294,7 +299,6 @@ public final class Constraints {
     }
   }
 
-  @SuppressWarnings("unchecked")
   static <E> Collection<E> constrainedTypePreservingCollection(
       Collection<E> collection, Constraint<E> constraint) {
     if (collection instanceof SortedSet) {
@@ -346,9 +350,17 @@ public final class Constraints {
     @Override public boolean addAll(Collection<? extends E> elements) {
       return delegate.addAll(checkElements(elements, constraint));
     }
-    @Override public boolean add(E element, int occurrences) {
+    @Override public int add(E element, int occurrences) {
       constraint.checkElement(element);
       return delegate.add(element, occurrences);
+    }
+    @Override public int setCount(E element, int count) {
+      constraint.checkElement(element);
+      return delegate.setCount(element, count);
+    }
+    @Override public boolean setCount(E element, int oldCount, int newCount) {
+      constraint.checkElement(element);
+      return delegate.setCount(element, oldCount, newCount);
     }
   }
 

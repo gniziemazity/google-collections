@@ -16,12 +16,11 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
-
+import com.google.common.annotations.GwtCompatible;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
+import javax.annotation.Nullable;
 
 /**
  * An immutable collection. Does not permit null elements.
@@ -32,23 +31,12 @@ import java.util.NoSuchElementException;
  *
  * @author Jesse Wilson
  */
+@GwtCompatible
 @SuppressWarnings("serial") // we're overriding default serialization
 public abstract class ImmutableCollection<E>
     implements Collection<E>, Serializable {
   static final ImmutableCollection<Object> EMPTY_IMMUTABLE_COLLECTION
       = new EmptyImmutableCollection();
-
-  /** Copied here for GWT compatibility. */
-  private static final Object[] EMPTY_ARRAY = new Object[0];
-  private static final UnmodifiableIterator<Object> EMPTY_ITERATOR
-      = new UnmodifiableIterator<Object>() {
-    public boolean hasNext() {
-      return false;
-    }
-    public Object next() {
-      throw new NoSuchElementException();
-    }
-  };
 
   ImmutableCollection() {}
 
@@ -71,10 +59,9 @@ public abstract class ImmutableCollection<E>
     }
     int index = 0;
     for (E element : this) {
-      /*
-       * Sleazy fake cast. However, if element is not a T, then the very next
-       * line must fail with an ArrayStoreException, so we should be safe.
-       */
+      // Technically unsafe. But if T is generic, the caller already got a
+      // warning when they created their array, and if it isn't, we can count on
+      // an ArrayStoreException in the following statement to catch any problem.
       @SuppressWarnings("unchecked")
       T elementAsT = (T) element;
 
@@ -109,16 +96,8 @@ public abstract class ImmutableCollection<E>
   }
 
   @Override public String toString() {
-    StringBuilder sb = new StringBuilder(size() * 16);
-    sb.append('[');
-    Iterator<E> i = iterator();
-    if (i.hasNext()) {
-      sb.append(i.next());
-    }
-    while (i.hasNext()) {
-      sb.append(", ");
-      sb.append(i.next());
-    }
+    StringBuilder sb = new StringBuilder(size() * 16).append('[');
+    Collections2.standardJoiner.appendTo(sb, this);
     return sb.append(']').toString();
   }
 
@@ -191,8 +170,10 @@ public abstract class ImmutableCollection<E>
     }
 
     @Override public UnmodifiableIterator<Object> iterator() {
-      return EMPTY_ITERATOR;
+      return Iterators.EMPTY_ITERATOR;
     }
+
+    private static final Object[] EMPTY_ARRAY = new Object[0];
 
     @Override public Object[] toArray() {
       return EMPTY_ARRAY;

@@ -16,13 +16,16 @@
 
 package com.google.common.base;
 
+import com.google.common.annotations.GwtCompatible;
 import java.util.Arrays;
+import javax.annotation.Nullable;
 
 /**
  * Helper functions that can operate on any {@code Object}.
  *
  * @author Laurence Gonsalves
  */
+@GwtCompatible
 public final class Objects {
   private Objects() {}
 

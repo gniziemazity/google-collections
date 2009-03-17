@@ -16,12 +16,11 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-
-import com.google.common.base.Nullable;
-
+import static com.google.common.collect.Multisets.checkNonnegative;
 import java.io.InvalidObjectException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
@@ -32,6 +31,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.annotation.Nullable;
 
 /**
  * Basic implementation of {@code Multiset<E>} backed by an instance of {@code
@@ -42,6 +42,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author Kevin Bourrillion
  */
+@GwtCompatible
 abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
     implements Serializable {
 
@@ -133,10 +134,6 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
 
     @Override public int size() {
       return backingMap.size();
-    }
-
-    @Override public boolean retainAll(Collection<?> c) {
-      return super.retainAll(checkNotNull(c));
     }
 
     // The following overrides are for better performance.
@@ -238,28 +235,31 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
    *     {@link Integer#MAX_VALUE} occurrences of {@code element} in this
    *     multiset.
    */
-  @Override public boolean add(@Nullable E element, int occurrences) {
+  @Override public int add(@Nullable E element, int occurrences) {
     if (occurrences == 0) {
-      return false;
+      return count(element);
     }
     checkArgument(
         occurrences > 0, "occurrences cannot be negative: %s", occurrences);
     AtomicInteger frequency = backingMap.get(element);
+    int oldCount;
     if (frequency == null) {
+      oldCount = 0;
       backingMap.put(element, new AtomicInteger(occurrences));
     } else {
-      long newCount = (long) frequency.get() + (long) occurrences;
+      oldCount = frequency.get();
+      long newCount = (long) oldCount + (long) occurrences;
       checkArgument(newCount <= Integer.MAX_VALUE,
           "too many occurrences: %s", newCount);
       frequency.getAndAdd(occurrences);
     }
     size += occurrences;
-    return true;
+    return oldCount;
   }
 
   @Override public int remove(@Nullable Object element, int occurrences) {
     if (occurrences == 0) {
-      return 0;
+      return count(element);
     }
     checkArgument(
         occurrences > 0, "occurrences cannot be negative: %s", occurrences);
@@ -268,21 +268,49 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
       return 0;
     }
 
+    int oldCount = frequency.get();
+
     int numberRemoved;
-    if (frequency.get() > occurrences) {
+    if (oldCount > occurrences) {
       numberRemoved = occurrences;
     } else {
-      numberRemoved = frequency.get();
+      numberRemoved = oldCount;
       backingMap.remove(element);
     }
 
     frequency.addAndGet(-numberRemoved);
     size -= numberRemoved;
-    return numberRemoved;
+    return oldCount;
   }
 
-  @Override public int removeAllOccurrences(@Nullable Object element) {
-    return removeAllOccurrences(element, backingMap);
+  // Roughly a 33% performance improvement over AbstractMultiset.setCount().
+  @Override public int setCount(E element, int count) {
+    checkNonnegative(count, "count");
+
+    AtomicInteger existingCounter;
+    int oldCount;
+    if (count == 0) {
+      existingCounter = backingMap.remove(element);
+      oldCount = getAndSet(existingCounter, count);
+    } else {
+      existingCounter = backingMap.get(element);
+      oldCount = getAndSet(existingCounter, count);
+
+      if (existingCounter == null) {
+        backingMap.put(element, new AtomicInteger(count));
+      }
+    }
+
+    size += (count - oldCount);
+    return oldCount;
+  }
+
+  private static int getAndSet(AtomicInteger i, int count) {
+    if (i == null) {
+      return 0;
+    }
+
+    return i.getAndSet(count);
   }
 
   private int removeAllOccurrences(@Nullable Object element,

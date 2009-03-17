@@ -16,13 +16,13 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
-
+import com.google.common.annotations.GwtCompatible;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 /**
  * A {@link BiMap} backed by two {@link HashMap} instances. This implementation
@@ -31,6 +31,7 @@ import java.util.Map;
  *
  * @author Mike Bostock
  */
+@GwtCompatible
 public final class HashBiMap<K, V> extends StandardBiMap<K, V> {
 
   /**

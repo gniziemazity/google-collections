@@ -16,13 +16,12 @@
 
 package com.google.common.collect.testing.testers;
 
-import static com.google.common.collect.testing.features.CollectionSize.ZERO;
-import static com.google.common.collect.testing.features.MapFeature.ALLOWS_NULL_KEYS;
-
 import com.google.common.collect.testing.AbstractMapTester;
 import com.google.common.collect.testing.WrongType;
 import com.google.common.collect.testing.features.CollectionSize;
+import static com.google.common.collect.testing.features.CollectionSize.ZERO;
 import com.google.common.collect.testing.features.MapFeature;
+import static com.google.common.collect.testing.features.MapFeature.ALLOWS_NULL_KEYS;
 
 /**
  * A generic JUnit test which tests {@code get} operations on a map. Can't be

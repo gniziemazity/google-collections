@@ -16,8 +16,7 @@
 
 package com.google.common.collect;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
+import com.google.common.annotations.GwtCompatible;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -30,6 +29,7 @@ import java.util.Iterator;
  * @see ForwardingObject
  * @author Kevin Bourrillion
  */
+@GwtCompatible
 public abstract class ForwardingCollection<E> extends ForwardingObject
     implements Collection<E> {
 
@@ -43,14 +43,8 @@ public abstract class ForwardingCollection<E> extends ForwardingObject
     return delegate().size();
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>This method always throws a {@link NullPointerException} when
-   * {@code collection} is null.
-   */
   public boolean removeAll(Collection<?> collection) {
-    return delegate().removeAll(checkNotNull(collection));
+    return delegate().removeAll(collection);
   }
 
   public boolean isEmpty() {
@@ -85,14 +79,8 @@ public abstract class ForwardingCollection<E> extends ForwardingObject
     return delegate().addAll(collection);
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>This method always throws a {@link NullPointerException} when
-   * {@code collection} is null.
-   */
   public boolean retainAll(Collection<?> collection) {
-    return delegate().retainAll(checkNotNull(collection));
+    return delegate().retainAll(collection);
   }
 
   public void clear() {

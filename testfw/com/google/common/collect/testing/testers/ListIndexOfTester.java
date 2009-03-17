@@ -16,10 +16,9 @@
 
 package com.google.common.collect.testing.testers;
 
+import com.google.common.collect.testing.features.CollectionSize;
 import static com.google.common.collect.testing.features.CollectionSize.ONE;
 import static com.google.common.collect.testing.features.CollectionSize.ZERO;
-
-import com.google.common.collect.testing.features.CollectionSize;
 
 /**
  * A generic JUnit test which tests {@code indexOf()} operations on a list.

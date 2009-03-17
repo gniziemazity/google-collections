@@ -175,10 +175,12 @@
  * <p>The methods of this package always throw {@link
  * java.lang.NullPointerException} in response to a null value being supplied
  * for any parameter that is not explicitly annotated as being {@link
- * com.google.common.base.Nullable @Nullable}.
+ * javax.annotation.Nullable @Nullable}.
  *
  * @author Mike Bostock
  * @author Kevin Bourrillion
  * @author Jared Levy
  */
+
+@javax.annotation.ParametersAreNonnullByDefault
 package com.google.common.collect;

@@ -16,12 +16,11 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.GwtIncompatible;
+import com.google.common.base.Objects;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-
-import com.google.common.base.Nullable;
-import com.google.common.base.Objects;
-
 import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractMap;
@@ -37,6 +36,7 @@ import java.util.RandomAccess;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
+import javax.annotation.Nullable;
 
 /**
  * Basic implementation of the {@link Multimap} interface. This class represents
@@ -80,6 +80,7 @@ import java.util.SortedSet;
  *
  * @author Jared Levy
  */
+@GwtCompatible
 abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
   /*
    * Here's an outline of the overall design.
@@ -730,9 +731,11 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
       return new WrappedListIterator(index);
     }
 
+    @GwtIncompatible("List.subList")
     public List<V> subList(int fromIndex, int toIndex) {
       refreshIfEmpty();
-      return wrapList(getKey(), getListDelegate().subList(fromIndex, toIndex),
+      return wrapList(getKey(),
+          Platform.subList(getListDelegate(), fromIndex, toIndex),
           (getAncestor() == null) ? this : getAncestor());
     }
 
@@ -841,10 +844,6 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
       };
     }
 
-    @Override public boolean retainAll(Collection<?> c) {
-      return super.retainAll(checkNotNull(c));
-    }
-
     // The following methods are included for better performance.
 
     @Override public boolean contains(Object key) {
@@ -922,7 +921,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
 
     @Override public int remove(Object key, int occurrences) {
       if (occurrences == 0) {
-        return 0;
+        return count(key);
       }
       checkArgument(occurrences > 0);
 
@@ -950,7 +949,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
         iterator.remove();
       }
       totalSize -= occurrences;
-      return occurrences;
+      return count;
     }
 
     @Override public Set<K> elementSet() {
@@ -990,9 +989,6 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
         return contains(o) &&
             (removeValuesForKey(((Multiset.Entry<?>) o).getElement()) > 0);
       }
-      @Override public boolean retainAll(Collection<?> c) {
-        return super.retainAll(checkNotNull(c));
-      }
     }
 
     @Override public Iterator<K> iterator() {
@@ -1010,10 +1006,6 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
       } catch (ClassCastException e) {
         return 0;
       }
-    }
-
-    @Override public int removeAllOccurrences(Object key) {
-      return removeValuesForKey(key);
     }
 
     @Override public int size() {
@@ -1113,12 +1105,6 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
     @Override public int size() {
       return totalSize;
     }
-    @Override public boolean removeAll(Collection<?> c) {
-      return super.removeAll(checkNotNull(c));
-    }
-    @Override public boolean retainAll(Collection<?> c) {
-      return super.retainAll(checkNotNull(c));
-    }
 
     // The following methods are included to improve performance.
 
@@ -1175,12 +1161,6 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
     }
     @Override public int size() {
       return totalSize;
-    }
-    @Override public boolean removeAll(Collection<?> c) {
-      return super.removeAll(checkNotNull(c));
-    }
-    @Override public boolean retainAll(Collection<?> c) {
-      return super.retainAll(checkNotNull(c));
     }
 
     // The following methods are included to improve performance.

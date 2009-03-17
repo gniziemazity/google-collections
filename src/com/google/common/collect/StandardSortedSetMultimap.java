@@ -16,11 +16,11 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
-
+import com.google.common.annotations.GwtCompatible;
 import java.util.Collection;
 import java.util.Map;
 import java.util.SortedSet;
+import javax.annotation.Nullable;
 
 /**
  * Basic implementation of the {@link SortedSetMultimap} interface. It's a
@@ -30,6 +30,7 @@ import java.util.SortedSet;
  *
  * @author Jared Levy
  */
+@GwtCompatible
 abstract class StandardSortedSetMultimap<K, V>
     extends StandardSetMultimap<K, V> implements SortedSetMultimap<K, V> {
   /**

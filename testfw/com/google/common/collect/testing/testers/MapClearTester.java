@@ -16,12 +16,11 @@
 
 package com.google.common.collect.testing.testers;
 
-import static com.google.common.collect.testing.features.CollectionSize.ZERO;
-import static com.google.common.collect.testing.features.MapFeature.SUPPORTS_CLEAR;
-
 import com.google.common.collect.testing.AbstractMapTester;
 import com.google.common.collect.testing.features.CollectionSize;
+import static com.google.common.collect.testing.features.CollectionSize.ZERO;
 import com.google.common.collect.testing.features.MapFeature;
+import static com.google.common.collect.testing.features.MapFeature.SUPPORTS_CLEAR;
 
 /**
  * A generic JUnit test which tests {@code clear()} operations on a map.

@@ -16,8 +16,6 @@
 
 package com.google.common.collect.testing;
 
-import junit.framework.TestCase;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,6 +25,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import junit.framework.TestCase;
 
 /**
  * Tests representing the contract of {@link Map}. Concrete subclasses of this
@@ -166,7 +165,7 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
       assertTrue(map.containsValue(value));
       assertTrue(valueCollection.contains(value));
       assertTrue(valueCollection.containsAll(Collections.singleton(value)));
-      assertTrue(entrySet.contains(Helpers.mapEntry(key, value)));
+      assertTrue(entrySet.contains(mapEntry(key, value)));
       assertTrue(allowsNullKeys || (key != null));
     }
     assertEquals(expectedKeySetHash, keySet.hashCode());
@@ -203,7 +202,7 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     assertTrue(Arrays.asList(entrySetToArray1).containsAll(entrySet));
     
     Entry<?, ?>[] entrySetToArray2 = new Entry<?, ?>[map.size() + 2];
-    entrySetToArray2[map.size()] = Helpers.mapEntry("foo", 1);
+    entrySetToArray2[map.size()] = mapEntry("foo", 1);
     assertSame(entrySetToArray2, entrySet.toArray(entrySetToArray2));
     assertNull(entrySetToArray2[map.size()]);
     assertTrue(Arrays.asList(entrySetToArray2).containsAll(entrySet));    
@@ -360,9 +359,9 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     }
     
     map.put(null, unmappedValue);    
-    Entry<K, V> entry = Helpers.mapEntry(null, unmappedValue);
+    Entry<K, V> entry = mapEntry(null, unmappedValue);
     assertTrue(entrySet.contains(entry));
-    assertFalse(entrySet.contains(Helpers.mapEntry(null, null)));
+    assertFalse(entrySet.contains(mapEntry(null, null)));
   }
   
   public void testEntrySetContainsEntryNullKeyMissing() {
@@ -382,9 +381,9 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     } catch (UnsupportedOperationException e) {
       return;
     }
-    Entry<K, V> entry = Helpers.mapEntry(null, unmappedValue);
+    Entry<K, V> entry = mapEntry(null, unmappedValue);
     assertFalse(entrySet.contains(entry));
-    assertFalse(entrySet.contains(Helpers.mapEntry(null, null)));
+    assertFalse(entrySet.contains(mapEntry(null, null)));
   }
   
   public void testEntrySetIteratorRemove() {
@@ -458,7 +457,7 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     Set<Entry<K, V>> entrySet = map.entrySet();
     K key = getKeyNotInPopulatedMap();
     Entry<K, V> entry
-        = Helpers.mapEntry(key, getValueNotInPopulatedMap());
+        = mapEntry(key, getValueNotInPopulatedMap());
     int initialSize = map.size();
     if (supportsRemove) {
       boolean didRemove = entrySet.remove(entry);
@@ -485,7 +484,7 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     Set<Entry<K, V>> entrySet = map.entrySet();
     K key = map.keySet().iterator().next();
     Entry<K, V> entry
-        = Helpers.mapEntry(key, getValueNotInPopulatedMap());
+        = mapEntry(key, getValueNotInPopulatedMap());
     int initialSize = map.size();
     if (supportsRemove) {
       boolean didRemove = entrySet.remove(entry);
@@ -525,7 +524,7 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     map.put(null, unmappedValue);
     assertEquals(unmappedValue, map.get(null));
     assertTrue(map.containsKey(null));
-    Entry<K, V> entry = Helpers.mapEntry(null, unmappedValue);
+    Entry<K, V> entry = mapEntry(null, unmappedValue);
     assertTrue(entrySet.remove(entry));
     assertNull(map.get(null));
     assertFalse(map.containsKey(null));
@@ -541,7 +540,7 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
 
     Set<Entry<K, V>> entrySet = map.entrySet();
     Entry<K, V> entry
-        = Helpers.mapEntry(null, getValueNotInPopulatedMap());
+        = mapEntry(null, getValueNotInPopulatedMap());
     int initialSize = map.size();
     if (supportsRemove) {
       boolean didRemove = entrySet.remove(entry);
@@ -657,7 +656,7 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     if (supportsRemove) {
       try {
         entrySet.retainAll(null);
-        fail("Expected NullPointerException.");
+        // Returning successfully is not ideal, but tolerated.
       } catch (NullPointerException e) {
         // Expected.
       }
@@ -701,7 +700,7 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     final Map<K, V> map = makeEitherMap();
 
     Set<Entry<K, V>> entrySet = map.entrySet();
-    final Entry<K, V> entryToAdd = Helpers.mapEntry(null, null);
+    final Entry<K, V> entryToAdd = mapEntry(null, null);
     try {
       entrySet.add(entryToAdd);
       fail("Expected UnsupportedOperationException or NullPointerException.");
@@ -745,7 +744,7 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     final V returnedValue = entry.setValue(valueToSet);
     assertEquals(oldValue, returnedValue);
     assertTrue(entrySet.contains(
-        Helpers.mapEntry(entry.getKey(), valueToSet)));
+        mapEntry(entry.getKey(), valueToSet)));
     assertEquals(valueToSet, map.get(entry.getKey()));
     assertInvariants(map);
   }
@@ -770,7 +769,7 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     final V returnedValue = entry.setValue(oldValue);
     assertEquals(oldValue, returnedValue);
     assertTrue(entrySet.contains(
-        Helpers.mapEntry(entry.getKey(), oldValue)));
+        mapEntry(entry.getKey(), oldValue)));
     assertEquals(oldValue, map.get(entry.getKey()));
     assertInvariants(map);
   }
@@ -1241,7 +1240,7 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     if (supportsRemove) {
       try {
         keySet.retainAll(null);
-        fail("Expected NullPointerException.");
+        // Returning successfully is not ideal, but tolerated.
       } catch (NullPointerException e) {
         // Expected.
       }
@@ -1410,7 +1409,7 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     if (supportsRemove) {
       try {
         values.removeAll(null);
-        fail("Expected NullPointerException.");
+        // Returning successfully is not ideal, but tolerated.
       } catch (NullPointerException e) {
         // Expected.
       }
@@ -1468,7 +1467,7 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     if (supportsRemove) {
       try {
         values.retainAll(null);
-        fail("Expected NullPointerException.");
+        // Returning successfully is not ideal, but tolerated.
       } catch (NullPointerException e) {
         // Expected.
       }
@@ -1506,5 +1505,9 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
       }
     }
     assertInvariants(map);
+  }
+
+  private static <K, V> Entry<K, V> mapEntry(K key, V value) {
+    return Collections.singletonMap(key, value).entrySet().iterator().next();
   }
 }

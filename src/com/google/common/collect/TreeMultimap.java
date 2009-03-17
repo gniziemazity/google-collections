@@ -16,8 +16,7 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
-
+import com.google.common.annotations.GwtCompatible;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -27,6 +26,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import javax.annotation.Nullable;
 
 /**
  * Implementation of {@code Multimap} whose keys and values are ordered by their
@@ -58,6 +58,7 @@ import java.util.TreeSet;
  *
  * @author Jared Levy
  */
+@GwtCompatible
 public final class TreeMultimap<K, V> extends StandardSortedSetMultimap<K, V> {
   private transient Comparator<? super K> keyComparator;
   private transient Comparator<? super V> valueComparator;

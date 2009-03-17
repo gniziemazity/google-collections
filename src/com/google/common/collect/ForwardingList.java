@@ -16,11 +16,12 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
-
+import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.GwtIncompatible;
 import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
+import javax.annotation.Nullable;
 
 /**
  * A list which forwards all its method calls to another list. Subclasses should
@@ -34,6 +35,7 @@ import java.util.ListIterator;
  *
  * @author Mike Bostock
  */
+@GwtCompatible
 public abstract class ForwardingList<E> extends ForwardingCollection<E>
     implements List<E> {
 
@@ -75,8 +77,9 @@ public abstract class ForwardingList<E> extends ForwardingCollection<E>
     return delegate().set(index, element);
   }
 
+  @GwtIncompatible("List.subList")
   public List<E> subList(int fromIndex, int toIndex) {
-    return delegate().subList(fromIndex, toIndex);
+    return Platform.subList(delegate(), fromIndex, toIndex);
   }
 
   @Override public boolean equals(@Nullable Object object) {

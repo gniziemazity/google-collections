@@ -16,9 +16,9 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
-
+import com.google.common.annotations.GwtCompatible;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 /**
  * A map, each entry of which maps a Java
@@ -35,6 +35,7 @@ import java.util.Map;
  *
  * @author Kevin Bourrillion
  */
+@GwtCompatible
 public interface ClassToInstanceMap<B> extends Map<Class<? extends B>, B> {
   /**
    * Returns the value the specified class is mapped to, or {@code null} if no

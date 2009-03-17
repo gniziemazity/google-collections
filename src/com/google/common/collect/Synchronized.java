@@ -16,10 +16,9 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.GwtIncompatible;
 import static com.google.common.base.Preconditions.checkNotNull;
-
-import com.google.common.base.Nullable;
-
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -32,6 +31,7 @@ import java.util.Map;
 import java.util.RandomAccess;
 import java.util.Set;
 import java.util.SortedSet;
+import javax.annotation.Nullable;
 
 /**
  * Synchronized collection views. The returned synchronized collection views are
@@ -41,9 +41,12 @@ import java.util.SortedSet;
  * class's top-level methods or inner class constructors, the created object
  * uses itself as the synchronization mutex.
  *
+ * <p>This class should be used by other collection classes only.
+ *
  * @author Mike Bostock
  * @author Jared Levy
  */
+@GwtCompatible
 final class Synchronized {
   private Synchronized() {}
 
@@ -432,9 +435,10 @@ final class Synchronized {
       }
     }
 
+    @GwtIncompatible("List.subList")
     public List<E> subList(int fromIndex, int toIndex) {
       synchronized (mutex) {
-        return list(delegate().subList(fromIndex, toIndex), mutex);
+        return list(Platform.subList(delegate(), fromIndex, toIndex), mutex);
       }
     }
 
@@ -514,7 +518,7 @@ final class Synchronized {
       }
     }
 
-    public boolean add(E e, int n) {
+    public int add(E e, int n) {
       synchronized (mutex) {
         return delegate().add(e, n);
       }
@@ -526,9 +530,15 @@ final class Synchronized {
       }
     }
 
-    public int removeAllOccurrences(Object o) {
+    public int setCount(E element, int count) {
       synchronized (mutex) {
-        return delegate().removeAllOccurrences(o);
+        return delegate().setCount(element, count);
+      }
+    }
+
+    public boolean setCount(E element, int oldCount, int newCount) {
+      synchronized (mutex) {
+        return delegate().setCount(element, oldCount, newCount);
       }
     }
 
@@ -578,7 +588,7 @@ final class Synchronized {
    * mutex when accessing any of the return multimap's collection views:
    *
    * <pre>Multimap&lt;K,V> m = Synchronized.multimap(
-   *      new HashMultimap&lt;K,V>(), mutex);
+   *      HashMultimap.create(), mutex);
    *   ...
    *  Set&lt;K> s = m.keySet();  // Needn't be in synchronized block
    *   ...

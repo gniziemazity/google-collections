@@ -16,12 +16,11 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
+import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Objects;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-
+import static com.google.common.collect.Multisets.setCountImpl;
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -29,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 /**
  * This class provides a skeletal implementation of the {@link Multiset}
@@ -44,6 +44,7 @@ import java.util.Set;
  *
  * @author Kevin Bourrillion
  */
+@GwtCompatible
 abstract class AbstractMultiset<E> extends AbstractCollection<E>
     implements Multiset<E> {
   public abstract Set<Entry<E>> entrySet();
@@ -168,7 +169,7 @@ abstract class AbstractMultiset<E> extends AbstractCollection<E>
    * {@link UnsupportedOperationException}. To support adding elements, override
    * it.
    */
-  public boolean add(E element, int occurrences) {
+  public int add(E element, int occurrences) {
     throw new UnsupportedOperationException();
   }
 
@@ -180,7 +181,7 @@ abstract class AbstractMultiset<E> extends AbstractCollection<E>
    * occurrence.
    */
   @Override public boolean remove(Object element) {
-    return remove(element, 1) == 1;
+    return remove(element, 1) > 0;
   }
 
   /**
@@ -197,11 +198,23 @@ abstract class AbstractMultiset<E> extends AbstractCollection<E>
   /**
    * {@inheritDoc}
    *
-   * <p>This implementation calls {@link #remove(Object, int)} with
-   * {@code Integer.MAX_VALUE} occurrences.
+   * <p>This implementation compares the current count for the given element to
+   * its requested count and, if they do not match, calls
+   * {@link #add(Object, int)} or {@link #remove(Object, int)} to make the
+   * appropriate adjustment.
    */
-  public int removeAllOccurrences(Object element) {
-    return remove(element, Integer.MAX_VALUE);
+  public int setCount(E element, int count) {
+    return setCountImpl(this, element, count);
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>This implementation compares {@code oldCount} to the current count and
+   * calls {@link #setCount(Object, int)} if they match.
+   */
+  public boolean setCount(E element, int oldCount, int newCount) {
+    return setCountImpl(this, element, oldCount, newCount);
   }
 
   // Bulk Operations
@@ -252,23 +265,18 @@ abstract class AbstractMultiset<E> extends AbstractCollection<E>
    * Removes all of this multiset's elements that are also contained in the
    * specified collection.
    *
-   * <p>This implementation iterates over the elements in the collection or, if
-   * {@code elementsToRemove} is a multiset, the elements in its element set,
-   * and calls {@link #removeAllOccurrences} on each element. In some cases,
-   * this approach has better performance than
+   * <p>This implementation calls {@code removeAll()} on its
+   * {@link #elementSet()} with the given collection or, if
+   * {@code elementsToRemove} is a multiset, the elements in its element set. In
+   * some cases, this approach has better performance than
    * {@link AbstractCollection#removeAll}.
    */
   @Override public boolean removeAll(Collection<?> elementsToRemove) {
-    Iterable<?> iterable = (elementsToRemove instanceof Multiset)
+    Collection<?> collection = (elementsToRemove instanceof Multiset)
         ? ((Multiset<?>) elementsToRemove).elementSet() : elementsToRemove;
 
-    boolean modified = false;
-    for (Object element : iterable) {
-      if (removeAllOccurrences(element) != 0) {
-        modified = true;
-      }
-    }
-    return modified;
+    return elementSet().removeAll(collection);
+    // TODO: implement retainAll similarly?
   }
 
   /**

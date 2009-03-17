@@ -23,7 +23,6 @@ import static com.google.common.collect.testing.features.CollectionFeature.ALLOW
 import static com.google.common.collect.testing.features.CollectionFeature.SUPPORTS_ADD_ALL;
 import com.google.common.collect.testing.features.CollectionSize;
 import static com.google.common.collect.testing.features.CollectionSize.ZERO;
-
 import java.lang.reflect.Method;
 import static java.util.Collections.singletonList;
 import java.util.List;

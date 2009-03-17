@@ -16,10 +16,9 @@
 
 package com.google.common.collect.testing.testers;
 
+import com.google.common.collect.testing.features.CollectionFeature;
 import static com.google.common.collect.testing.features.CollectionFeature.ALLOWS_NULL_VALUES;
 import static com.google.common.collect.testing.features.CollectionFeature.SUPPORTS_ADD;
-
-import com.google.common.collect.testing.features.CollectionFeature;
 
 /**
  * A generic JUnit test which tests offer operations on a queue. Can't be

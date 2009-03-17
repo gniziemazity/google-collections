@@ -22,7 +22,6 @@ import com.google.common.collect.testing.testers.SetCreationTester;
 import com.google.common.collect.testing.testers.SetEqualsTester;
 import com.google.common.collect.testing.testers.SetHashCodeTester;
 import com.google.common.collect.testing.testers.SetRemoveTester;
-
 import java.util.List;
 
 /**

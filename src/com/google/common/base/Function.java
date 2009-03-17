@@ -16,6 +16,9 @@
 
 package com.google.common.base;
 
+import com.google.common.annotations.GwtCompatible;
+import javax.annotation.Nullable;
+
 /**
  * A transformation from one object to another. For example, a
  * {@code StringToIntegerFunction} may implement
@@ -35,6 +38,7 @@ package com.google.common.base;
  * @author Kevin Bourrillion
  * @author Scott Bonneau
  */
+@GwtCompatible
 public interface Function<F, T> {
 
   /**

@@ -16,6 +16,7 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
 import java.util.Queue;
 
 /**
@@ -27,6 +28,7 @@ import java.util.Queue;
  * @see ForwardingObject
  * @author Mike Bostock
  */
+@GwtCompatible
 public abstract class ForwardingQueue<E> extends ForwardingCollection<E>
     implements Queue<E> {
 

@@ -16,18 +16,18 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
+import com.google.common.annotations.GwtCompatible;
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableSet.ArrayImmutableSet;
 import com.google.common.collect.ImmutableSet.TransformedImmutableSet;
 import static com.google.common.collect.Iterables.getOnlyElement;
-
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
+import javax.annotation.Nullable;
 
 /**
  * An immutable, hash-based {@link Map} with reliable user-specified iteration
@@ -49,6 +49,7 @@ import java.util.concurrent.ConcurrentMap;
  * @author Jesse Wilson
  * @author Kevin Bourrillion
  */
+@GwtCompatible
 @SuppressWarnings("serial") // we're overriding default serialization
 public abstract class ImmutableMap<K, V>
     implements ConcurrentMap<K, V>, Serializable {
@@ -383,11 +384,7 @@ public abstract class ImmutableMap<K, V>
 
   @Override public String toString() {
     StringBuilder result = new StringBuilder(size() * 16).append('{');
-    Iterator<Entry<K, V>> entries = entrySet().iterator();
-    result.append(entries.next());
-    while (entries.hasNext()) {
-      result.append(", ").append(entries.next());
-    }
+    Maps.standardJoiner.appendTo(result, this);
     return result.append('}').toString();
   }
 
@@ -741,12 +738,8 @@ public abstract class ImmutableMap<K, V>
     }
 
     @Override public String toString() {
-      StringBuilder result = new StringBuilder(size() * 16)
-          .append('{')
-          .append(entries[0]);
-      for (int e = 1; e < entries.length; e++) {
-        result.append(", ").append(entries[e].toString());
-      }
+      StringBuilder result = new StringBuilder(size() * 16).append('{');
+      Collections2.standardJoiner.appendTo(result, entries);
       return result.append('}').toString();
     }
   }

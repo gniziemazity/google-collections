@@ -16,9 +16,8 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
+import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Preconditions;
-
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
@@ -30,6 +29,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
+import javax.annotation.Nullable;
 
 /**
  * A high-performance, immutable, random-access {@code List} implementation.
@@ -50,6 +50,7 @@ import java.util.RandomAccess;
  * @see ImmutableSet
  * @author Kevin Bourrillion
  */
+@GwtCompatible
 @SuppressWarnings("serial") // we're overriding default serialization
 public abstract class ImmutableList<E> extends ImmutableCollection<E>
     implements List<E>, RandomAccess {
@@ -521,15 +522,6 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
       }
       return hashCode;
     }
-
-    @Override public String toString() {
-      StringBuilder sb = new StringBuilder(size() * 16);
-      sb.append('[').append(array[offset]);
-      for (int i = offset + 1; i < offset + size; i++) {
-        sb.append(", ").append(array[i]);
-      }
-      return sb.append(']').toString();
-    }
   }
 
   private static Object[] copyIntoArray(Object... source) {
@@ -617,7 +609,7 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
    * {@code public static final} lists ("constant lists").
    *
    * <p>Example:
-   * <pre>{@code
+   * <pre>   {@code
    *   public static final ImmutableList<Color> GOOGLE_COLORS
    *       = new ImmutableList.Builder<Color>()
    *           .addAll(WEBSAFE_COLORS)

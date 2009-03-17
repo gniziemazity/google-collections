@@ -16,12 +16,10 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.VisibleForTesting;
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import com.google.common.base.Nullable;
+import static com.google.common.collect.Multisets.checkNonnegative;
 import com.google.common.collect.Serialization.FieldSetter;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -34,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import javax.annotation.Nullable;
 
 /**
  * A multiset that supports concurrent modifications and that provides atomic
@@ -59,8 +58,7 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
   // deserialized.
   private static class FieldSettersHolder {
     @SuppressWarnings("unchecked")
-    // References to ConcurrentMultiSet should be parameterized but there
-    // doesn't seem to be a syntactically valid way of specifying one.
+    // eclipse doesn't like the raw type here, but it's harmless
     static final FieldSetter<ConcurrentMultiset> COUNT_MAP_FIELD_SETTER
         = Serialization.getFieldSetter(ConcurrentMultiset.class, "countMap");
   }
@@ -123,7 +121,7 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
    *     their counts. It must be empty.
    * @throws IllegalArgumentException if {@code countMap} is not empty
    */
-  ConcurrentMultiset(ConcurrentMap<E, Integer> countMap) {
+  @VisibleForTesting ConcurrentMultiset(ConcurrentMap<E, Integer> countMap) {
     checkArgument(countMap.isEmpty());
     this.countMap = countMap;
   }
@@ -196,14 +194,14 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
    *
    * @param element the element to add
    * @param occurrences the number of occurrences to add
-   * @return {@code true} if the collection changed as a result (this should
-   *     always be the case unless {@code occurrences} is zero)
+   * @return the previous count of the element before the operation; possibly
+   *     zero
    * @throws IllegalArgumentException if {@code occurrences} is negative, or if
    *     the resulting amount would exceed {@link Integer#MAX_VALUE}
    */
-  @Override public boolean add(E element, int occurrences) {
+  @Override public int add(E element, int occurrences) {
     if (occurrences == 0) {
-      return false;
+      return count(element);
     }
     checkArgument(occurrences > 0, "Invalid occurrences: %s", occurrences);
 
@@ -211,7 +209,7 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
       int current = count(element);
       if (current == 0) {
         if (countMap.putIfAbsent(element, occurrences) == null) {
-          return true;
+          return 0;
         }
       } else {
         checkArgument(occurrences <= Integer.MAX_VALUE - current,
@@ -219,7 +217,7 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
             occurrences, current);
         int next = current + occurrences;
         if (countMap.replace(element, current, next)) {
-          return true;
+          return current;
         }
       }
       // If we're still here, there was a race, so just try again.
@@ -232,14 +230,13 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
    * begin with, all occurrences will be removed.
    *
    * @param element the element whose occurrences should be removed
-   * @param occurrences the number of occurrences of this element to remove
-   * @return the number of occurrences that were successfully removed (zero if
-   *     the element was not present)
+   * @param occurrences the number of occurrences of the element to remove
+   * @return the count of the element before the operation; possibly zero
    * @throws IllegalArgumentException if {@code occurrences} is negative
    */
   @Override public int remove(@Nullable Object element, int occurrences) {
     if (occurrences == 0) {
-      return 0;
+      return count(element);
     }
     checkArgument(occurrences > 0, "Invalid occurrences: %s", occurrences);
 
@@ -258,7 +255,7 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
         E casted = (E) element;
 
         if (countMap.replace(casted, current, current - occurrences)) {
-          return occurrences;
+          return current;
         }
       }
       // If we're still here, there was a race, so just try again.
@@ -273,7 +270,7 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
    * @param element the element whose occurrences should all be removed
    * @return the number of occurrences successfully removed, possibly zero
    */
-  @Override public int removeAllOccurrences(@Nullable Object element) {
+  private int removeAllOccurrences(@Nullable Object element) {
     try {
       return unbox(countMap.remove(element));
     } catch (NullPointerException e) {
@@ -320,6 +317,7 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
       // If we're still here, there was a race, so just try again.
     }
   }
+
   /**
    * Adds or removes occurrences of {@code element} such that the {@link #count}
    * of the element becomes {@code count}.
@@ -327,8 +325,8 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
    * @return the count of {@code element} in the multiset before this call
    * @throws IllegalArgumentException if {@code count} is negative
    */
-  public int setCount(E element, int count) {
-    checkArgument(count >= 0, "Invalid count: %s", count);
+  @Override public int setCount(E element, int count) {
+    checkNonnegative(count, "count");
     return (count == 0)
         ? removeAllOccurrences(element)
         : unbox(countMap.put(element, count));
@@ -347,9 +345,9 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
    * @throws IllegalArgumentException if {@code oldCount} or {@code newCount} is
    *     negative
    */
-  public boolean setCount(E element, int oldCount, int newCount) {
-    checkArgument(oldCount >= 0, "Invalid oldCount: %s", oldCount);
-    checkArgument(newCount >= 0, "Invalid newCount: %s", newCount);
+  @Override public boolean setCount(E element, int oldCount, int newCount) {
+    checkNonnegative(oldCount, "oldCount");
+    checkNonnegative(newCount, "newCount");
     if (newCount == 0) {
       if (oldCount == 0) {
         // No change to make, but must return true if the element is not present
@@ -366,8 +364,22 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
 
   // Views
 
-  @Override public Set<E> elementSet() {
-    return countMap.keySet();
+  @Override protected Set<E> createElementSet() {
+    final Set<E> delegate = countMap.keySet();
+    return new ForwardingSet<E>() {
+      @Override protected Set<E> delegate() {
+        return delegate;
+      }
+      @Override public boolean remove(Object object) {
+        try {
+          return delegate.remove(object);
+        } catch (NullPointerException e) {
+          return false;
+        } catch (ClassCastException e) {
+          return false;
+        }
+      }
+    };
   }
 
   private volatile transient EntrySet entrySet;
@@ -454,10 +466,6 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
       return false;
     }
 
-    @Override public boolean retainAll(Collection<?> c) {
-      return super.retainAll(checkNotNull(c));
-    }
-
     @Override public void clear() {
       countMap.clear();
     }
@@ -491,7 +499,7 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
       throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
     FieldSettersHolder.COUNT_MAP_FIELD_SETTER.set(
-        this, new MapMaker().makeMap());
+        this, new ConcurrentHashMap<Object, Object>());
     Serialization.populateMultiset(this, stream);
   }
 

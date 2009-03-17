@@ -16,6 +16,7 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -28,6 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Kevin Bourrillion
  * @author Jared Levy
  */
+@GwtCompatible
 public final class HashMultiset<E> extends AbstractMapBasedMultiset<E> {
 
   /**

@@ -16,11 +16,9 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
 import static com.google.common.base.Preconditions.checkNotNull;
-
-import com.google.common.base.Nullable;
 import com.google.common.collect.Serialization.FieldSetter;
-
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -31,6 +29,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 /**
  * An immutable {@link ListMultimap} with reliable user-specified key and value
@@ -49,6 +48,7 @@ import java.util.Map;
  *
  * @author Jared Levy
  */
+@GwtCompatible
 public class ImmutableMultimap<K, V>
     implements ListMultimap<K, V>, Serializable {
 
@@ -210,11 +210,11 @@ public class ImmutableMultimap<K, V>
   // These constants allow the deserialization code to set final fields. This
   // holder class makes sure they are not initialized unless an instance is
   // deserialized.
+  @SuppressWarnings("unchecked")
+  // eclipse doesn't like the raw types here, but they're harmless
   private static class FieldSettersHolder {
-    @SuppressWarnings("unchecked") // ImmutableMultimap raw type
     static final FieldSetter<ImmutableMultimap> MAP_FIELD_SETTER
         = Serialization.getFieldSetter(ImmutableMultimap.class, "map");
-    @SuppressWarnings("unchecked") // ImmutableMultimap raw type
     static final FieldSetter<ImmutableMultimap> SIZE_FIELD_SETTER
         = Serialization.getFieldSetter(ImmutableMultimap.class, "size");
   }

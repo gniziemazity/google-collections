@@ -16,14 +16,12 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
+import com.google.common.annotations.GwtCompatible;
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkContentsNotNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2.FilteredCollection;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
@@ -34,18 +32,15 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.annotation.Nullable;
 
 /**
  * Static utility methods pertaining to {@link Set} instances. Also see this
@@ -54,6 +49,7 @@ import java.util.logging.Logger;
  * @author Kevin Bourrillion
  * @author Jared Levy
  */
+@GwtCompatible
 public final class Sets {
   private Sets() {}
 
@@ -220,39 +216,8 @@ public final class Sets {
     };
   }
 
-  /**
-   * ConcurrentHashMap wrapper whose views have {@code removeAll(null)} and
-   * {@code retainAll(null)} throw a {@link NullPointerException}.
-   */
-  private static class ForwardingConcurrentMap<K, V>
-      extends ForwardingMap<K, V> implements Serializable {
-    final Map<K, V> delegate;
-
-    ForwardingConcurrentMap() {
-      delegate = new ConcurrentHashMap<K, V>();
-    }
-
-    ForwardingConcurrentMap(int capacity) {
-      delegate = new ConcurrentHashMap<K, V>(capacity);
-    }
-
-    @Override protected Map<K, V> delegate() {
-      return delegate;
-    }
-
-    transient Set<K> keySet;
-
-    @Override public Set<K> keySet() {
-      Set<K> result = keySet;
-      return (result == null)
-          ? keySet = fixedRemoveAllAndRetainAll(delegate().keySet()) : result;
-    }
-
-    static final long serialVersionUID = 0;
-  }
-
-  // TODO: Modify the sets returned by newConcurrentHashSet so calling
-  // remove(null) on them doesn't throw an NPE.
+  // TODO: Consider modifying the sets returned by newConcurrentHashSet so that
+  // remove(null) doesn't throw NPE (there are two schools of thought on this)
 
   /**
    * Creates a thread-safe set backed by a hash map. The set is backed by a
@@ -265,8 +230,7 @@ public final class Sets {
    * @return a newly created, empty thread-safe {@code Set}
    */
   public static <E> Set<E> newConcurrentHashSet() {
-    Map<E, Boolean> delegate = new ForwardingConcurrentMap<E, Boolean>();
-    return newSetFromMap(delegate);
+    return newSetFromMap(new ConcurrentHashMap<E, Boolean>());
   }
 
   /**

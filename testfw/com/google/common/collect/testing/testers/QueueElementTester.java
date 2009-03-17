@@ -16,14 +16,12 @@
 
 package com.google.common.collect.testing.testers;
 
+import com.google.common.collect.testing.features.CollectionFeature;
 import static com.google.common.collect.testing.features.CollectionFeature.KNOWN_ORDER;
+import com.google.common.collect.testing.features.CollectionSize;
 import static com.google.common.collect.testing.features.CollectionSize.ONE;
 import static com.google.common.collect.testing.features.CollectionSize.SEVERAL;
 import static com.google.common.collect.testing.features.CollectionSize.ZERO;
-
-import com.google.common.collect.testing.features.CollectionFeature;
-import com.google.common.collect.testing.features.CollectionSize;
-
 import java.util.NoSuchElementException;
 
 /**

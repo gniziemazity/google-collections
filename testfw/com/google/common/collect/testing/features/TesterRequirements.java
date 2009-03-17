@@ -17,7 +17,6 @@
 package com.google.common.collect.testing.features;
 
 import com.google.common.collect.testing.Helpers;
-
 import java.util.Collections;
 import java.util.Set;
 

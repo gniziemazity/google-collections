@@ -16,18 +16,18 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
 import static com.google.common.base.Preconditions.checkNotNull;
-import com.google.common.base.Nullable;
-
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedSet;
+import javax.annotation.Nullable;
 
 /**
  * Factory and utilities pertaining to the {@code MapConstraint} interface.
@@ -35,15 +35,17 @@ import java.util.Set;
  * @see Constraints
  * @author Mike Bostock
  */
+@GwtCompatible
 public final class MapConstraints {
   private MapConstraints() {}
 
   /**
-   * A constraint that verifies that neither the key nor the value is null. If
-   * either is null, a {@link NullPointerException} is thrown.
+   * Returns a constraint that verifies that neither the key nor the value is
+   * null. If either is null, a {@link NullPointerException} is thrown.
    */
-  public static final MapConstraint<Object, Object> NOT_NULL =
-      NotNullMapConstraint.INSTANCE;
+  public static MapConstraint<Object, Object> notNull() {
+    return NotNullMapConstraint.INSTANCE;
+  }
 
   // enum singleton pattern
   private enum NotNullMapConstraint implements MapConstraint<Object, Object> {
@@ -332,7 +334,6 @@ public final class MapConstraints {
       this.inverse = inverse;
     }
 
-    @SuppressWarnings("unchecked")
     @Override protected BiMap<K, V> delegate() {
       return (BiMap<K, V>) super.delegate();
     }

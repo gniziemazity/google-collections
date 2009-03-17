@@ -16,6 +16,8 @@
 
 package com.google.common.base;
 
+import com.google.common.annotations.GwtCompatible;
+
 /**
  * A class that can supply objects of a single type.  Semantically, this could
  * be a factory, generator, builder, closure, or something else entirely. No
@@ -23,6 +25,7 @@ package com.google.common.base;
  *
  * @author Harry Heymann
  */
+@GwtCompatible
 public interface Supplier<T> {
   /**
    * Retrieves an instance of the appropriate type. The returned object may or
