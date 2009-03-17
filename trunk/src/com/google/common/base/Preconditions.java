@@ -16,6 +16,8 @@
 
 package com.google.common.base;
 
+import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Collection;
 import java.util.NoSuchElementException;
 
@@ -50,11 +52,12 @@ import java.util.NoSuchElementException;
  * in their specifications to do so even when given perfectly valid input. That
  * is, {@code null} is a valid parameter to the method {@link
  * #checkNotNull(Object)} -- and technically this parameter could be even marked
- * as {@link Nullable} -- yet the method will still throw an exception anyway,
+ * as {@link javax.annotation.Nullable} -- yet the method will still throw an exception anyway,
  * because that's what its contract says to do.
  *
  * @author Kevin Bourrillion
  */
+@GwtCompatible
 public final class Preconditions {
   private Preconditions() {}
 
@@ -228,91 +231,6 @@ public final class Preconditions {
   }
 
   /**
-   * Ensures that an {@code Iterable} object passed as a parameter to the
-   * calling method is not null and contains no null elements.
-   *
-   * @param iterable the iterable to check the contents of
-   * @return the non-null {@code iterable} reference just validated
-   * @throws NullPointerException if {@code iterable} is null or contains at
-   *     least one null element
-   */
-  public static <T extends Iterable<?>> T checkContentsNotNull(T iterable) {
-    if (containsOrIsNull(iterable)) {
-      throw new NullPointerException();
-    }
-    return iterable;
-  }
-
-  /**
-   * Ensures that an {@code Iterable} object passed as a parameter to the
-   * calling method is not null and contains no null elements.
-   *
-   * @param iterable the iterable to check the contents of
-   * @param errorMessage the exception message to use if the check fails; will
-   *     be converted to a string using {@link String#valueOf(Object)}
-   * @return the non-null {@code iterable} reference just validated
-   * @throws NullPointerException if {@code iterable} is null or contains at
-   *     least one null element
-   */
-  public static <T extends Iterable<?>> T checkContentsNotNull(
-      T iterable, Object errorMessage) {
-    if (containsOrIsNull(iterable)) {
-      throw new NullPointerException(String.valueOf(errorMessage));
-    }
-    return iterable;
-  }
-
-  /**
-   * Ensures that an {@code Iterable} object passed as a parameter to the
-   * calling method is not null and contains no null elements.
-   *
-   * @param iterable the iterable to check the contents of
-   * @param errorMessageTemplate a template for the exception message should the
-   *     check fail. The message is formed by replacing each {@code %s}
-   *     placeholder in the template with an argument. These are matched by
-   *     position - the first {@code %s} gets {@code errorMessageArgs[0]}, etc.
-   *     Unmatched arguments will be appended to the formatted message in square
-   *     braces. Unmatched placeholders will be left as-is.
-   * @param errorMessageArgs the arguments to be substituted into the message
-   *     template. Arguments are converted to strings using
-   *     {@link String#valueOf(Object)}.
-   * @return the non-null {@code iterable} reference just validated
-   * @throws NullPointerException if {@code iterable} is null or contains at
-   *     least one null element
-   */
-  public static <T extends Iterable<?>> T checkContentsNotNull(T iterable,
-      String errorMessageTemplate, Object... errorMessageArgs) {
-    if (containsOrIsNull(iterable)) {
-      throw new NullPointerException(
-          format(errorMessageTemplate, errorMessageArgs));
-    }
-    return iterable;
-  }
-
-  private static boolean containsOrIsNull(Iterable<?> iterable) {
-    if (iterable == null) {
-      return true;
-    }
-
-    if (iterable instanceof Collection) {
-      Collection<?> collection = (Collection<?>) iterable;
-      try {
-        return collection.contains(null);
-      } catch (NullPointerException e) {
-        // A NPE implies that the collection doesn't contain null.
-        return false;
-      }
-    } else {
-      for (Object element : iterable) {
-        if (element == null) {
-          return true;
-        }
-      }
-      return false;
-    }
-  }
-
-  /**
    * Ensures that {@code index} specifies a valid <i>element</i> in an array,
    * list or string of size {@code size}. An element index may range from zero,
    * inclusive, to {@code size}, exclusive.
@@ -429,8 +347,7 @@ public final class Preconditions {
    *     template. Arguments are converted to strings using
    *     {@link String#valueOf(Object)}. Arguments can be null.
    */
-  // VisibleForTesting
-  static String format(String template, Object... args) {
+  @VisibleForTesting static String format(String template, Object... args) {
     // start substituting the arguments into the '%s' placeholders
     StringBuilder builder = new StringBuilder(
         template.length() + 16 * args.length);

@@ -16,9 +16,9 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
-
+import com.google.common.annotations.GwtCompatible;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 /**
  * A set which forwards all its method calls to another set. Subclasses should
@@ -29,6 +29,7 @@ import java.util.Set;
  * @see ForwardingObject
  * @author Kevin Bourrillion
  */
+@GwtCompatible
 public abstract class ForwardingSet<E> extends ForwardingCollection<E>
     implements Set<E> {
 

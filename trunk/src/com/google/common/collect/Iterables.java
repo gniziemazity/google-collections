@@ -16,15 +16,14 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.GwtIncompatible;
 import com.google.common.base.Function;
-import com.google.common.base.Nullable;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkContentsNotNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Predicate;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,6 +34,7 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
+import javax.annotation.Nullable;
 
 /**
  * This class contains static utility methods that operate on or return objects
@@ -44,6 +44,7 @@ import java.util.SortedSet;
  * @author Kevin Bourrillion
  * @author Scott Bonneau
  */
+@GwtCompatible
 public final class Iterables {
   private Iterables() {}
 
@@ -94,34 +95,17 @@ public final class Iterables {
    */
   public static boolean contains(Iterable<?> iterable, @Nullable Object element)
   {
-    if (element == null) {
-      return containsNull(iterable);
-    }
     if (iterable instanceof Collection) {
       Collection<?> collection = (Collection<?>) iterable;
       try {
         return collection.contains(element);
+      } catch (NullPointerException e) {
+        return false;
       } catch (ClassCastException e) {
         return false;
       }
     }
     return Iterators.contains(iterable.iterator(), element);
-  }
-
-  /**
-   * Returns {@code true} if {@code iterable} contains at least one null
-   * element.
-   */
-  public static boolean containsNull(Iterable<?> iterable) {
-    if (iterable instanceof Collection) {
-      Collection<?> collection = (Collection<?>) iterable;
-      try {
-        return collection.contains(null);
-      } catch (NullPointerException e) {
-        return false;
-      }
-    }
-    return Iterators.containsNull(iterable.iterator());
   }
 
   /**
@@ -211,7 +195,8 @@ public final class Iterables {
    * @return a newly-allocated array into which all the elements of the iterable
    *     have been copied
    */
-  public static <T> T[] newArray(Iterable<T> iterable, Class<T> type) {
+  @GwtIncompatible("Array.newInstance(Class, int)")
+  public static <T> T[] toArray(Iterable<T> iterable, Class<T> type) {
     Collection<T> collection = (iterable instanceof Collection)
         ? (Collection<T>) iterable
         : Lists.newArrayList(iterable);
@@ -367,7 +352,7 @@ public final class Iterables {
    * @throws NullPointerException if any of the provided iterables is null
    */
   public static <T> Iterable<T> concat(Iterable<? extends T>... inputs) {
-    return concat(checkContentsNotNull(Arrays.asList(inputs)));
+    return concat(ImmutableList.of(inputs));
   }
 
   /**
@@ -494,6 +479,7 @@ public final class Iterables {
    * @return an unmodifiable iterable containing all elements of the original
    *     iterable that were of the requested type
    */
+  @GwtIncompatible("Class.isInstance")
   public static <T> Iterable<T> filter(
       final Iterable<?> unfiltered, final Class<T> type) {
     checkNotNull(unfiltered);
@@ -625,6 +611,7 @@ public final class Iterables {
    * contract states that a call to {@code remove()} before a call to
    * {@code next()} will throw an {@link IllegalStateException}.
    */
+  @GwtIncompatible("List.subList")
   public static <T> Iterable<T> skip(final Iterable<T> iterable,
       final int numberToSkip) {
     checkNotNull(iterable);
@@ -739,6 +726,7 @@ public final class Iterables {
     };
   }
 
+  // TODO: distance argument is opposite of Collections#rotate
   /**
    * Provides a rotated view of a list. Differs from {@link Collections#rotate}
    * in that it leaves the underlying list unchanged. Note that this is a
@@ -747,19 +735,23 @@ public final class Iterables {
    * is undefined if the list is structurally changed after the iterator is
    * retrieved.
    *
+   * <p>The iterators returned by the iterable do not support remove.
+   *
    * @param list the list to return a rotated view of
    * @param distance the distance to rotate the list. There are no constraints
    *     on this value; it may be zero, negative, or greater than {@code
    *     list.size()}.
    * @return a rotated view of the given list
    */
-  public static <T> Iterable<T> rotate(final List<T> list, final int distance) {
-    checkNotNull(list);
+  @GwtIncompatible("List.subList")
+  public static <T> Iterable<T> rotate(List<T> list, final int distance) {
+    final List<T> unmodifiable
+        = Collections.unmodifiableList(checkNotNull(list));
 
 
     // If no rotation is requested, just return the original list
     if (distance == 0) {
-      return list;
+      return unmodifiable;
     }
 
     return new IterableWithToString<T>() {
@@ -778,21 +770,20 @@ public final class Iterables {
       }
 
       public Iterator<T> iterator() {
-        int size = list.size();
+        int size = unmodifiable.size();
         if (size <= 1) {
-          return list.iterator();
+          return unmodifiable.iterator();
         }
 
         int actualDistance = calcActualDistance(size);
         // lists of a size that go into the distance evenly don't need rotation
         if (actualDistance == 0) {
-          return list.iterator();
+          return unmodifiable.iterator();
         }
 
-        @SuppressWarnings("unchecked")
         Iterable<T> rotated = concat(
-            Platform.subList(list, actualDistance, size),
-            Platform.subList(list, 0, actualDistance));
+            Platform.subList(unmodifiable, actualDistance, size),
+            Platform.subList(unmodifiable, 0, actualDistance));
         return rotated.iterator();
       }
     };

@@ -20,8 +20,8 @@ package com.google.common.collect;
  * Wraps an exception that occured during a computation.
  */
 public class ComputationException extends RuntimeException {
-
   public ComputationException(Throwable cause) {
     super(cause);
   }
+  private static final long serialVersionUID = 0;
 }

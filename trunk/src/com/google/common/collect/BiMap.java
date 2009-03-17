@@ -16,10 +16,10 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
-
+import com.google.common.annotations.GwtCompatible;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 /**
  * A bimap (or "bidirectional map") is a map that preserves the uniqueness of
@@ -29,6 +29,7 @@ import java.util.Set;
  *
  * @author Kevin Bourrillion
  */
+@GwtCompatible
 public interface BiMap<K, V> extends Map<K, V> {
   // Modification Operations
 

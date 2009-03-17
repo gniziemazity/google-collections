@@ -17,7 +17,6 @@
 package com.google.common.collect;
 
 import com.google.common.base.Function;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -30,9 +29,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.locks.ReentrantLock;
+import javax.annotation.Nullable;
 
 /**
  * A framework for concurrent hash map implementations. The
@@ -441,7 +442,7 @@ public final class CustomConcurrentHashMap {
      *
      * @throws NullPointerException if entry is null
      */
-    boolean removeEntry(E entry, V value);
+    boolean removeEntry(E entry, @Nullable V value);
 
     /**
      * Removes the given entry from the map.
@@ -464,7 +465,8 @@ public final class CustomConcurrentHashMap {
    * throw {@link UnsupportedOperationException} in {@link #setValue(Object,
    * Object)} if they wish to prevent users from setting values directly.
    *
-   * @see Builder#buildComputingMap(CustomConcurrentHashMap.ComputingStrategy, Function)
+   * @see Builder#buildComputingMap(CustomConcurrentHashMap.ComputingStrategy,
+   *     Function)
    */
   public interface ComputingStrategy<K, V, E> extends Strategy<K, V, E> {
 
@@ -688,6 +690,7 @@ public final class CustomConcurrentHashMap {
      * ReentrantLock opportunistically, just to simplify some locking and avoid
      * separate construction.
      */
+    @SuppressWarnings("serial") // This class is never serialized.
     final class Segment extends ReentrantLock {
 
       /*
@@ -1215,7 +1218,7 @@ public final class CustomConcurrentHashMap {
      *
      * @return {@code true} if this map contains no key-value mappings
      */
-    public boolean isEmpty() {
+    @Override public boolean isEmpty() {
       final Segment[] segments = this.segments;
       /*
        * We keep track of per-segment modCounts to avoid ABA
@@ -1256,7 +1259,7 @@ public final class CustomConcurrentHashMap {
      *
      * @return the number of key-value mappings in this map
      */
-    public int size() {
+    @Override public int size() {
       final Segment[] segments = this.segments;
       long sum = 0;
       long check = 0;
@@ -1314,7 +1317,7 @@ public final class CustomConcurrentHashMap {
      *
      * @throws NullPointerException if the specified key is null
      */
-    public V get(Object key) {
+    @Override public V get(Object key) {
       if (key == null) {
         throw new NullPointerException("key");
       }
@@ -1331,7 +1334,7 @@ public final class CustomConcurrentHashMap {
      *         {@code false} otherwise.
      * @throws NullPointerException if the specified key is null
      */
-    public boolean containsKey(Object key) {
+    @Override public boolean containsKey(Object key) {
       if (key == null) {
         throw new NullPointerException("key");
       }
@@ -1349,7 +1352,7 @@ public final class CustomConcurrentHashMap {
      *         value
      * @throws NullPointerException if the specified value is null
      */
-    public boolean containsValue(Object value) {
+    @Override public boolean containsValue(Object value) {
       if (value == null) {
         throw new NullPointerException("value");
       }
@@ -1418,7 +1421,7 @@ public final class CustomConcurrentHashMap {
      *         if there was no mapping for {@code key}
      * @throws NullPointerException if the specified key or value is null
      */
-    public V put(K key, V value) {
+    @Override public V put(K key, V value) {
       if (key == null) {
         throw new NullPointerException("key");
       }
@@ -1454,7 +1457,7 @@ public final class CustomConcurrentHashMap {
      *
      * @param m mappings to be stored in this map
      */
-    public void putAll(Map<? extends K, ? extends V> m) {
+    @Override public void putAll(Map<? extends K, ? extends V> m) {
       for (Entry<? extends K, ? extends V> e : m.entrySet()) {
         put(e.getKey(), e.getValue());
       }
@@ -1469,7 +1472,7 @@ public final class CustomConcurrentHashMap {
      *         if there was no mapping for {@code key}
      * @throws NullPointerException if the specified key is null
      */
-    public V remove(Object key) {
+    @Override public V remove(Object key) {
       if (key == null) {
         throw new NullPointerException("key");
       }
@@ -1530,7 +1533,7 @@ public final class CustomConcurrentHashMap {
     /**
      * Removes all of the mappings from this map.
      */
-    public void clear() {
+    @Override public void clear() {
       for (Segment segment : segments) {
         segment.clear();
       }
@@ -1553,7 +1556,7 @@ public final class CustomConcurrentHashMap {
      * iterator, and may (but is not guaranteed to) reflect any modifications
      * subsequent to construction.
      */
-    public Set<K> keySet() {
+    @Override public Set<K> keySet() {
       Set<K> ks = keySet;
       return (ks != null) ? ks : (keySet = new KeySet());
     }
@@ -1575,7 +1578,7 @@ public final class CustomConcurrentHashMap {
      * iterator, and may (but is not guaranteed to) reflect any modifications
      * subsequent to construction.
      */
-    public Collection<V> values() {
+    @Override public Collection<V> values() {
       Collection<V> vs = values;
       return (vs != null) ? vs : (values = new Values());
     }
@@ -1760,7 +1763,7 @@ public final class CustomConcurrentHashMap {
        * removed in which case the put will re-establish). We do not and
        * cannot guarantee more.
        */
-      public V setValue(V value) {
+      @Override public V setValue(V value) {
         if (value == null) {
           throw new NullPointerException();
         }
@@ -1788,19 +1791,19 @@ public final class CustomConcurrentHashMap {
         return Impl.this.size();
       }
 
-      public boolean isEmpty() {
+      @Override public boolean isEmpty() {
         return Impl.this.isEmpty();
       }
 
-      public boolean contains(Object o) {
+      @Override public boolean contains(Object o) {
         return Impl.this.containsKey(o);
       }
 
-      public boolean remove(Object o) {
+      @Override public boolean remove(Object o) {
         return Impl.this.remove(o) != null;
       }
 
-      public void clear() {
+      @Override public void clear() {
         Impl.this.clear();
       }
     }
@@ -1815,15 +1818,15 @@ public final class CustomConcurrentHashMap {
         return Impl.this.size();
       }
 
-      public boolean isEmpty() {
+      @Override public boolean isEmpty() {
         return Impl.this.isEmpty();
       }
 
-      public boolean contains(Object o) {
+      @Override public boolean contains(Object o) {
         return Impl.this.containsValue(o);
       }
 
-      public void clear() {
+      @Override public void clear() {
         Impl.this.clear();
       }
     }
@@ -1834,7 +1837,7 @@ public final class CustomConcurrentHashMap {
         return new EntryIterator();
       }
 
-      public boolean contains(Object o) {
+      @Override public boolean contains(Object o) {
         if (!(o instanceof Entry)) {
           return false;
         }
@@ -1848,7 +1851,7 @@ public final class CustomConcurrentHashMap {
         return v != null && strategy.equalValues(v, e.getValue());
       }
 
-      public boolean remove(Object o) {
+      @Override public boolean remove(Object o) {
         if (!(o instanceof Entry)) {
           return false;
         }
@@ -1861,11 +1864,11 @@ public final class CustomConcurrentHashMap {
         return Impl.this.size();
       }
 
-      public boolean isEmpty() {
+      @Override public boolean isEmpty() {
         return Impl.this.isEmpty();
       }
 
-      public void clear() {
+      @Override public void clear() {
         Impl.this.clear();
       }
     }
@@ -1974,7 +1977,7 @@ public final class CustomConcurrentHashMap {
 
     static final long serialVersionUID = 0;
 
-    final ComputingStrategy<K, V, E> strategy;
+    final ComputingStrategy<K, V, E> computingStrategy;
     final Function<? super K, ? extends V> computer;
 
     /**
@@ -1984,12 +1987,11 @@ public final class CustomConcurrentHashMap {
     ComputingImpl(ComputingStrategy<K, V, E> strategy, Builder builder,
         Function<? super K, ? extends V> computer) {
       super(strategy, builder);
-      this.strategy = strategy;
+      this.computingStrategy = strategy;
       this.computer = computer;
     }
 
-    @Override
-    public V get(Object k) {
+    @Override public V get(Object k) {
       /*
        * This cast isn't safe, but we can rely on the fact that K is almost
        * always passed to Map.get(), and tools like IDEs and Findbugs can
@@ -2027,7 +2029,7 @@ public final class CustomConcurrentHashMap {
               int index = hash & (table.length() - 1);
               E first = table.get(index);
               ++segment.modCount;
-              entry = strategy.newEntry(key, hash, first);
+              entry = computingStrategy.newEntry(key, hash, first);
               table.set(index, entry);
               segment.count = count; // write-volatile
             }
@@ -2039,7 +2041,7 @@ public final class CustomConcurrentHashMap {
             // This thread solely created the entry.
             boolean success = false;
             try {
-              V value = strategy.compute(key, entry, computer);
+              V value = computingStrategy.compute(key, entry, computer);
               if (value == null) {
                 throw new NullPointerException(
                     "compute() returned null unexpectedly");
@@ -2059,7 +2061,7 @@ public final class CustomConcurrentHashMap {
         try {
           while (true) {
             try {
-              V value = strategy.waitForValue(entry);
+              V value = computingStrategy.waitForValue(entry);
               if (value == null) {
                 // Purge entry and try again.
                 segment.removeEntry(entry, hash);
@@ -2076,6 +2078,83 @@ public final class CustomConcurrentHashMap {
           }
         }
       }
+    }
+  }
+
+  /**
+   * A basic, no-frills implementation of {@code Strategy} using {@link
+   * SimpleInternalEntry}. Intended to be subclassed to provide customized
+   * behavior. For example, the following creates a map that uses byte arrays as
+   * keys: <pre>   {@code
+   *
+   *   return new CustomConcurrentHashMap.Builder().buildMap(
+   *       new SimpleStrategy<byte[], V>() {
+   *         public int hashKey(Object key) {
+   *           return Arrays.hashCode((byte[]) key);
+   *         }
+   *         public boolean equalKeys(byte[] a, Object b) {
+   *           return Arrays.equals(a, (byte[]) b);
+   *         }
+   *       });}</pre>
+   *
+   * With nothing overridden, it yields map behavior equivalent to that of
+   * {@link ConcurrentHashMap}.
+   */
+  public static class SimpleStrategy<K, V>
+      implements Strategy<K, V, SimpleInternalEntry<K, V>> {
+    public SimpleInternalEntry<K, V> newEntry(
+        K key, int hash, SimpleInternalEntry<K, V> next) {
+      return new SimpleInternalEntry<K, V>(key, hash, null, next);
+    }
+    public SimpleInternalEntry<K, V> copyEntry(K key,
+        SimpleInternalEntry<K, V> original, SimpleInternalEntry<K, V> next) {
+      return new SimpleInternalEntry<K, V>(
+          key, original.hash, original.value, next);
+    }
+    public void setValue(SimpleInternalEntry<K, V> entry, V value) {
+      entry.value = value;
+    }
+    public V getValue(SimpleInternalEntry<K, V> entry) {
+      return entry.value;
+    }
+    public boolean equalKeys(K a, Object b) {
+      return a.equals(b);
+    }
+    public boolean equalValues(V a, Object b) {
+      return a.equals(b);
+    }
+    public int hashKey(Object key) {
+      return key.hashCode();
+    }
+    public K getKey(SimpleInternalEntry<K, V> entry) {
+      return entry.key;
+    }
+    public SimpleInternalEntry<K, V> getNext(SimpleInternalEntry<K, V> entry) {
+      return entry.next;
+    }
+    public int getHash(SimpleInternalEntry<K, V> entry) {
+      return entry.hash;
+    }
+    public void setInternals(
+        Internals<K, V, SimpleInternalEntry<K, V>> internals) {
+      // ignore?
+    }
+  }
+
+  /**
+   * A basic, no-frills entry class used by {@link SimpleInternalEntry}.
+   */
+  public static class SimpleInternalEntry<K, V> {
+    final K key;
+    final int hash;
+    final SimpleInternalEntry<K, V> next;
+    volatile V value;
+    SimpleInternalEntry(
+        K key, int hash, @Nullable V value, SimpleInternalEntry<K, V> next) {
+      this.key = key;
+      this.hash = hash;
+      this.value = value;
+      this.next = next;
     }
   }
 }

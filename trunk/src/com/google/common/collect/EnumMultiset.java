@@ -16,8 +16,8 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
 import static com.google.common.base.Preconditions.checkArgument;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author Jared Levy
  */
+@GwtCompatible
 public final class EnumMultiset<E extends Enum<E>>
     extends AbstractMapBasedMultiset<E> {
   /** Creates an empty {@code EnumMultiset}. */

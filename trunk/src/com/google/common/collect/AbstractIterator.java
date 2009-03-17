@@ -16,8 +16,8 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
 import static com.google.common.base.Preconditions.checkState;
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -58,6 +58,7 @@ import java.util.NoSuchElementException;
  *
  * @author Kevin Bourrillion
  */
+@GwtCompatible
 public abstract class AbstractIterator<T> implements Iterator<T> {
   private State state = State.NOT_READY;
 

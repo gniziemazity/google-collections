@@ -16,13 +16,14 @@
 
 package com.google.common.base.internal;
 
-import java.util.logging.Logger;
-import java.util.logging.Level;
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
 import java.lang.ref.PhantomReference;
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Thread that finalizes referents. All references should implement
@@ -87,6 +88,9 @@ public class Finalizer extends Thread {
   private final PhantomReference<Object> frqReference;
   private final ReferenceQueue<Object> queue = new ReferenceQueue<Object>();
 
+  private static final Field inheritableThreadLocals
+      = getInheritableThreadLocalsField();
+
   /** Constructs a new finalizer thread. */
   private Finalizer(Class<?> finalizableReferenceClass, Object frq) {
     super(Finalizer.class.getName());
@@ -98,6 +102,15 @@ public class Finalizer extends Thread {
     this.frqReference = new PhantomReference<Object>(frq, queue);
 
     setDaemon(true);
+
+    try {
+      if (inheritableThreadLocals != null) {
+        inheritableThreadLocals.set(this, null);
+      }
+    } catch (Throwable t) {
+      logger.log(Level.INFO, "Failed to clear thread local values inherited"
+          + " by reference finalizer thread.", t);
+    }
 
     // TODO: Priority?
   }
@@ -171,6 +184,20 @@ public class Finalizer extends Thread {
       return finalizableReferenceClass.getMethod("finalizeReferent");
     } catch (NoSuchMethodException e) {
       throw new AssertionError(e);
+    }
+  }
+
+  public static Field getInheritableThreadLocalsField() {
+    try {
+      Field inheritableThreadLocals
+          = Thread.class.getDeclaredField("inheritableThreadLocals");
+      inheritableThreadLocals.setAccessible(true);
+      return inheritableThreadLocals;
+    } catch (Throwable t) {
+      logger.log(Level.INFO, "Couldn't access Thread.inheritableThreadLocals."
+          + " Reference finalizer threads will inherit thread local"
+          + " values.");
+      return null;
     }
   }
 

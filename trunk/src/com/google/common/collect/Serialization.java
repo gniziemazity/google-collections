@@ -16,6 +16,8 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.GwtIncompatible;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -28,6 +30,7 @@ import java.util.Map;
  *
  * @author Jared Levy
  */
+@GwtCompatible(emulated = true) // Accessible but not supported in GWT.
 public final class Serialization {
   private Serialization() {}
 
@@ -39,6 +42,7 @@ public final class Serialization {
    * <p>The serialized output consists of the number of entries, first key,
    * first value, second key, second value, and so on.
    */
+  @GwtIncompatible("java.io.ObjectOutputStream")
   public static <K, V> void writeMap(Map<K, V> map, ObjectOutputStream stream)
       throws IOException {
     stream.writeInt(map.size());
@@ -48,10 +52,15 @@ public final class Serialization {
     }
   }
 
+  // TODO: Separate the first line of each populate method, which reads the
+  // size, from the rest of the method, so an empty collection of the correct
+  // size may be created.
+  
   /**
    * Populates a map by reading an input stream, as part of deserialization.
    * See {@link #writeMap} for the data format.
    */
+  @GwtIncompatible("java.io.ObjectInputStream")
   public static <K, V> void populateMap(Map<K, V> map, ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
     int size = stream.readInt();
@@ -71,6 +80,7 @@ public final class Serialization {
    * <p>The serialized output consists of the number of distinct elements, the
    * first element, its count, the second element, its count, and so on.
    */
+  @GwtIncompatible("java.io.ObjectOutputStream")
   public static <E> void writeMultiset(
       Multiset<E> multiset, ObjectOutputStream stream) throws IOException {
     int entryCount = multiset.entrySet().size();
@@ -85,6 +95,7 @@ public final class Serialization {
    * Populates a multiset by reading an input stream, as part of
    * deserialization. See {@link #writeMultiset} for the data format.
    */
+  @GwtIncompatible("java.io.ObjectInputStream")
   public static <E> void populateMultiset(
       Multiset<E> multiset, ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
@@ -107,6 +118,7 @@ public final class Serialization {
    * for each distinct key: the key, the number of values for that key, and the
    * key's values.
    */
+  @GwtIncompatible("java.io.ObjectOutputStream")
   public static <K, V> void writeMultimap(
       Multimap<K, V> multimap, ObjectOutputStream stream) throws IOException {
     stream.writeInt(multimap.asMap().size());
@@ -123,6 +135,7 @@ public final class Serialization {
    * Populates a multimap by reading an input stream, as part of
    * deserialization. See {@link #writeMultimap} for the data format.
    */
+  @GwtIncompatible("java.io.ObjectInputStream")
   public static <K, V> void populateMultimap(
       Multimap<K, V> multimap, ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
@@ -141,6 +154,7 @@ public final class Serialization {
   }
 
   // Secret sauce for setting final fields; don't make it public.
+  @GwtIncompatible("java.lang.reflect.Field")
   static <T> FieldSetter<T> getFieldSetter(
       final Class<T> clazz, String fieldName) {
     try {
@@ -152,6 +166,7 @@ public final class Serialization {
   }
 
   // Secret sauce for setting final fields; don't make it public.
+  @GwtCompatible(emulated = true) // Accessible but not supported in GWT.
   static final class FieldSetter<T> {
     private final Field field;
 
@@ -160,6 +175,7 @@ public final class Serialization {
       field.setAccessible(true);
     }
 
+    @GwtIncompatible("java.lang.reflect.Field")
     void set(T instance, Object value) {
       try {
         field.set(instance, value);
@@ -168,6 +184,7 @@ public final class Serialization {
       }
     }
 
+    @GwtIncompatible("java.lang.reflect.Field")
     void set(T instance, int value) {
       try {
         field.set(instance, value);

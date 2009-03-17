@@ -16,12 +16,11 @@
 
 package com.google.common.collect.testing.testers;
 
-import static com.google.common.collect.testing.features.CollectionFeature.SUPPORTS_CLEAR;
-import static com.google.common.collect.testing.features.CollectionSize.ZERO;
-
 import com.google.common.collect.testing.AbstractCollectionTester;
 import com.google.common.collect.testing.features.CollectionFeature;
+import static com.google.common.collect.testing.features.CollectionFeature.SUPPORTS_CLEAR;
 import com.google.common.collect.testing.features.CollectionSize;
+import static com.google.common.collect.testing.features.CollectionSize.ZERO;
 
 /**
  * A generic JUnit test which tests {@code clear()} operations on a collection.

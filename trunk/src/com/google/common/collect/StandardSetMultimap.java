@@ -16,11 +16,11 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
-
+import com.google.common.annotations.GwtCompatible;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 /**
  * Basic implementation of the {@link SetMultimap} interface. It's a wrapper
@@ -29,6 +29,7 @@ import java.util.Set;
  *
  * @author Jared Levy
  */
+@GwtCompatible
 abstract class StandardSetMultimap<K, V>
     extends StandardMultimap<K, V> implements SetMultimap<K, V> {
   /**

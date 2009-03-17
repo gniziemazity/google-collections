@@ -16,12 +16,14 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -40,23 +42,74 @@ import java.util.Set;
  *
  * @author Jared Levy
  */
+@GwtCompatible
 public final class HashMultimap<K, V> extends StandardSetMultimap<K, V> {
-  /** Constructs an empty {@code HashMultimap}. */
-  public HashMultimap() {
-    super(new HashMap<K, Collection<V>>());
+  private static final int DEFAULT_VALUES_PER_KEY = 8;
+
+  @VisibleForTesting
+  transient int expectedValuesPerKey = DEFAULT_VALUES_PER_KEY;
+  
+  /**
+   * Creates a new empty {@code HashMultimap} with the default initial
+   * capacities.
+   */
+  public static <K, V> HashMultimap<K, V> create() {
+    return new HashMultimap<K, V>();
+  }
+
+  /**
+   * Constructs an empty {@code HashMultimap} with enough capacity to hold the
+   * specified numbers of keys and values without rehashing.
+   *
+   * @param expectedKeys the expected number of distinct keys
+   * @param expectedValuesPerKey the expected average number of values per key
+   * @throws IllegalArgumentException if {@code expectedKeys} or {@code 
+   *      expectedValuesPerKey} is negative
+   */
+  public static <K, V> HashMultimap<K, V> create(
+      int expectedKeys, int expectedValuesPerKey) {
+    return new HashMultimap<K, V>(expectedKeys, expectedValuesPerKey);
   }
 
   /**
    * Constructs a {@code HashMultimap} with the same mappings as the specified
-   * {@code Multimap}. If a key-value mapping appears multiple times in the
-   * input multimap, it only appears once in the constructed multimap.
+   * multimap. If a key-value mapping appears multiple times in the input
+   * multimap, it only appears once in the constructed multimap.
+   *
+   * @param multimap the multimap whose contents are copied to this multimap
+   */
+  public static <K, V> HashMultimap<K, V> create(
+      Multimap<? extends K, ? extends V> multimap) {
+    return new HashMultimap<K, V>(multimap);
+  }
+
+  // TODO: Make all constructors private.
+  
+  /** Constructs an empty {@code HashMultimap}. */
+  public HashMultimap() {
+    super(new HashMap<K, Collection<V>>());
+  }
+  
+  /**
+   * Constructs an empty {@code HashMultimap} with enough capacity to hold the
+   * specified numbers of keys and values without rehashing.
+   */
+  private HashMultimap(int expectedKeys, int expectedValuesPerKey) {
+    super(Maps.<K, Collection<V>>newHashMapWithExpectedSize(expectedKeys));
+    Preconditions.checkArgument(expectedValuesPerKey >= 0);
+    this.expectedValuesPerKey = expectedValuesPerKey;
+  }
+
+  /**
+   * Constructs a {@code HashMultimap} with the same mappings as the specified
+   * multimap. If a key-value mapping appears multiple times in the input
+   * multimap, it only appears once in the constructed multimap.
    *
    * @param multimap the multimap whose contents are copied to this multimap.
-   * @see #putAll(Multimap)
    */
   public HashMultimap(Multimap<? extends K, ? extends V> multimap) {
-    super(new HashMap<K, Collection<V>>(
-        Maps.capacity(multimap.keySet().size())));
+    super(Maps.<K, Collection<V>>newHashMapWithExpectedSize(
+        multimap.keySet().size()));
     putAll(multimap);
   }
 
@@ -68,15 +121,17 @@ public final class HashMultimap<K, V> extends StandardSetMultimap<K, V> {
    * @return a new {@code HashSet} containing a collection of values for one key
    */
   @Override Set<V> createCollection() {
-    return new HashSet<V>();
+    return Sets.<V>newHashSetWithExpectedSize(expectedValuesPerKey);
   }
 
   /**
-   * @serialData number of distinct keys, and then for each distinct key: the
-   *     key, the number of values for that key, and the key's values
+   * @serialData expectedValuesPerKey, number of distinct keys, and then for
+   *     each distinct key: the key, number of values for that key, and the
+   *     key's values
    */
   private void writeObject(ObjectOutputStream stream) throws IOException {
     stream.defaultWriteObject();
+    stream.writeInt(expectedValuesPerKey);
     Serialization.writeMultimap(this, stream);
   }
 
@@ -84,8 +139,10 @@ public final class HashMultimap<K, V> extends StandardSetMultimap<K, V> {
       throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
     setMap(new HashMap<K, Collection<V>>());
+    expectedValuesPerKey = stream.readInt();
     Serialization.populateMultimap(this, stream);
   }
 
   private static final long serialVersionUID = 0;
 }
+

@@ -24,8 +24,6 @@ import static com.google.common.collect.testing.features.CollectionFeature.ALLOW
 import static com.google.common.collect.testing.features.CollectionFeature.SUPPORTS_REMOVE_ALL;
 import com.google.common.collect.testing.features.CollectionSize;
 import static com.google.common.collect.testing.features.CollectionSize.ZERO;
-
-import java.lang.reflect.Method;
 import java.util.Collections;
 
 /**
@@ -128,7 +126,7 @@ public class CollectionRemoveAllTester<E> extends AbstractCollectionTester<E> {
   public void testRemoveAll_nullCollectionReferenceEmptySubject() {
     try {
       collection.removeAll(null);
-      fail("removeAll(null) should throw NullPointerException");
+      // Returning successfully is not ideal, but tolerated.
     } catch (NullPointerException expected) {
     }
   }
@@ -171,24 +169,5 @@ public class CollectionRemoveAllTester<E> extends AbstractCollectionTester<E> {
     } catch (ClassCastException tolerated) {
     }
     expectUnchanged();
-  }
-
-  /**
-   * Returns the {@link Method} instance for
-   * {@link #testRemoveAll_nullCollectionReferenceEmptySubject()} so that tests
-   * of classes that inherit the buggy
-   * {@link java.util.AbstractCollection#removeAll(java.util.Collection)}
-   * implementation can suppress it with
-   * {@code FeatureSpecificTestSuiteBuilder.suppressing()} until <a
-   * href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4802647">Sun bug
-   * 4802647</a> is fixed.
-   */
-  public static Method getRemoveAllNullCollectionReferenceEmptySubjectMethod() {
-    try {
-      return CollectionRemoveAllTester.class
-          .getMethod("testRemoveAll_nullCollectionReferenceEmptySubject");
-    } catch (NoSuchMethodException e) {
-      throw new RuntimeException(e);
-    }
   }
 }

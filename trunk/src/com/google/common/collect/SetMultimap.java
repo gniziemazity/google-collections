@@ -16,11 +16,11 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
-
+import com.google.common.annotations.GwtCompatible;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 /**
  * A {@code Multimap} that cannot hold duplicate key-value pairs. Adding a
@@ -33,6 +33,7 @@ import java.util.Set;
  *
  * @author Jared Levy
  */
+@GwtCompatible
 public interface SetMultimap<K, V> extends Multimap<K, V> {
   /**
    * {@inheritDoc}

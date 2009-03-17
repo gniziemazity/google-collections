@@ -16,13 +16,12 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
+import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-
+import static com.google.common.collect.Multisets.setCountImpl;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -40,6 +39,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 /**
  * An implementation of {@code ListMultimap} that supports deterministic
@@ -88,6 +88,7 @@ import java.util.Set;
  *
  * @author Mike Bostock
  */
+@GwtCompatible
 public final class LinkedListMultimap<K, V>
     implements ListMultimap<K, V>, Serializable {
   /*
@@ -121,21 +122,63 @@ public final class LinkedListMultimap<K, V>
   private transient Map<K, Node<K, V>> keyToKeyHead; // the head for a given key
   private transient Map<K, Node<K, V>> keyToKeyTail; // the tail for a given key
 
-  /** Constructs an empty {@code LinkedListMultimap}. */
-  public LinkedListMultimap() {
-    clear();
+  /**
+   * Creates a new empty {@code LinkedListMultimap} with the default initial
+   * capacity.
+   */
+  public static <K, V> LinkedListMultimap<K, V> create() {
+    return new LinkedListMultimap<K, V>();
+  }
+
+  /**
+   * Constructs an empty {@code LinkedListMultimap} with enough capacity to hold
+   * the specified number of keys without rehashing.
+   *
+   * @param expectedKeys the expected number of distinct keys
+   * @throws IllegalArgumentException if {@code expectedKeys} is negative
+   */
+  public static <K, V> LinkedListMultimap<K, V> create(int expectedKeys) {
+    return new LinkedListMultimap<K, V>(expectedKeys);
   }
 
   /**
    * Constructs a {@code LinkedListMultimap} with the same mappings as the
    * specified {@code Multimap}. The new multimap has the same
    * {@link Multimap#entries()} iteration order as the input multimap.
+   *
+   * @param multimap the multimap whose contents are copied to this multimap
+   */
+  public static <K, V> LinkedListMultimap<K, V> create(
+      Multimap<? extends K, ? extends V> multimap) {
+    return new LinkedListMultimap<K, V>(multimap);
+  }
+
+  // TODO: Make all constructors private.
+  
+  /** Constructs an empty {@code LinkedListMultimap}. */
+  public LinkedListMultimap() {
+    keyCount = LinkedHashMultiset.create();
+    keyToKeyHead = Maps.newHashMap();
+    keyToKeyTail = Maps.newHashMap();
+  }
+
+  /**
+   * Constructs an empty {@code LinkedListMultimap} with enough capacity to hold
+   * the specified number of keys without rehashing.
+   */
+  private LinkedListMultimap(int expectedKeys) {
+    keyCount = LinkedHashMultiset.create(expectedKeys);
+    keyToKeyHead = Maps.newHashMapWithExpectedSize(expectedKeys);
+    keyToKeyTail = Maps.newHashMapWithExpectedSize(expectedKeys);
+  }
+  
+  /**
+   * Constructs a {@code LinkedListMultimap} with the same mappings as the
+   * specified {@code Multimap}. The new multimap has the same
+   * {@link Multimap#entries()} iteration order as the input multimap.
    */
   public LinkedListMultimap(Multimap<? extends K, ? extends V> multimap) {
-    int keySize = multimap.keySet().size();
-    keyCount = LinkedHashMultiset.create(keySize);
-    keyToKeyHead = Maps.newHashMapWithExpectedSize(keySize);
-    keyToKeyTail = Maps.newHashMapWithExpectedSize(keySize);
+    this(multimap.keySet().size());
     putAll(multimap);
   }
 
@@ -500,9 +543,9 @@ public final class LinkedListMultimap<K, V>
   public void clear() {
     head = null;
     tail = null;
-    keyCount = LinkedHashMultiset.create();
-    keyToKeyHead = Maps.newHashMap();
-    keyToKeyTail = Maps.newHashMap();
+    keyCount.clear();
+    keyToKeyHead.clear();
+    keyToKeyTail.clear();
   }
 
   // Views
@@ -547,9 +590,6 @@ public final class LinkedListMultimap<K, V>
         @Override public boolean contains(Object key) { // for performance
           return keyCount.contains(key);
         }
-        @Override public boolean retainAll(Collection<?> c) {
-          return super.retainAll(checkNotNull(c));
-        }
       };
     }
     return keySet;
@@ -590,24 +630,27 @@ public final class LinkedListMultimap<K, V>
       return keyCount.count(key);
     }
 
-    public boolean add(@Nullable K key, int occurrences) {
+    public int add(@Nullable K key, int occurrences) {
       throw new UnsupportedOperationException();
     }
 
     public int remove(@Nullable Object key, int occurrences) {
       checkArgument(occurrences >= 0);
+      int oldCount = count(key);
       Iterator<V> values = new ValueForKeyIterator(key);
-      int removed = 0;
       while ((occurrences-- > 0) && values.hasNext()) {
         values.next();
         values.remove();
-        removed++;
       }
-      return removed;
+      return oldCount;
     }
 
-    public int removeAllOccurrences(@Nullable Object key) {
-      return LinkedListMultimap.this.removeAll(key).size();
+    public int setCount(K element, int count) {
+      return setCountImpl(this, element, count);
+    }
+
+    public boolean setCount(K element, int oldCount, int newCount) {
+      return setCountImpl(this, element, oldCount, newCount);
     }
 
     @Override public boolean removeAll(Collection<?> c) {
@@ -626,10 +669,6 @@ public final class LinkedListMultimap<K, V>
       return new AbstractSet<Entry<K>>() {
         @Override public int size() {
           return keyCount.elementSet().size();
-        }
-
-        @Override public boolean retainAll(Collection<?> c) {
-          return super.retainAll(checkNotNull(c));
         }
 
         @Override public Iterator<Entry<K>> iterator() {
@@ -684,12 +723,6 @@ public final class LinkedListMultimap<K, V>
         @Override public int size() {
           return keyCount.size();
         }
-        @Override public boolean removeAll(Collection<?> c) {
-          return super.removeAll(checkNotNull(c));
-        }
-        @Override public boolean retainAll(Collection<?> c) {
-          return super.retainAll(checkNotNull(c));
-        }
         @Override public Iterator<V> iterator() {
           final Iterator<Node<K, V>> nodes = new NodeIterator();
           return new Iterator<V>() {
@@ -731,14 +764,6 @@ public final class LinkedListMultimap<K, V>
       entries = new AbstractCollection<Entry<K, V>>() {
         @Override public int size() {
           return keyCount.size();
-        }
-
-        @Override public boolean removeAll(Collection<?> c) {
-          return super.removeAll(checkNotNull(c));
-        }
-
-        @Override public boolean retainAll(Collection<?> c) {
-          return super.retainAll(checkNotNull(c));
         }
 
         @Override public Iterator<Entry<K, V>> iterator() {
@@ -903,7 +928,9 @@ public final class LinkedListMultimap<K, V>
   private void readObject(ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
-    clear();
+    keyCount = LinkedHashMultiset.create();
+    keyToKeyHead = Maps.newHashMap();
+    keyToKeyTail = Maps.newHashMap();
     int size = stream.readInt();
     for (int i = 0; i < size; i++) {
       @SuppressWarnings("unchecked") // reading data stored by writeObject

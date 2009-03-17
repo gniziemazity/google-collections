@@ -16,8 +16,9 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.VisibleForTesting;
 import static com.google.common.base.Preconditions.checkArgument;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -50,41 +51,77 @@ import java.util.List;
  *
  * @author Jared Levy
  */
+@GwtCompatible
 public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
   // Default from ArrayList
-  static final int DEFAULT_CAPACITY = 10;
+  private static final int DEFAULT_VALUES_PER_KEY = 10;
 
-  transient int initialListCapacity;
+  @VisibleForTesting transient int expectedValuesPerKey;
 
+  /**
+   * Creates a new empty {@code ArrayListMultimap} with the default initial
+   * capacities.
+   */
+  public static <K, V> ArrayListMultimap<K, V> create() {
+    return new ArrayListMultimap<K, V>();
+  }
+
+  /**
+   * Constructs an empty {@code ArrayListMultimap} with enough capacity to hold
+   * the specified numbers of keys and values without resizing.
+   *
+   * @param expectedKeys the expected number of distinct keys
+   * @param expectedValuesPerKey the expected average number of values per key
+   * @throws IllegalArgumentException if {@code expectedKeys} or {@code 
+   *      expectedValuesPerKey} is negative
+   */
+  public static <K, V> ArrayListMultimap<K, V> create(
+      int expectedKeys, int expectedValuesPerKey) {
+    return new ArrayListMultimap<K, V>(expectedKeys, expectedValuesPerKey);
+  }
+
+  /**
+   * Constructs an {@code ArrayListMultimap} with the same mappings as the
+   * specified multimap.
+   *
+   * @param multimap the multimap whose contents are copied to this multimap
+   */
+  public static <K, V> ArrayListMultimap<K, V> create(
+      Multimap<? extends K, ? extends V> multimap) {
+    return new ArrayListMultimap<K, V>(multimap);
+  }
+
+  // TODO: Make all constructors private.
+  
   /** Constructs an empty {@code ArrayListMultimap}. */
   public ArrayListMultimap() {
     super(new HashMap<K, Collection<V>>());
-    initialListCapacity = DEFAULT_CAPACITY;
+    expectedValuesPerKey = DEFAULT_VALUES_PER_KEY;
   }
 
   /**
    * Constructs an empty {@code ArrayListMultimap} with the expected number of
    * distinct keys and the expected number of values per distinct key.
    *
-   * @param distinctKeys the expected number of distinct keys
-   * @param valuesPerKey the expected number of values per distinct key
+   * @param expectedKeys the expected number of distinct keys
+   * @param expectedValuesPerKey the expected average number of values per key
    * @throws IllegalArgumentException if either argument is negative
    */
-  public ArrayListMultimap(int distinctKeys, int valuesPerKey) {
-    super(new HashMap<K, Collection<V>>(Maps.capacity(distinctKeys)));
-    checkArgument(valuesPerKey >= 0);
-    initialListCapacity = valuesPerKey;
+  public ArrayListMultimap(int expectedKeys, int expectedValuesPerKey) {
+    super(Maps.<K, Collection<V>>newHashMapWithExpectedSize(expectedKeys));
+    checkArgument(expectedValuesPerKey >= 0);
+    this.expectedValuesPerKey = expectedValuesPerKey;
   }
 
   /**
    * Constructs an {@code ArrayListMultimap} with the same mappings as the
-   * specified {@code Multimap}.
+   * specified multimap.
    */
   public ArrayListMultimap(Multimap<? extends K, ? extends V> multimap) {
     this(multimap.keySet().size(),
         (multimap instanceof ArrayListMultimap) ?
-            ((ArrayListMultimap<?, ?>) multimap).initialListCapacity :
-            DEFAULT_CAPACITY);
+            ((ArrayListMultimap<?, ?>) multimap).expectedValuesPerKey :
+            DEFAULT_VALUES_PER_KEY);
     putAll(multimap);
   }
 
@@ -93,7 +130,7 @@ public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
    * an arbitrary key.
    */
   @Override List<V> createCollection() {
-    return new ArrayList<V>(initialListCapacity);
+    return new ArrayList<V>(expectedValuesPerKey);
   }
 
   /**
@@ -107,13 +144,13 @@ public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
   }
 
   /**
-   * @serialData initial list capacity, number of distinct keys, and then for
+   * @serialData expectedValuesPerKey, number of distinct keys, and then for
    *     each distinct key: the key, number of values for that key, and the
    *     key's values
    */
   private void writeObject(ObjectOutputStream stream) throws IOException {
     stream.defaultWriteObject();
-    stream.writeInt(initialListCapacity);
+    stream.writeInt(expectedValuesPerKey);
     Serialization.writeMultimap(this, stream);
   }
 
@@ -121,7 +158,7 @@ public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
       throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
     setMap(new HashMap<K, Collection<V>>());
-    initialListCapacity = stream.readInt();
+    expectedValuesPerKey = stream.readInt();
     Serialization.populateMultimap(this, stream);
   }
 

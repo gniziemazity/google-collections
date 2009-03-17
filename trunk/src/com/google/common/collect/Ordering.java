@@ -16,11 +16,10 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Function;
-import com.google.common.base.Nullable;
 import com.google.common.base.Objects;
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,20 +30,32 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 /**
  * A comparator with added methods to support common functions. For example:
  * <pre>   {@code
  *
- *   if (Ordering.from(plainComparator).reverse().isSorted(list)) { ... }}</pre>
+ *   if (Ordering.from(comparator).reverse().isOrdered(list)) { ... }}</pre>
+ *
+ * <p>The {@link #from(Comparator)} method returns the equivalent {@code
+ * Ordering} instance for a pre-existing comparator. You can also skip the
+ * comparator step and extend {@code Ordering} directly: <pre>   {@code
+ *
+ *   Ordering<String> byLengthOrdering = new Ordering<String>() {
+ *     public int compare(String left, String right) {
+ *       return Ints.compare(left.length(), right.length());
+ *     }
+ *   };}</pre>
  *
  * The orderings returned by the factory methods of this class are serializable
  * if and only if the provided instances that back them are. For example, if
- * {@code function} can be serialized, {@code Ordering.from(function)} can as
- * well.
+ * {@code ordering} and {@code function} can themselves be serialized, then
+ * {@code ordering.onResultOf(function)} can as well.
  *
  * @author Jesse Wilson
  */
+@GwtCompatible
 public abstract class Ordering<T> implements Comparator<T> {
   // Static factories
 
@@ -57,6 +68,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    * the technically correct {@code <C extends Comparable<? super C>>}, to
    * support legacy types from before Java 5.
    */
+  @GwtCompatible(serializable = true)
   @SuppressWarnings("unchecked") // TODO: the right way to explain this??
   public static <C extends Comparable> Ordering<C> natural() {
     return (Ordering) NATURAL_ORDER;
@@ -64,7 +76,9 @@ public abstract class Ordering<T> implements Comparator<T> {
 
   private static final NaturalOrdering NATURAL_ORDER = new NaturalOrdering();
 
-  private static class NaturalOrdering extends Ordering<Comparable>
+  // Package-private for GWT serialization.
+  @GwtCompatible(serializable = true)
+  static class NaturalOrdering extends Ordering<Comparable>
       implements Serializable {
     public int compare(Comparable left, Comparable right) {
       checkNotNull(right); // left null is caught later
@@ -186,17 +200,12 @@ public abstract class Ordering<T> implements Comparator<T> {
    */
   public static <T> Ordering<T> givenOrder(
       @Nullable T leastValue, T... remainingValuesInOrder) {
-    // TODO: use Lists.asList() when gwt issues are resolved
-    List<T> list = new ArrayList<T>();
-    list.add(leastValue);
-    Collections.addAll(list, remainingValuesInOrder);
-    return givenOrder(list);
+    return givenOrder(Lists.asList(leastValue, remainingValuesInOrder));
   }
 
   private static class GivenOrder<T> extends Ordering<T>
       implements Serializable {
-    // TODO: change to ImmutableMap when that's gwtable
-    // (requires that we stop supporting null.)
+    // TODO: change to ImmutableMap, either masking null or de-supporting it
     final Map<T, Integer> rankMap;
 
     GivenOrder(List<? extends T> valuesInOrder) {
@@ -217,8 +226,7 @@ public abstract class Ordering<T> implements Comparator<T> {
 
     static <T> Map<T, Integer> buildRankMap(
         Collection<? extends T> valuesInOrder) {
-      // TODO: change to ImmutableMap when that's gwtable
-      // (requires that we stop supporting null.)
+      // TODO: change to ImmutableMap, either masking null or de-supporting it
       Map<T, Integer> ranks
           = new LinkedHashMap<T, Integer>(valuesInOrder.size() * 2);
       T previousValue = null;
@@ -320,28 +328,22 @@ public abstract class Ordering<T> implements Comparator<T> {
 
   private static class CompoundOrdering<T> extends Ordering<T>
       implements Serializable {
-    // TODO: use ImmutableList when available to gwt
-    final List<Comparator<? super T>> comparators;
+    final ImmutableList<Comparator<? super T>> comparators;
 
     CompoundOrdering(Comparator<? super T> primary,
         Comparator<? super T> secondary) {
-      this.comparators = new ArrayList<Comparator<? super T>>();
-      this.comparators.add(primary);
-      this.comparators.add(secondary);
+      this.comparators
+          = ImmutableList.<Comparator<? super T>>of(primary, secondary);
     }
 
     CompoundOrdering(Iterable<? extends Comparator<? super T>> comparators) {
-      this.comparators = new ArrayList<Comparator<? super T>>();
-      for (Comparator<? super T> comparator : comparators) {
-        this.comparators.add(checkNotNull(comparator));
-      }
+      this.comparators = ImmutableList.copyOf(comparators);
     }
 
     CompoundOrdering(List<? extends Comparator<? super T>> comparators,
         Comparator<? super T> lastComparator) {
-      this.comparators = new ArrayList<Comparator<? super T>>();
-      this.comparators.addAll(comparators);
-      this.comparators.add(lastComparator);
+      this.comparators = new ImmutableList.Builder<Comparator<? super T>>()
+          .addAll(comparators).add(lastComparator).build();
     }
 
     public int compare(T left, T right) {
@@ -625,7 +627,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    * @return a new list containing the given elements in sorted order
    */
   public <E extends T> List<E> sortedCopy(Iterable<E> iterable) {
-    List<E> list = newArrayList(iterable);
+    List<E> list = Lists.newArrayList(iterable);
     Collections.sort(list, this);
     return list;
   }
@@ -670,27 +672,6 @@ public abstract class Ordering<T> implements Comparator<T> {
       }
     }
     return true;
-  }
-
-  /**
-   * Inlined {@link Lists#newArrayList(Iterable)} here because {@link Lists}
-   * is not GWT-safe.
-   *
-   * <p>TODO(hhchan): Remove this once Lists is GWT-safe.
-   */
-  private static <E> List<E> newArrayList(Iterable<E> iterable) {
-    if (iterable instanceof Collection) {
-      @SuppressWarnings("unchecked")
-      Collection<? extends E> collection = (Collection<? extends E>) iterable;
-      return new ArrayList<E>(collection);
-    } else {
-      Iterator<E> iterator = iterable.iterator();
-      ArrayList<E> list = new ArrayList<E>();
-      while (iterator.hasNext()) {
-        list.add(iterator.next());
-      }
-      return list;
-    }
   }
 
   /**

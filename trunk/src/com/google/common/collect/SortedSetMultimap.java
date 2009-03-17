@@ -16,13 +16,13 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
-
+import com.google.common.annotations.GwtCompatible;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
+import javax.annotation.Nullable;
 
 /**
  * A {@code SetMultimap} whose set of values for a given key are kept sorted;
@@ -39,6 +39,7 @@ import java.util.SortedSet;
  *
  * @author Jared Levy
  */
+@GwtCompatible
 public interface SortedSetMultimap<K, V> extends SetMultimap<K, V> {
   /**
    * Returns a collection view of all values associated with a key. If no

@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-package com.google.common.base;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package com.google.common.testutils;
 
 /**
- * The presence of this annotation on a method parameter indicates that
- * {@code null} is an acceptable value for that parameter.  It should not be
- * used for parameters of primitive types.
+ * Exception thrown when an object fails to serialize or deserialize.
  *
- * @author Kevin Bourrillion
+ * @see SerializableTester
+ * @author mbostock@google.com (Mike Bostock)
  */
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
-public @interface Nullable { }
+public class SerializationException extends RuntimeException {
+  public SerializationException(Throwable cause) {
+    super(cause);
+  }
+  public SerializationException(String message, Throwable cause) {
+    super(message, cause);
+  }
+  private static final long serialVersionUID = 0;
+}

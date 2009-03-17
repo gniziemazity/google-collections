@@ -17,7 +17,6 @@
 package com.google.common.collect.testing;
 
 import com.google.common.collect.testing.SampleElements.Strings;
-
 import java.util.List;
 import java.util.Set;
 

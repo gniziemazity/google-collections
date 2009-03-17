@@ -16,14 +16,13 @@
 
 package com.google.common.collect.testing.testers;
 
+import com.google.common.collect.testing.MinimalCollection;
+import com.google.common.collect.testing.features.CollectionFeature;
 import static com.google.common.collect.testing.features.CollectionFeature.SUPPORTS_RETAIN_ALL;
+import com.google.common.collect.testing.features.CollectionSize;
 import static com.google.common.collect.testing.features.CollectionSize.ONE;
 import static com.google.common.collect.testing.features.CollectionSize.SEVERAL;
 import static com.google.common.collect.testing.features.CollectionSize.ZERO;
-
-import com.google.common.collect.testing.MinimalCollection;
-import com.google.common.collect.testing.features.CollectionFeature;
-import com.google.common.collect.testing.features.CollectionSize;
 
 /**
  * A generic JUnit test which tests {@code retainAll} operations on a list.

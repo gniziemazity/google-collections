@@ -16,8 +16,9 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
-
+import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -27,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 /**
  * Implementation of {@code Multimap} that does not allow duplicate key-value
@@ -61,17 +63,73 @@ import java.util.Set;
  *
  * @author Jared Levy
  */
+@GwtCompatible
 public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
+  private static final int DEFAULT_VALUES_PER_KEY = 8;
+
+  @VisibleForTesting
+  transient int expectedValuesPerKey = DEFAULT_VALUES_PER_KEY;
+  
   /**
    * Map entries with an iteration order corresponding to the order in which the
    * key-value pairs were added to the multimap.
    */
   private transient Collection<Map.Entry<K, V>> linkedEntries;
 
+  /**
+   * Creates a new empty {@code LinkedHashMultimap} with the default initial
+   * capacities.
+   */
+  public static <K, V> LinkedHashMultimap<K, V> create() {
+    return new LinkedHashMultimap<K, V>();
+  }
+
+  /**
+   * Constructs an empty {@code LinkedHashMultimap} with enough capacity to hold
+   * the specified numbers of keys and values without rehashing.
+   *
+   * @param expectedKeys the expected number of distinct keys
+   * @param expectedValuesPerKey the expected average number of values per key
+   * @throws IllegalArgumentException if {@code expectedKeys} or {@code 
+   *      expectedValuesPerKey} is negative
+   */
+  public static <K, V> LinkedHashMultimap<K, V> create(
+      int expectedKeys, int expectedValuesPerKey) {
+    return new LinkedHashMultimap<K, V>(expectedKeys, expectedValuesPerKey);
+  }
+
+  /**
+   * Constructs a {@code LinkedHashMultimap} with the same mappings as the
+   * specified multimap. If a key-value mapping appears multiple times in the
+   * input multimap, it only appears once in the constructed multimap. The new
+   * multimap has the same {@link Multimap#entries()} iteration order as the
+   * input multimap, except for excluding duplicate mappings.
+   * 
+   * @param multimap the multimap whose contents are copied to this multimap
+   */
+  public static <K, V> LinkedHashMultimap<K, V> create(
+      Multimap<? extends K, ? extends V> multimap) {
+    return new LinkedHashMultimap<K, V>(multimap);
+  }
+
+  // TODO: Make all constructors private.
+  
   /** Constructs an empty {@code LinkedHashMultimap}. */
   public LinkedHashMultimap() {
     super(new LinkedHashMap<K, Collection<V>>());
     linkedEntries = Sets.newLinkedHashSet();
+  }
+
+  /**
+   * Constructs an empty {@code LinkedHashMultimap} with enough capacity to hold
+   * the specified numbers of keys and values without rehashing.
+   */
+  private LinkedHashMultimap(int expectedKeys, int expectedValuesPerKey) {
+    super(new LinkedHashMap<K, Collection<V>>(expectedKeys));
+    Preconditions.checkArgument(expectedValuesPerKey >= 0);
+    this.expectedValuesPerKey = expectedValuesPerKey;
+    linkedEntries = new LinkedHashSet<Map.Entry<K, V>>(
+        expectedKeys * expectedValuesPerKey);
   }
 
   /**
@@ -99,7 +157,7 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
    *     one key
    */
   @Override Set<V> createCollection() {
-    return new LinkedHashSet<V>();
+    return new LinkedHashSet<V>(Maps.capacity(expectedValuesPerKey));
   }
 
   /**
@@ -303,6 +361,7 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
    */
   private void writeObject(ObjectOutputStream stream) throws IOException {
     stream.defaultWriteObject();
+    stream.writeInt(expectedValuesPerKey);
     Serialization.writeMultimap(this, stream);
     for (Map.Entry<K, V> entry : linkedEntries) {
       stream.writeObject(entry.getKey());
@@ -313,6 +372,7 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
   private void readObject(ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
+    expectedValuesPerKey = stream.readInt();
     setMap(new LinkedHashMap<K, Collection<V>>());
     linkedEntries = Sets.newLinkedHashSet();
     Serialization.populateMultimap(this, stream);

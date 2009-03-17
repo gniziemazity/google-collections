@@ -16,17 +16,17 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
-
-import java.lang.reflect.Array;
-import java.util.Arrays;
+import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.GwtIncompatible;
 import java.util.Collection;
+import javax.annotation.Nullable;
 
 /**
  * Static utility methods pertaining to object arrays.
  *
  * @author Kevin Bourrillion
  */
+@GwtCompatible
 public final class ObjectArrays {
   private ObjectArrays() {}
 
@@ -36,9 +36,10 @@ public final class ObjectArrays {
    * @param type the component type
    * @param length the length of the new array
    */
+  @GwtIncompatible("Array.newInstance(Class, int)")
   @SuppressWarnings("unchecked")
   public static <T> T[] newArray(Class<T> type, int length) {
-    return (T[]) Array.newInstance(type, length);
+    return Platform.newArray(type, length);
   }
 
   /**
@@ -49,12 +50,7 @@ public final class ObjectArrays {
    * @param length the length of the new array
    */
   public static <T> T[] newArray(T[] reference, int length) {
-    Class<?> type = reference.getClass().getComponentType();
-
-    // the cast is safe because result.getClass() == reference.getClass()
-    @SuppressWarnings("unchecked")
-    T[] result = (T[]) Array.newInstance(type, length);
-    return result;
+    return Platform.newArray(reference, length);
   }
 
   /**
@@ -64,6 +60,7 @@ public final class ObjectArrays {
    * @param second the second array of elements to concatenate
    * @param type the component type of the returned array
    */
+  @GwtIncompatible("Array.newInstance(Class, int)")
   public static <T> T[] concat(T[] first, T[] second, Class<T> type) {
     T[] result = newArray(type, first.length + second.length);
     System.arraycopy(first, 0, result, 0, first.length);
@@ -80,11 +77,8 @@ public final class ObjectArrays {
    *     {@code element} occupying the first position, and the
    *     elements of {@code array} occupying the remaining elements.
    */
-
   public static <T> T[] concat(@Nullable T element, T[] array) {
-    @SuppressWarnings("unchecked")
-    T[] result =
-        (T[]) newArray(array.getClass().getComponentType(), array.length + 1);
+    T[] result = newArray(array, array.length + 1);
     result[0] = element;
     System.arraycopy(array, 0, result, 1, array.length);
     return result;
@@ -100,12 +94,17 @@ public final class ObjectArrays {
    *     last position.
    */
   public static <T> T[] concat(T[] array, @Nullable T element) {
-    @SuppressWarnings("unchecked")
-    T[] result =
-        (T[]) newArray(array.getClass().getComponentType(), array.length + 1);
-    System.arraycopy(array, 0, result, 0, array.length);
+    T[] result = arraysCopyOf(array, array.length + 1);
     result[array.length] = element;
     return result;
+  }
+
+  /** GWT safe version of Arrays.copyOf. */
+  private static <T> T[] arraysCopyOf(T[] original, int newLength) {
+    T[] copy = newArray(original, newLength);
+    System.arraycopy(
+        original, 0, copy, 0, Math.min(original.length, newLength));
+    return copy;
   }
 
   /**

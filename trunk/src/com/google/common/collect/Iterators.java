@@ -16,16 +16,15 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.GwtIncompatible;
 import com.google.common.base.Function;
-import com.google.common.base.Nullable;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkContentsNotNull;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import com.google.common.base.Predicate;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import javax.annotation.Nullable;
 
 /**
  * This class contains static utility methods that operate on or return objects
@@ -43,10 +43,11 @@ import java.util.NoSuchElementException;
  * @author Kevin Bourrillion
  * @author Scott Bonneau
  */
+@GwtCompatible
 public final class Iterators {
   private Iterators() {}
 
-  static final Iterator<Object> EMPTY_ITERATOR
+  static final UnmodifiableIterator<Object> EMPTY_ITERATOR
       = new UnmodifiableIterator<Object>() {
         public boolean hasNext() {
           return false;
@@ -163,24 +164,16 @@ public final class Iterators {
   public static boolean contains(Iterator<?> iterator, @Nullable Object element)
   {
     if (element == null) {
-      return containsNull(iterator);
-    }
-    while (iterator.hasNext()) {
-      if (element.equals(iterator.next())) {
-        return true;
+      while (iterator.hasNext()) {
+        if (iterator.next() == null) {
+          return true;
+        }
       }
-    }
-    return false;
-  }
-
-  /**
-   * Returns {@code true} if {@code iterator} contains at least one null
-   * element.
-   */
-  public static boolean containsNull(Iterator<?> iterator) {
-    while (iterator.hasNext()) {
-      if (iterator.next() == null) {
-        return true;
+    } else {
+      while (iterator.hasNext()) {
+        if (element.equals(iterator.next())) {
+          return true;
+        }
       }
     }
     return false;
@@ -317,10 +310,11 @@ public final class Iterators {
    * @return a newly-allocated array into which all the elements of the iterator
    *         have been copied
    */
-  public static <T> T[] newArray(
+  @GwtIncompatible("Array.newArray")
+  public static <T> T[] toArray(
       Iterator<? extends T> iterator, Class<T> type) {
     List<T> list = Lists.newArrayList(iterator);
-    return Iterables.newArray(list, type);
+    return Iterables.toArray(list, type);
   }
 
   /**
@@ -490,7 +484,7 @@ public final class Iterators {
    * @throws NullPointerException if any of the provided iterators is null
    */
   public static <T> Iterator<T> concat(Iterator<? extends T>... inputs) {
-    return concat(checkContentsNotNull(Arrays.asList(inputs)).iterator());
+    return concat(ImmutableList.of(inputs).iterator());
   }
 
   /**
@@ -630,6 +624,7 @@ public final class Iterators {
    *     iterator that were of the requested type
    */
   @SuppressWarnings("unchecked")
+  @GwtIncompatible("Class.isInstance")
   public static <T> Iterator<T> filter(
       Iterator<?> unfiltered, final Class<T> type) {
     checkNotNull(type);

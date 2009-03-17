@@ -16,10 +16,6 @@
 
 package com.google.common.collect.testing;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.fail;
-import junit.framework.AssertionFailedError;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,6 +27,9 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.Stack;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.fail;
+import junit.framework.AssertionFailedError;
 
 /**
  * Most of the logic for {@link IteratorTester} and {@link ListIteratorTester}.

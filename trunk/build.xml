@@ -14,6 +14,9 @@
     <javac srcdir="${src.dir}"
          debug="on"
          destdir="${build.dir}/classes">
+      <classpath>
+        <pathelement location="${lib.dir}/jsr305.jar"/>
+      </classpath>
     </javac>
     <copy toDir="${build.dir}/classes">
       <fileset dir="${src.dir}" excludes="**/*.java"/>
@@ -26,7 +29,7 @@
          debug="on"
          destdir="${build.dir}/testfwclasses">
       <classpath>
-        <pathelement location="${lib.dir}/build/junit.jar"/>
+        <pathelement location="${lib.dir}/junit.jar"/>
       </classpath>
     </javac>
   </target>
@@ -40,7 +43,12 @@
          destdir="${build.dir}/test">
       <classpath>
         <pathelement location="${build.dir}/classes"/>
-        <pathelement location="${lib.dir}/build/junit.jar"/>
+        <pathelement location="${build.dir}/testfwclasses"/>
+        <pathelement location="${lib.dir}/junit.jar"/>
+        <pathelement location="${lib.dir}/tl4j-1.1.0.jar"/>
+        <pathelement location="${lib.dir}/jsr305.jar"/>
+        <pathelement location="${lib.dir}/easymock-2.4.jar"/>
+        <pathelement location="${lib.dir}/easymockclassextension-2.4.jar"/>
       </classpath>
     </javac>
     <copy toDir="${build.dir}/test">
@@ -58,9 +66,12 @@
       <classpath>
         <pathelement location="${build.dir}/test"/>
         <pathelement location="${build.dir}/classes"/>
-        <pathelement location="${lib.dir}/build/junit.jar"/>
+        <pathelement location="${build.dir}/testfwclasses"/>
+        <pathelement location="${lib.dir}/junit.jar"/>
+        <pathelement location="${lib.dir}/tl4j-1.1.0.jar"/>
+        <pathelement location="${lib.dir}/easymock-2.4.jar"/>
+        <pathelement location="${lib.dir}/easymockclassextension-2.4.jar"/>
       </classpath>
-      <arg value="${test.class}"/>
     </java>
   </target>
 

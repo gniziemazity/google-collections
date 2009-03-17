@@ -16,18 +16,18 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-
-import com.google.common.base.Nullable;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-
 import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 /**
  * Provides static methods for working with {@code Collection} instances.
@@ -36,6 +36,7 @@ import java.util.Set;
  * @author Mike Bostock
  * @author Jared Levy
  */
+@GwtCompatible
 public final class Collections2 {
   private Collections2() {}
 
@@ -140,11 +141,13 @@ public final class Collections2 {
       }
     }
 
-    // if a ClassCastException occurs, contains() returns false
-    @SuppressWarnings("unchecked")
     public boolean contains(Object element) {
       try {
-        return predicate.apply((E) element) && unfiltered.contains(element);
+        // unsafe cast can result in a CCE from predicate.apply(), which we
+        // will catch
+        @SuppressWarnings("unchecked")
+        E e = (E) element;
+        return predicate.apply(e) && unfiltered.contains(element);
       } catch (NullPointerException e) {
         return false;
       } catch (ClassCastException e) {
@@ -169,11 +172,13 @@ public final class Collections2 {
       return Iterators.filter(unfiltered.iterator(), predicate);
     }
 
-    // if a ClassCastException occurs, remove() returns false
-    @SuppressWarnings("unchecked")
     public boolean remove(Object element) {
       try {
-        return predicate.apply((E) element) && unfiltered.remove(element);
+        // unsafe cast can result in a CCE from predicate.apply(), which we
+        // will catch
+        @SuppressWarnings("unchecked")
+        E e = (E) element;
+        return predicate.apply(e) && unfiltered.remove(element);
       } catch (NullPointerException e) {
         return false;
       } catch (ClassCastException e) {
@@ -242,7 +247,7 @@ public final class Collections2 {
    * <p>When a live view is <i>not</i> needed, it may be faster to copy the
    * transformed collection and use the copy.
    */
-  static <F, T> Collection<T> transform(Collection<F> fromCollection,
+  public static <F, T> Collection<T> transform(Collection<F> fromCollection,
       Function<? super F, T> function) {
     return new TransformedCollection<F, T>(fromCollection, function);
   }
@@ -269,14 +274,6 @@ public final class Collections2 {
       return Iterators.transform(fromCollection.iterator(), function);
     }
 
-    @Override public boolean removeAll(Collection<?> c) {
-      return super.removeAll(checkNotNull(c));
-    }
-
-    @Override public boolean retainAll(Collection<?> c) {
-      return super.retainAll(checkNotNull(c));
-    }
-
     @Override public int size() {
       return fromCollection.size();
     }
@@ -293,4 +290,6 @@ public final class Collections2 {
     }
     return false;
   }
+
+  static final Joiner standardJoiner = Joiner.on(", ");
 }

@@ -16,18 +16,16 @@
 
 package com.google.common.collect.testing.testers;
 
+import com.google.common.collect.testing.MinimalCollection;
+import com.google.common.collect.testing.features.CollectionFeature;
 import static com.google.common.collect.testing.features.CollectionFeature.ALLOWS_NULL_VALUES;
+import com.google.common.collect.testing.features.CollectionSize;
 import static com.google.common.collect.testing.features.CollectionSize.ONE;
 import static com.google.common.collect.testing.features.CollectionSize.ZERO;
+import com.google.common.collect.testing.features.ListFeature;
 import static com.google.common.collect.testing.features.ListFeature.SUPPORTS_ADD_ALL_WITH_INDEX;
 import static com.google.common.collect.testing.features.ListFeature.SUPPORTS_ADD_WITH_INDEX;
 import static java.util.Collections.singletonList;
-
-import com.google.common.collect.testing.MinimalCollection;
-import com.google.common.collect.testing.features.CollectionFeature;
-import com.google.common.collect.testing.features.CollectionSize;
-import com.google.common.collect.testing.features.ListFeature;
-
 import java.util.List;
 
 /**

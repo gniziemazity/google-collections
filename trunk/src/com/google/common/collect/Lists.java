@@ -16,12 +16,12 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
-import com.google.common.base.Nullable;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkElementIndex;
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.io.Serializable;
 import java.util.AbstractList;
 import java.util.AbstractSequentialList;
@@ -29,12 +29,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.RandomAccess;
+import javax.annotation.Nullable;
 
 /**
  * Static utility methods pertaining to {@link List} instances. Also see this
@@ -43,6 +43,7 @@ import java.util.RandomAccess;
  * @author Kevin Bourrillion
  * @author Mike Bostock
  */
+@GwtCompatible
 public final class Lists {
   private Lists() {}
 
@@ -56,6 +57,7 @@ public final class Lists {
    *
    * @return a new, empty {@code ArrayList}
    */
+  @GwtCompatible(serializable = true)
   public static <E> ArrayList<E> newArrayList() {
     return new ArrayList<E>();
   }
@@ -79,6 +81,7 @@ public final class Lists {
    * @param elements the elements that the list should contain, in order
    * @return a new {@code ArrayList} containing those elements
    */
+  @GwtCompatible(serializable = true)
   public static <E> ArrayList<E> newArrayList(E... elements) {
     // Avoid integer overflow when a large array is passed in
     int capacity = computeArrayListCapacity(elements.length);
@@ -87,7 +90,7 @@ public final class Lists {
     return list;
   }
 
-  static int computeArrayListCapacity(int arraySize) {
+  @VisibleForTesting static int computeArrayListCapacity(int arraySize) {
     checkArgument(arraySize >= 0);
 
     // TODO: Figure out the right behavior, and document it
@@ -100,6 +103,7 @@ public final class Lists {
    * @param elements the elements that the list should contain, in order
    * @return a new {@code ArrayList} containing those elements
    */
+  @GwtCompatible(serializable = true)
   public static <E> ArrayList<E> newArrayList(Iterable<? extends E> elements) {
     // Let ArrayList's sizing logic work, if possible
     if (elements instanceof Collection) {
@@ -117,6 +121,7 @@ public final class Lists {
    * @param elements the elements that the list should contain, in order
    * @return a new {@code ArrayList} containing those elements
    */
+  @GwtCompatible(serializable = true)
   public static <E> ArrayList<E> newArrayList(Iterator<? extends E> elements) {
     ArrayList<E> list = newArrayList();
     while (elements.hasNext()) {
@@ -145,6 +150,7 @@ public final class Lists {
    *     itself unless its size reaches {@code initialArraySize + 1}
    * @throws IllegalArgumentException if {@code initialArraySize} is negative
    */
+  @GwtCompatible(serializable = true)
   public static <E> ArrayList<E> newArrayListWithCapacity(
       int initialArraySize) {
     return new ArrayList<E>(initialArraySize);
@@ -165,6 +171,7 @@ public final class Lists {
    *     estimated number of elements
    * @throws IllegalArgumentException if {@code estimatedSize} is negative
    */
+  @GwtCompatible(serializable = true)
   public static <E> ArrayList<E> newArrayListWithExpectedSize(
       int estimatedSize) {
     return new ArrayList<E>(computeArrayListCapacity(estimatedSize));
@@ -180,6 +187,7 @@ public final class Lists {
    *
    * @return a new, empty {@code LinkedList}
    */
+  @GwtCompatible(serializable = true)
   public static <E> LinkedList<E> newLinkedList() {
     return new LinkedList<E>();
   }
@@ -190,6 +198,7 @@ public final class Lists {
    * @param elements the elements that the list should contain, in order
    * @return a new {@code LinkedList} containing those elements
    */
+  @GwtCompatible(serializable = true)
   public static <E> LinkedList<E> newLinkedList(
       Iterable<? extends E> elements) {
     LinkedList<E> list = newLinkedList();
@@ -385,12 +394,7 @@ public final class Lists {
         }
       };
     }
-    @Override public boolean removeAll(Collection<?> c) {
-      return super.removeAll(checkNotNull(c));
-    }
-    @Override public boolean retainAll(Collection<?> c) {
-      return super.retainAll(checkNotNull(c));
-    }
+
     private static final long serialVersionUID = 0;
   }
 
@@ -426,12 +430,6 @@ public final class Lists {
     }
     @Override public int size() {
       return fromList.size();
-    }
-    @Override public boolean removeAll(Collection<?> c) {
-      return super.removeAll(checkNotNull(c));
-    }
-    @Override public boolean retainAll(Collection<?> c) {
-      return super.retainAll(checkNotNull(c));
     }
     private static final long serialVersionUID = 0;
   }

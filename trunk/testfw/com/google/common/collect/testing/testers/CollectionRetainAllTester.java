@@ -24,8 +24,6 @@ import static com.google.common.collect.testing.features.CollectionFeature.SUPPO
 import com.google.common.collect.testing.features.CollectionSize;
 import static com.google.common.collect.testing.features.CollectionSize.ONE;
 import static com.google.common.collect.testing.features.CollectionSize.ZERO;
-
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -294,7 +292,7 @@ public class CollectionRetainAllTester<E> extends AbstractCollectionTester<E> {
   public void testRetainAll_nullCollectionReferenceEmptySubject() {
     try {
       collection.retainAll(null);
-      fail("retainAll(null) should throw NullPointerException");
+      // Returning successfully is not ideal, but tolerated.
     } catch (NullPointerException expected) {
     }
   }
@@ -336,25 +334,6 @@ public class CollectionRetainAllTester<E> extends AbstractCollectionTester<E> {
     try {
       assertFalse(message, collection.retainAll(target.toRetain));
     } catch (UnsupportedOperationException tolerated) {
-    }
-  }
-
-  /**
-   * Returns the {@link Method} instance for
-   * {@link #testRetainAll_nullCollectionReferenceEmptySubject()} so that tests
-   * of classes that inherit the buggy
-   * {@link java.util.AbstractCollection#retainAll(java.util.Collection)}
-   * implementation can suppress it with
-   * {@code FeatureSpecificTestSuiteBuilder.suppressing()} until <a
-   * href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4802647">Sun bug
-   * 4802647</a> is fixed.
-   */
-  public static Method getRetainAllNullCollectionReferenceEmptySubjectMethod() {
-    try {
-      return CollectionRetainAllTester.class
-          .getMethod("testRetainAll_nullCollectionReferenceEmptySubject");
-    } catch (NoSuchMethodException e) {
-      throw new RuntimeException(e);
     }
   }
 }

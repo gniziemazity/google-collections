@@ -16,6 +16,7 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
 import java.io.Serializable;
 
 /**
@@ -46,6 +47,7 @@ import java.io.Serializable;
  *
  * @author Mike Bostock
  */
+@GwtCompatible
 public abstract class ForwardingObject {
 
   /** Sole constructor. */

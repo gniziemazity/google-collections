@@ -16,15 +16,15 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.GwtIncompatible;
 import com.google.common.base.Function;
-import com.google.common.base.Nullable;
+import com.google.common.base.Joiner.MapJoiner;
 import com.google.common.base.Objects;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import com.google.common.collect.MapConstraints.ConstrainedMap;
-
 import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractMap;
@@ -39,12 +39,12 @@ import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.SortedMap;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.Nullable;
 
 /**
  * Static utility methods pertaining to {@link Map} instances. Also see this
@@ -54,6 +54,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Mike Bostock
  * @author Isaac Shum
  */
+@GwtCompatible
 public final class Maps {
   private Maps() {}
 
@@ -148,7 +149,7 @@ public final class Maps {
    *
    * @return a new, empty {@code TreeMap}
    */
-  @SuppressWarnings("unchecked")  // allow ungenerified Comparable types
+  @SuppressWarnings("unchecked") // eclipse doesn't like the raw Comparable
   public static <K extends Comparable, V> TreeMap<K, V> newTreeMap() {
     return new TreeMap<K, V>();
   }
@@ -189,7 +190,7 @@ public final class Maps {
    * @return a new, empty {@code EnumMap}
    */
   public static <K extends Enum<K>, V> EnumMap<K, V> newEnumMap(Class<K> type) {
-    return new EnumMap<K, V>(type);
+    return new EnumMap<K, V>(checkNotNull(type));
   }
 
   /**
@@ -248,6 +249,167 @@ public final class Maps {
   }
 
   /**
+   * Computes the difference between two maps. This difference is an immutable
+   * snapshot of the state of the maps at the time this method is called. It
+   * will never change, even if the maps change at a later time.
+   *
+   * <p>Since this method uses {@code HashMap} instances internally, the keys of
+   * the supplied maps must be well-behaved with respect to
+   * {@link Object#equals} and {@link Object#hashCode}.
+   *
+   * <p><b>Note:</b>If you only need to know whether two maps have the same
+   * mappings, call {@code left.equals(right)} instead of this method.
+   *
+   * @param left the map to treat as the "left" map for purposes of comparison
+   * @param right the map to treat as the "right" map for purposes of comparison
+   * @return the difference between the two maps
+   */
+  public static <K, V> MapDifference<K, V> difference(
+      Map<? extends K, ? extends V> left, Map<? extends K, ? extends V> right) {
+    Map<K, V> onlyOnLeft = newHashMap();
+    Map<K, V> onlyOnRight = new HashMap<K, V>(right); // will whittle it down
+    Map<K, V> onBoth = newHashMap();
+    Map<K, MapDifference.ValueDifference<V>> differences = newHashMap();
+    boolean eq = true;
+
+    for (Entry<? extends K, ? extends V> entry : left.entrySet()) {
+      K leftKey = entry.getKey();
+      V leftValue = entry.getValue();
+      if (right.containsKey(leftKey)) {
+        V rightValue = onlyOnRight.remove(leftKey);
+        if (Objects.equal(leftValue, rightValue)) {
+          onBoth.put(leftKey, leftValue);
+        } else {
+          eq = false;
+          differences.put(leftKey, new ValueDifferenceImpl<V>(
+              leftValue, rightValue));
+        }
+      } else {
+        eq = false;
+        onlyOnLeft.put(leftKey, leftValue);
+      }
+    }
+
+    boolean areEqual = eq && onlyOnRight.isEmpty();
+    return new MapDifferenceImpl<K, V>(
+        areEqual, onlyOnLeft, onlyOnRight, onBoth, differences);
+  }
+
+  private static class MapDifferenceImpl<K, V>
+      implements MapDifference<K, V> {
+    final boolean areEqual;
+    final Map<K, V> onlyOnLeft;
+    final Map<K, V> onlyOnRight;
+    final Map<K, V> onBoth;
+    final Map<K, ValueDifference<V>> differences;
+
+    MapDifferenceImpl(boolean areEqual, Map<K, V> onlyOnLeft,
+        Map<K, V> onlyOnRight, Map<K, V> onBoth,
+        Map<K, ValueDifference<V>> differences) {
+      this.areEqual = areEqual;
+      this.onlyOnLeft = Collections.unmodifiableMap(onlyOnLeft);
+      this.onlyOnRight = Collections.unmodifiableMap(onlyOnRight);
+      this.onBoth = Collections.unmodifiableMap(onBoth);
+      this.differences = Collections.unmodifiableMap(differences);
+    }
+
+    public boolean areEqual() {
+      return areEqual;
+    }
+
+    public Map<K, V> entriesOnlyOnLeft() {
+      return onlyOnLeft;
+    }
+
+    public Map<K, V> entriesOnlyOnRight() {
+      return onlyOnRight;
+    }
+
+    public Map<K, V> entriesInCommon() {
+      return onBoth;
+    }
+
+    public Map<K, ValueDifference<V>> entriesDiffering() {
+      return differences;
+    }
+
+    @Override public boolean equals(Object object) {
+      if (object == this) {
+        return true;
+      }
+      if (object instanceof MapDifference) {
+        MapDifference<?, ?> other = (MapDifference<?, ?>) object;
+        return entriesOnlyOnLeft().equals(other.entriesOnlyOnLeft())
+            && entriesOnlyOnRight().equals(other.entriesOnlyOnRight())
+            && entriesInCommon().equals(other.entriesInCommon())
+            && entriesDiffering().equals(other.entriesDiffering());
+      }
+      return false;
+    }
+    
+    @Override public int hashCode() {
+      return Objects.hashCode(entriesOnlyOnLeft(), entriesOnlyOnRight(),
+          entriesInCommon(), entriesDiffering());
+    }
+    
+    @Override public String toString() {
+      if (areEqual) {
+        return "equal";
+      }
+
+      StringBuilder result = new StringBuilder("not equal");
+      if (!onlyOnLeft.isEmpty()) {
+        result.append(": only on left=").append(onlyOnLeft);
+      }
+      if (!onlyOnRight.isEmpty()) {
+        result.append(": only on right=").append(onlyOnRight);
+      }
+      if (!differences.isEmpty()) {
+        result.append(": value differences=").append(differences);
+      }
+      return result.toString();
+    }
+  }
+
+  static class ValueDifferenceImpl<V>
+      implements MapDifference.ValueDifference<V> {
+
+    private final V left;
+    private final V right;
+
+    ValueDifferenceImpl(@Nullable V left, @Nullable V right) {
+      this.left = left;
+      this.right = right;
+    }
+
+    public V leftValue() {
+      return left;
+    }
+
+    public V rightValue() {
+      return right;
+    }
+
+    @Override public boolean equals(@Nullable Object object) {
+      if (object instanceof MapDifference.ValueDifference<?>) {
+        MapDifference.ValueDifference<?> that =
+            (MapDifference.ValueDifference<?>) object;
+        return Objects.equal(this.left, that.leftValue())
+            && Objects.equal(this.right, that.rightValue());
+      }
+      return false;
+    }
+
+    @Override public int hashCode() {
+      return Objects.hashCode(left, right);
+    }
+
+    @Override public String toString() {
+      return "(" + left + ", " + right + ")";
+    }
+  }
+
+  /**
    * Returns an immutable map for which the {@link Map#values} are the given
    * elements in the given order, and each key is the product of invoking a
    * supplied function on its corresponding value.
@@ -263,9 +425,8 @@ public final class Maps {
    */
   // TODO: consider returning a bimap, whose inverse view does lookups by
   // invoking the function.
-  // TODO: remove the '? extends' from values
   public static <K, V> ImmutableMap<K, V> uniqueIndex(
-      Iterable<? extends V> values, Function<? super V, K> keyFunction) {
+      Iterable<V> values, Function<? super V, K> keyFunction) {
     checkNotNull(keyFunction);
     ImmutableMap.Builder<K, V> builder = ImmutableMap.builder();
     for (V value : values) {
@@ -425,29 +586,35 @@ public final class Maps {
    * @param bimap the bimap for which an unmodifiable view is to be returned
    * @return an unmodifiable view of the specified bimap
    */
-  public static <K, V> BiMap<K, V> unmodifiableBiMap(BiMap<K, V> bimap) {
+  public static <K, V> BiMap<K, V> unmodifiableBiMap(
+      BiMap<? extends K, ? extends V> bimap) {
     return new UnmodifiableBiMap<K, V>(bimap, null);
   }
 
   /** @see Maps#unmodifiableBiMap(BiMap) */
-  private static class UnmodifiableBiMap<K, V> extends ForwardingMap<K, V>
-      implements BiMap<K, V>, Serializable {
+  private static class UnmodifiableBiMap<K, V>
+      extends ForwardingMap<K, V> implements BiMap<K, V>, Serializable {
+    
     final Map<K, V> unmodifiableMap;
-    final BiMap<K, V> delegate;
+    final BiMap<? extends K, ? extends V> delegate;
     transient BiMap<V, K> inverse;
     transient Set<V> values;
-
-    UnmodifiableBiMap(BiMap<K, V> delegate, @Nullable BiMap<V, K> inverse) {
-      unmodifiableMap = Collections.unmodifiableMap(delegate);
+    
+    UnmodifiableBiMap(
+        BiMap<? extends K, ? extends V> delegate, @Nullable BiMap<V, K> inverse) {
+      unmodifiableMap = Collections.<K, V>unmodifiableMap(delegate);
       this.delegate = delegate;
       this.inverse = inverse;
     }
+    
     @Override protected Map<K, V> delegate() {
       return unmodifiableMap;
     }
+    
     public V forcePut(K key, V value) {
       throw new UnsupportedOperationException();
     }
+    
     public BiMap<V, K> inverse() {
       BiMap<V, K> result = inverse;
       return (result == null)
@@ -457,9 +624,10 @@ public final class Maps {
     @Override public Set<V> values() {
       Set<V> result = values;
       return (result == null)
-          ? values = Collections.unmodifiableSet(delegate.values())
+          ? values = Collections.<V>unmodifiableSet(delegate.values())
           : result;
     }
+    
     private static final long serialVersionUID = 0;
   }
 
@@ -467,8 +635,9 @@ public final class Maps {
    * Returns a new {@code ClassToInstanceMap} instance backed by a {@link
    * HashMap} using the default initial capacity and load factor.
    */
+  @GwtIncompatible("com.google.common.collect.SimpleClassToInstanceMap")
   public static <B> ClassToInstanceMap<B> newClassToInstanceMap() {
-    return newClassToInstanceMap(new HashMap<Class<? extends B>, B>());
+    return Platform.newClassToInstanceMap(new HashMap<Class<? extends B>, B>());
   }
 
   /**
@@ -476,53 +645,11 @@ public final class Maps {
    * {@code backingMap}. The caller surrenders control of the backing map, and
    * thus should not allow any direct references to it to remain accessible.
    */
+  @GwtIncompatible("com.google.common.collect.SimpleClassToInstanceMap")
   public static <B> ClassToInstanceMap<B> newClassToInstanceMap(
       Map<Class<? extends B>, B> backingMap) {
-    return new SimpleClassToInstanceMap<B>(backingMap);
+    return Platform.newClassToInstanceMap(backingMap);
   }
-
-  private static final MapConstraint<Class<?>, Object> VALUE_CAN_BE_CAST_TO_KEY
-      = new MapConstraint<Class<?>, Object>() {
-    public void checkKeyValue(Class<?> key, Object value) {
-      wrap(key).cast(value);
-    }
-  };
-
-  private static class SimpleClassToInstanceMap<B> extends
-      ConstrainedMap<Class<? extends B>, B> implements ClassToInstanceMap<B> {
-    SimpleClassToInstanceMap(Map<Class<? extends B>, B> delegate) {
-      super(delegate, VALUE_CAN_BE_CAST_TO_KEY);
-    }
-    public <T extends B> T putInstance(Class<T> type, T value) {
-      B oldValue = put(type, value);
-      return wrap(type).cast(oldValue);
-    }
-    public <T extends B> T getInstance(Class<T> type) {
-      B value = get(type);
-      return wrap(type).cast(value);
-    }
-    private static final long serialVersionUID = 0;
-  }
-
-  @SuppressWarnings("unchecked")
-  private static <T> Class<T> wrap(Class<T> c) {
-    // This is correct and safe because both Long.class and
-    // long.class are of type Class<Long>.
-    return c.isPrimitive() ? (Class<T>) PRIMITIVES_TO_WRAPPERS.get(c) : c;
-  }
-
-  private static final Map<Class<?>, Class<?>> PRIMITIVES_TO_WRAPPERS
-      = new ImmutableMap.Builder<Class<?>, Class<?>>()
-          .put(boolean.class, Boolean.class)
-          .put(byte.class, Byte.class)
-          .put(char.class, Character.class)
-          .put(double.class, Double.class)
-          .put(float.class, Float.class)
-          .put(int.class, Integer.class)
-          .put(long.class, Long.class)
-          .put(short.class, Short.class)
-          .put(void.class, Void.class)
-          .build();
 
   /**
    * Implements {@code Collection.contains} safely for forwarding collections of
@@ -640,21 +767,6 @@ public final class Maps {
       fromMap.clear();
     }
 
-    volatile Set<K> keySet;
-
-    // Work around JDK retainAll(null) bug
-    @Override public Set<K> keySet() {
-      if (keySet == null) {
-        final Set<K> delegate = fromMap.keySet();
-        keySet = new ForwardingSet<K>() {
-          @Override protected Set<K> delegate() {
-            return delegate;
-          }
-        };
-      }
-      return keySet;
-    }
-
     volatile EntrySet entrySet;
 
     @Override public Set<Entry<K, V2>> entrySet() {
@@ -723,27 +835,6 @@ public final class Maps {
         }
         return false;
       }
-
-      // Work around JDK retainAll(null) bug
-      @Override public boolean retainAll(Collection<?> keepers) {
-        return super.retainAll(checkNotNull(keepers));
-      }
-    }
-
-    // Work around JDK retainAll(null) bug
-
-    volatile Collection<V2> values;
-
-    @Override public Collection<V2> values() {
-      if (values == null) {
-        final Collection<V2> delegate = super.values();
-        values = new ForwardingCollection<V2>() {
-          @Override protected Collection<V2> delegate() {
-            return delegate;
-          }
-        };
-      }
-      return values;
     }
   }
 
@@ -1153,4 +1244,85 @@ public final class Maps {
       }
     }
   }
+
+  /**
+   * {@code AbstractMap} extension that implements {@link #isEmpty()} as {@code
+   * entrySet().isEmpty()} instead of {@code size() == 0} to speed up
+   * implementations where {@code size()} is O(n), and it delegates the {@code
+   * isEmpty()} methods of its key set and value collection to this
+   * implementation.
+   */
+  @GwtCompatible
+  public abstract static class ImprovedAbstractMap<K, V>
+      extends AbstractMap<K, V> {
+
+    /**
+     * Supplies an entry set, a wrapped version of which is returned by {@code
+     * entrySet()}. That way, {@link #entrySet} retrieves an entry set whose
+     * {@link Set#retainAll} method always throws an exception.
+     *
+     * <p>This method is invoked at most once on a given map, at the time when
+     * {@code entrySet()} is first called.
+     */
+    protected abstract Set<Entry<K, V>> createEntrySet();
+
+    private transient Set<Entry<K, V>> entrySet;
+
+    @Override public synchronized Set<Entry<K, V>> entrySet() {
+      if (entrySet == null) {
+        entrySet = createEntrySet();
+      }
+      return entrySet;
+    }
+
+    private transient Set<K> keySet;
+
+    @Override public synchronized Set<K> keySet() {
+      if (keySet == null) {
+        final Set<K> delegate = super.keySet();
+        keySet = new ForwardingSet<K>() {
+          @Override protected Set<K> delegate() {
+            return delegate;
+          }
+
+          @Override public boolean isEmpty() {
+            return ImprovedAbstractMap.this.isEmpty();
+          }
+        };
+      }
+      return keySet;
+    }
+
+    private transient Collection<V> values;
+
+    @Override public synchronized Collection<V> values() {
+      if (values == null) {
+        final Collection<V> delegate = super.values();
+        values = new ForwardingCollection<V>() {
+          @Override protected Collection<V> delegate() {
+            return delegate;
+          }
+
+          @Override public boolean isEmpty() {
+            return ImprovedAbstractMap.this.isEmpty();
+          }
+        };
+      }
+      return values;
+    }
+
+    /**
+     * Returns {@code true} if this map contains no key-value mappings.
+     *
+     * <p>The implementation returns {@code entrySet().isEmpty()}.
+     *
+     * @return {@code true} if this map contains no key-value mappings
+     */
+    @Override public boolean isEmpty() {
+      return entrySet().isEmpty();
+    }
+  }
+
+  static final MapJoiner standardJoiner
+      = Collections2.standardJoiner.withKeyValueSeparator("=");
 }

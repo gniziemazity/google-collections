@@ -16,9 +16,9 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
-
+import com.google.common.annotations.GwtCompatible;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 /**
  * A multiset which forwards all its method calls to another multiset.
@@ -29,6 +29,7 @@ import java.util.Set;
  * @see ForwardingObject
  * @author Kevin Bourrillion
  */
+@GwtCompatible
 public abstract class ForwardingMultiset<E> extends ForwardingCollection<E>
     implements Multiset<E> {
 
@@ -38,16 +39,12 @@ public abstract class ForwardingMultiset<E> extends ForwardingCollection<E>
     return delegate().count(element);
   }
 
-  public boolean add(E element, int occurrences) {
+  public int add(E element, int occurrences) {
     return delegate().add(element, occurrences);
   }
 
   public int remove(Object element, int occurrences) {
     return delegate().remove(element, occurrences);
-  }
-
-  public int removeAllOccurrences(Object element) {
-    return delegate().removeAllOccurrences(element);
   }
 
   public Set<E> elementSet() {
@@ -64,5 +61,13 @@ public abstract class ForwardingMultiset<E> extends ForwardingCollection<E>
 
   @Override public int hashCode() {
     return delegate().hashCode();
+  }
+
+  public int setCount(E element, int count) {
+    return delegate().setCount(element, count);
+  }
+
+  public boolean setCount(E element, int oldCount, int newCount) {
+    return delegate().setCount(element, oldCount, newCount);
   }
 }

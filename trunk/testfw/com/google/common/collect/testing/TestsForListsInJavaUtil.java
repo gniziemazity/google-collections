@@ -19,10 +19,6 @@ package com.google.common.collect.testing;
 import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.collect.testing.features.ListFeature;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import java.lang.reflect.Method;
 import java.util.AbstractList;
 import java.util.AbstractSequentialList;
@@ -34,6 +30,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  * Generates a test suite covering the {@link List} implementations in the

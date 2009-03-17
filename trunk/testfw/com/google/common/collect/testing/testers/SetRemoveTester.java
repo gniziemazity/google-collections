@@ -16,11 +16,10 @@
 
 package com.google.common.collect.testing.testers;
 
-import static com.google.common.collect.testing.features.CollectionFeature.SUPPORTS_REMOVE;
-import static com.google.common.collect.testing.features.CollectionSize.ZERO;
-
 import com.google.common.collect.testing.features.CollectionFeature;
+import static com.google.common.collect.testing.features.CollectionFeature.SUPPORTS_REMOVE;
 import com.google.common.collect.testing.features.CollectionSize;
+import static com.google.common.collect.testing.features.CollectionSize.ZERO;
 
 /**
  * A generic JUnit test which tests remove operations on a set. Can't be

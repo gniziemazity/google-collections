@@ -16,11 +16,11 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
-
+import com.google.common.annotations.GwtCompatible;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 /**
  * A collection similar to a {@code Map}, but which may associate multiple
@@ -52,6 +52,7 @@ import java.util.Set;
  * @param <K> the type of keys maintained by this multimap
  * @param <V> the type of mapped values
  */
+@GwtCompatible
 public interface Multimap<K, V> {
   // Query Operations
 

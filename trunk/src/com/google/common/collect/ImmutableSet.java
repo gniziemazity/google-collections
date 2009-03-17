@@ -16,9 +16,9 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
+import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Preconditions;
-
+import static com.google.common.base.Preconditions.checkNotNull;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 /**
  * A high-performance, immutable {@code Set} with reliable, user-specified
@@ -59,6 +60,7 @@ import java.util.Set;
  * @author Kevin Bourrillion
  * @author Nick Kralevich
  */
+@GwtCompatible
 @SuppressWarnings("serial") // we're overriding default serialization
 public abstract class ImmutableSet<E> extends ImmutableCollection<E>
     implements Set<E> {
@@ -192,19 +194,6 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
   // This declaration is needed to make Set.iterator() and
   // ImmutableCollection.iterator() consistent.
   @Override public abstract UnmodifiableIterator<E> iterator();
-
-  @Override public String toString() {
-    if (isEmpty()) {
-      return "[]";
-    }
-    Iterator<E> iterator = iterator();
-    StringBuilder result = new StringBuilder(size() * 16);
-    result.append('[').append(iterator.next().toString());
-    for (int i = 1; i < size(); i++) {
-      result.append(", ").append(iterator.next().toString());
-    }
-    return result.append(']').toString();
-  }
 
   private static final class EmptyImmutableSet extends ImmutableSet<Object> {
     public int size() {
@@ -499,7 +488,6 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
       return toArray(new Object[size()]);
     }
 
-    @SuppressWarnings("unchecked")
     @Override public <T> T[] toArray(T[] array) {
       int size = size();
       if (array.length < size) {
@@ -509,7 +497,13 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
       }
 
       for (int i = 0; i < source.length; i++) {
-        array[i] = (T) transform(source[i]);
+        // Technically unsafe. But if T is generic, the caller already got a
+        // warning when they created their array, and if it isn't, we can count
+        // on an ArrayStoreException in the following statement to catch any
+        // problem.
+        @SuppressWarnings("unchecked")
+        T t = (T) transform(source[i]);
+        array[i] = t;
       }
       return array;
     }
@@ -589,7 +583,7 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
      * @throws NullPointerException if {@code element} is null
      */
     public Builder<E> add(E element) {
-      Preconditions.checkNotNull(element, "element cannot be null");
+      checkNotNull(element, "element cannot be null");
       contents.add(element);
       return this;
     }
@@ -603,11 +597,11 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
      * @throws NullPointerException if {@code elements} is or contains null
      */
     public Builder<E> add(E... elements) {
-      Preconditions.checkNotNull(elements, "elements cannot be null");
-      List<E> elemsAsList = Arrays.asList(elements);
-      Preconditions.checkContentsNotNull(elemsAsList,
-          "elements cannot contain null");
-      contents.addAll(elemsAsList);
+      checkNotNull(elements, "elements cannot be null");
+      for (E element : elements) {
+        checkNotNull(element, "null element: %s", Arrays.toString(elements));
+        contents.add(element);
+      }
       return this;
     }
 
@@ -626,7 +620,7 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
         contents.ensureCapacity(contents.size() + collection.size());
       }
       for (E elem : elements) {
-        Preconditions.checkNotNull(elem, "elements contains a null");
+        checkNotNull(elem, "elements contains a null");
         contents.add(elem);
       }
       return this;
@@ -643,7 +637,7 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
     public Builder<E> addAll(Iterator<? extends E> elements) {
       while (elements.hasNext()) {
         E element = elements.next();
-        Preconditions.checkNotNull(element, "element cannot be null");
+        checkNotNull(element, "element cannot be null");
         contents.add(element);
       }
       return this;

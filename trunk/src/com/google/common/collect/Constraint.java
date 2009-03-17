@@ -16,6 +16,8 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
+
 /**
  * A constraint that an element must satisfy in order to be added to a
  * collection. For example, {@link Constraints#notNull()}, which prevents a
@@ -40,6 +42,7 @@ package com.google.common.collect;
  * @see MapConstraint
  * @author Mike Bostock
  */
+@GwtCompatible
 public interface Constraint<E> {
   /**
    * Throws a suitable {@code RuntimeException} if the specified element is

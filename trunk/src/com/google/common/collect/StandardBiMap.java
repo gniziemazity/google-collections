@@ -16,12 +16,10 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
+import com.google.common.base.Objects;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-
-import com.google.common.base.Nullable;
-import com.google.common.base.Objects;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -30,6 +28,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 /**
  * A general-purpose bimap implementation using any two backing {@code Map}
@@ -38,6 +37,7 @@ import java.util.Set;
  * @author Kevin Bourrillion
  * @author Mike Bostock
  */
+@GwtCompatible
 class StandardBiMap<K, V> extends ForwardingMap<K, V>
     implements BiMap<K, V>, Serializable {
 

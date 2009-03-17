@@ -20,7 +20,6 @@ import com.google.common.collect.testing.Helpers;
 import com.google.common.collect.testing.features.CollectionFeature;
 import static com.google.common.collect.testing.features.CollectionFeature.ALLOWS_NULL_VALUES;
 import com.google.common.collect.testing.features.CollectionSize;
-
 import java.util.Collection;
 import java.util.Set;
 

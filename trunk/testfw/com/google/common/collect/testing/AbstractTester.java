@@ -16,9 +16,8 @@
 
 package com.google.common.collect.testing;
 
-import junit.framework.TestCase;
-
 import java.lang.reflect.Method;
+import junit.framework.TestCase;
 
 /**
  * This abstract base class for testers allows the framework to inject needed

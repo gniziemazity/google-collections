@@ -16,12 +16,11 @@
 
 package com.google.common.collect.testing.testers;
 
-import static com.google.common.collect.testing.features.CollectionFeature.SUPPORTS_ADD_ALL;
-import static com.google.common.collect.testing.features.CollectionSize.ZERO;
-
 import com.google.common.collect.testing.MinimalCollection;
 import com.google.common.collect.testing.features.CollectionFeature;
+import static com.google.common.collect.testing.features.CollectionFeature.SUPPORTS_ADD_ALL;
 import com.google.common.collect.testing.features.CollectionSize;
+import static com.google.common.collect.testing.features.CollectionSize.ZERO;
 
 /**
  * A generic JUnit test which tests {@code addAll(Collection)} operations on a

@@ -16,12 +16,11 @@
 
 package com.google.common.collect.testing.testers;
 
-import static com.google.common.collect.testing.features.CollectionFeature.ALLOWS_NULL_VALUES;
-import static com.google.common.collect.testing.features.CollectionSize.ZERO;
-
 import com.google.common.collect.testing.WrongType;
 import com.google.common.collect.testing.features.CollectionFeature;
+import static com.google.common.collect.testing.features.CollectionFeature.ALLOWS_NULL_VALUES;
 import com.google.common.collect.testing.features.CollectionSize;
+import static com.google.common.collect.testing.features.CollectionSize.ZERO;
 
 /**
  * Common parent class for {@link ListIndexOfTester} and

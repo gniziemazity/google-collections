@@ -16,9 +16,8 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
+import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.Serialization.FieldSetter;
-
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -27,6 +26,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 /**
  * An immutable hash-based multiset. Does not permit null elements.
@@ -38,6 +38,7 @@ import java.util.Set;
  *
  * @author Jared Levy
  */
+@GwtCompatible
 public class ImmutableMultiset<E> extends ImmutableCollection<E>
     implements Multiset<E> {
 
@@ -154,11 +155,11 @@ public class ImmutableMultiset<E> extends ImmutableCollection<E>
   // These constants allow the deserialization code to set final fields. This
   // holder class makes sure they are not initialized unless an instance is
   // deserialized.
+  @SuppressWarnings("unchecked")
+  // eclipse doesn't like the raw types here, but they're harmless
   private static class FieldSettersHolder {
-    @SuppressWarnings("unchecked") // raw ImmutableMultiset type
     static final FieldSetter<ImmutableMultiset> MAP_FIELD_SETTER
         = Serialization.getFieldSetter(ImmutableMultiset.class, "map");
-    @SuppressWarnings("unchecked") // raw ImmutableMultiset type
     static final FieldSetter<ImmutableMultiset> SIZE_FIELD_SETTER
         = Serialization.getFieldSetter(ImmutableMultiset.class, "size");
   }
@@ -210,7 +211,7 @@ public class ImmutableMultiset<E> extends ImmutableCollection<E>
    *
    * @throws UnsupportedOperationException always
    */
-  public boolean add(E element, int occurrences) {
+  public int add(E element, int occurrences) {
     throw new UnsupportedOperationException();
   }
 
@@ -228,7 +229,16 @@ public class ImmutableMultiset<E> extends ImmutableCollection<E>
    *
    * @throws UnsupportedOperationException always
    */
-  public int removeAllOccurrences(Object element) {
+  public int setCount(E element, int count) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Guaranteed to throw an exception and leave the collection unmodified.
+   *
+   * @throws UnsupportedOperationException always
+   */
+  public boolean setCount(E element, int oldCount, int newCount) {
     throw new UnsupportedOperationException();
   }
 

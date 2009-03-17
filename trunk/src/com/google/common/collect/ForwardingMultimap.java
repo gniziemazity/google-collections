@@ -16,12 +16,12 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
-
+import com.google.common.annotations.GwtCompatible;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 /**
  * A multimap which forwards all its method calls to another multimap.
@@ -32,6 +32,7 @@ import java.util.Set;
  * @see ForwardingObject
  * @author Robert Konigsberg
  */
+@GwtCompatible
 public abstract class ForwardingMultimap<K, V> extends ForwardingObject
     implements Multimap<K, V> {
 

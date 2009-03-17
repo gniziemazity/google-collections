@@ -16,9 +16,9 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Nullable;
-
+import com.google.common.annotations.GwtCompatible;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 /**
  * A map entry which forwards all its method calls to another map entry.
@@ -29,6 +29,7 @@ import java.util.Map;
  * @see ForwardingObject
  * @author Mike Bostock
  */
+@GwtCompatible
 public abstract class ForwardingMapEntry<K, V>
     extends ForwardingObject implements Map.Entry<K, V> {
 
