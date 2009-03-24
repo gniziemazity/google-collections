@@ -73,17 +73,17 @@ public class ArrayListMultimapTest extends AbstractListMultimapTest {
         = ArrayListMultimap.create(multimap);
     assertEquals(multimap, copy);
   }
-  
+
   public void testCreate() {
     ArrayListMultimap<String, Integer> multimap
         = ArrayListMultimap.create();
-    assertEquals(10, multimap.expectedValuesPerKey);    
+    assertEquals(10, multimap.expectedValuesPerKey);
   }
-  
+
   public void testCreateFromSizes() {
     ArrayListMultimap<String, Integer> multimap
         = ArrayListMultimap.create(15, 20);
-    assertEquals(20, multimap.expectedValuesPerKey);    
+    assertEquals(20, multimap.expectedValuesPerKey);
   }
 
   public void testCreateFromIllegalSizes() {
@@ -91,7 +91,7 @@ public class ArrayListMultimapTest extends AbstractListMultimapTest {
       ArrayListMultimap.create(15, -2);
       fail();
     } catch (IllegalArgumentException expected) {}
-    
+
     try {
       ArrayListMultimap.create(-15, 2);
       fail();
@@ -102,7 +102,7 @@ public class ArrayListMultimapTest extends AbstractListMultimapTest {
     Multimap<String, Integer> original = HashMultimap.create();
     ArrayListMultimap<String, Integer> multimap
         = ArrayListMultimap.create(original);
-    assertEquals(10, multimap.expectedValuesPerKey);    
+    assertEquals(10, multimap.expectedValuesPerKey);
   }
 
   public void testCreateFromArrayListMultimap() {
@@ -110,9 +110,9 @@ public class ArrayListMultimapTest extends AbstractListMultimapTest {
         = ArrayListMultimap.create(15, 20);
     ArrayListMultimap<String, Integer> multimap
         = ArrayListMultimap.create(original);
-    assertEquals(20, multimap.expectedValuesPerKey);    
+    assertEquals(20, multimap.expectedValuesPerKey);
   }
-  
+
   public void testTrimToSize() {
     ArrayListMultimap<String, Integer> multimap
         = ArrayListMultimap.create();

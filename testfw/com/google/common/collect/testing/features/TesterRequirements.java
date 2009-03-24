@@ -25,7 +25,7 @@ import java.util.Set;
  * for a tester method to be run against that class.
  * @author George van den Driessche
 */
-public final class TesterRequirements { 
+public final class TesterRequirements {
   private final Set<Feature<?>> presentFeatures;
   private final Set<Feature<?>> absentFeatures;
 

@@ -26,34 +26,34 @@ import junit.framework.TestCase;
  *
  * @author Jared Levy
  */
-public class BiMapMapInterfaceTest {
+public class BiMapMapInterfaceTest extends TestCase {
 
   private abstract static class AbstractMapInterfaceTest
       extends MapInterfaceTest<String, Integer> {
 
     protected AbstractMapInterfaceTest(boolean modifiable) {
-      super(true, true, modifiable, modifiable, modifiable);      
+      super(true, true, modifiable, modifiable, modifiable);
     }
-    
+
     @Override protected String getKeyNotInPopulatedMap() {
       return "cat";
     }
-    
+
     @Override protected Integer getValueNotInPopulatedMap() {
       return 3;
     }
-    
+
     @Override protected Map<String, Integer> makeEmptyMap() {
       return HashBiMap.create();
     }
-    
+
     @Override protected Map<String, Integer> makePopulatedMap() {
       Map<String, Integer> map = makeEmptyMap();
       map.put("foo", 1);
       map.put("bar", 2);
       return map;
     }
-    
+
     @Override protected void assertMoreInvariants(Map<String, Integer> map) {
       BiMap<String, Integer> bimap = (BiMap<String, Integer>) map;
       BiMap<Integer, String> inverse = bimap.inverse();
@@ -64,49 +64,49 @@ public class BiMapMapInterfaceTest {
       for (Entry<Integer, String> entry : inverse.entrySet()) {
         assertEquals(entry.getKey(), bimap.get(entry.getValue()));
       }
-    }    
+    }
   }
- 
+
   public static class HashBiMapInterfaceTest extends AbstractMapInterfaceTest {
     public HashBiMapInterfaceTest() {
-      super(true);      
-    }    
+      super(true);
+    }
     @Override protected Map<String, Integer> makeEmptyMap() {
       return HashBiMap.create();
-    }    
+    }
   }
-  
+
   public static class InverseBiMapInterfaceTest
       extends AbstractMapInterfaceTest {
     public InverseBiMapInterfaceTest() {
-      super(true);      
-    }    
+      super(true);
+    }
     @Override protected Map<String, Integer> makeEmptyMap() {
       return HashBiMap.<Integer, String>create().inverse();
     }
   }
-  
+
   public static class UnmodifiableBiMapInterfaceTest
       extends AbstractMapInterfaceTest {
     public UnmodifiableBiMapInterfaceTest() {
-      super(false);      
-    }    
+      super(false);
+    }
     @Override protected Map<String, Integer> makeEmptyMap() {
       return Maps.unmodifiableBiMap(HashBiMap.<String, Integer>create());
-    }    
+    }
     @Override protected Map<String, Integer> makePopulatedMap() {
       BiMap<String, Integer> bimap = HashBiMap.create();
       bimap.put("foo", 1);
       bimap.put("bar", 2);
       return Maps.unmodifiableBiMap(bimap);
     }
-  }  
-  
+  }
+
   public static class SynchronizedBiMapInterfaceTest
       extends AbstractMapInterfaceTest {
     public SynchronizedBiMapInterfaceTest() {
-      super(true);      
-    }    
+      super(true);
+    }
     @Override protected Map<String, Integer> makeEmptyMap() {
       return Maps.synchronizedBiMap(HashBiMap.<String, Integer>create());
     }

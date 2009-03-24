@@ -44,7 +44,7 @@ public abstract class TestStringSetGenerator implements TestSetGenerator<String>
 
   public String[] createArray(int length) {
     return new String[length];
-  }  
+  }
 
   /** Returns the original element list, unchanged. */
   public List<String> order(List<String> insertionOrder) {

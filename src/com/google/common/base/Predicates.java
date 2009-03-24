@@ -17,6 +17,7 @@
 package com.google.common.base;
 
 import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.GwtIncompatible;
 import static com.google.common.base.Preconditions.checkNotNull;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -170,6 +171,20 @@ public final class Predicates {
     return (target == null)
         ? Predicates.<T>isNull()
         : new IsEqualToPredicate<T>(target);
+  }
+
+  /**
+   * Returns a predicate that evaluates to {@code true} if the object being
+   * tested is an instance of the given class. If the object being tested
+   * is {@code null} this predicate evaluates to {@code false}.
+   *
+   * <p>If you want to filter an {@code Iterable} to narrow its type, consider
+   * using {@link com.google.common.collect.Iterables#filter(Iterable, Class)}
+   * in preference.
+   */
+  @GwtIncompatible("Class.isInstance")
+  public static Predicate<Object> instanceOf(Class<?> clazz) {
+    return new InstanceOfPredicate(clazz);
   }
 
   /**
@@ -349,6 +364,33 @@ public final class Predicates {
     private static final long serialVersionUID = 0;
   }
 
+  /** @see Predicates#instanceOf(Class) */
+  private static class InstanceOfPredicate
+      implements Predicate<Object>, Serializable {
+    private final Class<?> clazz;
+
+    private InstanceOfPredicate(Class<?> clazz) {
+      this.clazz = checkNotNull(clazz);
+    }
+    public boolean apply(Object o) {
+      return Platform.isInstance(clazz, o);
+    }
+    @Override public int hashCode() {
+      return clazz.hashCode();
+    }
+    @Override public boolean equals(Object obj) {
+      if (obj instanceof InstanceOfPredicate) {
+        InstanceOfPredicate that = (InstanceOfPredicate) obj;
+        return clazz == that.clazz;
+      }
+      return false;
+    }
+    @Override public String toString() {
+      return "IsInstanceOf(" + clazz.getName() + ")";
+    }
+    private static final long serialVersionUID = 0;
+  }
+
   /** @see Predicates#isNull() */
   // enum singleton pattern
   private enum IsNullPredicate implements Predicate<Object> {
@@ -483,17 +525,17 @@ public final class Predicates {
     }
     return !iterator2.hasNext();
   }
-  
+
   @SuppressWarnings("unchecked")
   private static <T> List<Predicate<? super T>> asList(
       Predicate<? super T> first, Predicate<? super T> second) {
     return Arrays.<Predicate<? super T>>asList(first, second);
   }
-  
+
   private static <T> List<T> defensiveCopy(T... array) {
     return defensiveCopy(Arrays.asList(array));
   }
-  
+
   static <T> List<T> defensiveCopy(Iterable<T> iterable) {
     ArrayList<T> list = new ArrayList<T>();
     for (T element : iterable) {

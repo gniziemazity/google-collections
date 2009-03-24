@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Queue;
 
 /**
- * Create queue of strings for tests. 
+ * Create queue of strings for tests.
  *
  * @author Jared Levy
  */
@@ -46,7 +46,7 @@ public abstract class TestStringQueueGenerator
   public String[] createArray(int length) {
     return new String[length];
   }
-  
+
   /** Returns the original element list, unchanged. */
   public List<String> order(List<String> insertionOrder) {
     return insertionOrder;

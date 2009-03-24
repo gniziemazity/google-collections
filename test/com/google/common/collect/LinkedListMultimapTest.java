@@ -49,7 +49,7 @@ public class LinkedListMultimapTest extends AbstractListMultimapTest {
         LinkedListMultimap.create(multimap);
     assertEquals(multimap, copy);
   }
-  
+
   public void testCreateFromSize() {
     LinkedListMultimap<String, Integer> multimap
         = LinkedListMultimap.create(20);
@@ -58,14 +58,14 @@ public class LinkedListMultimapTest extends AbstractListMultimapTest {
     multimap.put("foo", 3);
     assertEquals(ImmutableList.of(1, 3), multimap.get("foo"));
   }
-  
+
   public void testCreateFromIllegalSize() {
     try {
       LinkedListMultimap.create(-20);
       fail();
     } catch (IllegalArgumentException expected) {}
   }
-  
+
   /* "Linked" prefix avoids collision with AbstractMultimapTest. */
 
   public void testLinkedToString() {
@@ -245,7 +245,7 @@ public class LinkedListMultimapTest extends AbstractListMultimapTest {
     Iterator<Map.Entry<String, Integer>> iterator = entries.iterator();
     Map.Entry<String, Integer> entrya = iterator.next();
     Map.Entry<String, Integer> entryb = iterator.next();
-    
+
     int oldValue = entrya.setValue(2);
     assertEquals(1, oldValue);
     assertFalse(multimap.containsEntry("foo", 1));
@@ -263,22 +263,22 @@ public class LinkedListMultimapTest extends AbstractListMultimapTest {
     Iterator<Map.Entry<String, Integer>> iterator = entries.iterator();
     Map.Entry<String, Integer> entrya = iterator.next();
     Map.Entry<String, Integer> entryb = iterator.next();
-    
+
     assertEquals(2, (int) multimap.get("foo").set(0, 4));
     assertFalse(multimap.containsEntry("foo", 2));
     assertTrue(multimap.containsEntry("foo", 4));
     assertTrue(multimap.containsEntry("bar", 3));
     assertEquals(4, (int) entrya.getValue());
-    assertEquals(3, (int) entryb.getValue());    
-    
+    assertEquals(3, (int) entryb.getValue());
+
     assertTrue(multimap.put("foo", 5));
     assertTrue(multimap.containsEntry("foo", 5));
     assertTrue(multimap.containsEntry("foo", 4));
     assertTrue(multimap.containsEntry("bar", 3));
     assertEquals(4, (int) entrya.getValue());
-    assertEquals(3, (int) entryb.getValue());    
+    assertEquals(3, (int) entryb.getValue());
   }
-  
+
   @SuppressWarnings("unchecked")
   public void testEntriesIteration() throws Exception {
     List<Entry<String, Integer>> list = Lists.newArrayList(
@@ -304,8 +304,8 @@ public class LinkedListMultimapTest extends AbstractListMultimapTest {
         assertEquals(elements, Lists.newArrayList(multimap.entries()));
       }
     }.test();
-  }  
-  
+  }
+
   public void testKeysIteration() throws Exception {
     new IteratorTester<String>(6, MODIFIABLE, newArrayList("foo", "foo", "bar",
         "bar", "foo"), IteratorTester.KnownOrder.KNOWN_ORDER) {
@@ -323,8 +323,8 @@ public class LinkedListMultimapTest extends AbstractListMultimapTest {
         assertEquals(elements, Lists.newArrayList(multimap.keys()));
       }
     }.test();
-  }  
-  
+  }
+
   public void testValuesIteration() throws Exception {
     new IteratorTester<Integer>(6, MODIFIABLE, newArrayList(2, 3, 4, 5, 6),
         IteratorTester.KnownOrder.KNOWN_ORDER) {
@@ -343,7 +343,7 @@ public class LinkedListMultimapTest extends AbstractListMultimapTest {
       }
     }.test();
   }
-  
+
   public void testKeySetIteration() throws Exception {
     new IteratorTester<String>(6, MODIFIABLE, newLinkedHashSet(asList(
         "foo", "bar", "baz", "dog", "cat")),
@@ -366,8 +366,8 @@ public class LinkedListMultimapTest extends AbstractListMultimapTest {
         assertEquals(newHashSet(elements), multimap.keySet());
       }
     }.test();
-  }  
-  
+  }
+
   @SuppressWarnings("unchecked")
   public void testAsSetIteration() throws Exception {
     Set<Entry<String, Collection<Integer>>> set = Sets.newLinkedHashSet(asList(
@@ -405,5 +405,5 @@ public class LinkedListMultimapTest extends AbstractListMultimapTest {
         assertEquals(newHashSet(elements), multimap.asMap().entrySet());
       }
     }.test();
-  }  
+  }
 }

@@ -23,6 +23,11 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import junit.framework.TestCase;
 
+/**
+ * Unit test for {@link FinalizableReferenceQueue}.
+ *
+ * @author Bob Lee
+ */
 public class FinalizableReferenceQueueTest extends TestCase {
 
   private FinalizableReferenceQueue frq;

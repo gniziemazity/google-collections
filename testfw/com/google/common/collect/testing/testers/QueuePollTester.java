@@ -28,7 +28,7 @@ import static com.google.common.collect.testing.features.CollectionSize.ZERO;
  * A generic JUnit test which tests {@code poll()} operations on a queue.
  * Can't be invoked directly; please see
  * {@link com.google.common.collect.testing.CollectionTestSuiteBuilder}.
- * 
+ *
  * @author Jared Levy
  */
 @SuppressWarnings("unchecked") // too many "unchecked generic array creations"
@@ -47,7 +47,7 @@ public class QueuePollTester<E> extends AbstractQueueTester<E> {
          samples.e0, getQueue().poll());
      expectMissing(samples.e0);
   }
-  
+
   @CollectionFeature.Require({KNOWN_ORDER, SUPPORTS_REMOVE})
   @CollectionSize.Require(SEVERAL)
   public void testPoll_sizeMany() {

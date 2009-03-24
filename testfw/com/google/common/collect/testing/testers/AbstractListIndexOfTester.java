@@ -25,7 +25,7 @@ import static com.google.common.collect.testing.features.CollectionSize.ZERO;
 /**
  * Common parent class for {@link ListIndexOfTester} and
  * {@link ListLastIndexOfTester}.
- * 
+ *
  * @author Chris Povirk
  */
 public abstract class AbstractListIndexOfTester<E>

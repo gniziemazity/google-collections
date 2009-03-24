@@ -69,7 +69,7 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
 
   @VisibleForTesting
   transient int expectedValuesPerKey = DEFAULT_VALUES_PER_KEY;
-  
+
   /**
    * Map entries with an iteration order corresponding to the order in which the
    * key-value pairs were added to the multimap.
@@ -90,7 +90,7 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
    *
    * @param expectedKeys the expected number of distinct keys
    * @param expectedValuesPerKey the expected average number of values per key
-   * @throws IllegalArgumentException if {@code expectedKeys} or {@code 
+   * @throws IllegalArgumentException if {@code expectedKeys} or {@code
    *      expectedValuesPerKey} is negative
    */
   public static <K, V> LinkedHashMultimap<K, V> create(
@@ -104,7 +104,7 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
    * input multimap, it only appears once in the constructed multimap. The new
    * multimap has the same {@link Multimap#entries()} iteration order as the
    * input multimap, except for excluding duplicate mappings.
-   * 
+   *
    * @param multimap the multimap whose contents are copied to this multimap
    */
   public static <K, V> LinkedHashMultimap<K, V> create(
@@ -113,7 +113,7 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
   }
 
   // TODO: Make all constructors private.
-  
+
   /** Constructs an empty {@code LinkedHashMultimap}. */
   public LinkedHashMultimap() {
     super(new LinkedHashMap<K, Collection<V>>());

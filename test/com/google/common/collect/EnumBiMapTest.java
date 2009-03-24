@@ -114,9 +114,9 @@ public class EnumBiMapTest extends TestCase {
 
     BiMap<Currency, Country> copy =
         SerializableTester.reserializeAndAssert(bimap);
-    assertEquals(bimap.inverse(), copy.inverse());    
+    assertEquals(bimap.inverse(), copy.inverse());
   }
-  
+
   public void testIterationOrder() {
     // The enum orderings are alphabetical, leading to the bimap and its inverse
     // having inconsistent iteration orderings.
@@ -125,13 +125,13 @@ public class EnumBiMapTest extends TestCase {
         Currency.PESO, Country.CHILE,
         Currency.FRANC, Country.SWITZERLAND);
     EnumBiMap<Currency, Country> bimap = EnumBiMap.create(map);
-    
+
     // forward map ordered by currency
     assertContentsInOrder(bimap.keySet(),
         Currency.DOLLAR, Currency.FRANC, Currency.PESO);
     // forward map ordered by currency (even for country values)
     assertContentsInOrder(bimap.values(),
-        Country.CANADA, Country.SWITZERLAND, Country.CHILE);    
+        Country.CANADA, Country.SWITZERLAND, Country.CHILE);
     // backward map ordered by country
     assertContentsInOrder(bimap.inverse().keySet(),
         Country.CANADA, Country.CHILE, Country.SWITZERLAND);
@@ -139,6 +139,6 @@ public class EnumBiMapTest extends TestCase {
     assertContentsInOrder(bimap.inverse().values(),
         Currency.DOLLAR, Currency.PESO, Currency.FRANC);
   }
-  
+
   /* Remaining behavior tested by AbstractBiMapTest. */
 }

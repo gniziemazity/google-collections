@@ -28,7 +28,7 @@ import java.util.NoSuchElementException;
  * A generic JUnit test which tests {@code element()} operations on a queue.
  * Can't be invoked directly; please see
  * {@link com.google.common.collect.testing.CollectionTestSuiteBuilder}.
- * 
+ *
  * @author Jared Levy
  */
 public class QueueElementTester<E> extends AbstractQueueTester<E> {
@@ -38,7 +38,7 @@ public class QueueElementTester<E> extends AbstractQueueTester<E> {
       getQueue().element();
       fail("emptyQueue.element() should throw");
     } catch (NoSuchElementException expected) {}
-    expectUnchanged();    
+    expectUnchanged();
   }
 
   @CollectionSize.Require(ONE)
@@ -47,7 +47,7 @@ public class QueueElementTester<E> extends AbstractQueueTester<E> {
          samples.e0, getQueue().element());
      expectUnchanged();
   }
-  
+
   @CollectionFeature.Require(KNOWN_ORDER)
   @CollectionSize.Require(SEVERAL)
   public void testElement_sizeMany() {

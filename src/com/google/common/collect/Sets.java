@@ -515,6 +515,11 @@ public final class Sets {
     /**
      * Returns an immutable copy of the current contents of this set view.
      * Does not support null elements.
+     *
+     * <p><b>Warning:</b> this may have unexpected results if a backing set of
+     * this view uses a nonstandard notion of equivalence, for example if it is
+     * a {@link TreeSet} using a comparator that is inconsistent with {@link
+     * Object#equals(Object)}.
      */
     public ImmutableSet<E> immutableCopy() {
       return ImmutableSet.copyOf(this);
@@ -525,8 +530,9 @@ public final class Sets {
      * method has equivalent behavior to {@code set.addAll(this)}, assuming that
      * all the sets involved are based on the same notion of equivalence.
      */
-    // TODO: add wildcard when we get a fixed javac (e.g. openjdk7)
-    public <S extends Set</*? super */E>> S copyInto(S set) {
+    // Note: S should logically extend Set<? super E> but can't due to either
+    // some javac bug or some weirdness in the spec, not sure which.
+    public <S extends Set<E>> S copyInto(S set) {
       set.addAll(this);
       return set;
     }
@@ -542,12 +548,20 @@ public final class Sets {
    * <p>Results are undefined if {@code set1} and {@code set2} are sets based on
    * different equivalence relations (as {@link HashSet}, {@link TreeSet}, and
    * the {@link Map#keySet} of an {@link java.util.IdentityHashMap} all are).
+   *
+   * <p><b>Note:</b> The returned view performs better when {@code set1} is the
+   * smaller of the two sets. If you have reason to believe one of your sets
+   * will generally be smaller than the other, pass it first.
    */
   public static <E> SetView<E> union(
       final Set<? extends E> set1, final Set<? extends E> set2) {
-    // TODO: check if sorted sets with same comparator?
+    checkNotNull(set1, "set1");
+    checkNotNull(set2, "set2");
+
+    // TODO: once we have OrderedIterators, check if these are compatible
+    // sorted sets and use that instead if so
+
     final Set<? extends E> set2minus1 = difference(set2, set1);
-    final Iterable<E> iterable = Iterables.concat(set1, set2minus1);
 
     return new SetView<E>() {
       @Override public int size() {
@@ -557,7 +571,8 @@ public final class Sets {
         return set1.isEmpty() && set2.isEmpty();
       }
       @Override public Iterator<E> iterator() {
-        return Iterators.unmodifiableIterator(iterable.iterator());
+        return Iterators.unmodifiableIterator(
+            Iterators.concat(set1.iterator(), set2minus1.iterator()));
       }
       @Override public boolean contains(Object object) {
         return set1.contains(object) || set2.contains(object);
@@ -566,6 +581,10 @@ public final class Sets {
         set.addAll(set1);
         set.addAll(set2);
         return set;
+      }
+      @Override public ImmutableSet<E> immutableCopy() {
+        return new ImmutableSet.Builder<E>()
+            .addAll(set1).addAll(set2).build();
       }
     };
   }
@@ -578,11 +597,32 @@ public final class Sets {
    * <p>Results are undefined if {@code set1} and {@code set2} are sets based
    * on different equivalence relations (as {@code HashSet}, {@code TreeSet},
    * and the keySet of an {@code IdentityHashMap} all are).
+   *
+   * <p><b>Note:</b> The returned view performs slightly better when {@code
+   * set1} is the smaller of the two sets. If you have reason to believe one of
+   * your sets will generally be smaller than the other, pass it first.
+   * Unfortunately, since this method sets the generic type of the returned set
+   * based on the type of the first set passed, this could in rare cases force
+   * you to make a cast, for example: <pre>   {@code
+   *
+   *   Set<Object> aFewBadObjects = ...
+   *   Set<String> manyBadStrings = ...
+   *
+   *   // impossible for a non-String to be in the intersection
+   *   SuppressWarnings("unchecked")
+   *   Set<String> badStrings = (Set) Sets.intersection(
+   *       aFewBadObjects, manyBadStrings);}</pre>
+   *
+   * This is unfortunate, but should come up only very rarely.
    */
   public static <E> SetView<E> intersection(
       final Set<E> set1, final Set<?> set2) {
-    // TODO: check if sorted sets with same comparator?
-    checkNotNull(set1);
+    checkNotNull(set1, "set1");
+    checkNotNull(set2, "set2");
+
+    // TODO: once we have OrderedIterators, check if these are compatible
+    // sorted sets and use that instead if so
+
     final Predicate<Object> inSet2 = Predicates.in(set2);
     return new SetView<E>() {
       @Override public Iterator<E> iterator() {
@@ -592,7 +632,7 @@ public final class Sets {
         return Iterators.size(iterator());
       }
       @Override public boolean isEmpty() {
-        return Collections.disjoint(set1, set2);
+        return !iterator().hasNext();
       }
       @Override public boolean contains(Object object) {
         return set1.contains(object) && set2.contains(object);
@@ -617,8 +657,12 @@ public final class Sets {
    */
   public static <E> SetView<E> difference(
       final Set<E> set1, final Set<?> set2) {
-    // TODO: check if sorted sets with same comparator?
-    checkNotNull(set1);
+    checkNotNull(set1, "set1");
+    checkNotNull(set2, "set2");
+
+    // TODO: once we have OrderedIterators, check if these are compatible
+    // sorted sets and use that instead if so
+
     final Predicate<Object> notInSet2 = Predicates.not(Predicates.in(set2));
     return new SetView<E>() {
       @Override public Iterator<E> iterator() {
@@ -632,10 +676,6 @@ public final class Sets {
       }
       @Override public boolean contains(Object element) {
         return set1.contains(element) && !set2.contains(element);
-      }
-      @Override public boolean containsAll(Collection<?> collection) {
-        return set1.containsAll(collection)
-            && Collections.disjoint(set2, collection);
       }
     };
   }

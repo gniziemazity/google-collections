@@ -37,8 +37,8 @@ public class ImmutableSetTest extends AbstractImmutableSetTest {
 
   @Override protected Set<String> of(String... elements) {
     return ImmutableSet.of(elements);
-  }  
-  
+  }
+
   @Override protected Set<String> copyOf(Iterable<String> elements) {
     return ImmutableSet.copyOf(elements);
   }

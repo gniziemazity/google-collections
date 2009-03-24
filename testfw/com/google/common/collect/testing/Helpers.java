@@ -93,7 +93,7 @@ public class Helpers {
       Iterable<?> actual, Object... expected) {
     assertEqualIgnoringOrder(Arrays.asList(expected), actual);
   }
-  
+
   public static <E> boolean addAll(
       Collection<E> addTo, Iterable<? extends E> elementsToAdd) {
     boolean modified = false;

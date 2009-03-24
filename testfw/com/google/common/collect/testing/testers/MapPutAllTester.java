@@ -35,7 +35,7 @@ import java.util.Map.Entry;
  * A generic JUnit test which tests {@code putAll} operations on a map. Can't be
  * invoked directly; please see
  * {@link com.google.common.collect.testing.MapTestSuiteBuilder}.
- * 
+ *
  * @author Chris Povirk
  * @author Kevin Bourrillion
  */

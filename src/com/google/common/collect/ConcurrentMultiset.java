@@ -498,6 +498,7 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
   private void readObject(ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
+    // TODO: whoa, what are we really supposed to be doing here?
     FieldSettersHolder.COUNT_MAP_FIELD_SETTER.set(
         this, new ConcurrentHashMap<Object, Object>());
     Serialization.populateMultiset(this, stream);

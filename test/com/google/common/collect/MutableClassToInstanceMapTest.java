@@ -16,19 +16,68 @@
 
 package com.google.common.collect;
 
+import com.google.common.collect.ImmutableClassToInstanceMapTest.TestClassToInstanceMapGenerator;
+import com.google.common.collect.testing.MapTestSuiteBuilder;
+import com.google.common.collect.testing.features.CollectionSize;
+import com.google.common.collect.testing.features.MapFeature;
+import com.google.common.collect.testing.testers.MapPutTester;
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.Map.Entry;
+import junit.framework.Test;
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
- * Unit test of {@link Maps#newClassToInstanceMap()}.
+ * Unit test of {@link MutableClassToInstanceMap}.
  *
  * @author Kevin Bourrillion
  */
-public class ClassToInstanceMapTest extends TestCase {
+public class MutableClassToInstanceMapTest extends TestCase {
+  public static Test suite() {
+    TestSuite suite = new TestSuite();
+    suite.addTestSuite(MutableClassToInstanceMapTest.class);
+
+    // Suppress this one because the tester framework doesn't understand that
+    // *some* remappings will be allowed and others not.
+    Method remapTest = null;
+    try {
+      remapTest = MapPutTester.class.getMethod(
+          "testPut_replaceNullValueWithNonNullSupported");
+    } catch (NoSuchMethodException e) {
+      throw new AssertionError();
+    }
+
+    suite.addTest(MapTestSuiteBuilder
+        .using(new TestClassToInstanceMapGenerator() {
+          // Other tests will verify what real, warning-free usage looks like
+          // but here we have to do some serious fudging
+          @SuppressWarnings("unchecked")
+          public Map<Class, Number> create(Object... elements) {
+            MutableClassToInstanceMap<Number> map = MutableClassToInstanceMap.create();
+            for (Object object : elements) {
+              Entry<Class, Number> entry = (Entry<Class, Number>) object;
+              map.putInstance(entry.getKey(), entry.getValue());
+            }
+            return (Map<Class, Number>) (Map) map;
+          }
+        })
+        .named("MutableClassToInstanceMap")
+        .withFeatures(
+            MapFeature.GENERAL_PURPOSE,
+            MapFeature.RESTRICTS_KEYS,
+            MapFeature.ALLOWS_NULL_VALUES,
+            CollectionSize.ANY)
+        .suppressing(remapTest)
+        .createTestSuite());
+
+    return suite;
+  }
 
   private ClassToInstanceMap<Number> map;
 
   @Override protected void setUp() throws Exception {
-    map = Maps.newClassToInstanceMap();
+    map = MutableClassToInstanceMap.create();
   }
 
   public void testConstraint() {

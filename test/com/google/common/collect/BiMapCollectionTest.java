@@ -49,7 +49,7 @@ public class BiMapCollectionTest extends TestCase {
             CollectionFeature.ALLOWS_NULL_VALUES,
             CollectionFeature.REMOVE_OPERATIONS)
         .createTestSuite());
-    
+
     suite.addTest(SetTestSuiteBuilder.using(new TestStringSetGenerator() {
           @Override protected Set<String> create(String[] elements) {
             BiMap<Integer, String> bimap = HashBiMap.create();
@@ -67,5 +67,5 @@ public class BiMapCollectionTest extends TestCase {
         .createTestSuite());
 
     return suite;
-  }  
+  }
 }

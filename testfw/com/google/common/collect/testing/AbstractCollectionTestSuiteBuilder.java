@@ -39,7 +39,7 @@ import junit.framework.TestSuite;
 
 /**
  * Abstract superclass of all test-suite builders for collection interfaces.
- * 
+ *
  * @author George van den Driessche
  */
 public abstract class AbstractCollectionTestSuiteBuilder<

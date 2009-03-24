@@ -28,7 +28,7 @@ import static com.google.common.collect.testing.features.MapFeature.SUPPORTS_REM
  * A generic JUnit test which tests {@code remove} operations on a map. Can't be
  * invoked directly; please see
  * {@link com.google.common.collect.testing.MapTestSuiteBuilder}.
- * 
+ *
  * @author George van den Driessche
  * @author Chris Povirk
  */

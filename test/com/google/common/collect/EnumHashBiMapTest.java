@@ -31,7 +31,7 @@ public class EnumHashBiMapTest extends TestCase {
   private enum Country { CANADA, CHILE, SWITZERLAND }
 
   public void testCreate() {
-    EnumHashBiMap<Currency, String> bimap = 
+    EnumHashBiMap<Currency, String> bimap =
         EnumHashBiMap.create(Currency.class);
     assertTrue(bimap.isEmpty());
     assertEquals("{}", bimap.toString());
@@ -87,7 +87,7 @@ public class EnumHashBiMapTest extends TestCase {
     assertFalse(bimap2.equals(bimap1));
 
     /* Test that it can be empty. */
-    EnumHashBiMap<Currency, String> emptyBimap = 
+    EnumHashBiMap<Currency, String> emptyBimap =
         EnumHashBiMap.create(Currency.class);
     EnumHashBiMap<Currency, String> bimap3 =
         EnumHashBiMap.create(emptyBimap);
@@ -117,7 +117,7 @@ public class EnumHashBiMapTest extends TestCase {
   }
 
   public void testKeyType() {
-    EnumHashBiMap<Currency, String> bimap = 
+    EnumHashBiMap<Currency, String> bimap =
         EnumHashBiMap.create(Currency.class);
     assertEquals(Currency.class, bimap.keyType());
   }
@@ -132,11 +132,11 @@ public class EnumHashBiMapTest extends TestCase {
 
     BiMap<Currency, String> copy =
         SerializableTester.reserializeAndAssert(bimap);
-    assertEquals(bimap.inverse(), copy.inverse());    
+    assertEquals(bimap.inverse(), copy.inverse());
   }
-  
+
   public void testForcePut() {
-    EnumHashBiMap<Currency, String> bimap = 
+    EnumHashBiMap<Currency, String> bimap =
         EnumHashBiMap.create(Currency.class);
     bimap.put(Currency.DOLLAR, "dollar");
     try {
@@ -148,6 +148,6 @@ public class EnumHashBiMapTest extends TestCase {
     assertEquals(1, bimap.size());
     assertEquals(1, bimap.inverse().size());
   }
-  
+
   /* Remaining behavior tested by AbstractBiMapTest. */
 }

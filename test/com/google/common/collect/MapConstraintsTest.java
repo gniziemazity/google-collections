@@ -276,9 +276,10 @@ public class MapConstraintsTest extends TestCase {
 
   public void testConstrainedTypePreservingSortedSet() {
     Comparator<Integer> comparator = Collections.reverseOrder();
+    SortedSetMultimap<String, Integer> delegate
+        = TreeMultimap.create(Ordering.<String>natural(), comparator);
     SortedSetMultimap<String, Integer> multimap
-        = MapConstraints.constrainedSortedSetMultimap(
-            Multimaps.<String, Integer>newTreeMultimap(null, comparator),
+        = MapConstraints.constrainedSortedSetMultimap(delegate,
             TEST_CONSTRAINT);
     multimap.put("foo", 1);
     Map.Entry<String, Collection<Integer>> entry
@@ -424,7 +425,7 @@ public class MapConstraintsTest extends TestCase {
     assertEquals(1, constrained.size());
     assertEquals(1, multimap.size());
   }
-  
+
   public void testMapEntrySetToArray() {
     Map<String, Integer> map = Maps.newLinkedHashMap();
     Map<String, Integer> constrained

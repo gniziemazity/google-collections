@@ -68,7 +68,7 @@ import java.lang.annotation.Target;
 public @interface GwtCompatible {
 
   /**
-   * When {@code true}, the annotated type or the type of the method return 
+   * When {@code true}, the annotated type or the type of the method return
    * value is GWT serializable.
    *
    * @see <a href="http://code.google.com/docreader/#p=google-web-toolkit-doc-1-5&t=DevGuideSerializableTypes">

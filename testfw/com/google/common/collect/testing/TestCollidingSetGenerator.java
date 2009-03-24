@@ -32,7 +32,7 @@ public abstract class TestCollidingSetGenerator
   public Object[] createArray(int length) {
     return new Object[length];
   }
-  
+
   /** Returns the original element list, unchanged. */
   public List<Object> order(List<Object> insertionOrder) {
     return insertionOrder;

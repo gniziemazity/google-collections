@@ -146,10 +146,10 @@ public abstract class AbstractCollectionTest extends TestCase {
     c.add("a");
     c.add("b");
     c.add("b");
-    
-    assertEquals(c, c);    
+
+    assertEquals(c, c);
   }
-  
+
   public void testEqualsTricky() {
     c.add("a");
     c.add("a");
@@ -194,7 +194,7 @@ public abstract class AbstractCollectionTest extends TestCase {
     assertEquals("a", array[0]);
     assertNull(array[1]);
   }
-  
+
   public void testNullPointerExceptions() throws Exception {
     NullPointerTester tester = new NullPointerTester();
     tester.testAllPublicInstanceMethods(c);

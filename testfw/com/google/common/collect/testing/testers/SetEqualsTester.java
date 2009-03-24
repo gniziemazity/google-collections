@@ -34,7 +34,7 @@ public class SetEqualsTester<E> extends AbstractSetTester<E> {
         "A Set should equal any other Set containing the same elements.",
         getSet().equals(Helpers.copyToSet(getSampleElements())));
   }
-  
+
   @CollectionSize.Require(absent=CollectionSize.ZERO)
   public void testEquals_otherSetWithDifferentElements() throws Exception {
     Set<E> other = Helpers.copyToSet(getSampleElements(getNumElements() - 1));

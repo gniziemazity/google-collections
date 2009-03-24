@@ -30,7 +30,7 @@ import static com.google.common.collect.testing.features.CollectionSize.ZERO;
  * A generic JUnit test which tests {@code toString()} operations on a
  * collection. Can't be invoked directly; please see
  * {@link com.google.common.collect.testing.CollectionTestSuiteBuilder}.
- * 
+ *
  * @author Kevin Bourrillion
  */
 @SuppressWarnings("unchecked") // too many "unchecked generic array creations"
@@ -39,21 +39,21 @@ public class CollectionToStringTester<E> extends AbstractCollectionTester<E> {
     assertNotNull("toString() should not return null",
         collection.toString());
   }
-  
+
   @CollectionSize.Require(ZERO)
   @CollectionFeature.Require(absent = NON_STANDARD_TOSTRING)
   public void testToString_size0() {
     assertEquals("emptyCollection.toString should return []", "[]",
         collection.toString());
   }
-  
+
   @CollectionSize.Require(ONE)
   @CollectionFeature.Require(absent = NON_STANDARD_TOSTRING)
   public void testToString_size1() {
     assertEquals("size1Collection.toString should return [{element}]",
         "[" + samples.e0 + "]", collection.toString());
   }
-  
+
   @CollectionSize.Require(SEVERAL)
   @CollectionFeature.Require(
       value = KNOWN_ORDER, absent = NON_STANDARD_TOSTRING)
@@ -61,5 +61,5 @@ public class CollectionToStringTester<E> extends AbstractCollectionTester<E> {
     String expected = Helpers.copyToList(getOrderedElements()).toString();
     assertEquals("collection.toString() incorrect",
         expected, collection.toString());
-  }  
+  }
 }

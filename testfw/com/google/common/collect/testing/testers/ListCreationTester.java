@@ -24,7 +24,7 @@ import static com.google.common.collect.testing.features.CollectionSize.ZERO;
  * A generic JUnit test which tests creation (typically through a constructor or
  * static factory method) of a list. Can't be invoked directly; please see
  * {@link com.google.common.collect.testing.ListTestSuiteBuilder}.
- * 
+ *
  * @author Chris Povirk
  */
 public class ListCreationTester<E> extends AbstractListTester<E> {

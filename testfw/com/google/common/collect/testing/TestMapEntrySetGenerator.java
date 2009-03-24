@@ -53,7 +53,7 @@ public abstract class TestMapEntrySetGenerator<K, V>
   public Map.Entry<K, V>[] createArray(int length) {
     return new Map.Entry[length];
   }
-  
+
   /** Returns the original element list, unchanged. */
   public List<Map.Entry<K, V>> order(List<Map.Entry<K, V>> insertionOrder) {
     return insertionOrder;

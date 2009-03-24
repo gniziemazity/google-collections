@@ -44,6 +44,12 @@ public class MinimalCollection<E> extends AbstractCollection<E> {
   private MinimalCollection(Class<? super E> type, E... contents) {
     this.contents = contents.clone();
     this.type = type;
+
+    // TODO: shouldn't we reject nulls, since we don't support asking whether
+    // one is present?
+//    for (Object element : contents) {
+//      Helpers.checkNotNull(element);
+//    }
   }
 
   @Override public int size() {
@@ -75,7 +81,7 @@ public class MinimalCollection<E> extends AbstractCollection<E> {
    * a "type A" unmodifiable collection freaks out proactively, even if there
    * wasn't going to be any actual work to do anyway
    */
-  
+
   @Override public boolean addAll(Collection<? extends E> elementsToAdd) {
     throw up();
   }

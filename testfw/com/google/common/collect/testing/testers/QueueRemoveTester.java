@@ -29,7 +29,7 @@ import java.util.NoSuchElementException;
  * A generic JUnit test which tests {@code remove()} operations on a queue.
  * Can't be invoked directly; please see
  * {@link com.google.common.collect.testing.CollectionTestSuiteBuilder}.
- * 
+ *
  * @author Jared Levy
  */
 @SuppressWarnings("unchecked") // too many "unchecked generic array creations"
@@ -41,7 +41,7 @@ public class QueueRemoveTester<E> extends AbstractQueueTester<E> {
       getQueue().remove();
       fail("emptyQueue.remove() should throw");
     } catch (NoSuchElementException expected) {}
-    expectUnchanged();    
+    expectUnchanged();
   }
 
   @CollectionFeature.Require(SUPPORTS_REMOVE)
@@ -51,7 +51,7 @@ public class QueueRemoveTester<E> extends AbstractQueueTester<E> {
          samples.e0, getQueue().remove());
      expectMissing(samples.e0);
   }
-  
+
   @CollectionFeature.Require({KNOWN_ORDER, SUPPORTS_REMOVE})
   @CollectionSize.Require(SEVERAL)
   public void testRemove_sizeMany() {

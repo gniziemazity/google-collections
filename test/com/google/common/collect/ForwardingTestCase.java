@@ -70,7 +70,7 @@ public abstract class ForwardingTestCase extends TestCase {
         if ((returnType == Set.class) || (returnType == Collection.class)) {
           return Collections.emptySet();
         }
-        
+
         return null;
       }
     };
@@ -83,7 +83,7 @@ public abstract class ForwardingTestCase extends TestCase {
 
   /*
    * Returns string representation of a method.
-   * 
+   *
    * If the method takes no parameters, it returns the name (e.g.
    * "isEmpty". If the method takes parameters, it returns the simple names
    * of the parameters (e.g. "put(Object,Object)".)

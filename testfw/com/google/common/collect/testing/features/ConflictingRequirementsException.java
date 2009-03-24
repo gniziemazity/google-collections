@@ -45,6 +45,6 @@ public class ConflictingRequirementsException extends Exception {
   @Override public String getMessage() {
     return String.format("%s (source: %s)", super.getMessage(), source);
   }
-  
+
   private static final long serialVersionUID = 0;
 }

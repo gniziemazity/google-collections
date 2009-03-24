@@ -72,7 +72,7 @@ public class MultisetsImmutableEntryTest extends TestCase {
   public void testHashCodeNull() {
     assertEquals(control(NE, 1).hashCode(), entry(NE, 1).hashCode());
   }
-  
+
   public void testNegativeCount() {
     try {
       entry("foo", -1);

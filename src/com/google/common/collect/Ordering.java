@@ -17,19 +17,16 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import static com.google.common.base.Preconditions.checkNotNull;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.Nullable;
 
 /**
@@ -157,7 +154,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    * (according to {@link Object#equals}) may be compared. This comparator
    * imposes a "partial ordering" over the type {@code T}. Subsequent changes
    * to the {@code valuesInOrder} list will have no effect on the returned
-   * comparator. Null values in the list are supported.
+   * comparator. Null values in the list are not supported.
    *
    * <p>The returned comparator throws an {@link ClassCastException} when it
    * receives an input parameter that isn't among the provided values.
@@ -168,10 +165,11 @@ public abstract class Ordering<T> implements Comparator<T> {
    * @param valuesInOrder the values that the returned comparator will be able
    *     to compare, in the order the comparator should induce
    * @return the comparator described above
+   * @throws NullPointerException if any of the provided values is null
    * @throws IllegalArgumentException if {@code valuesInOrder} contains any
-   *     non-consecutive duplicate values (according to {@link Object#equals})
+   *     duplicate values (according to {@link Object#equals})
    */
-  public static <T> Ordering<T> givenOrder(List<? extends T> valuesInOrder) {
+  public static <T> Ordering<T> givenOrder(List<T> valuesInOrder) {
     return new GivenOrder<T>(valuesInOrder);
   }
 
@@ -180,7 +178,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    * which they are given to this method. Only objects present in the argument
    * list (according to {@link Object#equals}) may be compared. This comparator
    * imposes a "partial ordering" over the type {@code T}. Null values in the
-   * argument list are supported.
+   * argument list are not supported.
    *
    * <p>The returned comparator throws a {@link ClassCastException} when it
    * receives an input parameter that isn't among the provided values.
@@ -194,9 +192,9 @@ public abstract class Ordering<T> implements Comparator<T> {
    *     comparator will be able to compare, in the order the comparator should
    *     follow
    * @return the comparator described above
-   * @throws IllegalArgumentException if any non-consecutive duplicate values
-   *     (according to {@link Object#equals(Object)}) are present among the
-   *     method arguments
+   * @throws NullPointerException if any of the provided values is null
+   * @throws IllegalArgumentException if any duplicate values (according to
+   *     {@link Object#equals(Object)}) are present among the method arguments
    */
   public static <T> Ordering<T> givenOrder(
       @Nullable T leastValue, T... remainingValuesInOrder) {
@@ -205,10 +203,9 @@ public abstract class Ordering<T> implements Comparator<T> {
 
   private static class GivenOrder<T> extends Ordering<T>
       implements Serializable {
-    // TODO: change to ImmutableMap, either masking null or de-supporting it
-    final Map<T, Integer> rankMap;
+    final ImmutableMap<T, Integer> rankMap;
 
-    GivenOrder(List<? extends T> valuesInOrder) {
+    GivenOrder(List<T> valuesInOrder) {
       rankMap = buildRankMap(valuesInOrder);
     }
 
@@ -224,30 +221,16 @@ public abstract class Ordering<T> implements Comparator<T> {
       return rank;
     }
 
-    static <T> Map<T, Integer> buildRankMap(
-        Collection<? extends T> valuesInOrder) {
-      // TODO: change to ImmutableMap, either masking null or de-supporting it
-      Map<T, Integer> ranks
-          = new LinkedHashMap<T, Integer>(valuesInOrder.size() * 2);
-      T previousValue = null;
+    static <T> ImmutableMap<T, Integer> buildRankMap(List<T> valuesInOrder) {
+      ImmutableMap.Builder<T, Integer> builder = ImmutableMap.builder();
       int rank = 0;
       for (T value : valuesInOrder) {
-        if ((rank == 0) || !Objects.equal(value, previousValue)) {
-          Integer priorRank = ranks.put(value, rank);
-          if (priorRank != null) {
-            throw new DuplicateValueException(value, priorRank, rank);
-          }
-        }
-        rank++;
-        previousValue = value;
+        builder.put(value, rank++);
       }
-      return ranks;
+      return builder.build();
     }
 
     @Override public boolean equals(@Nullable Object object) {
-      if (object == this) {
-        return true;
-      }
       if (object instanceof GivenOrder) {
         GivenOrder<?> that = (GivenOrder<?>) object;
         return this.rankMap.equals(that.rankMap);
@@ -271,9 +254,8 @@ public abstract class Ordering<T> implements Comparator<T> {
    * Ordering#givenOrder(Object, Object...)} comparator when comparing a value
    * outside the set of values it can compare. Extending {@link
    * ClassCastException} may seem odd, but it is required.
-   *
-   * <p>Package-private for testing.
    */
+  @VisibleForTesting // TODO: this exception is odd, maybe promote it to public
   static class IncomparableValueException extends ClassCastException {
     final Object value;
 
@@ -283,27 +265,6 @@ public abstract class Ordering<T> implements Comparator<T> {
     }
 
     private static final long serialVersionUID = 0;
-  }
-
-  /**
-   * Exception thrown when a duplicate value is found in a list or array which
-   * is not expected to contain any.
-   *
-   * <p>Package-private for testing.
-   */
-  static class DuplicateValueException extends IllegalArgumentException {
-    private static final long serialVersionUID = 0;
-    final Object value;
-    final int firstIndex;
-    final int secondIndex;
-
-    DuplicateValueException(Object value, int firstIndex, int secondIndex) {
-      super("Duplicate value at indices " + firstIndex + " and " + secondIndex
-          + ": " + value + "");
-      this.value = value;
-      this.firstIndex = firstIndex;
-      this.secondIndex = secondIndex;
-    }
   }
 
   /**

@@ -39,7 +39,7 @@ public class MapEqualsTester<K, V> extends AbstractMapTester<K, V> {
         "A Map should equal any other Map containing the same entries.",
         getMap().equals(newHashMap(getSampleEntries())));
   }
-  
+
   @CollectionSize.Require(absent = CollectionSize.ZERO)
   public void testEquals_otherMapWithDifferentEntries() throws Exception {
     Map<K, V> other = newHashMap(getSampleEntries(getNumEntries() - 1));

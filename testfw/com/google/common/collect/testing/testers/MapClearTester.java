@@ -49,7 +49,7 @@ public class MapClearTester<K, V> extends AbstractMapTester<K, V> {
     }
     expectUnchanged();
   }
-  
+
   @MapFeature.Require(absent = SUPPORTS_CLEAR)
   @CollectionSize.Require(ZERO)
   public void testClear_unsupportedByEmptyCollection() {

@@ -30,7 +30,7 @@ import java.util.List;
  * A generic JUnit test which tests creation (typically through a constructor or
  * static factory method) of a set. Can't be invoked directly; please see
  * {@link com.google.common.collect.testing.SetTestSuiteBuilder}.
- * 
+ *
  * @author Chris Povirk
  */
 public class SetCreationTester<E> extends AbstractSetTester<E> {

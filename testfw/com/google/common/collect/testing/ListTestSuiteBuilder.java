@@ -78,8 +78,8 @@ public final class ListTestSuiteBuilder<E> extends
     testers.add(ListToArrayTester.class);
     return testers;
   }
-  
-  /** 
+
+  /**
    * Specifies {@link CollectionFeature#KNOWN_ORDER} for all list tests, since
    * lists have an iteration ordering corresponding to the insertion order.
    */

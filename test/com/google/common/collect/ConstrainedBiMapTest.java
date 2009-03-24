@@ -40,17 +40,17 @@ public class ConstrainedBiMapTest extends AbstractBiMapTest {
       if (TEST_VALUE.equals(value)) {
         throw new TestValueException();
       }
-    }    
+    }
     private static final long serialVersionUID = 0;
   }
-  
+
   @Override protected BiMap<Integer, String> create() {
     return MapConstraints.constrainedBiMap(
         HashBiMap.<Integer, String>create(), TEST_CONSTRAINT);
   }
-  
+
   // not serializable
-  @Override public void testSerialization() {}  
+  @Override public void testSerialization() {}
   @Override public void testSerializationWithInverseEqual() {}
   @Override public void testSerializationWithInverseSame() {}
 }

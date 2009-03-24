@@ -16,7 +16,6 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.Preconditions;
 import static com.google.common.collect.Iterables.unmodifiableIterable;
 import static com.google.common.collect.Sets.newEnumSet;
 import com.google.common.collect.testing.SetTestSuiteBuilder;
@@ -57,7 +56,7 @@ import junit.framework.TestSuite;
  * @author Jared Levy
  */
 public class SetsTest extends TestCase {
-  
+
   private static final Collection<Integer> EMPTY_COLLECTION
       = Arrays.<Integer>asList();
 
@@ -80,7 +79,7 @@ public class SetsTest extends TestCase {
   public static Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTestSuite(SetsTest.class);
-    
+
     suite.addTest(SetTestSuiteBuilder.using(new TestStringSetGenerator() {
           @Override protected Set<String> create(String[] elements) {
             int size = elements.length;
@@ -129,10 +128,10 @@ public class SetsTest extends TestCase {
     suite.addTest(testsForFilter());
     suite.addTest(testsForFilterNoNulls());
     suite.addTest(testsForFilterFiltered());
-    
+
     return suite;
-  }  
-  
+  }
+
   private static Test testsForFilter() {
     return SetTestSuiteBuilder.using(new TestStringSetGenerator() {
           @Override public Set<String> create(String[] elements) {
@@ -151,7 +150,7 @@ public class SetsTest extends TestCase {
             CollectionSize.ANY)
         .suppressing(getIteratorKnownOrderRemoveSupportedMethod())
         .createTestSuite();
-  }  
+  }
 
   private static Test testsForFilterNoNulls() {
     return SetTestSuiteBuilder.using(new TestStringSetGenerator() {
@@ -320,7 +319,7 @@ public class SetsTest extends TestCase {
     JUnitAsserts.assertContentsInOrder(set,
         new Derived("bar"), new Derived("foo"));
   }
-  
+
   public void testNewTreeSetEmptyNonGeneric() {
     TreeSet<LegacyComparable> set = Sets.newTreeSet();
     assertTrue(set.isEmpty());
@@ -329,7 +328,7 @@ public class SetsTest extends TestCase {
     JUnitAsserts.assertContentsInOrder(set,
         new LegacyComparable("bar"), new LegacyComparable("foo"));
   }
-  
+
   public void testNewTreeSetFromCollection() {
     TreeSet<Integer> set = Sets.newTreeSet(SOME_COLLECTION);
     verifySortedSetContents(set, SOME_COLLECTION, null);
@@ -347,7 +346,7 @@ public class SetsTest extends TestCase {
     JUnitAsserts.assertContentsInOrder(set,
         new Derived("bar"), new Derived("foo"));
   }
-  
+
   public void testNewTreeSetFromIterableNonGeneric() {
     Iterable<LegacyComparable> iterable =
         Arrays.asList(new LegacyComparable("foo"), new LegacyComparable("bar"));
@@ -355,7 +354,7 @@ public class SetsTest extends TestCase {
     JUnitAsserts.assertContentsInOrder(set,
         new LegacyComparable("bar"), new LegacyComparable("foo"));
   }
-  
+
   public void testNewTreeSetEmptyWithComparator() {
     TreeSet<Integer> set = Sets.newTreeSet(SOME_COMPARATOR);
     verifySortedSetContents(set, EMPTY_COLLECTION, SOME_COMPARATOR);
@@ -435,7 +434,7 @@ public class SetsTest extends TestCase {
     Set<Integer> copy = SerializableTester.reserializeAndAssert(set);
     JUnitAsserts.assertContentsInOrder(copy, 0, 1);
   }
-  
+
   public void testNewSetFromMapIllegal() {
     Map<Integer, Boolean> map = new LinkedHashMap<Integer, Boolean>();
     map.put(2, true);
@@ -465,7 +464,7 @@ public class SetsTest extends TestCase {
    * given comparator.
    */
   private static <E> void verifySortedSetContents(
-      SortedSet<E> set, Iterable<E> iterable, 
+      SortedSet<E> set, Iterable<E> iterable,
       @Nullable Comparator<E> comparator) {
     assertSame(comparator, set.comparator());
     verifySetContents(set, iterable);
@@ -515,8 +514,8 @@ public class SetsTest extends TestCase {
     public int compareTo(Base o) {
       return s.compareTo(o.s);
     }
-    
-    private static final long serialVersionUID = 0;    
+
+    private static final long serialVersionUID = 0;
   }
 
   /**
@@ -526,8 +525,8 @@ public class SetsTest extends TestCase {
     public Derived(String s) {
       super(s);
     }
-    
-    private static final long serialVersionUID = 0;    
+
+    private static final long serialVersionUID = 0;
   }
 
   public void testFilterFiltered() {
@@ -542,7 +541,7 @@ public class SetsTest extends TestCase {
     unfiltered.add("e");
     assertEquals(ImmutableSet.of("a", "e"), filtered);
     assertEquals(ImmutableSet.of("a", "b", "apple", "banana", "e"), unfiltered);
-    
+
     try {
       filtered.add("d");
       fail();
@@ -553,9 +552,9 @@ public class SetsTest extends TestCase {
     } catch (IllegalArgumentException expected) {}
     assertEquals(ImmutableSet.of("a", "e"), filtered);
     assertEquals(ImmutableSet.of("a", "b", "apple", "banana", "e"), unfiltered);
-    
+
     filtered.clear();
     assertTrue(filtered.isEmpty());
     assertEquals(ImmutableSet.of("b", "apple", "banana"), unfiltered);
-  }  
+  }
 }

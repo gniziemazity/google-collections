@@ -17,7 +17,6 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
-import com.google.common.base.Preconditions;
 import static com.google.common.base.Preconditions.checkNotNull;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -60,7 +59,7 @@ import javax.annotation.Nullable;
  * @author Kevin Bourrillion
  * @author Nick Kralevich
  */
-@GwtCompatible
+@GwtCompatible(serializable = true)
 @SuppressWarnings("serial") // we're overriding default serialization
 public abstract class ImmutableSet<E> extends ImmutableCollection<E>
     implements Set<E> {
@@ -195,7 +194,8 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
   // ImmutableCollection.iterator() consistent.
   @Override public abstract UnmodifiableIterator<E> iterator();
 
-  private static final class EmptyImmutableSet extends ImmutableSet<Object> {
+  // Package-private for GWT serialization.
+  static final class EmptyImmutableSet extends ImmutableSet<Object> {
     public int size() {
       return 0;
     }
@@ -247,75 +247,6 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
 
     @Override public String toString() {
       return "[]";
-    }
-  }
-
-  private static final class SingletonImmutableSet<E> extends ImmutableSet<E> {
-    final E element;
-    final int hashCode;
-
-    SingletonImmutableSet(E element, int hashCode) {
-      this.element = element;
-      this.hashCode = hashCode;
-    }
-
-    public int size() {
-      return 1;
-    }
-
-    @Override public boolean isEmpty() {
-      return false;
-    }
-
-    @Override public boolean contains(Object target) {
-      return element.equals(target);
-    }
-
-    @Override public UnmodifiableIterator<E> iterator() {
-      return Iterators.singletonIterator(element);
-    }
-
-    @Override public Object[] toArray() {
-      return new Object[] { element };
-    }
-
-    @SuppressWarnings({"unchecked"})
-    @Override public <T> T[] toArray(T[] array) {
-      if (array.length == 0) {
-        array = ObjectArrays.newArray(array, 1);
-      } else if (array.length > 1) {
-        array[1] = null;
-      }
-      array[0] = (T) element;
-      return array;
-    }
-
-    @Override public boolean equals(@Nullable Object object) {
-      if (object == this) {
-        return true;
-      }
-      if (object instanceof Set) {
-        Set<?> that = (Set<?>) object;
-        return that.size() == 1 && element.equals(that.iterator().next());
-      }
-      return false;
-    }
-
-    @Override public final int hashCode() {
-      return hashCode;
-    }
-
-    @Override boolean isHashCodeFast() {
-      return true;
-    }
-
-    @Override public String toString() {
-      String elementToString = element.toString();
-      return new StringBuilder(elementToString.length() + 2)
-          .append('[')
-          .append(elementToString)
-          .append(']')
-          .toString();
     }
   }
 
@@ -408,44 +339,6 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
           return false;
         }
       }
-      return true;
-    }
-  }
-
-  private static final class RegularImmutableSet<E>
-      extends ArrayImmutableSet<E> {
-    final Object[] table; // the same elements in hashed positions (plus nulls)
-    final int mask; // 'and' with an int to get a valid table index
-    final int hashCode;
-
-    RegularImmutableSet(Object[] elements, int hashCode,
-        Object[] table, int mask) {
-      super(elements);
-      this.table = table;
-      this.mask = mask;
-      this.hashCode = hashCode;
-    }
-
-    @Override public boolean contains(Object target) {
-      if (target == null) {
-        return false;
-      }
-      for (int i = Hashing.smear(target.hashCode()); true; i++) {
-        Object candidate = table[i & mask];
-        if (candidate == null) {
-          return false;
-        }
-        if (candidate.equals(target)) {
-          return true;
-        }
-      }
-    }
-
-    @Override public int hashCode() {
-      return hashCode;
-    }
-
-    @Override boolean isHashCodeFast() {
       return true;
     }
   }
@@ -599,7 +492,10 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
     public Builder<E> add(E... elements) {
       checkNotNull(elements, "elements cannot be null");
       for (E element : elements) {
-        checkNotNull(element, "null element: %s", Arrays.toString(elements));
+        if (element == null) {
+          throw new NullPointerException(
+              "null element in: " + Arrays.toString(elements));
+        }
         contents.add(element);
       }
       return this;

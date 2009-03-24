@@ -28,7 +28,7 @@ public class ConstrainedSetMultimapTest extends AbstractSetMultimapTest {
         HashMultimap.<String, Integer>create(),
         MapConstraintsTest.TEST_CONSTRAINT);
   }
-  
+
   // not serializable
-  @Override public void testSerializable() {}  
+  @Override public void testSerializable() {}
 }

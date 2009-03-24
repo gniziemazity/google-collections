@@ -58,32 +58,32 @@ import junit.framework.TestSuite;
  * @author Jared Levy
  */
 public class MultimapCollectionTest extends TestCase {
-  
+
   private static final Feature<?>[] COLLECTION_FEATURES = {
     CollectionSize.ANY,
     CollectionFeature.ALLOWS_NULL_VALUES,
     CollectionFeature.GENERAL_PURPOSE
   };
-  
+
   private static final Feature<?>[] COLLECTION_FEATURES_ORDER = {
     CollectionSize.ANY,
     CollectionFeature.ALLOWS_NULL_VALUES,
     CollectionFeature.KNOWN_ORDER,
     CollectionFeature.GENERAL_PURPOSE
   };
-  
+
   private static final Feature<?>[] LIST_FEATURES = {
     CollectionSize.ANY,
     CollectionFeature.ALLOWS_NULL_VALUES,
     ListFeature.GENERAL_PURPOSE
   };
-  
+
   private static final Feature<?>[] COLLECTION_FEATURES_REMOVE = {
     CollectionSize.ANY,
     CollectionFeature.ALLOWS_NULL_VALUES,
     CollectionFeature.REMOVE_OPERATIONS
   };
-  
+
   private static final Feature<?>[] COLLECTION_FEATURES_REMOVE_ORDER = {
     CollectionSize.ANY,
     CollectionFeature.ALLOWS_NULL_VALUES,
@@ -107,23 +107,23 @@ public class MultimapCollectionTest extends TestCase {
       = new Supplier<TreeSet<String>>() {
         public TreeSet<String> get() {
           return new TreeSet<String>(Ordering.natural().nullsLast());
-        }          
+        }
       };
-  
+
   private static final Supplier<TreeSet<Integer>> INTEGER_TREESET_FACTORY
       = new Supplier<TreeSet<Integer>>() {
         public TreeSet<Integer> get() {
           return new TreeSet<Integer>(Ordering.natural().nullsLast());
-        }          
+        }
       };
-  
+
   private static void populateMultimapForGet(
       Multimap<Integer, String> multimap, String[] elements) {
     multimap.put(2, "foo");
     for (String element : elements) {
       multimap.put(3, element);
     }
-  }  
+  }
 
   private static void populateMultimapForKeySet(
       Multimap<String, Integer> multimap, String[] elements) {
@@ -138,7 +138,7 @@ public class MultimapCollectionTest extends TestCase {
     for (int i = 0; i < elements.length; i++) {
       multimap.put(i % 2, elements[i]);
     }
-  }  
+  }
 
   private static void populateMultimapForKeys(
       Multimap<String, Integer> multimap, String[] elements) {
@@ -202,8 +202,8 @@ public class MultimapCollectionTest extends TestCase {
           Maps.immutableEntry("foo", 3),
           Maps.immutableEntry("bar", 3),
           Maps.immutableEntry("cat", 2));
-    }    
-    
+    }
+
     public Collection<Entry<String, Integer>> create(Object... elements) {
       Multimap<String, Integer> multimap = createMultimap();
       for (Object element : elements) {
@@ -215,7 +215,7 @@ public class MultimapCollectionTest extends TestCase {
     }
 
     abstract Multimap<String, Integer> createMultimap();
-    
+
     @SuppressWarnings("unchecked")
     public Entry<String, Integer>[] createArray(int length) {
       return (Entry<String, Integer>[]) new Entry<?, ?>[length];
@@ -226,16 +226,16 @@ public class MultimapCollectionTest extends TestCase {
       return insertionOrder;
     }
   }
-  
+
   private static abstract class TestEntrySetGenerator
       extends TestEntriesGenerator {
     @Override abstract SetMultimap<String, Integer> createMultimap();
-    
+
     @Override public Set<Entry<String, Integer>> create(Object... elements) {
       return (Set<Entry<String, Integer>>) super.create(elements);
-    }    
+    }
   }
-  
+
   public static Test suite() {
     TestSuite suite = new TestSuite();
 
@@ -249,7 +249,7 @@ public class MultimapCollectionTest extends TestCase {
         .named("HashMultimap.get")
         .withFeatures(COLLECTION_FEATURES)
         .createTestSuite());
-    
+
     suite.addTest(SetTestSuiteBuilder.using(new TestStringSetGenerator() {
           @Override protected Set<String> create(String[] elements) {
             SetMultimap<Integer, String> multimap
@@ -266,7 +266,7 @@ public class MultimapCollectionTest extends TestCase {
         new TestStringSortedSetGenerator() {
           @Override protected SortedSet<String> create(String[] elements) {
             SortedSetMultimap<Integer, String> multimap =
-                Multimaps.newTreeMultimap(Ordering.natural().nullsFirst(),
+                TreeMultimap.create(Ordering.natural().nullsFirst(),
                     Ordering.natural().nullsLast());
             populateMultimapForGet(multimap, elements);
             return multimap.get(3);
@@ -312,7 +312,7 @@ public class MultimapCollectionTest extends TestCase {
         .named("LinkedListMultimap.get")
         .withFeatures(LIST_FEATURES)
         .createTestSuite());
-    
+
     suite.addTest(ListTestSuiteBuilder.using(new TestStringListGenerator() {
           @Override protected List<String> create(String[] elements) {
             ImmutableMultimap.Builder<Integer, String> builder
@@ -326,8 +326,8 @@ public class MultimapCollectionTest extends TestCase {
         })
         .named("ImmutableMultimap.get")
         .withFeatures(CollectionSize.ANY)
-        .createTestSuite());    
-    
+        .createTestSuite());
+
     suite.addTest(SetTestSuiteBuilder.using(
         new TestStringSetGenerator() {
           @Override protected Set<String> create(String[] elements) {
@@ -369,7 +369,7 @@ public class MultimapCollectionTest extends TestCase {
         new TestStringSortedSetGenerator() {
           @Override protected SortedSet<String> create(String[] elements) {
             TreeMultimap<String, Integer> multimap =
-                Multimaps.newTreeMultimap(Ordering.natural().nullsFirst(),
+                TreeMultimap.create(Ordering.natural().nullsFirst(),
                     Ordering.natural().nullsLast());
             populateMultimapForKeySet(multimap, elements);
             return multimap.keySet();
@@ -461,7 +461,7 @@ public class MultimapCollectionTest extends TestCase {
         new TestStringCollectionGenerator() {
           @Override public Collection<String> create(String[] elements) {
             Multimap<Integer, String> multimap
-                = Multimaps.newTreeMultimap(Ordering.natural().nullsFirst(),
+                = TreeMultimap.create(Ordering.natural().nullsFirst(),
                 Ordering.natural().nullsLast());
             populateMultimapForValues(multimap, elements);
             return multimap.values();
@@ -537,13 +537,13 @@ public class MultimapCollectionTest extends TestCase {
         })
         .named("LinkedHashMultimap.keys")
         .withFeatures(COLLECTION_FEATURES_REMOVE_ORDER)
-        .createTestSuite());    
+        .createTestSuite());
 
     suite.addTest(MultisetTestSuiteBuilder.using(
         new TestStringMultisetGenerator() {
           @Override protected Multiset<String> create(String[] elements) {
             Multimap<String, Integer> multimap
-                = Multimaps.newTreeMultimap(Ordering.natural().nullsFirst(),
+                = TreeMultimap.create(Ordering.natural().nullsFirst(),
                 Ordering.natural().nullsLast());
             populateMultimapForKeys(multimap, elements);
             return multimap.keys();
@@ -556,7 +556,7 @@ public class MultimapCollectionTest extends TestCase {
         })
         .named("TreeMultimap.keys")
         .withFeatures(COLLECTION_FEATURES_REMOVE_ORDER)
-        .createTestSuite());    
+        .createTestSuite());
 
     suite.addTest(MultisetTestSuiteBuilder.using(
         new TestStringMultisetGenerator() {
@@ -569,7 +569,7 @@ public class MultimapCollectionTest extends TestCase {
         })
         .named("ArrayListMultimap.keys")
         .withFeatures(COLLECTION_FEATURES_REMOVE)
-        .createTestSuite());    
+        .createTestSuite());
 
     suite.addTest(MultisetTestSuiteBuilder.using(
         new TestStringMultisetGenerator() {
@@ -583,7 +583,7 @@ public class MultimapCollectionTest extends TestCase {
         })
         .named("synchronized ArrayListMultimap.keys")
         .withFeatures(COLLECTION_FEATURES_REMOVE)
-        .createTestSuite());    
+        .createTestSuite());
 
     suite.addTest(MultisetTestSuiteBuilder.using(
         new TestStringMultisetGenerator() {
@@ -596,7 +596,7 @@ public class MultimapCollectionTest extends TestCase {
         })
         .named("LinkedListMultimap.keys")
         .withFeatures(COLLECTION_FEATURES_REMOVE_ORDER)
-        .createTestSuite());    
+        .createTestSuite());
 
     suite.addTest(MultisetTestSuiteBuilder.using(
         new TestStringMultisetGenerator() {
@@ -613,7 +613,7 @@ public class MultimapCollectionTest extends TestCase {
         .named("ImmutableMultimap.keys")
         .withFeatures(CollectionSize.ANY, CollectionFeature.KNOWN_ORDER)
         .createTestSuite());
-    
+
     suite.addTest(MultisetTestSuiteBuilder.using(
         new TestStringMultisetGenerator() {
           @Override protected Multiset<String> create(String[] elements) {
@@ -638,7 +638,7 @@ public class MultimapCollectionTest extends TestCase {
         .named("HashMultimap.entries")
         .withFeatures(CollectionSize.ANY, CollectionFeature.REMOVE_OPERATIONS)
         .createTestSuite());
-    
+
     suite.addTest(CollectionTestSuiteBuilder.using(
         new TestEntrySetGenerator() {
           @Override SetMultimap<String, Integer> createMultimap() {
@@ -649,11 +649,11 @@ public class MultimapCollectionTest extends TestCase {
         .withFeatures(CollectionSize.ANY, CollectionFeature.REMOVE_OPERATIONS,
             CollectionFeature.KNOWN_ORDER)
         .createTestSuite());
-    
+
     suite.addTest(CollectionTestSuiteBuilder.using(
         new TestEntrySetGenerator() {
           @Override SetMultimap<String, Integer> createMultimap() {
-            return Multimaps.newTreeMultimap(Ordering.natural().nullsFirst(),
+            return TreeMultimap.create(Ordering.natural().nullsFirst(),
                 Ordering.natural().nullsLast());
           }
         })
@@ -661,7 +661,7 @@ public class MultimapCollectionTest extends TestCase {
         .withFeatures(CollectionSize.ANY, CollectionFeature.REMOVE_OPERATIONS,
             CollectionFeature.KNOWN_ORDER)
         .createTestSuite());
-    
+
     suite.addTest(CollectionTestSuiteBuilder.using(
         new TestEntriesGenerator() {
           @Override Multimap<String, Integer> createMultimap() {
@@ -692,7 +692,7 @@ public class MultimapCollectionTest extends TestCase {
         .named("LinkedListMultimap.entries")
         .withFeatures(CollectionSize.ANY, CollectionFeature.REMOVE_OPERATIONS,
             CollectionFeature.KNOWN_ORDER)
-        .createTestSuite());    
+        .createTestSuite());
 
     suite.addTest(CollectionTestSuiteBuilder.using(
         new TestEntriesGenerator() {

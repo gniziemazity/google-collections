@@ -274,7 +274,7 @@ public class PredicatesTest extends TestCase {
   public void testAnd_serializationIterable()  {
     checkSerialization(Predicates.and(Arrays.asList(TRUE, FALSE)));
   }
-  
+
   @SuppressWarnings("unchecked")
   public void testAnd_arrayDefensivelyCopied() {
     Predicate[] array = {Predicates.alwaysFalse()};
@@ -283,7 +283,7 @@ public class PredicatesTest extends TestCase {
     array[0] = Predicates.alwaysTrue();
     assertFalse(predicate.apply(1));
   }
-  
+
   @SuppressWarnings("unchecked")
   public void testAnd_listDefensivelyCopied() {
     List list = new ArrayList<Predicate>();
@@ -292,7 +292,7 @@ public class PredicatesTest extends TestCase {
     list.add(Predicates.alwaysFalse());
     assertTrue(predicate.apply(1));
   }
-  
+
   @SuppressWarnings("unchecked")
   public void testAnd_iterableDefensivelyCopied() {
     final List list = new ArrayList<Predicate>();
@@ -431,7 +431,7 @@ public class PredicatesTest extends TestCase {
     Predicate<Integer> post = SerializableTester.reserializeAndAssert(pre);
     assertEquals(pre.apply(0), post.apply(0));
   }
-  
+
   @SuppressWarnings("unchecked")
   public void testOr_arrayDefensivelyCopied() {
     Predicate[] array = {Predicates.alwaysFalse()};
@@ -440,7 +440,7 @@ public class PredicatesTest extends TestCase {
     array[0] = Predicates.alwaysTrue();
     assertFalse(predicate.apply(1));
   }
-  
+
   @SuppressWarnings("unchecked")
   public void testOr_listDefensivelyCopied() {
     List list = new ArrayList<Predicate>();
@@ -449,7 +449,7 @@ public class PredicatesTest extends TestCase {
     list.add(Predicates.alwaysTrue());
     assertFalse(predicate.apply(1));
   }
-  
+
   @SuppressWarnings("unchecked")
   public void testOr_iterableDefensivelyCopied() {
     final List list = new ArrayList<Predicate>();
@@ -506,6 +506,52 @@ public class PredicatesTest extends TestCase {
     checkSerialization(Predicates.equalTo(null));
   }
 
+  /*
+   * Tests for Predicates.instanceOf(x).
+   */
+
+  public void testIsInstanceOf_apply() {
+    Predicate<Object> isInteger = Predicates.instanceOf(Integer.class);
+
+    assertTrue(isInteger.apply(1));
+    assertFalse(isInteger.apply(2.0f));
+    assertFalse(isInteger.apply(""));
+    assertFalse(isInteger.apply(null));
+  }
+
+  public void testIsInstanceOf_subclass() {
+    Predicate<Object> isNumber = Predicates.instanceOf(Number.class);
+
+    assertTrue(isNumber.apply(1));
+    assertTrue(isNumber.apply(2.0f));
+    assertFalse(isNumber.apply(""));
+    assertFalse(isNumber.apply(null));
+  }
+
+  public void testIsInstanceOf_interface() {
+    Predicate<Object> isComparable = Predicates.instanceOf(Comparable.class);
+
+    assertTrue(isComparable.apply(1));
+    assertTrue(isComparable.apply(2.0f));
+    assertTrue(isComparable.apply(""));
+    assertFalse(isComparable.apply(null));
+  }
+
+  public void testIsInstanceOf_equality() {
+    new EqualsTester(Predicates.instanceOf(Integer.class))
+        .addEqualObject(Predicates.instanceOf(Integer.class))
+        .addNotEqualObject(Predicates.instanceOf(Number.class))
+        .addNotEqualObject(Predicates.instanceOf(Float.class))
+        .testEquals();
+  }
+
+  public void testIsInstanceOf_serialization()  {
+    checkSerialization(Predicates.instanceOf(Integer.class));
+  }
+
+  /*
+   * Tests for Predicates.isNull()
+   */
 
   public void testIsNull_apply() {
     Predicate<Integer> isNull = Predicates.isNull();
@@ -628,7 +674,7 @@ public class PredicatesTest extends TestCase {
       return string.trim();
     }
   }
-  
+
   public void testCompose() {
     Function<String, String> trim = TrimStringFunction.INSTANCE;
     Predicate<String> equalsFoo = Predicates.equalTo("Foo");
@@ -648,7 +694,7 @@ public class PredicatesTest extends TestCase {
         .addNotEqualObject(Predicates.compose(equalsBar, trim))
         .testEquals();
 
-    SerializableTester.reserializeAndAssert(trimEqualsFoo);    
+    SerializableTester.reserializeAndAssert(trimEqualsFoo);
   }
 
   public void checkConsistency(
@@ -715,13 +761,13 @@ public class PredicatesTest extends TestCase {
     checkConsistency(
         Predicates.and(Predicates.or(p1, p2), p3),
         Predicates.or(Predicates.and(p1, p3), Predicates.and(p2, p3)));
-    
-    /* 
+
+    /*
      * Now that alwaysFalse and alwaysTrue follow the enum singleton pattern,
      * the following tests can't call checkConsistency to compare the hash
      * codes.
      */
-    
+
     assertEvalsLike(
         Predicates.alwaysTrue(),
         Predicates.not(Predicates.alwaysFalse()));
@@ -736,7 +782,7 @@ public class PredicatesTest extends TestCase {
 
     assertEvalsLike(
         Predicates.alwaysTrue(),
-        Predicates.or(p1, Predicates.not(p1)));    
+        Predicates.or(p1, Predicates.not(p1)));
   }
 
   private static void assertEvalsToTrue(Predicate<? super Integer> predicate) {
@@ -782,7 +828,7 @@ public class PredicatesTest extends TestCase {
     } catch (RuntimeException e) {
       actualRuntimeException = e;
     }
-    
+
     assertEquals(expectedResult, actualResult);
     if (expectedRuntimeException != null) {
       assertNotNull(actualRuntimeException);

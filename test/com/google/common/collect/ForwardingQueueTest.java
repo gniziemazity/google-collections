@@ -21,7 +21,7 @@ import java.util.Queue;
 
 /**
  * Tests for {@code ForwardingQueue}.
- * 
+ *
  * @author Robert Konigsberg
  */
 public class ForwardingQueueTest extends ForwardingTestCase {

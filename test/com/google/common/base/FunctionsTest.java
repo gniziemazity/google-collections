@@ -42,18 +42,10 @@ public class FunctionsTest extends TestCase {
   }
 
   public void testToStringFunction_apply() {
-    Function<Object, String> fromObject = Functions.toStringFunction();
-    Function<? super Integer, String> fromInteger = Functions.toStringFunction();
-    Function<? super String, String> fromString = Functions.toStringFunction();
-
-    assertEquals("3", fromObject.apply(3));
-    assertEquals("3", fromInteger.apply(3));
-
-    assertEquals("hiya", fromObject.apply("hiya"));
-    assertEquals("hiya", fromString.apply("hiya"));
-
+    assertEquals("3", Functions.toStringFunction().apply(3));
+    assertEquals("hiya", Functions.toStringFunction().apply("hiya"));
     assertEquals("I'm a string",
-                 fromObject.apply(
+                 Functions.toStringFunction().apply(
                      new Object() {
                        @Override public String toString() {
                          return "I'm a string";
@@ -65,10 +57,6 @@ public class FunctionsTest extends TestCase {
     } catch (NullPointerException e) {
       // expected
     }
-    new EqualsTester(fromObject)
-        .addEqualObject(fromInteger)
-        .addNotEqualObject(Functions.identity())
-        .testEquals();
 
     checkCanReserializeSingleton(Functions.toStringFunction());
   }
@@ -90,7 +78,7 @@ public class FunctionsTest extends TestCase {
 
     new EqualsTester(function)
         .addEqualObject(Functions.forMap(map))
-        .addEqualObject(Functions.forMap(map, null))
+        .addEqualObject(Functions.forMap(map))
         .addNotEqualObject(Functions.forMap(map, 42))
         .testEquals();
 

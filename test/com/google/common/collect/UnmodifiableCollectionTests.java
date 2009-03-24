@@ -31,7 +31,7 @@ import static junit.framework.TestCase.fail;
  * A series of tests that support asserting that collections cannot be
  * modified, either through direct or indirect means.
  *
- * @author konigsberg@google.com (Robert Konigsberg)
+ * @author Robert Konigsberg
  */
 public class UnmodifiableCollectionTests {
 
@@ -304,9 +304,9 @@ public class UnmodifiableCollectionTests {
     if (!multimap.isEmpty()) {
       K key = multimap.keySet().iterator().next();
       assertCollectionIsUnmodifiable(multimap.get(key), sampleValue);
-      assertMultimapRemainsUnmodified(multimap, originalEntries);      
+      assertMultimapRemainsUnmodified(multimap, originalEntries);
     }
-    
+
     // Test #put()
     try {
       multimap.put(sampleKey, sampleValue);
@@ -356,7 +356,7 @@ public class UnmodifiableCollectionTests {
     } catch (UnsupportedOperationException expected) {
     }
     assertMultimapRemainsUnmodified(multimap, originalEntries);
-    
+
     // Test #asMap()
     try {
       multimap.asMap().remove(sampleKey);
@@ -373,7 +373,7 @@ public class UnmodifiableCollectionTests {
       } catch (UnsupportedOperationException expected) {
       }
       assertMultimapRemainsUnmodified(multimap, originalEntries);
-      
+
       try {
         multimap.asMap().values().iterator().next().remove(sampleValue);
         fail("asMap().values().iterator().next().remove() succeeded on " +
@@ -388,7 +388,7 @@ public class UnmodifiableCollectionTests {
       } catch (UnsupportedOperationException expected) {
       }
     }
-    
+
     assertCollectionIsUnmodifiable(multimap.values(), sampleValue);
     assertMultimapRemainsUnmodified(multimap, originalEntries);
   }

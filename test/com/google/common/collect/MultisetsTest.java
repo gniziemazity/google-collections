@@ -53,7 +53,7 @@ public class MultisetsTest extends TestCase {
     assertEquals(multisetView.elementSet(), set);
     assertEquals(multiset.elementSet(), multisetView.elementSet());
     assertEquals(multisetView.elementSet(), multiset.elementSet());
-    reserializeAndAssert(multisetView);    
+    reserializeAndAssert(multisetView);
     try {
       multisetView.add("baz");
       fail("UnsupportedOperationException expected");
@@ -97,7 +97,7 @@ public class MultisetsTest extends TestCase {
         new Derived("bar"), new Derived("bar"), new Derived("bar"),
         new Derived("foo"), new Derived("foo"));
   }
-  
+
   public void testNewTreeMultisetNonGeneric() {
     TreeMultiset<LegacyComparable> set = TreeMultiset.create();
     assertTrue(set.isEmpty());
@@ -107,13 +107,13 @@ public class MultisetsTest extends TestCase {
         new LegacyComparable("bar"), new LegacyComparable("bar"),
         new LegacyComparable("foo"), new LegacyComparable("foo"));
   }
-  
+
   public void testNewTreeMultisetComparator() {
     TreeMultiset<String> multiset
         = TreeMultiset.create(Collections.reverseOrder());
     multiset.add("bar", 3);
     multiset.add("foo", 2);
     JUnitAsserts.assertContentsInOrder(
-        multiset, "foo", "foo", "bar", "bar", "bar");    
+        multiset, "foo", "foo", "bar", "bar", "bar");
   }
 }

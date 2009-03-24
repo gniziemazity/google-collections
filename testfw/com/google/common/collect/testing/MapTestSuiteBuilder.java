@@ -20,6 +20,7 @@ import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.collect.testing.features.Feature;
 import com.google.common.collect.testing.features.MapFeature;
+import com.google.common.collect.testing.features.SetFeature;
 import com.google.common.collect.testing.testers.MapClearTester;
 import com.google.common.collect.testing.testers.MapContainsKeyTester;
 import com.google.common.collect.testing.testers.MapContainsValueTester;
@@ -151,6 +152,9 @@ public class MapTestSuiteBuilder<K, V>
     }
     if (mapFeatures.contains(MapFeature.SUPPORTS_CLEAR)) {
       derivedFeatures.add(CollectionFeature.SUPPORTS_CLEAR);
+    }
+    if (mapFeatures.contains(MapFeature.REJECTS_DUPLICATES_AT_CREATION)) {
+      derivedFeatures.add(SetFeature.REJECTS_DUPLICATES_AT_CREATION);
     }
     // add the intersection of CollectionSize.values() and mapFeatures
     for (CollectionSize size : CollectionSize.values()) {

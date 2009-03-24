@@ -36,10 +36,10 @@ import junit.framework.TestCase;
  * @author Jared Levy
  */
 public abstract class AbstractImmutableSetTest extends TestCase {
-  
+
   protected abstract Set<String> of();
   protected abstract Set<String> of(String... elements);
-  protected abstract Set<String> copyOf(Iterable<String> elements);  
+  protected abstract Set<String> copyOf(Iterable<String> elements);
   protected abstract Set<String> copyOf(Iterator<String> elements);
 
   public void testCreation_noArgs() {
@@ -155,7 +155,7 @@ public abstract class AbstractImmutableSetTest extends TestCase {
       return Arrays.asList("a", "b", "a").iterator();
     }
   }
-  
+
   public void testCopyOf_plainIterable() {
     CountingIterable iterable = new CountingIterable();
     Set<String> set = copyOf(iterable);
@@ -199,8 +199,8 @@ public abstract class AbstractImmutableSetTest extends TestCase {
         return of("a").iterator();
       }
     }.test();
-  }    
-  
+  }
+
   public void testIterator_general() throws Exception {
     new IteratorTester<String>(5, UNMODIFIABLE, Arrays.asList("a", "b", "c"),
         IteratorTester.KnownOrder.KNOWN_ORDER) {
@@ -209,21 +209,21 @@ public abstract class AbstractImmutableSetTest extends TestCase {
       }
     }.test();
   }
-  
+
   public void testContainsAll_sameType() {
     Collection<String> c = of("a", "b", "c");
     assertFalse(c.containsAll(of("a", "b", "c", "d")));
     assertFalse(c.containsAll(of("a", "d")));
     assertTrue(c.containsAll(of("a", "c")));
-    assertTrue(c.containsAll(of("a", "b", "c")));      
+    assertTrue(c.containsAll(of("a", "b", "c")));
   }
-  
-  
+
+
   public void testEquals_sameType() {
     Collection<String> c = of("a", "b", "c");
     assertEquals(c, of("a", "b", "c"));
     JUnitAsserts.assertNotEqual(c, of("a", "b", "d"));
-  }    
+  }
 
   abstract <E extends Comparable<? super E>> ImmutableSet.Builder<E> builder();
 

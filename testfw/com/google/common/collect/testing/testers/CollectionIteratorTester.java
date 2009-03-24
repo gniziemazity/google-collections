@@ -40,7 +40,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * A generic JUnit test which tests {@code iterator} operations on a collection.
  * Can't be invoked directly; please see
  * {@link com.google.common.collect.testing.CollectionTestSuiteBuilder}.
- * 
+ *
  * @author Chris Povirk
  */
 public class CollectionIteratorTester<E> extends AbstractCollectionTester<E> {
@@ -52,7 +52,7 @@ public class CollectionIteratorTester<E> extends AbstractCollectionTester<E> {
     Helpers.assertEqualIgnoringOrder(
         Arrays.asList(createSamplesArray()), iteratorElements);
   }
-  
+
   @CollectionFeature.Require(KNOWN_ORDER)
   public void testIterationOrdering() {
     List<E> iteratorElements = new ArrayList<E>();
@@ -141,7 +141,7 @@ public class CollectionIteratorTester<E> extends AbstractCollectionTester<E> {
       iterator.next();
     }
 
-    try {  
+    try {
       iterator.next();
       fail("iterator.next() should throw NoSuchElementException");
     } catch (NoSuchElementException expected) {}

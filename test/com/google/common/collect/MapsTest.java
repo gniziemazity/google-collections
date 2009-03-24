@@ -57,7 +57,7 @@ public class MapsTest extends TestCase {
       Collections.reverseOrder();
 
   public static Test suite() {
-    TestSuite suite = new TestSuite();  
+    TestSuite suite = new TestSuite();
     suite.addTestSuite(MapsTest.class);
     suite.addTestSuite(FilteredKeysMapInterfaceTest.class);
     suite.addTestSuite(FilteredValuesMapInterfaceTest.class);
@@ -66,7 +66,7 @@ public class MapsTest extends TestCase {
     suite.addTestSuite(FilteredValuesFilteredKeysMapInterfaceTest.class);
     return suite;
   }
-  
+
   public void testHashMap() {
     HashMap<Integer, Integer> map = Maps.newHashMap();
     assertEquals(Collections.emptyMap(), map);
@@ -86,7 +86,7 @@ public class MapsTest extends TestCase {
     original.put("a", 1);
     original.put("b", 2);
     original.put("c", 3);
-    HashMap<Object, Object> map = 
+    HashMap<Object, Object> map =
         Maps.newHashMap((Map<? extends Object, ? extends Object>) original);
     assertEquals(original, map);
   }
@@ -152,8 +152,8 @@ public class MapsTest extends TestCase {
     original.put("a", 1);
     original.put("b", 2);
     original.put("c", 3);
-    HashMap<Object, Object> map = 
-        Maps.newLinkedHashMap((Map<? extends Object, ? extends Object>) original);
+    HashMap<Object, Object> map
+        = Maps.<Object, Object>newLinkedHashMap(original);
     assertEquals(original, map);
   }
 
@@ -174,7 +174,7 @@ public class MapsTest extends TestCase {
     map.put(new Derived("foo"), 1);
     map.put(new Derived("bar"), 2);
     JUnitAsserts.assertContentsInOrder(map.keySet(),
-        new Derived("bar"), new Derived("foo"));    
+        new Derived("bar"), new Derived("foo"));
     JUnitAsserts.assertContentsInOrder(map.values(), 2, 1);
     assertNull(map.comparator());
   }
@@ -195,7 +195,7 @@ public class MapsTest extends TestCase {
     assertEquals(Collections.emptyMap(), map);
     assertSame(SOME_COMPARATOR, map.comparator());
   }
-  
+
   public void testTreeMapWithInitialMap() {
     SortedMap<Integer, Integer> map = Maps.newTreeMap();
     map.put(5, 10);
@@ -207,7 +207,6 @@ public class MapsTest extends TestCase {
   }
 
   public enum SomeEnum { SOME_INSTANCE }
-  public enum AnotherEnum { ANOTHER_INSTANCE }
 
   public void testEnumMap() {
     EnumMap<SomeEnum, Integer> map = Maps.newEnumMap(SomeEnum.class);
@@ -223,7 +222,7 @@ public class MapsTest extends TestCase {
     } catch (NullPointerException expected) {
     }
   }
-  
+
   public void testEnumMapWithInitialEnumMap() {
     EnumMap<SomeEnum, Integer> original = Maps.newEnumMap(SomeEnum.class);
     original.put(SomeEnum.SOME_INSTANCE, 0);
@@ -250,7 +249,7 @@ public class MapsTest extends TestCase {
       Map<SomeEnum, Integer> original = Maps.newHashMap();
       EnumMap<SomeEnum, Integer> copy = Maps.newEnumMap(original);
       fail("Empty map must result in an IllegalArgumentException");
-    } catch (IllegalArgumentException e) {      
+    } catch (IllegalArgumentException e) {
     }
   }
 
@@ -308,7 +307,7 @@ public class MapsTest extends TestCase {
     assertEquals(ImmutableMap.of(1, "a"), diff1.entriesInCommon());
     assertEquals(ImmutableMap.of(3,
         new Maps.ValueDifferenceImpl<String>("c", "f"), 5,
-        new Maps.ValueDifferenceImpl<String>("e", "g")), 
+        new Maps.ValueDifferenceImpl<String>("e", "g")),
         diff1.entriesDiffering());
     assertEquals("not equal: only on left={2=b, 4=d}: only on right={6=z}: "
         + "value differences={3=(c, f), 5=(e, g)}", diff1.toString());
@@ -320,7 +319,7 @@ public class MapsTest extends TestCase {
     assertEquals(ImmutableMap.of(1, "a"), diff2.entriesInCommon());
     assertEquals(ImmutableMap.of(3,
         new Maps.ValueDifferenceImpl<String>("f", "c"), 5,
-        new Maps.ValueDifferenceImpl<String>("g", "e")), 
+        new Maps.ValueDifferenceImpl<String>("g", "e")),
         diff2.entriesDiffering());
     assertEquals("not equal: only on left={6=z}: only on right={2=b, 4=d}: "
         + "value differences={3=(f, c), 5=(g, e)}", diff2.toString());
@@ -337,28 +336,28 @@ public class MapsTest extends TestCase {
     MapDifference<Integer, String> same = Maps.difference(left, right);
     MapDifference<Integer, String> reverse = Maps.difference(right, left);
     MapDifference<Integer, String> diff2 = Maps.difference(left, right2);
-    
+
     new EqualsTester(original)
         .addEqualObject(same)
         .addNotEqualObject(reverse, diff2)
         .testEquals();
   }
-  
+
   private static final BiMap<Integer, String> INT_TO_STRING_MAP =
       new ImmutableBiMap.Builder<Integer, String>()
           .put(1, "one")
           .put(2, "two")
           .put(3, "three")
           .build();
-  
+
   public void testUniqueIndexCollection() {
     ImmutableMap<Integer, String> outputMap =
         Maps.uniqueIndex(INT_TO_STRING_MAP.values(),
             Functions.forMap(INT_TO_STRING_MAP.inverse()));
     assertEquals(INT_TO_STRING_MAP, outputMap);
   }
-   
-  public void testUniqueIndexIterable() {     
+
+  public void testUniqueIndexIterable() {
     ImmutableMap<Integer, String> outputMap =
         Maps.uniqueIndex(new Iterable<String>() {
           public Iterator<String> iterator() {
@@ -368,25 +367,25 @@ public class MapsTest extends TestCase {
         Functions.forMap(INT_TO_STRING_MAP.inverse()));
     assertEquals(INT_TO_STRING_MAP, outputMap);
   }
-  
+
   public void testUniqueIndexIterableWithCollection() {
     ImmutableMap<Integer, String> outputMap =
         Maps.uniqueIndex(INT_TO_STRING_MAP.values(),
             Functions.forMap(INT_TO_STRING_MAP.inverse()));
     assertEquals(INT_TO_STRING_MAP, outputMap);
   }
-  
+
   /** Can't create the map if more than one value maps to the same key. */
-  public void testUniqueIndexDuplicates() {     
+  public void testUniqueIndexDuplicates() {
     try {
       Maps.uniqueIndex(ImmutableSet.of("one", "uno"), Functions.constant(1));
       fail();
     } catch (IllegalArgumentException expected) {
     }
   }
-  
+
   /** Null values are not allowed. */
-  public void testUniqueIndexNullValue() {     
+  public void testUniqueIndexNullValue() {
     List<String> listWithNull = Lists.newArrayList((String) null);
     try {
       Maps.uniqueIndex(listWithNull, Functions.constant(1));
@@ -394,9 +393,9 @@ public class MapsTest extends TestCase {
     } catch (NullPointerException expected) {
     }
   }
-  
+
   /** Null keys aren't allowed either. */
-  public void testUniqueIndexNullKey() {     
+  public void testUniqueIndexNullKey() {
     List<String> oneStringList = Lists.newArrayList("foo");
     try {
       Maps.uniqueIndex(oneStringList, Functions.constant(null));
@@ -456,29 +455,38 @@ public class MapsTest extends TestCase {
                   result.get("java.version"));
   }
 
-  public void testFromPropertiesNullKey() {     
+  @SuppressWarnings("serial") // never serialized
+  public void testFromPropertiesNullKey() {
     Properties properties = new Properties() {
-     @Override public String getProperty(String key) {
-        return (key == null) ? "none" : super.getProperty(key);
-      }
       @Override public Enumeration<?> propertyNames() {
         return Iterators.asEnumeration(
             Arrays.asList(null, "first", "second").iterator());
       }
-      private static final long serialVersionUID = 0;
     };
     properties.setProperty("first", "true");
     properties.setProperty("second", "null");
 
-    Map<String, String> map = Maps.fromProperties(properties);
-
-    Map<String, String> expected = Maps.newHashMap();
-    expected.put(null, "none"); 
-    expected.put("first", "true");
-    expected.put("second", "null");
-    assertEquals(expected, map);
+    try {
+      Maps.fromProperties(properties);
+      fail();
+    } catch (NullPointerException expected) {}
   }
-  
+
+  @SuppressWarnings("serial") // never serialized
+  public void testFromPropertiesNonStringKeys() {
+    Properties properties = new Properties() {
+      @Override public Enumeration<?> propertyNames() {
+        return Iterators.asEnumeration(
+            Arrays.<Object>asList(Integer.valueOf(123), "first").iterator());
+      }
+    };
+
+    try {
+      Maps.fromProperties(properties);
+      fail();
+    } catch (ClassCastException expected) {}
+  }
+
   /**
    * Constructs a "nefarious" map entry with the specified key and value,
    * meaning an entry that is suitable for testing that map entries cannot be
@@ -516,7 +524,7 @@ public class MapsTest extends TestCase {
     mod.put(2, "two");
     mod.put(3, "three");
 
-    BiMap<Integer, String> unmod = Maps.unmodifiableBiMap(mod);
+    BiMap<Number, String> unmod = Maps.<Number, String>unmodifiableBiMap(mod);
 
     /* No aliasing on inverse operations. */
     assertSame(unmod.inverse(), unmod.inverse());
@@ -542,7 +550,7 @@ public class MapsTest extends TestCase {
     } catch (UnsupportedOperationException expected) {}
 
     /* UnsupportedOperationException on indirect modifications. */
-    BiMap<String, Integer> inverse = unmod.inverse();
+    BiMap<String, Number> inverse = unmod.inverse();
     try {
       inverse.put("four", 4);
       fail("UnsupportedOperationException expected");
@@ -560,8 +568,8 @@ public class MapsTest extends TestCase {
       values.remove("four");
       fail("UnsupportedOperationException expected");
     } catch (UnsupportedOperationException expected) {}
-    Set<Map.Entry<Integer, String>> entries = unmod.entrySet();
-    Map.Entry<Integer, String> entry = entries.iterator().next();
+    Set<Map.Entry<Number, String>> entries = unmod.entrySet();
+    Map.Entry<Number, String> entry = entries.iterator().next();
     try {
       entry.setValue("four");
       fail("UnsupportedOperationException expected");
@@ -622,56 +630,56 @@ public class MapsTest extends TestCase {
     assertEquals(ImmutableSet.of(1, 2, 3), bimap.inverse().keySet());
     assertEquals(ImmutableSet.of(1, 2, 3), sync.inverse().keySet());
   }
-  
+
   private static final Predicate<String> NOT_LENGTH_3
       = new Predicate<String>() {
         public boolean apply(String input) {
           return input == null || input.length() != 3;
         }
       };
-  
+
   private static final Predicate<Integer> EVEN
       = new Predicate<Integer>() {
         public boolean apply(Integer input) {
           return input == null || input % 2 == 0;
         }
       };
-  
+
   private static final Predicate<Entry<String, Integer>> NOT_LENGTH_3_EVEN
       = new Predicate<Entry<String, Integer>>() {
         public boolean apply(Entry<String, Integer> input) {
           return NOT_LENGTH_3.apply(input.getKey())
               && EVEN.apply(input.getValue());
-        }    
+        }
       };
-  
+
    private static final Predicate<Entry<String, Integer>> CORRECT_LENGTH
       = new Predicate<Entry<String, Integer>>() {
         public boolean apply(Entry<String, Integer> input) {
           return input.getKey().length() == input.getValue();
         }
       };
-  
+
   public void testFilteredKeysIllegalPut() {
     Map<String, Integer> unfiltered = Maps.newHashMap();
     Map<String, Integer> filtered = Maps.filterKeys(unfiltered, NOT_LENGTH_3);
     filtered.put("a", 1);
     filtered.put("b", 2);
     assertEquals(ImmutableMap.of("a", 1, "b", 2), filtered);
-    
+
     try {
       filtered.put("yyy", 3);
       fail();
     } catch (IllegalArgumentException expected) {}
-    
+
     try {
       filtered.putAll(ImmutableMap.of("c", 3, "zzz", 4, "b", 5));
       fail();
     } catch (IllegalArgumentException expected) {}
-    
-    assertEquals(ImmutableMap.of("a", 1, "b", 2), filtered);    
+
+    assertEquals(ImmutableMap.of("a", 1, "b", 2), filtered);
   }
-  
+
   public void testFilteredKeysChangeFiltered() {
     Map<String, Integer> unfiltered = Maps.newHashMap();
     Map<String, Integer> filtered = Maps.filterKeys(unfiltered, NOT_LENGTH_3);
@@ -680,16 +688,16 @@ public class MapsTest extends TestCase {
     unfiltered.put("four", 4);
     assertEquals(ImmutableMap.of("two", 2, "three", 3, "four", 4), unfiltered);
     assertEquals(ImmutableMap.of("three", 3, "four", 4), filtered);
-    
+
     unfiltered.remove("three");
     assertEquals(ImmutableMap.of("two", 2, "four", 4), unfiltered);
-    assertEquals(ImmutableMap.of("four", 4), filtered);    
-    
+    assertEquals(ImmutableMap.of("four", 4), filtered);
+
     unfiltered.clear();
     assertEquals(ImmutableMap.of(), unfiltered);
-    assertEquals(ImmutableMap.of(), filtered);    
+    assertEquals(ImmutableMap.of(), filtered);
   }
-  
+
   public void testFilteredKeysChangeUnfiltered() {
     Map<String, Integer> unfiltered = Maps.newHashMap();
     Map<String, Integer> filtered = Maps.filterKeys(unfiltered, NOT_LENGTH_3);
@@ -698,16 +706,16 @@ public class MapsTest extends TestCase {
     unfiltered.put("four", 4);
     assertEquals(ImmutableMap.of("two", 2, "three", 3, "four", 4), unfiltered);
     assertEquals(ImmutableMap.of("three", 3, "four", 4), filtered);
-    
+
     filtered.remove("three");
     assertEquals(ImmutableMap.of("two", 2, "four", 4), unfiltered);
-    assertEquals(ImmutableMap.of("four", 4), filtered);    
-    
+    assertEquals(ImmutableMap.of("four", 4), filtered);
+
     filtered.clear();
     assertEquals(ImmutableMap.of("two", 2), unfiltered);
-    assertEquals(ImmutableMap.of(), filtered);    
-  }  
-  
+    assertEquals(ImmutableMap.of(), filtered);
+  }
+
   public void testFilteredValuesIllegalPut() {
     Map<String, Integer> unfiltered = Maps.newHashMap();
     Map<String, Integer> filtered = Maps.filterValues(unfiltered, EVEN);
@@ -715,27 +723,27 @@ public class MapsTest extends TestCase {
     unfiltered.put("b", 4);
     unfiltered.put("c", 5);
     assertEquals(ImmutableMap.of("a", 2, "b", 4), filtered);
-    
+
     try {
       filtered.put("yyy", 3);
       fail();
     } catch (IllegalArgumentException expected) {}
-    
+
     try {
       filtered.putAll(ImmutableMap.of("c", 4, "zzz", 5, "b", 6));
       fail();
     } catch (IllegalArgumentException expected) {}
-    
+
     assertEquals(ImmutableMap.of("a", 2, "b", 4), filtered);
   }
-  
+
   public void testFilteredValuesIllegalSetValue() {
     Map<String, Integer> unfiltered = Maps.newHashMap();
     Map<String, Integer> filtered = Maps.filterValues(unfiltered, EVEN);
     filtered.put("a", 2);
     filtered.put("b", 4);
     assertEquals(ImmutableMap.of("a", 2, "b", 4), filtered);
-    
+
     Entry<String, Integer> entry = filtered.entrySet().iterator().next();
     try {
       entry.setValue(5);
@@ -744,7 +752,7 @@ public class MapsTest extends TestCase {
 
     assertEquals(ImmutableMap.of("a", 2, "b", 4), filtered);
   }
-  
+
   public void testFilteredValuesClear() {
     Map<String, Integer> unfiltered = Maps.newHashMap();
     unfiltered.put("one", 1);
@@ -755,37 +763,37 @@ public class MapsTest extends TestCase {
     assertEquals(ImmutableMap.of("one", 1, "two", 2, "three", 3, "four", 4),
         unfiltered);
     assertEquals(ImmutableMap.of("two", 2, "four", 4), filtered);
-    
+
     filtered.clear();
     assertEquals(ImmutableMap.of("one", 1, "three", 3), unfiltered);
     assertTrue(filtered.isEmpty());
   }
-  
+
   public void testFilteredEntriesIllegalPut() {
     Map<String, Integer> unfiltered = Maps.newHashMap();
     unfiltered.put("cat", 3);
     unfiltered.put("dog", 2);
     unfiltered.put("horse", 5);
     Map<String, Integer> filtered
-        = Maps.filterEntries(unfiltered, CORRECT_LENGTH);    
+        = Maps.filterEntries(unfiltered, CORRECT_LENGTH);
     assertEquals(ImmutableMap.of("cat", 3, "horse", 5), filtered);
-    
+
     filtered.put("chicken", 7);
     assertEquals(ImmutableMap.of("cat", 3, "horse", 5, "chicken", 7), filtered);
-    
+
     try {
       filtered.put("cow", 7);
       fail();
     } catch (IllegalArgumentException expected) {}
     assertEquals(ImmutableMap.of("cat", 3, "horse", 5, "chicken", 7), filtered);
-    
+
     try {
       filtered.putAll(ImmutableMap.of("sheep", 5, "cow", 7));
       fail();
     } catch (IllegalArgumentException expected) {}
-    assertEquals(ImmutableMap.of("cat", 3, "horse", 5, "chicken", 7), filtered);    
+    assertEquals(ImmutableMap.of("cat", 3, "horse", 5, "chicken", 7), filtered);
   }
-  
+
   public static class FilteredKeysMapInterfaceTest
       extends MapInterfaceTest<String, Integer> {
 
@@ -816,8 +824,8 @@ public class MapsTest extends TestCase {
       map.put("five", 5);
       return map;
     }
-  }  
-  
+  }
+
   public static class FilteredValuesMapInterfaceTest
       extends MapInterfaceTest<String, Integer> {
 
@@ -847,9 +855,9 @@ public class MapsTest extends TestCase {
       map.put("six", 6);
       map.put("four", 4);
       return map;
-    }    
-  }  
-  
+    }
+  }
+
   public static class FilteredEntriesMapInterfaceTest
       extends MapInterfaceTest<String, Integer> {
 
@@ -879,9 +887,9 @@ public class MapsTest extends TestCase {
       map.put("eight", 8);
       map.put("tweleve", 12);
       return map;
-    }    
-  }  
-  
+    }
+  }
+
   public static class FilteredKeysFilteredValuesMapInterfaceTest
       extends MapInterfaceTest<String, Integer> {
 
@@ -911,9 +919,9 @@ public class MapsTest extends TestCase {
       map.put("eight", 8);
       map.put("twelve", 12);
       return map;
-    }    
-  }  
-  
+    }
+  }
+
   public static class FilteredValuesFilteredKeysMapInterfaceTest
       extends MapInterfaceTest<String, Integer> {
 
@@ -944,5 +952,5 @@ public class MapsTest extends TestCase {
       map.put("tweleve", 12);
       return map;
     }
-  }  
+  }
 }

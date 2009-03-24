@@ -42,7 +42,7 @@ public class LinkedHashMultisetTest extends AbstractMultisetTest {
     assertEquals(2, multiset.count("foo"));
     assertEquals("[foo x 2, bar]", multiset.toString());
   }
-  
+
   public void testCreateWithSize() {
     Multiset<String> multiset = LinkedHashMultiset.create(50);
     multiset.add("foo", 2);
@@ -51,14 +51,14 @@ public class LinkedHashMultisetTest extends AbstractMultisetTest {
     assertEquals(2, multiset.count("foo"));
     assertEquals("[foo x 2, bar]", multiset.toString());
   }
-  
+
   public void testCreateFromIterable() {
     Multiset<String> multiset
         = LinkedHashMultiset.create(Arrays.asList("foo", "bar", "foo"));
     assertEquals(3, multiset.size());
     assertEquals(2, multiset.count("foo"));
     assertEquals("[foo x 2, bar]", multiset.toString());
-  }  
+  }
 
   public void testIteratorBashing() throws Exception {
     ms = createSample();
@@ -108,7 +108,7 @@ public class LinkedHashMultisetTest extends AbstractMultisetTest {
     ms.add("b");
     assertContentsInOrder(ms.elementSet(), "a", "c", "b");
   }
-  
+
   public void testIteratorRemoveConcurrentModification() {
     ms.add("a");
     ms.add("b");
@@ -123,5 +123,5 @@ public class LinkedHashMultisetTest extends AbstractMultisetTest {
     } catch (ConcurrentModificationException expected) {}
     assertEquals(1, ms.size());
     assertTrue(ms.contains("b"));
-  }  
+  }
 }

@@ -36,39 +36,39 @@ public abstract class AbstractConcurrentMultisetTest
   @Override public void testEntryAfterEntrySetClear() {}
   @Override public void testEntryAfterEntrySetIteratorRemove() {}
   @Override public void testEntryAfterElementSetIteratorRemove() {}
-  
+
   public void testCopyConstructor() {
     ms = new ConcurrentMultiset<String>(Arrays.asList("a", "b", "a", "c"));
     assertEquals(4, ms.size());
     assertEquals(2, ms.count("a"));
     assertEquals(1, ms.count("b"));
-    assertEquals(1, ms.count("c"));    
+    assertEquals(1, ms.count("c"));
   }
-  
+
   public void testSetCount() {
     ConcurrentMultiset<String> cms = new ConcurrentMultiset<String>();
     cms.add("a", 2);
     cms.add("b", 3);
-    
+
     try {
       cms.setCount("a", -1);
       fail();
     } catch (IllegalArgumentException expected) {}
     assertEquals(2, cms.count("a"));
-    
+
     assertEquals(2, cms.setCount("a", 0));
-    assertEquals(0, cms.count("a"));    
+    assertEquals(0, cms.count("a"));
     assertEquals(3, cms.setCount("b", 4));
-    assertEquals(4, cms.count("b"));    
+    assertEquals(4, cms.count("b"));
     assertEquals(0, cms.setCount("c", 5));
-    assertEquals(5, cms.count("c"));    
-  }  
-  
+    assertEquals(5, cms.count("c"));
+  }
+
   public void testSetCountConditional() {
     ConcurrentMultiset<String> cms = new ConcurrentMultiset<String>();
     cms.add("a", 2);
     cms.add("b", 3);
-    
+
     try {
       cms.setCount("a", -1, 1);
       fail();
@@ -78,7 +78,7 @@ public abstract class AbstractConcurrentMultisetTest
       fail();
     } catch (IllegalArgumentException expected) {}
     assertEquals(2, cms.count("a"));
-    
+
     assertTrue(cms.setCount("c", 0, 0));
     assertEquals(0, cms.count("c"));
     assertFalse(cms.setCount("c", 1, 0));
@@ -89,7 +89,7 @@ public abstract class AbstractConcurrentMultisetTest
     assertEquals(2, cms.count("a"));
     assertTrue(cms.setCount("a", 2, 0));
     assertEquals(0, cms.count("a"));
-    
+
     assertTrue(cms.setCount("d", 0, 4));
     assertEquals(4, cms.count("d"));
     assertFalse(cms.setCount("b", 0, 5));
@@ -97,9 +97,9 @@ public abstract class AbstractConcurrentMultisetTest
     assertFalse(cms.setCount("b", 1, 5));
     assertEquals(3, cms.count("b"));
     assertTrue(cms.setCount("b", 3, 5));
-    assertEquals(5, cms.count("b"));    
+    assertEquals(5, cms.count("b"));
   }
-  
+
   public void testRemoveExactly() {
     ConcurrentMultiset<String> cms = new ConcurrentMultiset<String>();
     cms.add("a", 2);
@@ -108,12 +108,12 @@ public abstract class AbstractConcurrentMultisetTest
     try {
       cms.removeExactly("a", -2);
     } catch (IllegalArgumentException expected) {}
-    
+
     assertTrue(cms.removeExactly("a", 0));
     assertEquals(2, cms.count("a"));
     assertTrue(cms.removeExactly("c", 0));
     assertEquals(0, cms.count("c"));
-    
+
     assertFalse(cms.removeExactly("a", 4));
     assertEquals(2, cms.count("a"));
     assertTrue(cms.removeExactly("a", 2));

@@ -24,7 +24,7 @@ import java.util.Arrays;
  * A generic JUnit test which tests {@code toArray()} operations on a list.
  * Can't be invoked directly; please see
  * {@link com.google.common.collect.testing.ListTestSuiteBuilder}.
- * 
+ *
  * @author Chris Povirk
  */
 public class ListToArrayTester<E> extends AbstractListTester<E> {

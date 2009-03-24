@@ -40,7 +40,7 @@ import junit.framework.TestSuite;
  * @author Jared Levy
  */
 public class ImmutableSetCollectionTest extends TestCase {
-  
+
   public static Test suite() {
     TestSuite suite = new TestSuite();
 
@@ -94,7 +94,7 @@ public class ImmutableSetCollectionTest extends TestCase {
         .named(ImmutableSortedSetTest.class.getName())
         .withFeatures(CollectionSize.ANY, CollectionFeature.KNOWN_ORDER)
         .createTestSuite());
-    
+
     suite.addTest(SetTestSuiteBuilder.using(
         new TestStringSortedSetGenerator() {
           @Override protected SortedSet<String> create(String[] elements) {
@@ -105,7 +105,7 @@ public class ImmutableSetCollectionTest extends TestCase {
         .named(ImmutableSortedSetTest.class.getName() + ", reserialized")
         .withFeatures(CollectionSize.ANY, CollectionFeature.KNOWN_ORDER)
         .createTestSuite());
-    
+
     suite.addTest(SetTestSuiteBuilder.using(
         new TestStringSortedSetGenerator() {
           @Override protected SortedSet<String> create(String[] elements) {
@@ -118,7 +118,7 @@ public class ImmutableSetCollectionTest extends TestCase {
         .named(ImmutableSortedSetTest.class.getName() + ", headset")
         .withFeatures(CollectionSize.ANY, CollectionFeature.KNOWN_ORDER)
         .createTestSuite());
-    
+
     suite.addTest(SetTestSuiteBuilder.using(
         new TestStringSortedSetGenerator() {
           @Override protected SortedSet<String> create(String[] elements) {
@@ -131,7 +131,7 @@ public class ImmutableSetCollectionTest extends TestCase {
         .named(ImmutableSortedSetTest.class.getName() + ", tailset")
         .withFeatures(CollectionSize.ANY, CollectionFeature.KNOWN_ORDER)
         .createTestSuite());
-    
+
     suite.addTest(SetTestSuiteBuilder.using(
         new TestStringSortedSetGenerator() {
           @Override protected SortedSet<String> create(String[] elements) {
@@ -145,7 +145,7 @@ public class ImmutableSetCollectionTest extends TestCase {
         .named(ImmutableSortedSetTest.class.getName() + ", subset")
         .withFeatures(CollectionSize.ANY, CollectionFeature.KNOWN_ORDER)
         .createTestSuite());
-    
+
     suite.addTest(SetTestSuiteBuilder.using(
         new TestStringSortedSetGenerator() {
           @Override protected SortedSet<String> create(String[] elements) {
@@ -159,7 +159,7 @@ public class ImmutableSetCollectionTest extends TestCase {
             ImmutableSortedSetTest.class.getName() + ", headset, reserialized")
         .withFeatures(CollectionSize.ANY, CollectionFeature.KNOWN_ORDER)
         .createTestSuite());
-    
+
     suite.addTest(SetTestSuiteBuilder.using(
         new TestStringSortedSetGenerator() {
           @Override protected SortedSet<String> create(String[] elements) {
@@ -173,7 +173,7 @@ public class ImmutableSetCollectionTest extends TestCase {
             ImmutableSortedSetTest.class.getName() + ", tailset, reserialized")
         .withFeatures(CollectionSize.ANY, CollectionFeature.KNOWN_ORDER)
         .createTestSuite());
-    
+
     suite.addTest(SetTestSuiteBuilder.using(
         new TestStringSortedSetGenerator() {
           @Override protected SortedSet<String> create(String[] elements) {
@@ -189,8 +189,8 @@ public class ImmutableSetCollectionTest extends TestCase {
         .withFeatures(CollectionSize.ANY, CollectionFeature.KNOWN_ORDER)
         .createTestSuite());
 
-    final Comparator<String> stringReversed = Collections.reverseOrder();   
-    
+    final Comparator<String> stringReversed = Collections.reverseOrder();
+
     suite.addTest(SetTestSuiteBuilder.using(new TestStringSetGenerator() {
           @Override protected SortedSet<String> create(String[] elements) {
             return ImmutableSortedSet.orderedBy(stringReversed)
@@ -207,11 +207,11 @@ public class ImmutableSetCollectionTest extends TestCase {
             + ", explicit comparator, vararg")
         .withFeatures(CollectionSize.ANY, CollectionFeature.KNOWN_ORDER)
         .createTestSuite());
-    
+
 
     final Comparator<Comparable<?>> comparableReversed
         = Collections.reverseOrder();
-    
+
     suite.addTest(SetTestSuiteBuilder.using(new TestStringSetGenerator() {
           @Override protected SortedSet<String> create(String[] elements) {
             return new ImmutableSortedSet.Builder<String>(comparableReversed)
@@ -227,8 +227,8 @@ public class ImmutableSetCollectionTest extends TestCase {
         .named(ImmutableSortedSetTest.class.getName()
             + ", explicit superclass comparator, iterable")
         .withFeatures(CollectionSize.ANY, CollectionFeature.KNOWN_ORDER)
-        .createTestSuite());    
-    
+        .createTestSuite());
+
     suite.addTest(SetTestSuiteBuilder.using(new TestStringSetGenerator() {
           @Override protected SortedSet<String> create(String[] elements) {
             return ImmutableSortedSet.<String>reverseOrder()
@@ -246,7 +246,7 @@ public class ImmutableSetCollectionTest extends TestCase {
             + ", reverseOrder, iterator")
         .withFeatures(CollectionSize.ANY, CollectionFeature.KNOWN_ORDER)
         .createTestSuite());
-    
+
     return suite;
   }
 }

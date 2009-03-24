@@ -17,12 +17,10 @@
 package com.google.common.testutils;
 
 import com.google.common.annotations.GwtCompatible;
-import com.google.common.base.Preconditions;
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import static junit.framework.Assert.assertEquals;
@@ -78,7 +76,7 @@ public final class EqualsTester {
   private final List<Object> defaultEqualObjects = Lists.newArrayList();
   private final List<Object> defaultNotEqualObjects = Lists.newArrayList();
   private final List<List<Object>> equalityGroups = Lists.newArrayList();
-  
+
   /**
    * Constructs an empty EqualsTester instance
    */
@@ -86,7 +84,7 @@ public final class EqualsTester {
     equalityGroups.add(defaultEqualObjects);
   }
 
-  
+
   /**
    * Constructs a new EqualsTester for a given reference object
    *
@@ -176,11 +174,11 @@ public final class EqualsTester {
       }
     }
   }
-  
+
   private static void assertNotEqual(Object a, Object b) {
     assertFalse(a + " is expected to be unequal to " + b, a.equals(b));
   }
-  
+
   private static List<Object> list(Object... objects) {
     return ImmutableList.of(objects);
   }
@@ -193,7 +191,7 @@ public final class EqualsTester {
   private static final class NotAnInstance {
 
     static final NotAnInstance SINGLETON = new NotAnInstance();
-    
+
     @Override public String toString() {
       return "equal_to_nothing";
     }

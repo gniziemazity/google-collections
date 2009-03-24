@@ -24,7 +24,7 @@ import junit.framework.TestCase;
 
 /**
  * Tests for an {@link EnumMultiset}.
- * 
+ *
  * @author Jared Levy
  */
 public class EnumMultisetTest extends TestCase {
@@ -47,7 +47,7 @@ public class EnumMultisetTest extends TestCase {
         Arrays.asList(Color.RED, Color.YELLOW, Color.RED));
     assertEquals(0, ms.count(Color.BLUE));
     assertEquals(1, ms.count(Color.YELLOW));
-    assertEquals(2, ms.count(Color.RED));    
+    assertEquals(2, ms.count(Color.RED));
   }
 
   public void testIllegalCreate() {
@@ -57,7 +57,7 @@ public class EnumMultisetTest extends TestCase {
       fail();
     } catch (IllegalArgumentException expected) {}
   }
-  
+
   public void testToString() {
     Multiset<Color> ms = EnumMultiset.create(Color.class);
     ms.add(Color.BLUE, 3);
@@ -65,7 +65,7 @@ public class EnumMultisetTest extends TestCase {
     ms.add(Color.RED, 2);
     assertEquals("[BLUE x 3, RED x 2, YELLOW]", ms.toString());
   }
-  
+
   public void testSerializable() {
     Multiset<Color> ms = EnumMultiset.create(
         Arrays.asList(Color.RED, Color.YELLOW, Color.RED));

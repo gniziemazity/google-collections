@@ -124,7 +124,7 @@ public abstract class AbstractMapTester<K, V> extends
    * {@code (null)}
    * except that the call to {@code contains(null)} is permitted to throw a
    * {@code NullPointerException}.
-   * @param message message to use upon assertion failure 
+   * @param message message to use upon assertion failure
    */
   protected void expectNullKeyMissingWhenNullKeysUnsupported(String message) {
     try {
@@ -139,7 +139,7 @@ public abstract class AbstractMapTester<K, V> extends
    * {@code (null)}
    * except that the call to {@code contains(null)} is permitted to throw a
    * {@code NullPointerException}.
-   * @param message message to use upon assertion failure 
+   * @param message message to use upon assertion failure
    */
   protected void expectNullValueMissingWhenNullValuesUnsupported(
       String message) {

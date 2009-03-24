@@ -21,7 +21,7 @@ import java.util.List;
 
 /**
  * Tests for {@code ForwardingList}.
- * 
+ *
  * @author Robert Konigsberg
  */
 public class ForwardingListTest extends ForwardingTestCase {

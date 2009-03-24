@@ -45,7 +45,7 @@ public class SynchronizedMultimapTest extends AbstractSetMultimapTest {
     @Override protected Multimap<K, V> delegate() {
       return delegate;
     }
-    
+
     @Override public String toString() {
       assertTrue(Thread.holdsLock(mutex));
       return super.toString();
@@ -160,10 +160,10 @@ public class SynchronizedMultimapTest extends AbstractSetMultimapTest {
       /* TODO: verify that the Map is also synchronized? */
       return super.asMap();
     }
-    
-    private static final long serialVersionUID = 0;    
-  }  
-  
+
+    private static final long serialVersionUID = 0;
+  }
+
   public void testSynchronizedListMultimap() {
     ListMultimap<String, Integer> multimap
         = Multimaps.synchronizedListMultimap(
@@ -181,7 +181,7 @@ public class SynchronizedMultimapTest extends AbstractSetMultimapTest {
   public void testSynchronizedSortedSetMultimap() {
     SortedSetMultimap<String, Integer> multimap
         = Multimaps.synchronizedSortedSetMultimap(
-            new TreeMultimap<String, Integer>());
+            TreeMultimap.<String, Integer>create());
     multimap.putAll("foo", Arrays.asList(3, -1, 2, 4, 1));
     multimap.putAll("bar", Arrays.asList(1, 2, 3, 1));
     JUnitAsserts.assertContentsInOrder(

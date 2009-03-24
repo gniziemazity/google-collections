@@ -19,13 +19,12 @@ package com.google.common.collect;
 import com.google.common.base.Functions;
 import com.google.common.base.Supplier;
 import static com.google.common.collect.Sets.newHashSet;
-import com.google.common.collect.SetsTest.Derived;
 import static com.google.common.collect.testing.Helpers.assertContentsAnyOrder;
 import static com.google.common.collect.testing.IteratorFeature.MODIFIABLE;
 import com.google.common.collect.testing.IteratorTester;
-import com.google.common.testing.junit3.JUnitAsserts;
 import com.google.common.testutils.SerializableTester;
 import java.io.Serializable;
+import java.util.Arrays;
 import static java.util.Arrays.asList;
 import java.util.Collection;
 import java.util.Collections;
@@ -67,7 +66,7 @@ public class MultimapsTest extends AbstractMultimapTest {
 
   public void testUnmodifiableTreeMultimap() {
     checkUnmodifiableMultimap(
-        new TreeMultimap<String, Integer>(), false, "null", 42);
+        TreeMultimap.<String, Integer>create(), false, "null", 42);
   }
 
   public void testUnmodifiableSynchronizedArrayListMultimap() {
@@ -81,9 +80,10 @@ public class MultimapsTest extends AbstractMultimapTest {
   }
 
   public void testUnmodifiableSynchronizedTreeMultimap() {
-    SortedSetMultimap<String, Integer> multimap =
-        Multimaps.synchronizedSortedSetMultimap(
-            new TreeMultimap<String, Integer>(null, INT_COMPARATOR));
+    TreeMultimap<String, Integer> delegate
+        = TreeMultimap.create(Ordering.<String>natural(), INT_COMPARATOR);
+    SortedSetMultimap<String, Integer> multimap
+        = Multimaps.synchronizedSortedSetMultimap(delegate);
     checkUnmodifiableMultimap(multimap, false, "null", 42);
     assertSame(INT_COMPARATOR, multimap.valueComparator());
   }
@@ -374,48 +374,6 @@ public class MultimapsTest extends AbstractMultimapTest {
     tester.test();
   }
 
-  public void testTreeMultimapDerived() {
-    TreeMultimap<Derived, Derived> multimap = Multimaps.newTreeMultimap();
-    assertEquals(ImmutableMultimap.<Derived, Derived>empty(), multimap);
-    multimap.put(new Derived("foo"), new Derived("f"));
-    multimap.put(new Derived("foo"), new Derived("o"));
-    multimap.put(new Derived("foo"), new Derived("o"));
-    multimap.put(new Derived("bar"), new Derived("b"));
-    multimap.put(new Derived("bar"), new Derived("a"));
-    multimap.put(new Derived("bar"), new Derived("r"));
-    JUnitAsserts.assertContentsInOrder(multimap.keySet(),
-        new Derived("bar"), new Derived("foo"));
-    JUnitAsserts.assertContentsInOrder(multimap.values(),
-        new Derived("a"), new Derived("b"), new Derived("r"),
-        new Derived("f"), new Derived("o"));
-    assertNull(multimap.keyComparator());
-    assertNull(multimap.valueComparator());
-    SerializableTester.reserializeAndAssert(multimap);
-  }
-
-  public void testTreeMultimapNonGeneric() {
-    TreeMultimap<LegacyComparable, LegacyComparable> multimap
-        = Multimaps.newTreeMultimap();
-    assertEquals(ImmutableMultimap.<LegacyComparable, LegacyComparable>empty(), multimap);
-    multimap.put(new LegacyComparable("foo"), new LegacyComparable("f"));
-    multimap.put(new LegacyComparable("foo"), new LegacyComparable("o"));
-    multimap.put(new LegacyComparable("foo"), new LegacyComparable("o"));
-    multimap.put(new LegacyComparable("bar"), new LegacyComparable("b"));
-    multimap.put(new LegacyComparable("bar"), new LegacyComparable("a"));
-    multimap.put(new LegacyComparable("bar"), new LegacyComparable("r"));
-    JUnitAsserts.assertContentsInOrder(multimap.keySet(),
-        new LegacyComparable("bar"), new LegacyComparable("foo"));
-    JUnitAsserts.assertContentsInOrder(multimap.values(),
-        new LegacyComparable("a"),
-        new LegacyComparable("b"),
-        new LegacyComparable("r"),
-        new LegacyComparable("f"),
-        new LegacyComparable("o"));
-    assertNull(multimap.keyComparator());
-    assertNull(multimap.valueComparator());
-    SerializableTester.reserializeAndAssert(multimap);
-  }
-
   private enum Color {BLUE, RED, YELLOW, GREEN}
 
   private static abstract class CountingSupplier<E>
@@ -540,14 +498,25 @@ public class MultimapsTest extends AbstractMultimapTest {
             .put("2", 2L)
             .build();
 
-    ListMultimap<String, Object> outputMap =
+    ImmutableMultimap<String, Object> outputMap =
         Multimaps.index(stringToObject.values(),
             Functions.toStringFunction());
     assertEquals(stringToObject, outputMap);
+  }
 
-    ListMultimap<String, Object> outputMap2 = LinkedListMultimap.create();
-    Multimaps.index(
-        stringToObject.values(), Functions.toStringFunction(), outputMap2);
-    assertEquals(stringToObject, outputMap2);
+  public void testIndex_nullValue() {
+    List<Integer> values = Arrays.asList(1, null);
+    try {
+      Multimaps.index(values, Functions.identity());
+      fail();
+    } catch (NullPointerException e) {}
+  }
+
+  public void testIndex_nullKey() {
+    List<Integer> values = Arrays.asList(1, 2);
+    try {
+      Multimaps.index(values, Functions.constant(null));
+      fail();
+    } catch (NullPointerException e) {}
   }
 }

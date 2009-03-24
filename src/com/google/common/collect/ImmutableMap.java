@@ -18,12 +18,9 @@ package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
 import static com.google.common.base.Preconditions.checkNotNull;
-import com.google.common.collect.ImmutableSet.ArrayImmutableSet;
-import com.google.common.collect.ImmutableSet.TransformedImmutableSet;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import java.io.Serializable;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -49,7 +46,7 @@ import javax.annotation.Nullable;
  * @author Jesse Wilson
  * @author Kevin Bourrillion
  */
-@GwtCompatible
+@GwtCompatible(serializable = true)
 @SuppressWarnings("serial") // we're overriding default serialization
 public abstract class ImmutableMap<K, V>
     implements ConcurrentMap<K, V>, Serializable {
@@ -388,8 +385,8 @@ public abstract class ImmutableMap<K, V>
     return result.append('}').toString();
   }
 
-  private static final class EmptyImmutableMap
-      extends ImmutableMap<Object, Object> {
+  // Package-private for GWT serialization.
+  static final class EmptyImmutableMap extends ImmutableMap<Object, Object> {
 
     @Override public Object get(Object key) {
       return null;
@@ -440,318 +437,14 @@ public abstract class ImmutableMap<K, V>
     }
   }
 
-  private static final class SingletonImmutableMap<K, V>
-      extends ImmutableMap<K, V> {
-    private transient final K singleKey;
-    private transient final V singleValue;
-    private transient Entry<K, V> entry;
-
-    private SingletonImmutableMap(K singleKey, V singleValue) {
-      this.singleKey = singleKey;
-      this.singleValue = singleValue;
-    }
-
-    private SingletonImmutableMap(Entry<K, V> entry) {
-      this.entry = entry;
-      this.singleKey = entry.getKey();
-      this.singleValue = entry.getValue();
-    }
-
-    private Entry<K, V> entry() {
-      Entry<K, V> e = entry;
-      return (e == null)
-          ? (entry = Maps.immutableEntry(singleKey, singleValue)) : e;
-    }
-
-    @Override public V get(Object key) {
-      return singleKey.equals(key) ? singleValue : null;
-    }
-
-    public int size() {
-      return 1;
-    }
-
-    public boolean isEmpty() {
-      return false;
-    }
-
-    @Override public boolean containsKey(Object key) {
-      return singleKey.equals(key);
-    }
-
-    @Override public boolean containsValue(Object value) {
-      return singleValue.equals(value);
-    }
-
-    private transient ImmutableSet<Entry<K, V>> entrySet;
-
-    @Override public ImmutableSet<Entry<K, V>> entrySet() {
-      ImmutableSet<Entry<K, V>> es = entrySet;
-      return (es == null) ? (entrySet = ImmutableSet.of(entry())) : es;
-    }
-
-    private transient ImmutableSet<K> keySet;
-
-    @Override public ImmutableSet<K> keySet() {
-      ImmutableSet<K> ks = keySet;
-      return (ks == null) ? (keySet = ImmutableSet.of(singleKey)) : ks;
-    }
-
-    private transient ImmutableCollection<V> values;
-
-    @Override public ImmutableCollection<V> values() {
-      ImmutableCollection<V> v = values;
-      return (v == null) ? (values = new Values<V>(singleValue)) : v;
-    }
-
-    private static class Values<V> extends ImmutableCollection<V> {
-      final V singleValue;
-
-      Values(V singleValue) {
-        this.singleValue = singleValue;
-      }
-
-      @Override public boolean contains(Object object) {
-        return singleValue.equals(object);
-      }
-
-      @Override public boolean isEmpty() {
-        return false;
-      }
-
-      public int size() {
-        return 1;
-      }
-
-      @Override public UnmodifiableIterator<V> iterator() {
-        return Iterators.singletonIterator(singleValue);
-      }
-    }
-
-    @Override public boolean equals(@Nullable Object object) {
-      if (object == this) {
-        return true;
-      }
-      if (object instanceof Map) {
-        Map<?, ?> that = (Map<?, ?>) object;
-        if (that.size() != 1) {
-          return false;
-        }
-        Map.Entry<?, ?> entry = that.entrySet().iterator().next();
-        return singleKey.equals(entry.getKey())
-            && singleValue.equals(entry.getValue());
-      }
-      return false;
-    }
-
-    @Override public int hashCode() {
-      return singleKey.hashCode() ^ singleValue.hashCode();
-    }
-
-    @Override public String toString() {
-      return new StringBuilder()
-          .append('{')
-          .append(singleKey.toString())
-          .append('=')
-          .append(singleValue.toString())
-          .append('}')
-          .toString();
-    }
-  }
-
-  private static final class RegularImmutableMap<K, V>
-      extends ImmutableMap<K, V> {
-    private transient final Entry<K, V>[] entries; // entries in insertion order
-    private transient final Object[] table; // alternating keys and values
-    // 'and' with an int then shift to get a table index
-    private transient final int mask;
-    private transient final int keySetHashCode;
-
-    private RegularImmutableMap(Entry<?, ?>... entries) {
-      // each of our 6 callers carefully put only Entry<K, V>s into the array!
-      @SuppressWarnings("unchecked")
-      Entry<K, V>[] tmp = (Entry<K, V>[]) entries;
-      this.entries = tmp;
-
-      int tableSize = Hashing.chooseTableSize(entries.length);
-      table = new Object[tableSize * 2];
-      mask = tableSize - 1;
-
-      int keySetHashCodeMutable = 0;
-      for (Entry<K, V> entry : this.entries) {
-        K key = entry.getKey();
-        int keyHashCode = key.hashCode();
-        for (int i = Hashing.smear(keyHashCode); true; i++) {
-          int index = (i & mask) * 2;
-          Object existing = table[index];
-          if (existing == null) {
-            V value = entry.getValue();
-            table[index] = key;
-            table[index + 1] = value;
-            keySetHashCodeMutable += keyHashCode;
-            break;
-          } else if (existing.equals(key)) {
-            throw new IllegalArgumentException("duplicate key: " + key);
-          }
-        }
-      }
-      keySetHashCode = keySetHashCodeMutable;
-    }
-
-    @Override public V get(Object key) {
-      if (key == null) {
-        return null;
-      }
-      for (int i = Hashing.smear(key.hashCode()); true; i++) {
-        int index = (i & mask) * 2;
-        Object candidate = table[index];
-        if (candidate == null) {
-          return null;
-        }
-        if (candidate.equals(key)) {
-          // we're careful to store only V's at odd indices
-          @SuppressWarnings("unchecked")
-          V value = (V) table[index + 1];
-          return value;
-        }
-      }
-    }
-
-    public int size() {
-      return entries.length;
-    }
-
-    public boolean isEmpty() {
-      return false;
-    }
-
-    @Override public boolean containsKey(Object key) {
-      return get(key) != null;
-    }
-
-    @Override public boolean containsValue(Object value) {
-      if (value == null) {
-        return false;
-      }
-      for (Entry<K, V> entry : entries) {
-        if (entry.getValue().equals(value)) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    // TODO: Serialization of the map views should serialize the map, and
-    // deserialization should call entrySet(), keySet(), or values() on the
-    // deserialized map. The views are serializable since the Immutable* classes
-    // are.
-
-    private transient ImmutableSet<Entry<K, V>> entrySet;
-
-    @Override public ImmutableSet<Entry<K, V>> entrySet() {
-      ImmutableSet<Entry<K, V>> es = entrySet;
-      return (es == null) ? (entrySet = new EntrySet<K, V>(this)) : es;
-    }
-
-    private static class EntrySet<K, V> extends ArrayImmutableSet<Entry<K, V>> {
-      final RegularImmutableMap<K, V> map;
-
-      EntrySet(RegularImmutableMap<K, V> map) {
-        super(map.entries);
-        this.map = map;
-      }
-
-      @Override public boolean contains(Object target) {
-        if (target instanceof Entry) {
-          Entry<?, ?> entry = (Entry<?, ?>) target;
-          V mappedValue = map.get(entry.getKey());
-          return mappedValue != null && mappedValue.equals(entry.getValue());
-        }
-        return false;
-      }
-    }
-
-    private transient ImmutableSet<K> keySet;
-
-    @Override public ImmutableSet<K> keySet() {
-      ImmutableSet<K> ks = keySet;
-      return (ks == null) ? (keySet = new KeySet<K, V>(this)) : ks;
-    }
-
-    private static class KeySet<K, V>
-        extends TransformedImmutableSet<Map.Entry<K, V>, K> {
-      final RegularImmutableMap<K, V> map;
-
-      KeySet(RegularImmutableMap<K, V> map) {
-        super(map.entries, map.keySetHashCode);
-        this.map = map;
-      }
-
-      @Override K transform(Entry<K, V> element) {
-        return element.getKey();
-      }
-
-      @Override public boolean contains(Object target) {
-        return map.containsKey(target);
-      }
-    }
-
-    private transient ImmutableCollection<V> values;
-
-    @Override public ImmutableCollection<V> values() {
-      ImmutableCollection<V> v = values;
-      return (v == null) ? (values = new Values<V>(this)) : v;
-    }
-
-    private static class Values<V> extends ImmutableCollection<V>  {
-      final RegularImmutableMap<?, V> map;
-
-      Values(RegularImmutableMap<?, V> map) {
-        this.map = map;
-      }
-
-      public int size() {
-        return map.entries.length;
-      }
-
-      @Override public boolean isEmpty() {
-        return false;
-      }
-
-      @Override public UnmodifiableIterator<V> iterator() {
-        Iterator<V> iterator = new AbstractIterator<V>() {
-          int index = 0;
-          @Override protected V computeNext() {
-            return (index < map.entries.length)
-                ? map.entries[index++].getValue()
-                : endOfData();
-          }
-        };
-        // Though the AbstractIterator is unmodifiable, it isn't an
-        // UnmodifiableIterator.
-        return Iterators.unmodifiableIterator(iterator);
-      }
-
-      @Override public boolean contains(Object target) {
-        return map.containsValue(target);
-      }
-    }
-
-    @Override public String toString() {
-      StringBuilder result = new StringBuilder(size() * 16).append('{');
-      Collections2.standardJoiner.appendTo(result, entries);
-      return result.append('}').toString();
-    }
-  }
-
-  /*
+  /**
    * Serialized type for all ImmutableMap instances. It captures the logical
    * contents and they are reconstructed using public factory methods. This
    * ensures that the implementation types remain as implementation details.
    */
-  private static class SerializedForm implements Serializable {
-    final Object[] keys;
-    final Object[] values;
+  static class SerializedForm implements Serializable {
+    private final Object[] keys;
+    private final Object[] values;
     SerializedForm(ImmutableMap<?, ?> map) {
       keys = new Object[map.size()];
       values = new Object[map.size()];
@@ -764,6 +457,9 @@ public abstract class ImmutableMap<K, V>
     }
     Object readResolve() {
       Builder<Object, Object> builder = new Builder<Object, Object>();
+      return createMap(builder);
+    }
+    Object createMap(Builder<Object, Object> builder) {
       for (int i = 0; i < keys.length; i++) {
         builder.put(keys[i], values[i]);
       }

@@ -36,15 +36,15 @@ import junit.framework.TestSuite;
 
 /**
  * Tests for {@link ImmutableMultiset}.
- * 
+ *
  * @author Jared Levy
  */
 public class ImmutableMultisetTest extends TestCase {
-  
+
   public static Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTestSuite(ImmutableMultisetTest.class);
-    
+
     suite.addTest(MultisetTestSuiteBuilder.using(
         new TestStringMultisetGenerator() {
           @Override protected Multiset<String> create(String[] elements) {
@@ -54,7 +54,7 @@ public class ImmutableMultisetTest extends TestCase {
         .named("ImmutableMultiset")
         .withFeatures(CollectionSize.ANY)
         .createTestSuite());
-    
+
     suite.addTest(MultisetTestSuiteBuilder.using(
         new TestStringMultisetGenerator() {
           @Override protected Multiset<String> create(String[] elements) {
@@ -78,17 +78,15 @@ public class ImmutableMultisetTest extends TestCase {
 
     return suite;
   }
-  
+
   public void testCreation_noArgs() {
     Multiset<String> multiset = ImmutableMultiset.of();
     assertTrue(multiset.isEmpty());
   }
-  
+
   public void testCreation_oneElement() {
     Multiset<String> multiset = ImmutableMultiset.of("a");
-    Multiset<String> expected = HashMultiset.create();
-    expected.add("a");
-    assertEquals(expected, multiset);
+    assertEquals(HashMultiset.create(asList("a")), multiset);
   }
 
   public void testCreation_emptyArray() {
@@ -196,8 +194,8 @@ public class ImmutableMultisetTest extends TestCase {
       ImmutableMultiset.copyOf(iterator);
       fail();
     } catch (NullPointerException expected) {}
-  }  
-  
+  }
+
   private static class CountingIterable implements Iterable<String> {
     int count = 0;
     public Iterator<String> iterator() {
@@ -205,7 +203,7 @@ public class ImmutableMultisetTest extends TestCase {
       return asList("a", "b", "a").iterator();
     }
   }
-  
+
   public void testCopyOf_plainIterable() {
     CountingIterable iterable = new CountingIterable();
     Multiset<String> multiset = ImmutableMultiset.copyOf(iterable);
@@ -232,12 +230,12 @@ public class ImmutableMultisetTest extends TestCase {
     NullPointerTester tester = new NullPointerTester();
     tester.testAllPublicStaticMethods(ImmutableMultiset.class);
   }
-  
+
   public void testSerialization_empty() {
     Collection<String> c = ImmutableMultiset.of();
     assertSame(c, SerializableTester.reserialize(c));
   }
-  
+
   public void testSerialization_multiple() {
     Collection<String> c = ImmutableMultiset.of("a", "b", "a");
     Collection<String> copy = SerializableTester.reserializeAndAssert(c);
@@ -250,12 +248,12 @@ public class ImmutableMultisetTest extends TestCase {
         = SerializableTester.reserializeAndAssert(c.elementSet());
     assertContentsInOrder(copy, "a", "b");
   }
-  
+
   public void testSerialization_entrySet() {
     Multiset<String> c = ImmutableMultiset.of("a", "b", "c");
-    SerializableTester.reserializeAndAssert(c.entrySet());    
+    SerializableTester.reserializeAndAssert(c.entrySet());
   }
-    
+
   public void testEquals_immutableMultiset() {
     Collection<String> c = ImmutableMultiset.of("a", "b", "a");
     assertEquals(c, ImmutableMultiset.of("a", "b", "a"));
@@ -263,12 +261,12 @@ public class ImmutableMultisetTest extends TestCase {
     assertNotEqual(c, ImmutableMultiset.of("a", "b"));
     assertNotEqual(c, ImmutableMultiset.of("a", "b", "c", "d"));
   }
-  
+
   public void testIterationOrder() {
     Collection<String> c = ImmutableMultiset.of("a", "b", "a");
     assertContentsInOrder(c, "a", "a", "b");
   }
-  
+
   public void testMultisetWrites() {
     Multiset<String> multiset = ImmutableMultiset.of("a", "b", "a");
     UnmodifiableCollectionTests.assertMultisetIsUnmodifiable(multiset, "test");

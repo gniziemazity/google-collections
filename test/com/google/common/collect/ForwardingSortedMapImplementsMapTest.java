@@ -21,9 +21,9 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-/** 
- * Tests for {@link ForwardingSortedMap} using {@link MapInterfaceTest}. 
- * 
+/**
+ * Tests for {@link ForwardingSortedMap} using {@link MapInterfaceTest}.
+ *
  * @author George van den Driessche
  */
 public class ForwardingSortedMapImplementsMapTest
@@ -37,7 +37,7 @@ public class ForwardingSortedMapImplementsMapTest
     }
     @Override protected SortedMap<K, V> delegate() {
       return delegate;
-    }    
+    }
   }
 
   public ForwardingSortedMapImplementsMapTest() {

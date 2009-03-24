@@ -120,7 +120,7 @@ public abstract class AbstractBiMapTest extends TestCase {
     assertEquals(ImmutableMap.of("one", 1, "two", 2), inverse);
     assertEquals(ImmutableMap.of(1, "one", 2, "two"), bimap);
   }
-  
+
   public void testIsEmpty() {
     assertTrue(bimap.isEmpty());
     bimap.put(1, "one");
@@ -319,7 +319,7 @@ public abstract class AbstractBiMapTest extends TestCase {
     assertFalse(entrySet.remove(Maps.immutableEntry(2, "three")));
     assertFalse(entrySet.remove(3));
     assertEquals(2, bimap.size());
-    assertEquals(2, bimap.inverse().size());    
+    assertEquals(2, bimap.inverse().size());
   }
 
   public void testEntrySetRemoveAll() {
@@ -332,8 +332,8 @@ public abstract class AbstractBiMapTest extends TestCase {
     assertFalse(bimap.containsValue("one"));
     assertEquals(2, bimap.size());
     assertEquals(2, bimap.inverse().size());
-  }  
-  
+  }
+
   public void testEntrySetValue() {
     bimap.put(1, "one");
     Entry<Integer, String> entry = bimap.entrySet().iterator().next();
@@ -357,9 +357,9 @@ public abstract class AbstractBiMapTest extends TestCase {
     assertEquals("uno", bimap.get(1));
     assertEquals(Integer.valueOf(1), bimap.inverse().get("uno"));
     assertEquals(2, bimap.size());
-    assertEquals(2, bimap.inverse().size());    
+    assertEquals(2, bimap.inverse().size());
   }
-  
+
   public void testEntrySetValueRemovedEntry() {
     bimap.put(1, "a");
     Entry<Integer, String> entry = bimap.entrySet().iterator().next();
@@ -368,10 +368,10 @@ public abstract class AbstractBiMapTest extends TestCase {
       entry.setValue("b");
       fail();
     } catch (IllegalStateException expected) {}
-    assertEquals(0, bimap.size());    
-    assertEquals(0, bimap.inverse().size());    
+    assertEquals(0, bimap.size());
+    assertEquals(0, bimap.inverse().size());
   }
-  
+
   public void testEntrySetValueRemovedEntryNullOldValue() {
     bimap.put(1, null);
     Entry<Integer, String> entry = bimap.entrySet().iterator().next();
@@ -380,10 +380,10 @@ public abstract class AbstractBiMapTest extends TestCase {
       entry.setValue("b");
       fail();
     } catch (IllegalStateException expected) {}
-    assertEquals(0, bimap.size());    
-    assertEquals(0, bimap.inverse().size());    
+    assertEquals(0, bimap.size());
+    assertEquals(0, bimap.inverse().size());
   }
-  
+
   public void testEntrySetValueRemovedEntryAddedEqualEntry() {
     bimap.put(1, "a");
     Entry<Integer, String> entry = bimap.entrySet().iterator().next();
@@ -395,10 +395,10 @@ public abstract class AbstractBiMapTest extends TestCase {
     } catch (IllegalStateException expected) {}
     assertEquals(1, bimap.size());
     assertEquals("a", bimap.get(1));
-    assertEquals(1, bimap.inverse().size());    
+    assertEquals(1, bimap.inverse().size());
     assertEquals((Integer) 1, bimap.inverse().get("a"));
   }
-  
+
   public void testKeySetIteratorRemove() {
     putOneTwoThree();
     Iterator<Integer> iterator = bimap.keySet().iterator();
@@ -459,12 +459,12 @@ public abstract class AbstractBiMapTest extends TestCase {
     assertEquals("one", array[0]);
     assertNull(array[1]);
   }
-  
+
   public void testValuesToString() {
     bimap.put(1, "one");
     assertEquals("[one]", bimap.values().toString());
   }
-  
+
   public void testSerialization() {
     bimap.put(1, "one");
     bimap.put(2, "two");
@@ -481,35 +481,35 @@ public abstract class AbstractBiMapTest extends TestCase {
     bimap.put(2, "two");
     bimap.put(3, "three");
   }
-  
+
   private static class BiMapPair implements Serializable {
     final BiMap<Integer, String> forward;
     final BiMap<String, Integer> backward;
-    
+
     BiMapPair(BiMap<Integer, String> original) {
       this.forward = original;
       this.backward = original.inverse();
     }
-    
-    private static final long serialVersionUID = 0;    
+
+    private static final long serialVersionUID = 0;
   }
-  
+
   public void testSerializationWithInverseEqual() {
     bimap.put(1, "one");
     bimap.put(2, "two");
     bimap.put(3, "three");
     bimap.put(null, null);
-    
+
     BiMapPair pair = new BiMapPair(bimap);
     BiMapPair copy = SerializableTester.reserialize(pair);
     assertEquals(pair.forward, copy.forward);
     assertEquals(pair.backward, copy.backward);
-    
+
     copy.forward.put(4, "four");
     copy.backward.put("five", 5);
     assertEquals(copy.backward, copy.forward.inverse());
-    assertEquals(copy.forward, copy.backward.inverse());    
-    
+    assertEquals(copy.forward, copy.backward.inverse());
+
     assertTrue(copy.forward.containsKey(4));
     assertTrue(copy.forward.containsKey(5));
     assertTrue(copy.backward.containsValue(4));
@@ -517,24 +517,24 @@ public abstract class AbstractBiMapTest extends TestCase {
     assertTrue(copy.forward.containsValue("four"));
     assertTrue(copy.forward.containsValue("five"));
     assertTrue(copy.backward.containsKey("four"));
-    assertTrue(copy.backward.containsKey("five"));    
+    assertTrue(copy.backward.containsKey("five"));
   }
-  
+
   /**
    * The sameness checks ensure that a bimap and its inverse remain consistent,
    * even after the deserialized instances are updated. Also, the relationship
    * {@code a == b.inverse()} should continue to hold after both bimaps are
-   * serialized and deserialized together. 
+   * serialized and deserialized together.
    */
   public void testSerializationWithInverseSame() {
     bimap.put(1, "one");
     bimap.put(2, "two");
     bimap.put(3, "three");
     bimap.put(null, null);
-    
+
     BiMapPair pair = new BiMapPair(bimap);
     BiMapPair copy = SerializableTester.reserialize(pair);
     assertSame(copy.backward, copy.forward.inverse());
-    assertSame(copy.forward, copy.backward.inverse());    
-  }  
+    assertSame(copy.forward, copy.backward.inverse());
+  }
 }

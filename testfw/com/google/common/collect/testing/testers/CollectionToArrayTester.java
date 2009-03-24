@@ -30,7 +30,7 @@ import java.util.List;
  * A generic JUnit test which tests {@code toArray()} operations on a
  * collection. Can't be invoked directly; please see
  * {@link com.google.common.collect.testing.CollectionTestSuiteBuilder}.
- * 
+ *
  * @author Kevin Bourrillion
  * @author Chris Povirk
  */
@@ -159,7 +159,7 @@ public class CollectionToArrayTester<E> extends AbstractCollectionTester<E> {
     Helpers.assertEqualIgnoringOrder(
         Arrays.asList(expected), Arrays.asList(actual));
   }
-  
+
   private void expectArrayContentsInOrder(List<E> expected, Object[] actual) {
     assertEquals("toArray() ordered contents: ",
         expected, Arrays.asList(actual));

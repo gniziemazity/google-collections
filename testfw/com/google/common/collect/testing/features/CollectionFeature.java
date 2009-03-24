@@ -27,14 +27,14 @@ import java.util.SortedSet;
 
 /**
  * Optional features of classes derived from {@code Collection}.
- * 
+ *
  * @author George van den Driessche
  */
 // Enum values use constructors with generic varargs.
 @SuppressWarnings("unchecked")
 public enum CollectionFeature implements Feature<Collection> {
   ALLOWS_NULL_VALUES,
-  
+
   /**
    * Indicates that a collection disallows certain elements (other than
    * {@code null}, whose validity as an element is indicated by the presence
@@ -46,7 +46,7 @@ public enum CollectionFeature implements Feature<Collection> {
    * elements."</blockquote>
    */
   RESTRICTS_ELEMENTS,
-  
+
   /**
    * Indicates that a collection has a well-defined ordering of its elements.
    * The ordering may depend on the element values, such as a {@link SortedSet},
@@ -54,14 +54,14 @@ public enum CollectionFeature implements Feature<Collection> {
    * tests automatically specify this feature.
    */
   KNOWN_ORDER,
-  
+
   /**
    * Indicates that a collection has a different {@link Object#toString}
    * representation than most collections. If not specified, the collection
-   * tests will examine the value returned by {@link Object#toString}. 
+   * tests will examine the value returned by {@link Object#toString}.
    */
   NON_STANDARD_TOSTRING,
-  
+
   SUPPORTS_ADD,
   SUPPORTS_REMOVE,
   SUPPORTS_ADD_ALL,

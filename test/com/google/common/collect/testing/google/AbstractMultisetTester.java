@@ -21,7 +21,7 @@ import com.google.common.collect.testing.AbstractCollectionTester;
 
 /**
  * Base class for multiset collection tests.
- * 
+ *
  * @author Jared Levy
  */
 public class AbstractMultisetTester<E> extends AbstractCollectionTester<E> {

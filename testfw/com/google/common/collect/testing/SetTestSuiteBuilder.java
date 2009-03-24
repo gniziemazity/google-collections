@@ -36,7 +36,7 @@ public final class SetTestSuiteBuilder<E>
       TestSetGenerator<E> generator) {
     return new SetTestSuiteBuilder<E>().usingGenerator(generator);
   }
-  
+
   // Class parameters must be raw.
   @SuppressWarnings("unchecked")
   @Override protected List<Class<? extends AbstractTester>> getTesters() {

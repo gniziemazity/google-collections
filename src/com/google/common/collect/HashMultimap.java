@@ -48,7 +48,7 @@ public final class HashMultimap<K, V> extends StandardSetMultimap<K, V> {
 
   @VisibleForTesting
   transient int expectedValuesPerKey = DEFAULT_VALUES_PER_KEY;
-  
+
   /**
    * Creates a new empty {@code HashMultimap} with the default initial
    * capacities.
@@ -63,7 +63,7 @@ public final class HashMultimap<K, V> extends StandardSetMultimap<K, V> {
    *
    * @param expectedKeys the expected number of distinct keys
    * @param expectedValuesPerKey the expected average number of values per key
-   * @throws IllegalArgumentException if {@code expectedKeys} or {@code 
+   * @throws IllegalArgumentException if {@code expectedKeys} or {@code
    *      expectedValuesPerKey} is negative
    */
   public static <K, V> HashMultimap<K, V> create(
@@ -84,12 +84,12 @@ public final class HashMultimap<K, V> extends StandardSetMultimap<K, V> {
   }
 
   // TODO: Make all constructors private.
-  
+
   /** Constructs an empty {@code HashMultimap}. */
   public HashMultimap() {
     super(new HashMap<K, Collection<V>>());
   }
-  
+
   /**
    * Constructs an empty {@code HashMultimap} with enough capacity to hold the
    * specified numbers of keys and values without rehashing.
