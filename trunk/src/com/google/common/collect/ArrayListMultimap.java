@@ -72,7 +72,7 @@ public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
    *
    * @param expectedKeys the expected number of distinct keys
    * @param expectedValuesPerKey the expected average number of values per key
-   * @throws IllegalArgumentException if {@code expectedKeys} or {@code 
+   * @throws IllegalArgumentException if {@code expectedKeys} or {@code
    *      expectedValuesPerKey} is negative
    */
   public static <K, V> ArrayListMultimap<K, V> create(
@@ -92,7 +92,7 @@ public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
   }
 
   // TODO: Make all constructors private.
-  
+
   /** Constructs an empty {@code ArrayListMultimap}. */
   public ArrayListMultimap() {
     super(new HashMap<K, Collection<V>>());

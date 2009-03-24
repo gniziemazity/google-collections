@@ -33,11 +33,11 @@ import junit.framework.AssertionFailedError;
 
 /**
  * Most of the logic for {@link IteratorTester} and {@link ListIteratorTester}.
- * 
+ *
  * @param <E> the type of element returned by the iterator
  * @param <I> the type of the iterator ({@link Iterator} or
  *     {@link ListIterator})
- * 
+ *
  * @author Kevin Bourrillion
  * @author Chris Povirk
  */
@@ -146,7 +146,7 @@ abstract class AbstractIteratorTester<E, I extends Iterator<E>> {
           "Returned value '%s' not found. Remaining elements: %s", actual,
           expected));
     }
-    
+
     private static final long serialVersionUID = 0;
   }
 
@@ -249,7 +249,7 @@ abstract class AbstractIteratorTester<E, I extends Iterator<E>> {
      * the next call to {@link Iterator#next()}. If the element is not in
      * {@link #nextElements}, this method throws an
      * {@link UnknownElementException}.
-     * 
+     *
      * <p>This method is used when testing iterators without a known ordering.
      * We poll the target iterator's next element and pass it to the reference
      * iterator through this method so it can return the same element. This
@@ -270,7 +270,7 @@ abstract class AbstractIteratorTester<E, I extends Iterator<E>> {
       }
 
       destination.push(source.pop());
-      stackWithLastReturnedElementAtTop = destination;    
+      stackWithLastReturnedElementAtTop = destination;
       return destination.peek();
     }
 
@@ -339,7 +339,7 @@ abstract class AbstractIteratorTester<E, I extends Iterator<E>> {
    *
    * <p>For example, verify that calls to remove() actually removed
    * the correct elements.
-   * 
+   *
    * @param elements the expected elements passed to the constructor, as mutated
    *     by {@code remove()}, {@code set()}, and {@code add()} calls
    */

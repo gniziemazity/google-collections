@@ -6,7 +6,6 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
 import java.lang.reflect.Array;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Methods factored out so that they can be emulated differently in GWT.
@@ -68,17 +67,11 @@ class Platform {
   static <T> T[] newArray(T[] reference, int length) {
     Class<?> type = reference.getClass().getComponentType();
 
-    // the cast is safe because 
+    // the cast is safe because
     // result.getClass() == reference.getClass().getComponentType()
     @SuppressWarnings("unchecked")
     T[] result = (T[]) Array.newInstance(type, length);
     return result;
-  }
-
-  @GwtIncompatible("com.google.common.collect.SimpleClassToInstanceMap")
-  static <B> ClassToInstanceMap<B> newClassToInstanceMap(
-      Map<Class<? extends B>, B> backingMap) {
-    return new SimpleClassToInstanceMap<B>(backingMap);
   }
 
   private Platform() {}

@@ -55,7 +55,7 @@ public final class Serialization {
   // TODO: Separate the first line of each populate method, which reads the
   // size, from the rest of the method, so an empty collection of the correct
   // size may be created.
-  
+
   /**
    * Populates a map by reading an input stream, as part of deserialization.
    * See {@link #writeMap} for the data format.

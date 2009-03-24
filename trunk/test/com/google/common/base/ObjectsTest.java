@@ -20,7 +20,7 @@ import junit.framework.TestCase;
 
 /**
  * Tests for {@link Objects}.
- * 
+ *
  * @author Laurence Gonsalves
  */
 public class ObjectsTest extends TestCase {

@@ -18,6 +18,7 @@ package com.google.common.collect;
 
 import com.google.common.testutils.EqualsTester;
 import com.google.common.testutils.NullPointerTester;
+import static java.util.Arrays.asList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -32,13 +33,13 @@ import junit.framework.TestCase;
 public class OrderingTest extends TestCase {
 
   private final Ordering<Number> numberOrdering = new NumberOrdering();
-  
+
   public void testNatural() {
     Ordering<Integer> comparator = Ordering.natural();
     assertTrue(comparator.compare(1, 1) == 0);
     assertTrue(comparator.compare(1, 2) < 0);
     assertTrue(comparator.compare(2, 1) > 0);
-    assertTrue(comparator.compare(Integer.MIN_VALUE, Integer.MAX_VALUE) < 0);    
+    assertTrue(comparator.compare(Integer.MIN_VALUE, Integer.MAX_VALUE) < 0);
     try {
       comparator.compare(1, null);
       fail();
@@ -59,7 +60,7 @@ public class OrderingTest extends TestCase {
     assertEquals(0, caseInsensitiveOrdering.compare("A", "a"));
     assertTrue(caseInsensitiveOrdering.compare("a", "B") < 0);
     assertTrue(caseInsensitiveOrdering.compare("B", "a") > 0);
-    
+
     new EqualsTester(caseInsensitiveOrdering)
         .addEqualObject(Ordering.from(String.CASE_INSENSITIVE_ORDER))
         .addNotEqualObject(Ordering.from(Ordering.natural()))
@@ -72,7 +73,7 @@ public class OrderingTest extends TestCase {
     assertEquals(0, reverseOrder.compare(5, 5));
     assertTrue(reverseOrder.compare(5, 3) < 0);
     assertTrue(reverseOrder.compare(3, 5) > 0);
-    
+
     new EqualsTester(reverseOrder)
       .addEqualObject(numberOrdering.reverse())
       .addNotEqualObject(Ordering.natural().reverse())
@@ -89,7 +90,7 @@ public class OrderingTest extends TestCase {
   }
 
   public void testReverseOfReverseSameAsForward() {
-    Ordering<Number> reverseOfReverse 
+    Ordering<Number> reverseOfReverse
         = new NumberOrdering().reverse().reverse();
     assertEquals(numberOrdering, reverseOfReverse);
     assertEquals(numberOrdering.hashCode(), reverseOfReverse.hashCode());
@@ -149,30 +150,31 @@ public class OrderingTest extends TestCase {
   }
 
   public void testIsOrdered() {
-    assertFalse(numberOrdering.isOrdered(Lists.newArrayList(5, 3, 0, 9)));
-    assertFalse(numberOrdering.isOrdered(Lists.newArrayList(0, 5, 3, 9)));
-    assertTrue(numberOrdering.isOrdered(Lists.newArrayList(0, 3, 5, 9)));
-    assertTrue(numberOrdering.isOrdered(Lists.newArrayList(0, 0, 3, 3)));
-    assertTrue(numberOrdering.isOrdered(Lists.newArrayList(0, 3)));
+    assertFalse(numberOrdering.isOrdered(asList(5, 3, 0, 9)));
+    assertFalse(numberOrdering.isOrdered(asList(0, 5, 3, 9)));
+    assertTrue(numberOrdering.isOrdered(asList(0, 3, 5, 9)));
+    assertTrue(numberOrdering.isOrdered(asList(0, 0, 3, 3)));
+    assertTrue(numberOrdering.isOrdered(asList(0, 3)));
     assertTrue(numberOrdering.isOrdered(Collections.singleton(1)));
     assertTrue(numberOrdering.isOrdered(Collections.<Integer>emptyList()));
   }
 
   public void testIsStrictlyOrdered() {
-    assertFalse(numberOrdering.isStrictlyOrdered(Lists.newArrayList(5, 3, 0, 9)));
-    assertFalse(numberOrdering.isStrictlyOrdered(Lists.newArrayList(0, 5, 3, 9)));
-    assertTrue(numberOrdering.isStrictlyOrdered(Lists.newArrayList(0, 3, 5, 9)));
-    assertFalse(numberOrdering.isStrictlyOrdered(Lists.newArrayList(0, 0, 3, 3)));
-    assertTrue(numberOrdering.isStrictlyOrdered(Lists.newArrayList(0, 3)));
+    assertFalse(numberOrdering.isStrictlyOrdered(asList(5, 3, 0, 9)));
+    assertFalse(numberOrdering.isStrictlyOrdered(asList(0, 5, 3, 9)));
+    assertTrue(numberOrdering.isStrictlyOrdered(asList(0, 3, 5, 9)));
+    assertFalse(numberOrdering.isStrictlyOrdered(asList(0, 0, 3, 3)));
+    assertTrue(numberOrdering.isStrictlyOrdered(asList(0, 3)));
     assertTrue(numberOrdering.isStrictlyOrdered(Collections.singleton(1)));
-    assertTrue(numberOrdering.isStrictlyOrdered(Collections.<Integer>emptyList()));
+    assertTrue(numberOrdering.isStrictlyOrdered(
+        Collections.<Integer>emptyList()));
   }
 
   public void testIterableMinAndMax() {
     List<Integer> ints = Lists.newArrayList(5, 3, 0, 9);
     assertEquals(9, (int) numberOrdering.max(ints));
     assertEquals(0, (int) numberOrdering.min(ints));
-    
+
     // when the values are the same, the first argument should be returned
     Integer a = new Integer(4);
     Integer b = new Integer(4);
@@ -194,7 +196,7 @@ public class OrderingTest extends TestCase {
     assertEquals(0, (int) numberOrdering.min(5, 3, 0, 9, 8));
     assertEquals(0, (int) numberOrdering.min(5, 3, 9, 0, 8));
     assertEquals(0, (int) numberOrdering.min(5, 3, 0, 9, 0));
-    
+
     // when the values are the same, the first argument should be returned
     Integer a = new Integer(4);
     Integer b = new Integer(4);
@@ -227,7 +229,7 @@ public class OrderingTest extends TestCase {
     }
     private static final long serialVersionUID = 0;
   }
-  
+
   public void testNullsFirst() {
     Ordering<Integer> ordering = Ordering.from(
         Collections.<Integer>reverseOrder()).nullsFirst();
@@ -251,12 +253,12 @@ public class OrderingTest extends TestCase {
     assertIncreasing(ordering, Integer.MIN_VALUE, null);
     assertIncreasing(ordering, Integer.MAX_VALUE, null);
   }
-  
+
   public void testNullPointerExceptions() throws Exception {
     NullPointerTester tester = new NullPointerTester();
     tester.testAllPublicStaticMethods(Iterators.class);
   }
-  
+
   static <T> void assertEquivalent(
       Comparator<T> comparator, @Nullable T left, @Nullable T right) {
     assertEquals(0, comparator.compare(left, right));

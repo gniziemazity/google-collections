@@ -17,7 +17,6 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
-import com.google.common.annotations.GwtIncompatible;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner.MapJoiner;
 import com.google.common.base.Objects;
@@ -346,12 +345,12 @@ public final class Maps {
       }
       return false;
     }
-    
+
     @Override public int hashCode() {
       return Objects.hashCode(entriesOnlyOnLeft(), entriesOnlyOnRight(),
           entriesInCommon(), entriesDiffering());
     }
-    
+
     @Override public String toString() {
       if (areEqual) {
         return "equal";
@@ -436,28 +435,29 @@ public final class Maps {
   }
 
   /**
-   * Creates a {@code Map<String, String>} from a {@code Properties} instance.
-   * Properties normally derive from {@code Map<Object, Object>}, but they
-   * typically contain strings, which is awkward. This method lets you get a
-   * plain-old-{@code Map} out of a {@code Properties}. The returned map won't
-   * include any null keys or values. The returned map is modifiable and
-   * serializable.
+   * Creates an {@code ImmutableMap<String, String>} from a {@code Properties}
+   * instance. Properties normally derive from {@code Map<Object, Object>}, but
+   * they typically contain strings, which is awkward. This method lets you get
+   * a plain-old-{@code Map} out of a {@code Properties}.
    *
    * @param properties a {@code Properties} object to be converted
-   * @return a map containing all the entries in {@code properties}
+   * @return an immutable map containing all the entries in
+   *     {@code properties}
+   * @throws ClassCastException if any key in {@code Properties} is not a
+   *     {@code String}
+   * @throws NullPointerException if any key or value in {@code Properties} is
+   *     null.
    */
-  public static Map<String, String> fromProperties(Properties properties) {
-    Map<String, String> ret = newHashMapWithExpectedSize(properties.size());
+  public static ImmutableMap<String, String>
+      fromProperties(Properties properties) {
+    ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+
     for (Enumeration<?> e = properties.propertyNames(); e.hasMoreElements();) {
-      Object k = e.nextElement();
-      /*
-       * It is unlikely that a 'null' could be inserted into a Properties, but
-       * possible in a derived class.
-       */
-      String key = (k != null) ? k.toString() : null;
-      ret.put(key, properties.getProperty(key));
+      String key = (String) e.nextElement();
+      builder.put(key, properties.getProperty(key));
     }
-    return ret;
+
+    return builder.build();
   }
 
   /**
@@ -594,27 +594,27 @@ public final class Maps {
   /** @see Maps#unmodifiableBiMap(BiMap) */
   private static class UnmodifiableBiMap<K, V>
       extends ForwardingMap<K, V> implements BiMap<K, V>, Serializable {
-    
+
     final Map<K, V> unmodifiableMap;
     final BiMap<? extends K, ? extends V> delegate;
     transient BiMap<V, K> inverse;
     transient Set<V> values;
-    
-    UnmodifiableBiMap(
-        BiMap<? extends K, ? extends V> delegate, @Nullable BiMap<V, K> inverse) {
+
+    UnmodifiableBiMap(BiMap<? extends K, ? extends V> delegate,
+        @Nullable BiMap<V, K> inverse) {
       unmodifiableMap = Collections.<K, V>unmodifiableMap(delegate);
       this.delegate = delegate;
       this.inverse = inverse;
     }
-    
+
     @Override protected Map<K, V> delegate() {
       return unmodifiableMap;
     }
-    
+
     public V forcePut(K key, V value) {
       throw new UnsupportedOperationException();
     }
-    
+
     public BiMap<V, K> inverse() {
       BiMap<V, K> result = inverse;
       return (result == null)
@@ -627,28 +627,8 @@ public final class Maps {
           ? values = Collections.<V>unmodifiableSet(delegate.values())
           : result;
     }
-    
+
     private static final long serialVersionUID = 0;
-  }
-
-  /**
-   * Returns a new {@code ClassToInstanceMap} instance backed by a {@link
-   * HashMap} using the default initial capacity and load factor.
-   */
-  @GwtIncompatible("com.google.common.collect.SimpleClassToInstanceMap")
-  public static <B> ClassToInstanceMap<B> newClassToInstanceMap() {
-    return Platform.newClassToInstanceMap(new HashMap<Class<? extends B>, B>());
-  }
-
-  /**
-   * Returns a new {@code ClassToInstanceMap} instance backed by a given empty
-   * {@code backingMap}. The caller surrenders control of the backing map, and
-   * thus should not allow any direct references to it to remain accessible.
-   */
-  @GwtIncompatible("com.google.common.collect.SimpleClassToInstanceMap")
-  public static <B> ClassToInstanceMap<B> newClassToInstanceMap(
-      Map<Class<? extends B>, B> backingMap) {
-    return Platform.newClassToInstanceMap(backingMap);
   }
 
   /**

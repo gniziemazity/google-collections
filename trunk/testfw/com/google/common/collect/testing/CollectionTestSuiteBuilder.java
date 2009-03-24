@@ -20,7 +20,7 @@ package com.google.common.collect.testing;
  * Concrete instantiation of {@link AbstractCollectionTestSuiteBuilder} for
  * testing collections that do not have a more specific tester like
  * {@link ListTestSuiteBuilder} or {@link SetTestSuiteBuilder}.
- * 
+ *
  * @author Chris Povirk
  */
 public class CollectionTestSuiteBuilder<E>

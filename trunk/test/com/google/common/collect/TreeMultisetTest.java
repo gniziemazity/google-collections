@@ -19,7 +19,6 @@ package com.google.common.collect;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.testing.IteratorFeature.MODIFIABLE;
 import com.google.common.collect.testing.IteratorTester;
-import com.google.common.testing.junit3.JUnitAsserts;
 import static com.google.common.testing.junit3.JUnitAsserts.assertContentsInOrder;
 import java.util.Arrays;
 import java.util.Collections;
@@ -48,7 +47,7 @@ public class TreeMultisetTest extends AbstractMultisetTest {
     assertEquals(2, multiset.count("foo"));
     assertEquals("[bar, foo x 2]", multiset.toString());
   }
-  
+
   public void testCreateWithComparator() {
     Multiset<String> multiset = TreeMultiset.create(Collections.reverseOrder());
     multiset.add("foo", 2);
@@ -57,14 +56,14 @@ public class TreeMultisetTest extends AbstractMultisetTest {
     assertEquals(2, multiset.count("foo"));
     assertEquals("[foo x 2, bar]", multiset.toString());
   }
-  
+
   public void testCreateFromIterable() {
     Multiset<String> multiset
         = TreeMultiset.create(Arrays.asList("foo", "bar", "foo"));
     assertEquals(3, multiset.size());
     assertEquals(2, multiset.count("foo"));
     assertEquals("[bar, foo x 2]", multiset.toString());
-  }  
+  }
 
   public void testToString() {
     ms.add("a", 3);
@@ -131,9 +130,9 @@ public class TreeMultisetTest extends AbstractMultisetTest {
     assertEquals("a", elementSet.first());
     assertEquals("c", elementSet.last());
     assertNull(elementSet.comparator());
-    JUnitAsserts.assertContentsInOrder(elementSet.headSet("b"), "a");
-    JUnitAsserts.assertContentsInOrder(elementSet.tailSet("b"), "b", "c");
-    JUnitAsserts.assertContentsInOrder(elementSet.subSet("a", "c"), "a", "b");
+    assertContentsInOrder(elementSet.headSet("b"), "a");
+    assertContentsInOrder(elementSet.tailSet("b"), "b", "c");
+    assertContentsInOrder(elementSet.subSet("a", "c"), "a", "b");
   }
 
   public void testElementSetSubsetRemove() {
@@ -147,18 +146,18 @@ public class TreeMultisetTest extends AbstractMultisetTest {
     ms.add("f", 2);
 
     SortedSet<String> elementSet = ms.elementSet();
-    JUnitAsserts.assertContentsInOrder(elementSet, "a", "b", "c", "d", "e", "f");
+    assertContentsInOrder(elementSet, "a", "b", "c", "d", "e", "f");
     SortedSet<String> subset = elementSet.subSet("b", "f");
-    JUnitAsserts.assertContentsInOrder(subset, "b", "c", "d", "e");
+    assertContentsInOrder(subset, "b", "c", "d", "e");
 
     assertTrue(subset.remove("c"));
-    JUnitAsserts.assertContentsInOrder(elementSet, "a", "b", "d", "e", "f");
-    JUnitAsserts.assertContentsInOrder(subset, "b", "d", "e");
+    assertContentsInOrder(elementSet, "a", "b", "d", "e", "f");
+    assertContentsInOrder(subset, "b", "d", "e");
     assertEquals(10, ms.size());
 
     assertFalse(subset.remove("a"));
-    JUnitAsserts.assertContentsInOrder(elementSet, "a", "b", "d", "e", "f");
-    JUnitAsserts.assertContentsInOrder(subset, "b", "d", "e");
+    assertContentsInOrder(elementSet, "a", "b", "d", "e", "f");
+    assertContentsInOrder(subset, "b", "d", "e");
     assertEquals(10, ms.size());
   }
 
@@ -173,13 +172,13 @@ public class TreeMultisetTest extends AbstractMultisetTest {
     ms.add("f", 2);
 
     SortedSet<String> elementSet = ms.elementSet();
-    JUnitAsserts.assertContentsInOrder(elementSet, "a", "b", "c", "d", "e", "f");
+    assertContentsInOrder(elementSet, "a", "b", "c", "d", "e", "f");
     SortedSet<String> subset = elementSet.subSet("b", "f");
-    JUnitAsserts.assertContentsInOrder(subset, "b", "c", "d", "e");
+    assertContentsInOrder(subset, "b", "c", "d", "e");
 
     assertTrue(subset.removeAll(Arrays.asList("a", "c")));
-    JUnitAsserts.assertContentsInOrder(elementSet, "a", "b", "d", "e", "f");
-    JUnitAsserts.assertContentsInOrder(subset, "b", "d", "e");
+    assertContentsInOrder(elementSet, "a", "b", "d", "e", "f");
+    assertContentsInOrder(subset, "b", "d", "e");
     assertEquals(10, ms.size());
   }
 
@@ -194,13 +193,13 @@ public class TreeMultisetTest extends AbstractMultisetTest {
     ms.add("f", 2);
 
     SortedSet<String> elementSet = ms.elementSet();
-    JUnitAsserts.assertContentsInOrder(elementSet, "a", "b", "c", "d", "e", "f");
+    assertContentsInOrder(elementSet, "a", "b", "c", "d", "e", "f");
     SortedSet<String> subset = elementSet.subSet("b", "f");
-    JUnitAsserts.assertContentsInOrder(subset, "b", "c", "d", "e");
+    assertContentsInOrder(subset, "b", "c", "d", "e");
 
     assertTrue(subset.retainAll(Arrays.asList("a", "c")));
-    JUnitAsserts.assertContentsInOrder(elementSet, "a", "c", "f");
-    JUnitAsserts.assertContentsInOrder(subset, "c");
+    assertContentsInOrder(elementSet, "a", "c", "f");
+    assertContentsInOrder(subset, "c");
     assertEquals(5, ms.size());
   }
 
@@ -215,13 +214,13 @@ public class TreeMultisetTest extends AbstractMultisetTest {
     ms.add("f", 2);
 
     SortedSet<String> elementSet = ms.elementSet();
-    JUnitAsserts.assertContentsInOrder(elementSet, "a", "b", "c", "d", "e", "f");
+    assertContentsInOrder(elementSet, "a", "b", "c", "d", "e", "f");
     SortedSet<String> subset = elementSet.subSet("b", "f");
-    JUnitAsserts.assertContentsInOrder(subset, "b", "c", "d", "e");
+    assertContentsInOrder(subset, "b", "c", "d", "e");
 
     subset.clear();
-    JUnitAsserts.assertContentsInOrder(elementSet, "a", "f");
-    JUnitAsserts.assertContentsInOrder(subset);
+    assertContentsInOrder(elementSet, "a", "f");
+    assertContentsInOrder(subset);
     assertEquals(3, ms.size());
   }
 

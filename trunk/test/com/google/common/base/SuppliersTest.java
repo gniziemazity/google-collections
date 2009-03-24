@@ -18,6 +18,7 @@ package com.google.common.base;
 
 import com.google.common.collect.Lists;
 import static com.google.common.testutils.SerializableTester.reserialize;
+import java.util.ArrayList;
 import java.util.List;
 import junit.framework.TestCase;
 
@@ -35,17 +36,42 @@ public class SuppliersTest extends TestCase {
       }
     };
 
-    Function<Integer,Integer> squareFunction =
-        new Function<Integer,Integer>() {
-          public Integer apply(Integer x) {
-            return x * x;
+    Function<Number,Integer> intValueFunction =
+        new Function<Number,Integer>() {
+          public Integer apply(Number x) {
+            return x.intValue();
           }
         };
 
-    Supplier<Integer> squareSupplier = Suppliers.compose(squareFunction,
-                                                         fiveSupplier);
+    Supplier<Integer> squareSupplier = Suppliers.compose(intValueFunction,
+        fiveSupplier);
 
-    assertEquals(Integer.valueOf(25), squareSupplier.get());
+    assertEquals(Integer.valueOf(5), squareSupplier.get());
+  }
+
+  public void testComposeWithLists() throws Exception {
+    Supplier<ArrayList<Integer>> listSupplier
+        = new Supplier<ArrayList<Integer>>() {
+      public ArrayList<Integer> get() {
+        return Lists.newArrayList(0);
+      }
+    };
+
+    Function<List<Integer>, List<Integer>> addElementFunction =
+        new Function<List<Integer>, List<Integer>>() {
+          public List<Integer> apply(List<Integer> list) {
+            ArrayList<Integer> result = Lists.newArrayList(list);
+            result.add(1);
+            return result;
+          }
+        };
+
+    Supplier<List<Integer>> addSupplier = Suppliers.compose(addElementFunction,
+        listSupplier);
+
+    List<Integer> result = addSupplier.get();
+    assertEquals(Integer.valueOf(0), result.get(0));
+    assertEquals(Integer.valueOf(1), result.get(1));
   }
 
   public void testMemoize() throws Exception {

@@ -38,7 +38,7 @@ public class HashMultisetTest extends AbstractMultisetTest {
     assertEquals(3, multiset.size());
     assertEquals(2, multiset.count("foo"));
   }
-  
+
   public void testCreateWithSize() {
     Multiset<String> multiset = HashMultiset.create(50);
     multiset.add("foo", 2);
@@ -46,14 +46,14 @@ public class HashMultisetTest extends AbstractMultisetTest {
     assertEquals(3, multiset.size());
     assertEquals(2, multiset.count("foo"));
   }
-  
+
   public void testCreateFromIterable() {
     Multiset<String> multiset
         = HashMultiset.create(Arrays.asList("foo", "bar", "foo"));
     assertEquals(3, multiset.size());
     assertEquals(2, multiset.count("foo"));
   }
-  
+
   public void testSerializationContainingSelf() {
     Multiset<Multiset<?>> multiset = HashMultiset.create();
     multiset.add(multiset, 2);
@@ -61,7 +61,7 @@ public class HashMultisetTest extends AbstractMultisetTest {
     assertEquals(2, copy.size());
     assertSame(copy, copy.iterator().next());
   }
-  
+
   private static class MultisetHolder implements Serializable {
     public Multiset<?> member;
     MultisetHolder(Multiset<?> multiset) {
@@ -78,19 +78,19 @@ public class HashMultisetTest extends AbstractMultisetTest {
     assertEquals(2, copy.size());
     assertSame(copy, copy.iterator().next().member);
   }
-  
+
   /*
    * The behavior of toString() and iteration is tested by LinkedHashMultiset,
    * which shares a lot of code with HashMultiset and has deterministic
    * iteration order.
    */
-  
+
   /**
-   * This test fails with Java 6, preventing us from running 
+   * This test fails with Java 6, preventing us from running
    * NullPointerTester on multisets.
   public void testAnnotations() throws Exception {
     Method method = HashMultiset.class.getDeclaredMethod(
-        "add", Object.class, int.class); 
+        "add", Object.class, int.class);
     assertTrue(method.getParameterAnnotations()[0].length > 0);
   }
   */

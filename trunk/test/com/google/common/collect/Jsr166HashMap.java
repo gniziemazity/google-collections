@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class Jsr166HashMap<K, V> extends ForwardingConcurrentMap<K, V>
     implements Serializable {
-  private static class Strategy<K, V> extends SimpleStrategy<K, V> 
+  private static class Strategy<K, V> extends SimpleStrategy<K, V>
       implements Serializable {
     private static final long serialVersionUID = 0;
   }

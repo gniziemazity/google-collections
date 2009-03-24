@@ -715,7 +715,7 @@ public abstract class AbstractMultimapTest extends TestCase {
     assertEquals("Multimap size after keys().entrySet().remove(entry)",
         3, multimap.size());
   }
-  
+
   public void testEqualsTrue() {
     multimap.put("foo", 1);
     multimap.put("foo", nullValue());
@@ -1129,7 +1129,7 @@ public abstract class AbstractMultimapTest extends TestCase {
     assertFalse(multimap.containsEntry("foo", 2));
     assertFalse(multimap.containsEntry("bar", 2));
     assertEquals(1, (int) entrya.getValue());
-    assertEquals(1, (int) entryb.getValue());    
+    assertEquals(1, (int) entryb.getValue());
   }
 
   /** Verify that the entries remain valid after iterating past them. */
@@ -1144,7 +1144,7 @@ public abstract class AbstractMultimapTest extends TestCase {
     assertTrue(copy.contains(Maps.immutableEntry("foo", 2)));
     assertTrue(copy.contains(Maps.immutableEntry("bar", 3)));
     assertFalse(copy.contains(Maps.immutableEntry("bar", 1)));
-    
+
     multimap.removeAll("foo");
     assertEquals(3, copy.size());
     assertTrue(copy.contains(Maps.immutableEntry("foo", 1)));
@@ -1152,7 +1152,7 @@ public abstract class AbstractMultimapTest extends TestCase {
     assertTrue(copy.contains(Maps.immutableEntry("bar", 3)));
     assertFalse(copy.contains(Maps.immutableEntry("bar", 1)));
   }
-  
+
   public void testKeySetRemove() {
     multimap.put("foo", 1);
     multimap.put("foo", nullValue());

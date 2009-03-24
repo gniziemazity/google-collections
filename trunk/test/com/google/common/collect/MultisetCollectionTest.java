@@ -24,7 +24,7 @@ import static com.google.common.collect.testing.google.MultisetReadsTester.getRe
 import com.google.common.collect.testing.google.MultisetTestSuiteBuilder;
 import com.google.common.collect.testing.google.TestEnumMultisetGenerator;
 import com.google.common.collect.testing.google.TestStringMultisetGenerator;
-import java.util.Arrays;
+import static java.util.Arrays.asList;
 import java.util.Collections;
 import java.util.List;
 import junit.framework.Test;
@@ -37,23 +37,23 @@ import junit.framework.TestSuite;
  * @author Jared Levy
  */
 public class MultisetCollectionTest extends TestCase {
-  
+
   public static Test suite() {
     TestSuite suite = new TestSuite();
-  
+
     suite.addTest(MultisetTestSuiteBuilder.using(hashMultisetGenerator())
         .withFeatures(CollectionSize.ANY,
             CollectionFeature.ALLOWS_NULL_VALUES,
             CollectionFeature.GENERAL_PURPOSE)
         .named("HashMultiset")
         .createTestSuite());
-    
+
     suite.addTest(MultisetTestSuiteBuilder.using(
         unmodifiableMultisetGenerator())
         .withFeatures(CollectionSize.ANY, CollectionFeature.KNOWN_ORDER)
         .named("UnmodifiableTreeMultiset")
         .createTestSuite());
-    
+
     suite.addTest(MultisetTestSuiteBuilder.using(forSetGenerator())
         .withFeatures(CollectionSize.ANY, CollectionFeature.ALLOWS_NULL_VALUES,
             CollectionFeature.REMOVE_OPERATIONS)
@@ -61,14 +61,14 @@ public class MultisetCollectionTest extends TestCase {
         .suppressing(getSetCountDuplicateInitializingMethods())
         .named("ForSetMultiset")
         .createTestSuite());
-    
+
     suite.addTest(MultisetTestSuiteBuilder.using(
         concurrentMultisetGenerator())
         .withFeatures(CollectionSize.ANY,
             CollectionFeature.GENERAL_PURPOSE)
         .named("ConcurrentMultiset")
         .createTestSuite());
-    
+
     suite.addTest(MultisetTestSuiteBuilder.using(enumMultisetGenerator())
         .withFeatures(CollectionSize.ANY,
             CollectionFeature.KNOWN_ORDER,
@@ -78,20 +78,20 @@ public class MultisetCollectionTest extends TestCase {
 
     return suite;
   }
-  
+
   private static TestStringMultisetGenerator hashMultisetGenerator() {
     return new TestStringMultisetGenerator() {
       @Override protected Multiset<String> create(String[] elements) {
-        return HashMultiset.create(Arrays.asList(elements));
+        return HashMultiset.create(asList(elements));
       }
     };
   }
-  
+
   private static TestStringMultisetGenerator unmodifiableMultisetGenerator() {
     return new TestStringMultisetGenerator() {
       @Override protected Multiset<String> create(String[] elements) {
         return Multisets.unmodifiableMultiset(
-            TreeMultiset.create(Arrays.asList(elements)));
+            TreeMultiset.create(asList(elements)));
       }
       @Override public List<String> order(List<String> insertionOrder) {
         Collections.sort(insertionOrder);
@@ -99,7 +99,7 @@ public class MultisetCollectionTest extends TestCase {
       }
     };
   }
-  
+
   private static TestStringMultisetGenerator forSetGenerator() {
     return new TestStringMultisetGenerator() {
       @Override protected Multiset<String> create(String[] elements) {
@@ -107,21 +107,21 @@ public class MultisetCollectionTest extends TestCase {
       }
     };
   }
-  
+
   private static TestStringMultisetGenerator concurrentMultisetGenerator() {
     return new TestStringMultisetGenerator() {
       @Override protected Multiset<String> create(String[] elements) {
-        return new ConcurrentMultiset<String>(Arrays.asList(elements));
+        return new ConcurrentMultiset<String>(asList(elements));
       }
     };
   }
-  
+
   private static TestEnumMultisetGenerator enumMultisetGenerator() {
     return new TestEnumMultisetGenerator() {
       @Override protected Multiset<AnEnum> create(AnEnum[] elements) {
         return (elements.length == 0)
             ? EnumMultiset.create(AnEnum.class)
-            : EnumMultiset.create(Arrays.asList(elements));
+            : EnumMultiset.create(asList(elements));
       }
     };
   }

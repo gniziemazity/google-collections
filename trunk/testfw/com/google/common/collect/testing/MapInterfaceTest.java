@@ -53,7 +53,7 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
 
   /**
    * Creates a new, empty instance of the class under test.
-   * 
+   *
    * @return a new, empty map instance.
    * @throws UnsupportedOperationException if it's not possible to make an
    * empty instance of the class under test.
@@ -63,7 +63,7 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
 
   /**
    * Creates a new, non-empty instance of the class under test.
-   * 
+   *
    * @return a new, non-empty map instance.
    * @throws UnsupportedOperationException if it's not possible to make a
    * non-empty instance of the class under test.
@@ -74,7 +74,7 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
   /**
    * Creates a new key that is not expected to be found
    * in {@link #makePopulatedMap()}.
-   * 
+   *
    * @return a key.
    * @throws UnsupportedOperationException if it's not possible to make a key
    * that will not be found in the map.
@@ -85,7 +85,7 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
   /**
    * Creates a new value that is not expected to be found
    * in {@link #makePopulatedMap()}.
-   * 
+   *
    * @return a value.
    * @throws UnsupportedOperationException if it's not possible to make a value
    * that will not be found in the map.
@@ -128,7 +128,7 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
   /**
    * Used by tests that require a map, but don't care whether it's
    * populated or not.
-   * 
+   *
    * @return a new map instance.
    */
   protected Map<K, V> makeEitherMap() {
@@ -143,7 +143,7 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
    * Checks all the properties that should always hold of a map. Also calls
    * {@link #assertMoreInvariants} to check invariants that are peculiar to
    * specific implementations.
-   * 
+   *
    * @see #assertMoreInvariants
    * @param map the map to check.
    */
@@ -151,12 +151,12 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     Set<K> keySet = map.keySet();
     Collection<V> valueCollection = map.values();
     Set<Entry<K, V>> entrySet = map.entrySet();
-    
+
     assertEquals(map.size() == 0, map.isEmpty());
     assertEquals(map.size(), keySet.size());
     assertEquals(keySet.size() == 0, keySet.isEmpty());
     assertEquals(!keySet.isEmpty(), keySet.iterator().hasNext());
-    
+
     int expectedKeySetHash = 0;
     for (K key : keySet) {
       V value = map.get(key);
@@ -200,24 +200,24 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     Object[] entrySetToArray1 = entrySet.toArray();
     assertEquals(map.size(), entrySetToArray1.length);
     assertTrue(Arrays.asList(entrySetToArray1).containsAll(entrySet));
-    
+
     Entry<?, ?>[] entrySetToArray2 = new Entry<?, ?>[map.size() + 2];
     entrySetToArray2[map.size()] = mapEntry("foo", 1);
     assertSame(entrySetToArray2, entrySet.toArray(entrySetToArray2));
     assertNull(entrySetToArray2[map.size()]);
-    assertTrue(Arrays.asList(entrySetToArray2).containsAll(entrySet));    
-    
+    assertTrue(Arrays.asList(entrySetToArray2).containsAll(entrySet));
+
     Object[] valuesToArray1 = valueCollection.toArray();
     assertEquals(map.size(), valuesToArray1.length);
     assertTrue(Arrays.asList(valuesToArray1).containsAll(valueCollection));
-    
+
     Object[] valuesToArray2 = new Object[map.size() + 2];
     valuesToArray2[map.size()] = "foo";
     assertSame(valuesToArray2, valueCollection.toArray(valuesToArray2));
     assertNull(valuesToArray2[map.size()]);
-    assertTrue(Arrays.asList(valuesToArray2).containsAll(valueCollection));    
-    
-    int expectedHash = 0;    
+    assertTrue(Arrays.asList(valuesToArray2).containsAll(valueCollection));
+
+    int expectedHash = 0;
     for (Entry<K, V> entry : entrySet) {
       expectedHash += entry.hashCode();
     }
@@ -230,7 +230,7 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
    * Override this to check invariants which should hold true for a particular
    * implementation, but which are not generally applicable to every instance
    * of Map.
-   * 
+   *
    * @param map the map whose additional invariants to check.
    */
   protected void assertMoreInvariants(Map<K, V> map) {
@@ -357,13 +357,13 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     } catch (UnsupportedOperationException e) {
       return;
     }
-    
-    map.put(null, unmappedValue);    
+
+    map.put(null, unmappedValue);
     Entry<K, V> entry = mapEntry(null, unmappedValue);
     assertTrue(entrySet.contains(entry));
     assertFalse(entrySet.contains(mapEntry(null, null)));
   }
-  
+
   public void testEntrySetContainsEntryNullKeyMissing() {
     final Map<K, V> map;
     final Set<Entry<K, V>> entrySet;
@@ -385,7 +385,7 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     assertFalse(entrySet.contains(entry));
     assertFalse(entrySet.contains(mapEntry(null, null)));
   }
-  
+
   public void testEntrySetIteratorRemove() {
     final Map<K, V> map;
     try {
@@ -520,7 +520,7 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     } catch (UnsupportedOperationException e) {
       return;
     }
-    
+
     map.put(null, unmappedValue);
     assertEquals(unmappedValue, map.get(null));
     assertTrue(map.containsKey(null));
@@ -529,7 +529,7 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     assertNull(map.get(null));
     assertFalse(map.containsKey(null));
   }
-  
+
   public void testEntrySetRemoveNullKeyMissing() {
     final Map<K, V> map;
     try {
@@ -610,10 +610,10 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
       } catch (NullPointerException e) {
         // Expected.
       }
-    }    
+    }
     assertInvariants(map);
   }
-  
+
   public void testEntrySetRetainAll() {
     final Map<K, V> map;
     try {
@@ -663,16 +663,16 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     } else {
       try {
         entrySet.retainAll(null);
-        fail("Expected UnsupportedOperationException or NullPointerException.");
+        // We have to tolerate a successful return (Sun bug 4802647)
       } catch (UnsupportedOperationException e) {
         // Expected.
       } catch (NullPointerException e) {
         // Expected.
       }
-    }    
+    }
     assertInvariants(map);
   }
-  
+
   public void testEntrySetClear() {
     final Map<K, V> map;
     try {
@@ -1175,7 +1175,7 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     assertInvariants(makeEitherMap());
   }
 
-  
+
   public void testKeySetClear() {
     final Map<K, V> map;
     try {
@@ -1198,7 +1198,7 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     }
     assertInvariants(map);
   }
-  
+
   public void testKeySetRemoveAllNullFromEmpty() {
     final Map<K, V> map;
     try {
@@ -1224,10 +1224,10 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
       } catch (NullPointerException e) {
         // Expected.
       }
-    }    
+    }
     assertInvariants(map);
   }
-  
+
   public void testKeySetRetainAllNullFromEmpty() {
     final Map<K, V> map;
     try {
@@ -1247,16 +1247,16 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     } else {
       try {
         keySet.retainAll(null);
-        fail("Expected UnsupportedOperationException or NullPointerException.");
+        // We have to tolerate a successful return (Sun bug 4802647)
       } catch (UnsupportedOperationException e) {
         // Expected.
       } catch (NullPointerException e) {
         // Expected.
       }
-    }    
+    }
     assertInvariants(map);
   }
-  
+
   public void testValues() {
     final Map<K, V> map;
     final Collection<V> valueCollection;
@@ -1416,16 +1416,16 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     } else {
       try {
         values.removeAll(null);
-        fail("Expected UnsupportedOperationException or NullPointerException.");
+        // We have to tolerate a successful return (Sun bug 4802647)
       } catch (UnsupportedOperationException e) {
         // Expected.
       } catch (NullPointerException e) {
         // Expected.
       }
-    }    
+    }
     assertInvariants(map);
   }
-  
+
   public void testValuesRetainAll() {
     final Map<K, V> map;
     try {
@@ -1474,16 +1474,16 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     } else {
       try {
         values.retainAll(null);
-        fail("Expected UnsupportedOperationException or NullPointerException.");
+        // We have to tolerate a successful return (Sun bug 4802647)
       } catch (UnsupportedOperationException e) {
         // Expected.
       } catch (NullPointerException e) {
         // Expected.
       }
-    }    
+    }
     assertInvariants(map);
   }
-  
+
   public void testValuesClear() {
     final Map<K, V> map;
     try {

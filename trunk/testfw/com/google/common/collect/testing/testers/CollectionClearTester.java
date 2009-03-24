@@ -48,7 +48,7 @@ public class CollectionClearTester<E> extends AbstractCollectionTester<E> {
     }
     expectUnchanged();
   }
-  
+
   @CollectionFeature.Require(absent = SUPPORTS_CLEAR)
   @CollectionSize.Require(ZERO)
   public void testClear_unsupportedByEmptyCollection() {

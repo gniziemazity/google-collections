@@ -60,7 +60,7 @@ public final class Multisets {
   private static class UnmodifiableMultiset<E>
       extends ForwardingMultiset<E> implements Serializable {
     final Multiset<? extends E> delegate;
-    
+
     UnmodifiableMultiset(Multiset<? extends E> delegate) {
       this.delegate = delegate;
     }

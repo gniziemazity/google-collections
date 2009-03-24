@@ -23,7 +23,7 @@ import java.util.List;
 
 /**
  * Base class for list testers.
- * 
+ *
  * @author George van den Driessche
  */
 public class AbstractListTester<E> extends AbstractCollectionTester<E> {

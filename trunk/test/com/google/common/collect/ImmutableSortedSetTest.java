@@ -31,7 +31,7 @@ import java.util.SortedSet;
 
 /**
  * Unit tests for {@link ImmutableSortedSet}.
- * 
+ *
  * @author Jared Levy
  */
 public class ImmutableSortedSetTest extends AbstractImmutableSetTest {
@@ -39,23 +39,23 @@ public class ImmutableSortedSetTest extends AbstractImmutableSetTest {
   // enum singleton pattern
   private enum StringLengthComparator implements Comparator<String> {
     INSTANCE;
-    
+
     public int compare(String a, String b) {
       return a.length() - b.length();
     }
   }
-  
+
   private static final Comparator<String> STRING_LENGTH
       = StringLengthComparator.INSTANCE;
-  
+
   @Override protected Set<String> of() {
     return ImmutableSortedSet.of();
   }
 
   @Override protected Set<String> of(String... elements) {
     return ImmutableSortedSet.of(elements);
-  }  
-  
+  }
+
   @Override protected Set<String> copyOf(Iterable<String> elements) {
     return ImmutableSortedSet.copyOf(elements);
   }
@@ -235,7 +235,7 @@ public class ImmutableSortedSetTest extends AbstractImmutableSetTest {
   }
 
   /* "Explicit" indicates an explicit comparator. */
-  
+
   public void testExplicit_ordering() {
     SortedSet<String> set = ImmutableSortedSet.orderedBy(STRING_LENGTH).add(
         "in", "the", "quick", "jumped", "over", "a").build();
@@ -359,7 +359,7 @@ public class ImmutableSortedSetTest extends AbstractImmutableSetTest {
     assertEquals(subset, copy);
     assertFalse(subset == copy);
   }
-  
+
   public void testCopyOf_headSet() {
     SortedSet<String> set =
         ImmutableSortedSet.of("e", "a", "f", "b", "d", "c");
@@ -368,7 +368,7 @@ public class ImmutableSortedSetTest extends AbstractImmutableSetTest {
     assertEquals(headset, copy);
     assertFalse(headset == copy);
   }
-  
+
   public void testCopyOf_tailSet() {
     SortedSet<String> set =
         ImmutableSortedSet.of("e", "a", "f", "b", "d", "c");
@@ -377,7 +377,7 @@ public class ImmutableSortedSetTest extends AbstractImmutableSetTest {
     assertEquals(tailset, copy);
     assertFalse(tailset == copy);
   }
-  
+
   public void testCopyOf_comparator() {
     SortedSet<String> set =
         ImmutableSortedSet.copyOf(asList(
@@ -386,9 +386,9 @@ public class ImmutableSortedSetTest extends AbstractImmutableSetTest {
   }
 
   public void testCopyOf_sortedSet_ordering() {
-    SortedSet<String> treeSet = Sets.newTreeSet();
-    Collections.addAll(treeSet, "e", "a", "f", "b", "d", "c");
-    SortedSet<String> set = ImmutableSortedSet.copyOf(treeSet);
+    SortedSet<String> set =
+        ImmutableSortedSet.copyOf(Sets.newTreeSet(asList(
+            "e", "a", "f", "b", "d", "c")));
     assertContentsInOrder(set, "a", "b", "c", "d", "e", "f");
   }
 
@@ -435,8 +435,8 @@ public class ImmutableSortedSetTest extends AbstractImmutableSetTest {
   }
 
   public void testCopyOfSorted_natural_comparator() {
-    SortedSet<String> input = Sets.newTreeSet();
-    Collections.addAll(input, "in", "the", "quick", "jumped", "over", "a");
+    SortedSet<String> input =
+        Sets.newTreeSet(asList("in", "the", "quick", "jumped", "over", "a"));
     SortedSet<String> set = ImmutableSortedSet.copyOfSorted(input);
     assertSame(Ordering.natural(), set.comparator());
   }
@@ -510,7 +510,7 @@ public class ImmutableSortedSetTest extends AbstractImmutableSetTest {
     assertFalse(set.containsAll(Sets.newTreeSet(asList("b", "d"))));
     assertFalse(set.containsAll(Sets.newTreeSet(asList("f", "d", "a"))));
   }
-  
+
   public void testDifferentComparator_serialization() {
     Comparator<Comparable<?>> comparator = Collections.reverseOrder();
     SortedSet<String> set = new ImmutableSortedSet.Builder<String>(comparator)
@@ -519,32 +519,32 @@ public class ImmutableSortedSetTest extends AbstractImmutableSetTest {
     assertTrue(Iterables.elementsEqual(set, copy));
     assertEquals(set.comparator(), copy.comparator());
   }
-  
+
   public void testReverseOrder() {
     SortedSet<String> set = ImmutableSortedSet.<String>reverseOrder()
         .add("a", "b", "c").build();
     assertContentsInOrder(set, "c", "b", "a");
     assertEquals(Ordering.natural().reverse(), set.comparator());
   }
-  
+
   private static final Comparator<Object> TO_STRING
       = new Comparator<Object>() {
           public int compare(Object o1, Object o2) {
             return o1.toString().compareTo(o2.toString());
           }
         };
-      
+
   public void testSupertypeComparator() {
     SortedSet<Integer> set = new ImmutableSortedSet.Builder<Integer>(TO_STRING)
         .add(3, 12, 101, 44).build();
     assertContentsInOrder(set, 101, 12, 3, 44);
   }
-  
+
   public void testSupertypeComparatorSubtypeElements() {
     SortedSet<Number> set = new ImmutableSortedSet.Builder<Number>(TO_STRING)
         .add(3, 12, 101, 44).build();
     assertContentsInOrder(set, 101, 12, 3, 44);
-  }  
+  }
 
   @Override <E extends Comparable<? super E>> Builder<E> builder() {
     return ImmutableSortedSet.<E>naturalOrder();
@@ -585,7 +585,7 @@ public class ImmutableSortedSetTest extends AbstractImmutableSetTest {
     // Note: IntelliJ wrongly reports an error for this statement
     ImmutableSortedSet.Builder<LegacyComparable> builder
         = ImmutableSortedSet.<LegacyComparable>naturalOrder();
-    
+
     builder.addAll(LegacyComparable.VALUES_BACKWARD);
     builder.add(LegacyComparable.X);
     builder.add(LegacyComparable.Y, LegacyComparable.Z);

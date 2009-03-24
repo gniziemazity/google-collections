@@ -44,7 +44,7 @@ public class SimpleAbstractMultisetTest extends AbstractMultisetTest {
     } catch (UnsupportedOperationException expected) {}
     assertTrue(multiset.contains("a"));
   }
-  
+
   private static class NoRemoveMultiset<E> extends AbstractMultiset<E>
       implements Serializable {
     final Map<E, Integer> backingMap = Maps.newHashMap();
@@ -96,7 +96,7 @@ public class SimpleAbstractMultisetTest extends AbstractMultisetTest {
       };
     }
   }
-  
+
   private static class SimpleAbstractMultiset<E> extends NoRemoveMultiset<E> {
     @SuppressWarnings("unchecked")
     @Override public int remove(Object element, int occurrences) {
@@ -110,6 +110,6 @@ public class SimpleAbstractMultisetTest extends AbstractMultisetTest {
       } else {
         return backingMap.remove(element);
       }
-    }    
+    }
   }
 }

@@ -171,7 +171,7 @@ public class PreconditionsTest extends TestCase {
       = Collections.singleton(1);
   private static final Iterable<Integer> CONTAINS_NULL_COLLECTION
       = Arrays.asList(1, null, 2);
-  private static final Iterable<Integer> NO_NULL_ITERABLE 
+  private static final Iterable<Integer> NO_NULL_ITERABLE
       = Iterables.unmodifiableIterable(NO_NULL_COLLECTION);
   private static final Iterable<Integer> CONTAINS_NULL_ITERABLE
       = Iterables.unmodifiableIterable(CONTAINS_NULL_COLLECTION);

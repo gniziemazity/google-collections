@@ -38,7 +38,7 @@ import java.util.Iterator;
  * @author Jared Levy
  */
 public class MultisetWritesTester<E> extends AbstractMultisetTester<E> {
-  
+
   @CollectionFeature.Require(SUPPORTS_ADD)
   public void testAddOccurrences() {
     int oldCount = getMultiset().count(samples.e0);
@@ -47,7 +47,7 @@ public class MultisetWritesTester<E> extends AbstractMultisetTester<E> {
     assertEquals("multiset.count() incorrect after add(E, int)",
         oldCount + 2, getMultiset().count(samples.e0));
   }
-  
+
   @CollectionFeature.Require(absent = SUPPORTS_ADD)
   public void testAddOccurrences_unsupported() {
     try {
@@ -55,7 +55,7 @@ public class MultisetWritesTester<E> extends AbstractMultisetTester<E> {
       fail("unsupported multiset.add(E, int) didn't throw exception");
     } catch (UnsupportedOperationException required) {}
   }
-  
+
   @CollectionSize.Require(absent = ZERO)
   @CollectionFeature.Require(SUPPORTS_REMOVE)
   public void testRemove_occurrences_present() {
@@ -64,13 +64,13 @@ public class MultisetWritesTester<E> extends AbstractMultisetTester<E> {
     assertFalse("multiset contains present after multiset.remove(present, 2)",
         getMultiset().contains(samples.e0));
   }
-  
+
   @CollectionFeature.Require(SUPPORTS_REMOVE)
   public void testRemove_occurrences_absent() {
     assertEquals("multiset.remove(absent, 0) didn't return 0",
         0, getMultiset().remove(samples.e3, 2));
   }
-  
+
   @CollectionFeature.Require(absent = SUPPORTS_REMOVE)
   public void testRemove_occurrences_unsupported_absent() {
     // notice: we don't care whether it succeeds, or fails with UOE
@@ -80,14 +80,14 @@ public class MultisetWritesTester<E> extends AbstractMultisetTester<E> {
           0, getMultiset().remove(samples.e3, 2));
     } catch (UnsupportedOperationException ok) {}
   }
-  
+
   @CollectionFeature.Require(SUPPORTS_REMOVE)
   public void testRemove_occurrences_0() {
     int oldCount = getMultiset().count(samples.e0);
     assertEquals("multiset.remove(E, 0) didn't return the old count",
         oldCount, getMultiset().remove(samples.e0, 0));
   }
-  
+
   @CollectionFeature.Require(SUPPORTS_REMOVE)
   public void testRemove_occurrences_negative() {
     try {
@@ -95,7 +95,7 @@ public class MultisetWritesTester<E> extends AbstractMultisetTester<E> {
       fail("multiset.remove(E, -1) didn't throw an exception");
     } catch (IllegalArgumentException required) {}
   }
-  
+
   @CollectionFeature.Require(SUPPORTS_REMOVE)
   public void testRemove_occurrences_wrongType() {
     assertEquals("multiset.remove(wrongType, 1) didn't return 0",
@@ -107,11 +107,11 @@ public class MultisetWritesTester<E> extends AbstractMultisetTester<E> {
     getMultiset().entrySet().clear();
     assertTrue("multiset not empty after entrySet().clear()",
         getMultiset().isEmpty());
-  }  
-  
+  }
+
   @CollectionSize.Require(ONE)
   @CollectionFeature.Require(SUPPORTS_REMOVE)
-  public void testEntrySet_iterator() {    
+  public void testEntrySet_iterator() {
     Iterator<Multiset.Entry<E>> iterator = getMultiset().entrySet().iterator();
     assertTrue(
         "non-empty multiset.entrySet() iterator.hasNext() returned false",
@@ -125,12 +125,12 @@ public class MultisetWritesTester<E> extends AbstractMultisetTester<E> {
     iterator.remove();
     assertTrue(
         "multiset isn't empty after multiset.entrySet() iterator.remove()",
-    	getMultiset().isEmpty());
+        getMultiset().isEmpty());
   }
-  
+
   @CollectionSize.Require(absent = ZERO)
   @CollectionFeature.Require(absent = SUPPORTS_REMOVE)
-  public void testEntrySet_iterator_remove_unsupported() {    
+  public void testEntrySet_iterator_remove_unsupported() {
     Iterator<Multiset.Entry<E>> iterator = getMultiset().entrySet().iterator();
     assertTrue(
         "non-empty multiset.entrySet() iterator.hasNext() returned false",
@@ -140,10 +140,10 @@ public class MultisetWritesTester<E> extends AbstractMultisetTester<E> {
       fail("multiset.entrySet() iterator.remove() didn't throw an exception");
     } catch (UnsupportedOperationException expected) {}
   }
-  
+
   @CollectionSize.Require(absent = ZERO)
   @CollectionFeature.Require(SUPPORTS_REMOVE)
-  public void testEntrySet_remove_present() {    
+  public void testEntrySet_remove_present() {
     assertTrue(
         "multiset.entrySet.remove(presentEntry) returned false",
         getMultiset().entrySet().remove(
@@ -151,11 +151,11 @@ public class MultisetWritesTester<E> extends AbstractMultisetTester<E> {
     assertFalse(
         "multiset contains element after removing its entry",
         getMultiset().contains(samples.e0));
-  }  
-  
+  }
+
   @CollectionSize.Require(absent = ZERO)
   @CollectionFeature.Require(SUPPORTS_REMOVE)
-  public void testEntrySet_remove_missing() {    
+  public void testEntrySet_remove_missing() {
     assertFalse(
         "multiset.entrySet.remove(missingEntry) returned true",
         getMultiset().entrySet().remove(
@@ -164,10 +164,10 @@ public class MultisetWritesTester<E> extends AbstractMultisetTester<E> {
         "multiset didn't contain element after removing a missing entry",
         getMultiset().contains(samples.e0));
   }
-  
+
   @CollectionSize.Require(absent = ZERO)
   @CollectionFeature.Require(SUPPORTS_REMOVE_ALL)
-  public void testEntrySet_removeAll_present() {    
+  public void testEntrySet_removeAll_present() {
     assertTrue(
         "multiset.entrySet.removeAll(presentEntry) returned false",
         getMultiset().entrySet().removeAll(
@@ -175,11 +175,11 @@ public class MultisetWritesTester<E> extends AbstractMultisetTester<E> {
     assertFalse(
         "multiset contains element after removing its entry",
         getMultiset().contains(samples.e0));
-  }  
-  
+  }
+
   @CollectionSize.Require(absent = ZERO)
   @CollectionFeature.Require(SUPPORTS_REMOVE_ALL)
-  public void testEntrySet_removeAll_missing() {    
+  public void testEntrySet_removeAll_missing() {
     assertFalse(
         "multiset.entrySet.remove(missingEntry) returned true",
         getMultiset().entrySet().removeAll(
@@ -188,18 +188,18 @@ public class MultisetWritesTester<E> extends AbstractMultisetTester<E> {
         "multiset didn't contain element after removing a missing entry",
         getMultiset().contains(samples.e0));
   }
-  
+
   @CollectionFeature.Require(SUPPORTS_REMOVE_ALL)
-  public void testEntrySet_removeAll_null() {    
+  public void testEntrySet_removeAll_null() {
     try {
       getMultiset().entrySet().removeAll(null);
       fail("multiset.entrySet.removeAll(null) didn't throw an exception");
     } catch (NullPointerException expected) {}
   }
-  
+
   @CollectionSize.Require(ONE)
   @CollectionFeature.Require(SUPPORTS_RETAIN_ALL)
-  public void testEntrySet_retainAll_present() {    
+  public void testEntrySet_retainAll_present() {
     assertFalse(
         "multiset.entrySet.retainAll(presentEntry) returned false",
         getMultiset().entrySet().retainAll(
@@ -207,11 +207,11 @@ public class MultisetWritesTester<E> extends AbstractMultisetTester<E> {
     assertTrue(
         "multiset doesn't contains element after retaining its entry",
         getMultiset().contains(samples.e0));
-  }  
-  
+  }
+
   @CollectionSize.Require(ONE)
   @CollectionFeature.Require(SUPPORTS_RETAIN_ALL)
-  public void testEntrySet_retainAll_missing() {    
+  public void testEntrySet_retainAll_missing() {
     assertTrue(
         "multiset.entrySet.retainAll(missingEntry) returned true",
         getMultiset().entrySet().retainAll(
@@ -219,10 +219,10 @@ public class MultisetWritesTester<E> extends AbstractMultisetTester<E> {
     assertFalse(
         "multiset contains element after retaining a different entry",
         getMultiset().contains(samples.e0));
-  }  
-  
+  }
+
   @CollectionFeature.Require(SUPPORTS_RETAIN_ALL)
-  public void testEntrySet_retainAll_null() {    
+  public void testEntrySet_retainAll_null() {
     try {
       getMultiset().entrySet().retainAll(null);
       // Returning successfully is not ideal, but tolerated.

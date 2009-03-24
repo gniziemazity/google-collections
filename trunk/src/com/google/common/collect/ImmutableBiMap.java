@@ -267,10 +267,6 @@ public abstract class ImmutableBiMap<K, V> extends ImmutableMap<K,V>
     return delegate().toString();
   }
 
-  @Override Object writeReplace() {
-    return this; // don't use the ImmutableMap serialized form
-  }
-
   /** Bimap with no mappings. */
   private static class EmptyBiMap extends ImmutableBiMap<Object, Object> {
     @Override ImmutableMap<Object, Object> delegate() {
@@ -282,14 +278,13 @@ public abstract class ImmutableBiMap<K, V> extends ImmutableMap<K,V>
     Object readResolve() {
       return EMPTY_IMMUTABLE_BIMAP; // preserve singleton property
     }
-    private static final long serialVersionUID = 0;
   }
 
   /** Bimap with one or more mappings. */
   private static class RegularImmutableBiMap<K, V>
       extends ImmutableBiMap<K, V> {
-    final ImmutableMap<K, V> delegate;
-    final ImmutableBiMap<V, K> inverse;
+    transient final ImmutableMap<K, V> delegate;
+    transient final ImmutableBiMap<V, K> inverse;
 
     RegularImmutableBiMap(ImmutableMap<K, V> delegate) {
       this.delegate = delegate;
@@ -315,7 +310,29 @@ public abstract class ImmutableBiMap<K, V> extends ImmutableMap<K,V>
     @Override public ImmutableBiMap<V, K> inverse() {
       return inverse;
     }
+  }
 
+  /**
+   * Serialized type for all ImmutableBiMap instances. It captures the logical
+   * contents and they are reconstructed using public factory methods. This
+   * ensures that the implementation types remain as implementation details.
+   *
+   * Since the bimap is immutable, ImmutableBiMap doesn't require special logic
+   * for keeping the bimap and its inverse in sync during serialization, the way
+   * StandardBiMap does.
+   */
+  private static class SerializedForm extends ImmutableMap.SerializedForm {
+    SerializedForm(ImmutableBiMap<?, ?> bimap) {
+      super(bimap);
+    }
+    @Override Object readResolve() {
+      Builder<Object, Object> builder = new Builder<Object, Object>();
+      return createMap(builder);
+    }
     private static final long serialVersionUID = 0;
+  }
+
+  @Override Object writeReplace() {
+    return new SerializedForm(this);
   }
 }

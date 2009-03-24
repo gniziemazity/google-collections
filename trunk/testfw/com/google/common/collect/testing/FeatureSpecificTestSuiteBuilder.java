@@ -129,7 +129,7 @@ public abstract class FeatureSpecificTestSuiteBuilder<
     suppressedTests.addAll(methods);
     return self();
   }
-  
+
   protected Set<Method> getSuppressedTests() {
     return suppressedTests;
   }
@@ -283,7 +283,7 @@ public abstract class FeatureSpecificTestSuiteBuilder<
     }
     return filtered;
   }
-  
+
   @SuppressWarnings("unchecked")
   protected static String formatFeatureSet(Set<? extends Feature<?>> features) {
     List<String> temp = new ArrayList<String>();

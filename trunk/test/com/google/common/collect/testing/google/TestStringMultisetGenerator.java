@@ -22,7 +22,7 @@ import com.google.common.collect.testing.SampleElements.Strings;
 import java.util.List;
 
 /**
- * Create multisets of strings for tests. 
+ * Create multisets of strings for tests.
  *
  * @author Jared Levy
  */
@@ -47,7 +47,7 @@ public abstract class TestStringMultisetGenerator
   public String[] createArray(int length) {
     return new String[length];
   }
-  
+
   /** Returns the original element list, unchanged. */
   public List<String> order(List<String> insertionOrder) {
     return insertionOrder;

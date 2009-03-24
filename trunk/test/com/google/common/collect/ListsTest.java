@@ -64,9 +64,9 @@ public class ListsTest extends TestCase {
     public Iterator<Integer> iterator() {
       return SOME_COLLECTION.iterator();
     }
-    private static final long serialVersionUID = 0;    
+    private static final long serialVersionUID = 0;
   }
-  
+
   private static final List<Integer> SOME_LIST
       = Lists.newArrayList(1, 2, 3, 4);
 
@@ -83,14 +83,14 @@ public class ListsTest extends TestCase {
       implements Function<Number, String>, Serializable {
     public String apply(Number n) {
       return String.valueOf(n);
-    }    
-    private static final long serialVersionUID = 0;    
+    }
+    private static final long serialVersionUID = 0;
   }
-  
+
   public static Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTestSuite(ListsTest.class);
-    
+
     suite.addTest(ListTestSuiteBuilder.using(new TestStringListGenerator() {
           @Override protected List<String> create(String[] elements) {
             String[] rest = new String[elements.length - 1];
@@ -102,7 +102,7 @@ public class ListsTest extends TestCase {
         .withFeatures(CollectionSize.SEVERAL, CollectionSize.ONE,
             CollectionFeature.ALLOWS_NULL_VALUES)
         .createTestSuite());
-    
+
     suite.addTest(ListTestSuiteBuilder.using(new TestStringListGenerator() {
           @Override protected List<String> create(String[] elements) {
             String[] rest = new String[elements.length - 2];
@@ -113,15 +113,15 @@ public class ListsTest extends TestCase {
         .named("Lists.asList, 3 parameter")
         .withFeatures(CollectionSize.SEVERAL,
             CollectionFeature.ALLOWS_NULL_VALUES)
-        .createTestSuite());     
-    
+        .createTestSuite());
+
     final Function<String, String> removeFirst
         = new Function<String, String>() {
             public String apply(String from) {
               return (from.length() == 0) ? from : from.substring(1);
-            }      
+            }
           };
-          
+
     suite.addTest(ListTestSuiteBuilder.using(new TestStringListGenerator() {
           @Override protected List<String> create(String[] elements) {
             List<String> fromList = Lists.newArrayList();
@@ -135,7 +135,7 @@ public class ListsTest extends TestCase {
         .withFeatures(CollectionSize.ANY,
             ListFeature.REMOVE_OPERATIONS)
         .createTestSuite());
-    
+
     suite.addTest(ListTestSuiteBuilder.using(new TestStringListGenerator() {
           @Override protected List<String> create(String[] elements) {
             List<String> fromList = Lists.newLinkedList();
@@ -149,7 +149,7 @@ public class ListsTest extends TestCase {
         .withFeatures(CollectionSize.ANY,
             ListFeature.REMOVE_OPERATIONS)
         .createTestSuite());
-    
+
     suite.addTest(ListTestSuiteBuilder.using(new TestStringListGenerator() {
           @Override protected List<String> create(String[] elements) {
             List<String> fromList = Lists.newArrayList(elements);
@@ -161,7 +161,7 @@ public class ListsTest extends TestCase {
             ListFeature.REMOVE_OPERATIONS,
             CollectionFeature.ALLOWS_NULL_VALUES)
         .createTestSuite());
-    
+
     suite.addTest(ListTestSuiteBuilder.using(new TestStringListGenerator() {
           @Override protected List<String> create(String[] elements) {
             List<String> fromList =
@@ -174,7 +174,7 @@ public class ListsTest extends TestCase {
             ListFeature.REMOVE_OPERATIONS,
             CollectionFeature.ALLOWS_NULL_VALUES)
         .createTestSuite());
-    
+
     return suite;
   }
 
@@ -261,7 +261,7 @@ public class ListsTest extends TestCase {
     assertEquals(Integer.MAX_VALUE,
         Lists.computeArrayListCapacity(Integer.MAX_VALUE - 1000));
   }
-  
+
   public void testNewArrayListFromCollection() {
     ArrayList<Integer> list = Lists.newArrayList(SOME_COLLECTION);
     assertEquals(SOME_COLLECTION, list);
@@ -331,7 +331,7 @@ public class ListsTest extends TestCase {
     List<String> list = Lists.asList("foo", new String[] { "bar", "baz" });
     checkFooBarBazList(list);
     SerializableTester.reserializeAndAssert(list);
-    
+
     new IteratorTester<String>(5, UNMODIFIABLE,
         asList("foo", "bar", "baz"),
         IteratorTester.KnownOrder.KNOWN_ORDER) {
@@ -537,7 +537,7 @@ public class ListsTest extends TestCase {
     iterator.remove();
     assertEquals(asList("2", "3", "4"), list);
     assertFalse(list.isEmpty());
-    
+
     // An UnsupportedOperationException or IllegalStateException may occur.
     try {
       iterator.add("1");
@@ -568,7 +568,7 @@ public class ListsTest extends TestCase {
    * easy mock.
    */
   private interface IntegerList extends List<Integer> {}
-  
+
   /**
    * This test depends on the fact that {@code AbstractSequentialList.iterator}
    * transforms the {@code iterator()} call into a call on {@code

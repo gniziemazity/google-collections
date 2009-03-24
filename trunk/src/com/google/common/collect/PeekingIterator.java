@@ -18,6 +18,7 @@ package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * An iterator that supports a one-element lookahead while iterating.
@@ -26,24 +27,35 @@ import java.util.Iterator;
  */
 @GwtCompatible
 public interface PeekingIterator<E> extends Iterator<E> {
-
   /**
-   * Returns the next element in the iteration without advancing the iteration.
+   * Returns the next element in the iteration, without advancing the iteration.
    *
-   * <p>If possible, calls to {@code peek()} should not affect the iteration.
-   * As is the case with most Iterators, modifications to the underlying
-   * iteration may have unanticipated results.
+   * <p>Calls to {@code peek()} should not change the state of the iteration,
+   * except that it <i>may</i> prevent removal of the most recent element via
+   * {@link #remove()}.
    *
-   * <p>If there are no remaining elements in the iteration, {@code peek()}
-   * will throw a {@code NoSuchElementException}.  (A {@code null} return value
-   * does <em>not</em> indicate that this iterator has reached the end of its
-   * iteration.)
-   *
-   * <p><b>Usage note</b>:  Implementations may, but are not required to,
-   * support {@code remove()} following a call to {@code peek()}.
-   *
-   * @throws java.util.NoSuchElementException if the iteration has
-   *     no more elements.
+   * @throws NoSuchElementException if the iteration has no more elements
+   *     according to {@link #hasNext()}
    */
   E peek();
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The objects returned by consecutive calls to {@link #peek()} then {@link
+   * #next()} are guaranteed to be equal to each other.
+   */
+  E next();
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>Implementations may or may not support removal when a call to {@link
+   * #peek()} has occurred since the most recent call to {@link #next()}.
+   *
+   * @throws IllegalStateException if there has been a call to {@link #peek()}
+   *     since the most recent call to {@link #next()} and this implementation
+   *     does not support this sequence of calls (optional)
+   */
+  void remove();
 }

@@ -32,7 +32,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import static java.lang.reflect.Proxy.newProxyInstance;
-import java.util.Arrays;
+import static java.util.Arrays.asList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -76,7 +76,7 @@ public class ImmutableListTest extends TestCase {
     suite.addTest(ListTestSuiteBuilder.using(new TestStringListGenerator() {
           @Override protected List<String> create(String[] elements) {
             return ImmutableList.<String>builder()
-                .addAll(Arrays.asList(elements))
+                .addAll(asList(elements))
                 .build();
           }
         })
@@ -217,11 +217,11 @@ public class ImmutableListTest extends TestCase {
     public void testCopyOf_collection_general() {
       Collection<String> c = MinimalCollection.of("a", "b", "a");
       List<String> list = ImmutableList.copyOf(c);
-      assertEquals(Arrays.asList("a", "b", "a"), list);
-      List<String> mutableList = Arrays.asList("a", "b");
+      assertEquals(asList("a", "b", "a"), list);
+      List<String> mutableList = asList("a", "b");
       list = ImmutableList.copyOf(mutableList);
       mutableList.set(0, "c");
-      assertEquals(Arrays.asList("a", "b"), list);
+      assertEquals(asList("a", "b"), list);
     }
 
     public void testCopyOf_collectionContainingNull() {
@@ -246,13 +246,13 @@ public class ImmutableListTest extends TestCase {
     }
 
     public void testCopyOf_iterator_general() {
-      Iterator<String> iterator = Arrays.asList("a", "b", "a").iterator();
+      Iterator<String> iterator = asList("a", "b", "a").iterator();
       List<String> list = ImmutableList.copyOf(iterator);
-      assertEquals(Arrays.asList("a", "b", "a"), list);
+      assertEquals(asList("a", "b", "a"), list);
     }
 
     public void testCopyOf_iteratorContainingNull() {
-      Iterator<String> iterator = Arrays.asList("a", null, "b").iterator();
+      Iterator<String> iterator = asList("a", null, "b").iterator();
       try {
         ImmutableList.copyOf(iterator);
         fail();
@@ -264,14 +264,14 @@ public class ImmutableListTest extends TestCase {
       int count = 0;
       public Iterator<String> iterator() {
         count++;
-        return Arrays.asList("a", "b", "a").iterator();
+        return asList("a", "b", "a").iterator();
       }
     }
 
     public void testCopyOf_plainIterable() {
       CountingIterable iterable = new CountingIterable();
       List<String> list = ImmutableList.copyOf(iterable);
-      assertEquals(Arrays.asList("a", "b", "a"), list);
+      assertEquals(asList("a", "b", "a"), list);
     }
 
     public void testCopyOf_plainIterable_iteratesOnce() {
@@ -312,7 +312,8 @@ public class ImmutableListTest extends TestCase {
       ImmutableList<Integer> copyOfIterable =
           ImmutableList.copyOf(iterableToCopy);
 
-      assertTrue(concurrentlyMutatedList.getAllStates().contains(copyOfIterable));
+      assertTrue(concurrentlyMutatedList.getAllStates()
+          .contains(copyOfIterable));
       // Check that it's a RegularImmutableList iff it is nonempty:
       assertEquals(copyOfIterable.size() == 0, copyOfIterable.isEmpty());
     }
@@ -447,7 +448,7 @@ public class ImmutableListTest extends TestCase {
         final CopyOnWriteArrayList<Integer> delegate =
             new CopyOnWriteArrayList<Integer>(initialContents);
 
-        final Method getAllStatesMethod = getOnlyElement(Arrays.asList(
+        final Method getAllStatesMethod = getOnlyElement(asList(
             ConcurrentlyMutatedList.class.getDeclaredMethods()));
 
         final Iterator<ListFrobber> remainingActions =
@@ -526,24 +527,25 @@ public class ImmutableListTest extends TestCase {
           .add("a")
           .add("c")
           .build();
-      assertEquals(Arrays.asList("a", "b", "a", "c"), list);
+      assertEquals(asList("a", "b", "a", "c"), list);
     }
 
     public void testBuilderAddAll() {
-      List<String> a = Arrays.asList("a", "b");
-      List<String> b = Arrays.asList("c", "d");
+      List<String> a = asList("a", "b");
+      List<String> b = asList("c", "d");
       ImmutableList<String> list = new ImmutableList.Builder<String>()
           .addAll(a)
           .addAll(b)
           .build();
-      assertEquals(Arrays.asList( "a", "b", "c", "d"), list);
+      assertEquals(asList( "a", "b", "c", "d"), list);
       b.set(0, "f");
-      assertEquals(Arrays.asList( "a", "b", "c", "d"), list);
+      assertEquals(asList( "a", "b", "c", "d"), list);
     }
 
     public void testComplexBuilder() {
-      List<Integer> colorElem = Arrays.asList(0x00, 0x33, 0x66, 0x99, 0xCC, 0xFF);
-      ImmutableList.Builder<Integer> webSafeColorsBuilder = ImmutableList.builder();
+      List<Integer> colorElem = asList(0x00, 0x33, 0x66, 0x99, 0xCC, 0xFF);
+      ImmutableList.Builder<Integer> webSafeColorsBuilder
+          = ImmutableList.builder();
       for (Integer red : colorElem) {
         for (Integer green : colorElem) {
           for (Integer blue : colorElem) {
@@ -562,10 +564,10 @@ public class ImmutableListTest extends TestCase {
       assertEquals(0x330000, (int) webSafeColorArray[36]);
       assertEquals(0x000066, (int) webSafeColors.get(2));
       assertEquals(0x003300, (int) webSafeColors.get(6));
-      ImmutableList<Integer> addedColor = webSafeColorsBuilder.add(0x00BFFF).build();
-      assertEquals(
-          "Modifying the builder should not have changed any already built sets",
-          216, webSafeColors.size());
+      ImmutableList<Integer> addedColor
+          = webSafeColorsBuilder.add(0x00BFFF).build();
+      assertEquals("Modifying the builder should not have changed any already"
+          + " built sets", 216, webSafeColors.size());
       assertEquals("the new array should be one bigger than webSafeColors",
           217, addedColor.size());
       Integer[] appendColorArray =
@@ -591,7 +593,7 @@ public class ImmutableListTest extends TestCase {
       }
 
       builder = ImmutableList.builder();
-      List<String> listWithNulls = Arrays.asList("a", null, "b");
+      List<String> listWithNulls = asList("a", null, "b");
       try {
         builder.addAll(listWithNulls);
         fail("expected NullPointerException");
@@ -599,5 +601,4 @@ public class ImmutableListTest extends TestCase {
       }
     }
   }
-
 }

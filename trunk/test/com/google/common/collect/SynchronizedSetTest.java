@@ -45,7 +45,7 @@ public class SynchronizedSetTest extends AbstractCollectionTest {
   public void testSerialization() {
     SerializableTester.reserializeAndAssert(create());
   }
-  
+
   static class TestSet<E> extends ForwardingSet<E> implements Serializable {
     final Set<E> delegate;
     public final Object mutex;
@@ -59,7 +59,7 @@ public class SynchronizedSetTest extends AbstractCollectionTest {
     @Override protected Set<E> delegate() {
       return delegate;
     }
-    
+
     @Override public String toString() {
       assertTrue(Thread.holdsLock(mutex));
       return super.toString();
@@ -136,7 +136,7 @@ public class SynchronizedSetTest extends AbstractCollectionTest {
       assertTrue(Thread.holdsLock(mutex));
       return super.toArray(a);
     }
-    
-    private static final long serialVersionUID = 0;    
+
+    private static final long serialVersionUID = 0;
   }
 }

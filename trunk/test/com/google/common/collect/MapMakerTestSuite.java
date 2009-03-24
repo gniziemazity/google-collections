@@ -49,19 +49,6 @@ import junit.framework.TestSuite;
  */
 public class MapMakerTestSuite extends TestCase {
 
-  public static Test suite() {
-    TestSuite suite = new TestSuite();
-
-    suite.addTestSuite(RecursiveComputationTest.class);
-    suite.addTestSuite(ReferenceMapTest.class);
-    suite.addTestSuite(ComputingTest.class);
-    suite.addTest(ReferenceCombinationTestSuite.suite());
-    suite.addTestSuite(ExpiringReferenceMapTest.class);
-    suite.addTestSuite(ExpiringComputingReferenceMapTest.class);
-
-    return suite;
-  }
-
   public static class MakerTest extends TestCase {
     public void testSizingDefaults() {
       Impl<?, ?, ?> map = makeCustomMap(new MapMaker());
@@ -607,7 +594,7 @@ public class MapMakerTestSuite extends TestCase {
   /**
    * Tests combinations of key and value reference types.
    */
-  public static class ReferenceCombinationTestSuite {
+  public static class ReferenceCombinationTestSuite extends TestCase {
 
     interface BuilderOption {
       void applyTo(MapMaker maker);
@@ -685,7 +672,7 @@ public class MapMakerTestSuite extends TestCase {
       return suite;
     }
 
-    private static class MapTest extends TestCase {
+    public static class MapTest extends TestCase {
 
       final BuilderOption keyOption;
       final BuilderOption valueOption;
@@ -933,7 +920,8 @@ public class MapMakerTestSuite extends TestCase {
 
       for (int i = 0; i < 10; i++) {
         map.putIfAbsent(KEY_PREFIX + i, VALUE_PREFIX + i);
-        assertEquals(Integer.valueOf(VALUE_PREFIX + i), map.get(KEY_PREFIX + i));
+        assertEquals(Integer.valueOf(VALUE_PREFIX + i),
+            map.get(KEY_PREFIX + i));
       }
 
       runTasks();
@@ -943,7 +931,8 @@ public class MapMakerTestSuite extends TestCase {
 
     public void testExpiringGetForSoft() {
       ConcurrentMap<String, Integer> map = new MapMaker()
-          .expiration(EXPIRING_TIME, TimeUnit.MILLISECONDS).makeMap();
+          .softValues().expiration(EXPIRING_TIME, TimeUnit.MILLISECONDS)
+          .makeMap();
 
       runExpirationTest(map);
     }
@@ -964,7 +953,8 @@ public class MapMakerTestSuite extends TestCase {
 
     public void testRemovalSchedulerForSoft() {
       ConcurrentMap<String, Integer> map = new MapMaker()
-          .softValues().expiration(EXPIRING_TIME, TimeUnit.MILLISECONDS).makeMap();
+          .softValues().expiration(EXPIRING_TIME, TimeUnit.MILLISECONDS)
+          .makeMap();
 
       runRemovalScheduler(map, KEY_PREFIX, EXPIRING_TIME);
     }
@@ -1061,7 +1051,8 @@ public class MapMakerTestSuite extends TestCase {
 
     public void testExpiringPut() {
       ConcurrentMap<String, Integer> cache = new MapMaker()
-          .expiration(50, TimeUnit.MILLISECONDS).makeComputingMap(WATCHED_CREATOR);
+          .expiration(50, TimeUnit.MILLISECONDS)
+          .makeComputingMap(WATCHED_CREATOR);
 
       for (int i = 0; i < 10; i++) {
         cache.put(KEY_PREFIX + i, i + VALUE_SUFFIX);
@@ -1084,7 +1075,8 @@ public class MapMakerTestSuite extends TestCase {
 
     public void testExpiringPutIfAbsent() {
       ConcurrentMap<String, Integer> cache = new MapMaker()
-          .expiration(50, TimeUnit.MILLISECONDS).makeComputingMap(WATCHED_CREATOR);
+          .expiration(50, TimeUnit.MILLISECONDS)
+          .makeComputingMap(WATCHED_CREATOR);
 
       for (int i = 0; i < 10; i++) {
         cache.putIfAbsent(KEY_PREFIX + i, i + VALUE_SUFFIX);
@@ -1107,7 +1099,8 @@ public class MapMakerTestSuite extends TestCase {
 
     public void testExpiringGetForStrong() {
       ConcurrentMap<String, Integer> cache = new MapMaker()
-          .expiration(10, TimeUnit.MILLISECONDS).makeComputingMap(WATCHED_CREATOR);
+          .expiration(10, TimeUnit.MILLISECONDS)
+          .makeComputingMap(WATCHED_CREATOR);
 
       runExpirationTest(cache);
     }

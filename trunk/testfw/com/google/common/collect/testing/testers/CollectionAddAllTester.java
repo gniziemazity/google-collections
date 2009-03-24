@@ -31,7 +31,7 @@ import java.util.List;
  * A generic JUnit test which tests addAll operations on a collection. Can't be
  * invoked directly; please see
  * {@link com.google.common.collect.testing.CollectionTestSuiteBuilder}.
- * 
+ *
  * @author Chris Povirk
  * @author Kevin Bourrillion
  */

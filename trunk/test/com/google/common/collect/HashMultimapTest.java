@@ -39,14 +39,14 @@ public class HashMultimapTest extends AbstractSetMultimapTest {
     assertEquals(ImmutableSet.of(1, 3), multimap.get("foo"));
     assertEquals(8, multimap.expectedValuesPerKey);
   }
-  
+
   public void testCreateFromMultimap() {
     Multimap<String, Integer> multimap = createSample();
     HashMultimap<String, Integer> copy = HashMultimap.create(multimap);
     assertEquals(multimap, copy);
     assertEquals(8, copy.expectedValuesPerKey);
   }
-  
+
   public void testCreateFromSizes() {
     HashMultimap<String, Integer> multimap = HashMultimap.create(20, 15);
     multimap.put("foo", 1);
@@ -55,23 +55,23 @@ public class HashMultimapTest extends AbstractSetMultimapTest {
     assertEquals(ImmutableSet.of(1, 3), multimap.get("foo"));
     assertEquals(15, multimap.expectedValuesPerKey);
   }
-  
+
   public void testCreateFromIllegalSizes() {
     try {
       HashMultimap.create(-20, 15);
       fail();
     } catch (IllegalArgumentException expected) {}
-    
+
     try {
       HashMultimap.create(20, -15);
       fail();
     } catch (IllegalArgumentException expected) {}
   }
-  
+
   public void testEmptyMultimapsEqual() {
     Multimap<String, Integer> setMultimap = HashMultimap.create();
     Multimap<String, Integer> listMultimap = ArrayListMultimap.create();
     assertTrue(setMultimap.equals(listMultimap));
-    assertTrue(listMultimap.equals(setMultimap));    
+    assertTrue(listMultimap.equals(setMultimap));
   }
 }

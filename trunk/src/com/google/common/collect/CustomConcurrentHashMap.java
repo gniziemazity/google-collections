@@ -43,7 +43,8 @@ import javax.annotation.Nullable;
  * provides the surrounding concurrent data structure which implements {@link
  * ConcurrentMap}. Additionally supports implementing maps where {@link
  * Map#get} atomically computes values on demand (see {@link
- * Builder#buildComputingMap(CustomConcurrentHashMap.ComputingStrategy, Function)}).
+ * Builder#buildComputingMap(CustomConcurrentHashMap.ComputingStrategy,
+ * Function)}).
  *
  * <p>The resulting hash table supports full concurrency of retrievals and
  * adjustable expected concurrency for updates. Even though all operations are
@@ -124,7 +125,7 @@ import javax.annotation.Nullable;
  * @author Bob Lee
  * @author Doug Lea
  */
-public final class CustomConcurrentHashMap {
+final class CustomConcurrentHashMap {
 
   /** Prevents instantiation. */
   private CustomConcurrentHashMap() {}
@@ -132,7 +133,7 @@ public final class CustomConcurrentHashMap {
   /**
    * Builds a custom concurrent hash map.
    */
-  public final static class Builder {
+  final static class Builder {
 
     float loadFactor = 0.75f;
     int initialCapacity = 16;
@@ -2100,7 +2101,7 @@ public final class CustomConcurrentHashMap {
    * With nothing overridden, it yields map behavior equivalent to that of
    * {@link ConcurrentHashMap}.
    */
-  public static class SimpleStrategy<K, V>
+  static class SimpleStrategy<K, V>
       implements Strategy<K, V, SimpleInternalEntry<K, V>> {
     public SimpleInternalEntry<K, V> newEntry(
         K key, int hash, SimpleInternalEntry<K, V> next) {
@@ -2144,7 +2145,7 @@ public final class CustomConcurrentHashMap {
   /**
    * A basic, no-frills entry class used by {@link SimpleInternalEntry}.
    */
-  public static class SimpleInternalEntry<K, V> {
+  static class SimpleInternalEntry<K, V> {
     final K key;
     final int hash;
     final SimpleInternalEntry<K, V> next;

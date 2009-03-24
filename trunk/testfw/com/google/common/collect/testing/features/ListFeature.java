@@ -48,7 +48,7 @@ public enum ListFeature implements Feature<List> {
       CollectionFeature.REMOVE_OPERATIONS,
       SUPPORTS_REMOVE_WITH_INDEX
   );
-  
+
   private final Set<Feature<? super List>> implied;
 
   ListFeature(Feature<? super List> ... implied) {

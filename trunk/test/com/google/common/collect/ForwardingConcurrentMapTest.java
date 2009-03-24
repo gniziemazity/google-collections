@@ -22,29 +22,29 @@ import junit.framework.TestCase;
 
 /**
  * Tests for {@link ForwardingConcurrentMap}.
- * 
+ *
  * @author Jared Levy
  */
 public class ForwardingConcurrentMapTest extends TestCase {
-  
+
   private static class TestMap
       extends ForwardingConcurrentMap<String, Integer> {
     final ConcurrentMap<String, Integer> delegate
         = new ConcurrentHashMap<String, Integer>();
     @Override protected ConcurrentMap<String, Integer> delegate() {
       return delegate;
-    }    
+    }
   }
-  
+
   public void testPutIfAbsent() {
     TestMap map = new TestMap();
     map.put("foo", 1);
     assertEquals(Integer.valueOf(1), map.putIfAbsent("foo", 2));
     assertEquals(Integer.valueOf(1), map.get("foo"));
     assertNull(map.putIfAbsent("bar", 3));
-    assertEquals(Integer.valueOf(3), map.get("bar"));    
+    assertEquals(Integer.valueOf(3), map.get("bar"));
   }
-  
+
   public void testRemove() {
     TestMap map = new TestMap();
     map.put("foo", 1);
@@ -54,7 +54,7 @@ public class ForwardingConcurrentMapTest extends TestCase {
     assertTrue(map.remove("foo", 1));
     assertTrue(map.isEmpty());
   }
-  
+
   public void testReplace() {
     TestMap map = new TestMap();
     map.put("foo", 1);
@@ -63,7 +63,7 @@ public class ForwardingConcurrentMapTest extends TestCase {
     assertEquals(Integer.valueOf(2), map.get("foo"));
     assertFalse(map.containsKey("bar"));
   }
-  
+
   public void testReplaceConditional() {
     TestMap map = new TestMap();
     map.put("foo", 1);
@@ -72,6 +72,6 @@ public class ForwardingConcurrentMapTest extends TestCase {
     assertEquals(Integer.valueOf(1), map.get("foo"));
     assertFalse(map.containsKey("bar"));
     assertTrue(map.replace("foo", 1, 4));
-    assertEquals(Integer.valueOf(4), map.get("foo"));    
-  }  
+    assertEquals(Integer.valueOf(4), map.get("foo"));
+  }
 }

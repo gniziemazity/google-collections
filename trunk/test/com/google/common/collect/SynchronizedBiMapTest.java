@@ -62,7 +62,7 @@ public class SynchronizedBiMapTest extends SynchronizedMapTest {
       assertTrue(Thread.holdsLock(mutex));
       return delegate.values();
     }
-    
+
     private static final long serialVersionUID = 0;
   }
 
@@ -95,14 +95,14 @@ public class SynchronizedBiMapTest extends SynchronizedMapTest {
           HashBiMap.<Integer, String>create(), mutex);
       BiMap<Integer, String> outer = Synchronized.biMap(inner, mutex);
       return outer;
-    }    
-    
+    }
+
     /**
      * If you serialize a synchronized bimap and its inverse together, the
      * reserialized bimaps will have backing maps that stay in sync, as shown
      * by the {@code testSerializationWithInverseEqual()} test. However, the
      * inverse of one won't be the same as the other.
-     * 
+     *
      * To make them the same, the inverse synchronized bimap would need a custom
      * serialized form, similar to what {@code StandardBiMap.Inverse} does.
      */

@@ -25,6 +25,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -532,8 +533,6 @@ public final class Iterators {
    * [[a, b, c], [d, e]]} -- an outer iterator containing two inner lists of
    * three and two elements, all in the original order.
    *
-   * <p>The iterator does not support the {@link Iterator#remove()} method.
-   *
    * @param iterator the iterator to return a partitioned view of
    * @param size the desired size of each partition (the last may be smaller)
    * @return an iterator of immutable lists containing the elements of {@code
@@ -551,8 +550,6 @@ public final class Iterators {
    * an iterator containing {@code [a, b, c, d, e]} with a partition size of 3
    * yields {@code [[a, b, c], [d, e, null]]} -- an outer iterator containing
    * two inner lists of three elements each, all in the original order.
-   *
-   * <p>The iterator does not support the {@link Iterator#remove()} method.
    *
    * @param iterator the iterator to return a partitioned view of
    * @param size the desired size of each partition
@@ -628,12 +625,7 @@ public final class Iterators {
   public static <T> Iterator<T> filter(
       Iterator<?> unfiltered, final Class<T> type) {
     checkNotNull(type);
-    Predicate<Object> predicate = new Predicate<Object>() {
-      public boolean apply(Object object) {
-        return Platform.isInstance(type, object);
-      }
-    };
-    return (Iterator<T>) filter(unfiltered, predicate);
+    return (Iterator<T>) filter(unfiltered, Predicates.instanceOf(type));
   }
 
   /**
@@ -973,32 +965,32 @@ public final class Iterators {
   }
 
   /**
-   * Wraps the supplied iterator in a {@code PeekingIterator}. The
-   * {@link PeekingIterator} assumes ownership of the supplied iterator, so
-   * users should cease making direct calls to it after calling this method.
+   * Returns a {@code PeekingIterator} backed by the given iterator.
    *
-   * <p>If the {@link PeekingIterator#peek()} method of the constructed
-   * {@code PeekingIterator} is never called, the returned iterator will
-   * behave exactly the same as the supplied iterator.
+   * <p>Calls to the {@code peek} method with no intervening calls to {@code
+   * next} do not affect the iteration, and hence return the same object each
+   * time. A subsequent call to {@code next} is guaranteed to return the same
+   * object again. For example: <pre>   {@code
    *
-   * <p>Subsequent calls to {@code peek()} with no intervening calls to
-   * {@code next()} do not affect the iteration, and hence return the same
-   * object each time. After a call to {@code peek()}, the next call to
-   * {@code next()} is guaranteed to return the same object that the
-   * {@code peek()} call returned. For example:
+   *   PeekingIterator<String> peekingIterator =
+   *       Iterators.peekingIterator(Iterators.forArray("a", "b"));
+   *   String a1 = peekingIterator.peek(); // returns "a"
+   *   String a2 = peekingIterator.peek(); // also returns "a"
+   *   String a3 = peekingIterator.next(); // also returns "a"}</pre>
    *
-   * <pre>
-   *   PeekingIterator&lt;E&gt; peekingIterator = ...;
-   *   // Either the next three calls will each throw
-   *   // NoSuchElementExceptions, or...
-   *   E e1 = peekingIterator.peek();
-   *   E e2 = peekingIterator.peek(); // e2 is the same as e1
-   *   E e3 = peekingIterator.next(); // e3 is the same as e1/e2
-   * </pre>
+   * Any structural changes to the underlying iteration (aside from those
+   * performed by the iterator's own {@link PeekingIterator#remove()} method)
+   * will leave the iterator in an undefined state.
    *
-   * <p>Calling {@link Iterator#remove()} after {@link PeekingIterator#peek()}
-   * is unsupported by the returned iterator and will throw an
-   * {@link IllegalStateException}.
+   * <p>The returned iterator does not support removal after peeking, as
+   * explained by {@link PeekingIterator#remove()}.
+   *
+   * @param iterator the backing iterator. The {@link PeekingIterator} assumes
+   *     ownership of this iterator, so users should cease making direct calls
+   *     to it after calling this method.
+   * @return a peeking iterator backed by that iterator. Apart from the
+   *     additional {@link PeekingIterator#peek()} method, this iterator behaves
+   *     exactly the same as {@code iterator}.
    */
   public static <T> PeekingIterator<T> peekingIterator(
       Iterator<? extends T> iterator) {

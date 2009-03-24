@@ -63,7 +63,7 @@ public class IteratorsTest extends TestCase {
     suite.addTestSuite(IteratorsTest.class);
     return suite;
   }
-  
+
   public void testEmptyIterator() {
     Iterator<String> iterator = Iterators.emptyIterator();
     assertFalse(iterator.hasNext());
@@ -111,7 +111,7 @@ public class IteratorsTest extends TestCase {
     } catch (UnsupportedOperationException expected) {
     }
   }
-  
+
   public void testSize0() {
     Iterator<String> iterator = Iterators.emptyIterator();
     assertEquals(0, Iterators.size(iterator));
@@ -511,7 +511,7 @@ public class IteratorsTest extends TestCase {
       fail();
     } catch (NoSuchElementException expected) {}
   }
-  
+
   public void testCycleUsingIteratorTester() throws Exception {
     new IteratorTester<Integer>(5, UNMODIFIABLE, asList(1, 2, 1, 2, 1,
         2, 1, 2, 1, 2, 1, 2), IteratorTester.KnownOrder.KNOWN_ORDER) {
@@ -556,7 +556,7 @@ public class IteratorsTest extends TestCase {
     }.test();
   }
 
-  public void testConcatEmptyAndSingletonAndEmptyYieldsSingleton() 
+  public void testConcatEmptyAndSingletonAndEmptyYieldsSingleton()
       throws Exception {
     new SingletonIteratorTester() {
       @Override protected Iterator<Integer> newTargetIterator() {
@@ -647,7 +647,8 @@ public class IteratorsTest extends TestCase {
   }
 
   public void testAddAllToSet() {
-    Set<String> alreadyThere = Sets.newLinkedHashSet(asList("already", "there"));
+    Set<String> alreadyThere
+        = Sets.newLinkedHashSet(asList("already", "there"));
     List<String> oneMore = Lists.newArrayList("there");
 
     boolean changed = Iterators.addAll(alreadyThere, oneMore.iterator());
@@ -733,6 +734,15 @@ public class IteratorsTest extends TestCase {
     b = asList(4, 8, 15, 16, 23, 42);
     assertFalse(Iterators.elementsEqual(a.iterator(), b.iterator()));
     assertFalse(Iterators.elementsEqual(b.iterator(), a.iterator()));
+  }
+
+  public void testPartition_badSize() {
+    Iterator<Integer> source = Iterators.singletonIterator(1);
+    try {
+      Iterators.partition(source, 0);
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
   }
 
   public void testPartition_empty() {
@@ -861,7 +871,7 @@ public class IteratorsTest extends TestCase {
       fail();
     } catch (NoSuchElementException expected) {}
   }
-  
+
   public void testForArrayTypical() {
     String[] array = {"foo", "bar"};
     Iterator<String> iterator = Iterators.forArray(array);
@@ -893,7 +903,7 @@ public class IteratorsTest extends TestCase {
       fail();
     } catch (IndexOutOfBoundsException expected) {}
   }
-  
+
   public void testForArrayLength0() {
     String[] array = {"foo", "bar"};
     assertFalse(Iterators.forArray(array, 0, 0).hasNext());
@@ -1132,14 +1142,14 @@ public class IteratorsTest extends TestCase {
     } catch (IndexOutOfBoundsException expected) {}
     assertFalse(iterator.hasNext());
   }
-  
+
   public void testGet_negativeIndex() {
     List<String> list = newArrayList("a", "b", "c");
     Iterator<String> iterator = list.iterator();
     try {
       get(iterator, -1);
       fail();
-    } catch (IndexOutOfBoundsException expected) {}    
+    } catch (IndexOutOfBoundsException expected) {}
   }
 
   public void testSkip_basic() {
@@ -1159,23 +1169,23 @@ public class IteratorsTest extends TestCase {
     skip(iterator, 5);
     assertFalse(iterator.hasNext());
   }
-  
+
   public void testSkip_illegalArgument() {
     List<String> list = newArrayList("a", "b", "c");
     Iterator<String> iterator = list.iterator();
     try {
       skip(iterator, -1);
       fail();
-    } catch (IllegalArgumentException expected) {}    
+    } catch (IllegalArgumentException expected) {}
   }
-  
+
   public void testFrequency() {
     List<String> list = newArrayList("a", null, "b", null, "a", null);
     assertEquals(2, Iterators.frequency(list.iterator(), "a"));
     assertEquals(1, Iterators.frequency(list.iterator(), "b"));
     assertEquals(0, Iterators.frequency(list.iterator(), "c"));
     assertEquals(0, Iterators.frequency(list.iterator(), 4.2));
-    assertEquals(3, Iterators.frequency(list.iterator(), null));    
+    assertEquals(3, Iterators.frequency(list.iterator(), null));
   }
 
   public void testSingletonIterator() throws Exception {
@@ -1191,22 +1201,22 @@ public class IteratorsTest extends TestCase {
     List<String> list = newArrayList("a", "b", "c", "d", "e");
     assertTrue(Iterators.removeAll(
         list.iterator(), newArrayList("b", "d", "f")));
-    assertEquals(newArrayList("a", "c", "e"), list);    
+    assertEquals(newArrayList("a", "c", "e"), list);
     assertFalse(Iterators.removeAll(
         list.iterator(), newArrayList("x", "y", "z")));
     assertEquals(newArrayList("a", "c", "e"), list);
   }
-  
+
   public void testRetainAll() {
     List<String> list = newArrayList("a", "b", "c", "d", "e");
     assertTrue(Iterators.retainAll(
         list.iterator(), newArrayList("b", "d", "f")));
-    assertEquals(newArrayList("b", "d"), list);    
+    assertEquals(newArrayList("b", "d"), list);
     assertFalse(Iterators.retainAll(
         list.iterator(), newArrayList("b", "e", "d")));
     assertEquals(newArrayList("b", "d"), list);
-  }  
-  
+  }
+
   private static Test testsForRemoveAllAndRetainAll() {
     return ListTestSuiteBuilder.using(new TestStringListGenerator() {
           @Override public List<String> create(final String[] elements) {
@@ -1232,5 +1242,5 @@ public class IteratorsTest extends TestCase {
             CollectionFeature.ALLOWS_NULL_VALUES,
             CollectionSize.ANY)
         .createTestSuite();
-  }  
+  }
 }

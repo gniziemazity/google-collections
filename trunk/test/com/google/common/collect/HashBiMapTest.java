@@ -31,7 +31,7 @@ public class HashBiMapTest extends AbstractBiMapTest {
   @Override protected BiMap<Integer, String> create() {
     return HashBiMap.create();
   }
-  
+
   public void testCreate() {
     BiMap<String, String> bimap = HashBiMap.create();
     assertEquals(0, bimap.size());

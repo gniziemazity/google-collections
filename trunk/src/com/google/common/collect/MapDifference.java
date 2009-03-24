@@ -66,7 +66,7 @@ public interface MapDifference<K, V> {
    * #entriesDiffering()} of the two instances are equal.
    */
   boolean equals(@Nullable Object object);
- 
+
   /**
    * Returns the hash code for this instance. This is defined as the hash code
    * of <pre>   {@code
@@ -75,10 +75,10 @@ public interface MapDifference<K, V> {
    *       entriesInCommon(), entriesDiffering())}</pre>
    */
   int hashCode();
-  
+
   /**
    * A difference between the mappings from two maps with the same key. The
-   * {@code leftValue()} and {@code rightValue} are not equal, and one but not 
+   * {@code leftValue()} and {@code rightValue} are not equal, and one but not
    * both of them may be null.
    */
   interface ValueDifference<V> {

@@ -19,6 +19,7 @@ package com.google.common.collect;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Joiner.MapJoiner;
+import com.google.common.base.Preconditions;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import com.google.common.base.Supplier;
@@ -51,69 +52,6 @@ public final class Multimaps {
   private Multimaps() {}
 
   /**
-   * Creates an empty {@code TreeMultimap} instance using the natural ordering
-   * of keys and values.
-   *
-   * @return a newly-created, initially-empty {@code TreeMultimap}
-   */
-  @SuppressWarnings("unchecked") // eclipse doesn't like the raw Comparable
-  public static <K extends Comparable, V extends Comparable>
-      TreeMultimap<K, V> newTreeMultimap() {
-    return new TreeMultimap<K, V>();
-  }
-
-  /**
-   * Constructs a {@code TreeMultimap} with the same mappings as the specified
-   * {@code Multimap}.
-   *
-   * <p>If the supplied multimap is an instance of {@code TreeMultimap}, the
-   * supplied multimap's comparators are copied to the new instance.
-   *
-   * <p>If the supplied multimap is not an instance of {@code TreeMultimap}, the
-   * new multimap is ordered using the natural ordering of the key and value
-   * classes. The key and value classes must satisfy the {@link Comparable}
-   * interface.
-   *
-   * @param multimap the multimap whose contents are copied to this multimap.
-   * @return a newly-created and initialized {@code TreeMultimap}
-   */
-  public static <K, V> TreeMultimap<K, V> newTreeMultimap(
-      Multimap<? extends K, ? extends V> multimap) {
-    return new TreeMultimap<K, V>(multimap);
-  }
-
-  /**
-   * Creates an empty {@code TreeMultimap} instance using explicit comparators.
-   *
-   * @param keyComparator the comparator that determines the key ordering. If
-   *     it's {@code null}, the natural ordering of the keys is used.
-   * @param valueComparator the comparator that determines the value ordering.
-   *     If it's {@code null}, the natural ordering of the values is used.
-   * @return a newly-created, initially-empty {@code TreeMultimap}
-   */
-  public static <K, V> TreeMultimap<K, V> newTreeMultimap(
-      @Nullable Comparator<? super K> keyComparator,
-      @Nullable Comparator<? super V> valueComparator) {
-    return new TreeMultimap<K, V>(keyComparator, valueComparator);
-  }
-
-  /**
-   * Creates a {@code TreeMultimap} instance using explicit comparators,
-   * initialized with all elements from the supplied {@code Multimap}. If the
-   * supplied multimap contains duplicate key-value pairs, those duplicate
-   * pairs will only be stored once in the new multimap.
-   *
-   * @param multimap the multimap whose contents are copied to this multimap.
-   * @return a newly-created and initialized {@code TreeMultimap}
-   */
-  public static <K, V> TreeMultimap<K, V> newTreeMultimap(
-      @Nullable Comparator<? super K> keyComparator,
-      @Nullable Comparator<? super V> valueComparator,
-      Multimap<? extends K, ? extends V> multimap) {
-    return new TreeMultimap<K, V>(keyComparator, valueComparator, multimap);
-  }
-
-  /**
    * Creates a new {@code Multimap} that uses the provided map and factory. It
    * can generate a multimap based on arbitrary {@link Map} and
    * {@link Collection} classes.
@@ -138,11 +76,12 @@ public final class Multimaps {
    * <p>Call this method only when the simpler methods
    * {@link ArrayListMultimap#create()}, {@link HashMultimap#create()},
    * {@link LinkedHashMultimap#create()}, {@link LinkedListMultimap#create()},
-   * and {@link #newTreeMultimap()} won't suffice.
-   * 
+   * {@link TreeMultimap#create()}, and
+   * {@link TreeMultimap#create(Comparator, Comparator)} won't suffice.
+   *
    * <p>Note: the multimap assumes complete ownership over of {@code map} and
    * the collections returned by {@code factory}. Those objects should not be
-   * manually updated and they should not use soft, weak, or phantom references. 
+   * manually updated and they should not use soft, weak, or phantom references.
    *
    * @param map place to store the mapping from each key to its corresponding
    *     values
@@ -218,7 +157,7 @@ public final class Multimaps {
    *
    * <p>Note: the multimap assumes complete ownership over of {@code map} and
    * the lists returned by {@code factory}. Those objects should not be manually
-   * updated and they should not use soft, weak, or phantom references. 
+   * updated and they should not use soft, weak, or phantom references.
    *
    * @param map place to store the mapping from each key to its corresponding
    *     values
@@ -287,12 +226,13 @@ public final class Multimaps {
    * {@link #synchronizedSetMultimap}.
    *
    * <p>Call this method only when the simpler methods
-   * {@link HashMultimap#create()}, {@link LinkedHashMultimap#create()}, and
-   * {@link #newTreeMultimap()} won't suffice.
+   * {@link HashMultimap#create()}, {@link LinkedHashMultimap#create()},
+   * {@link TreeMultimap#create()}, and
+   * {@link TreeMultimap#create(Comparator, Comparator)} won't suffice.
    *
    * <p>Note: the multimap assumes complete ownership over of {@code map} and
    * the sets returned by {@code factory}. Those objects should not be manually
-   * updated and they should not use soft, weak, or phantom references. 
+   * updated and they should not use soft, weak, or phantom references.
    *
    * @param map place to store the mapping from each key to its corresponding
    *     values
@@ -360,12 +300,13 @@ public final class Multimaps {
    * allow concurrent update operations, wrap the multimap with a call to
    * {@link #synchronizedSortedSetMultimap}.
    *
-   * <p>Call this method only when the simpler method {@link #newTreeMultimap()}
-   * won't suffice.
+   * <p>Call this method only when the simpler methods
+   * {@link TreeMultimap#create()} and
+   * {@link TreeMultimap#create(Comparator, Comparator)} won't suffice.
    *
    * <p>Note: the multimap assumes complete ownership over of {@code map} and
    * the sets returned by {@code factory}. Those objects should not be manually
-   * updated and they should not use soft, weak, or phantom references. 
+   * updated and they should not use soft, weak, or phantom references.
    *
    * @param map place to store the mapping from each key to its corresponding
    *     values
@@ -584,34 +525,29 @@ public final class Multimaps {
       return keySet;
     }
 
-    @Override @SuppressWarnings("unused")
-    public boolean put(K key, V value) {
+    @Override public boolean put(K key, V value) {
       throw new UnsupportedOperationException();
     }
 
-    @Override @SuppressWarnings("unused")
-    public boolean putAll(K key,
+    @Override public boolean putAll(K key,
         @SuppressWarnings("hiding") Iterable<? extends V> values) {
       throw new UnsupportedOperationException();
     }
 
-    @Override @SuppressWarnings("unused")
+    @Override
     public boolean putAll(Multimap<? extends K, ? extends V> multimap) {
       throw new UnsupportedOperationException();
     }
 
-    @Override @SuppressWarnings("unused")
-    public boolean remove(Object key, Object value) {
+    @Override public boolean remove(Object key, Object value) {
       throw new UnsupportedOperationException();
     }
 
-    @Override @SuppressWarnings("unused")
-    public Collection<V> removeAll(Object key) {
+    @Override public Collection<V> removeAll(Object key) {
       throw new UnsupportedOperationException();
     }
 
-    @Override @SuppressWarnings("unused")
-    public Collection<V> replaceValues(K key,
+    @Override public Collection<V> replaceValues(K key,
         @SuppressWarnings("hiding") Iterable<? extends V> values) {
       throw new UnsupportedOperationException();
     }
@@ -1228,12 +1164,12 @@ public final class Multimaps {
   }
 
   /**
-   * Creates an index {@code ListMultimap} that contains the results of applying
-   * a specified function to each item in an {@code Iterable} of values. Each
-   * value will be stored as a value in the resulting multimap, yielding a
-   * multimap with the same size as the input iterable. The key used to
-   * store that value in the multimap will be the result of calling the function
-   * on that value. The resulting multimap is created as an unmodifiable
+   * Creates an index {@code ImmutableMultimap} that contains the results of
+   * applying a specified function to each item in an {@code Iterable} of
+   * values. Each value will be stored as a value in the resulting multimap,
+   * yielding a multimap with the same size as the input iterable. The key used
+   * to store that value in the multimap will be the result of calling the
+   * function on that value. The resulting multimap is created as an immutable
    * snapshot, it does <em>not</em> reflect subsequent changes on the input
    * iterable.
    *
@@ -1255,55 +1191,27 @@ public final class Multimaps {
    * <p>The returned multimap is serializable if its keys and values are all
    * serializable.
    *
-   * @param values the values to use when constructing the {@code ListMultimap}
+   * @param values the values to use when constructing the {@code
+   *     ImmutableMultimap}
    * @param keyFunction the function used to produce the key for each value
-   * @return {@code ListMultimap} mapping the result of evaluating the function
-   *     {@code keyFunction} on each value in the input collection to that value
+   * @return {@code ImmutableMultimap} mapping the result of evaluating the
+   *     function {@code keyFunction} on each value in the input collection to
+   *     that value
+   * @throws NullPointerException if any of the following cases is true: <ul>
+   * <li> {@code values} is null
+   * <li> {@code keyFunction} is null
+   * <li> An element in {@code values} is null
+   * <li> {@code keyFunction} returns null for any element of {@code values}
+   * </ul>
    */
-  public static <K, V> ListMultimap<K, V> index(Iterable<V> values,
-      Function<? super V, K> keyFunction) {
-    ArrayListMultimap<K, V> index = ArrayListMultimap.create();
-    index(values, keyFunction, index);
-    return unmodifiableListMultimap(index);
-  }
-
-  /**
-   * Indexes the specified values into a {@code Multimap} by applying a
-   * specified function to each item in an {@code Iterable} of values. Each
-   * value will be stored as a value in the specified multimap. The key used to
-   * store that value in the multimap will be the result of calling the function
-   * on that value. Depending on the multimap implementation, duplicate entries
-   * (equal keys and equal values) may be collapsed.
-   *
-   * <p>For example,
-   *
-   * <pre class="code"> {@code
-   * List<String> badGuys
-   *     = Arrays.asList("Inky", "Blinky", "Pinky", "Pinky", "Clyde");
-   * Function<String, Integer> stringLengthFunction = ...;
-   * Multimap<Integer, String> index = HashMultimaps.create();
-   * Multimaps.index(badGuys, stringLengthFunction, index);
-   * System.out.println(index);}</pre>
-   *
-   * prints
-   *
-   * <pre class="code">
-   * {4=[Inky], 5=[Pinky, Clyde], 6=[Blinky]} </pre>
-   *
-   * The {@link HashMultimap} collapses the duplicate occurrence of
-   * {@code (5, "Pinky")}.
-   *
-   * @param values the values to add to the multimap
-   * @param keyFunction the function used to produce the key for each value
-   * @param multimap the multimap to store the key value pairs
-   */
-  public static <K, V> void index(Iterable<? extends V> values,
-      Function<? super V, ? extends K> keyFunction, Multimap<K, V> multimap) {
+  public static <K, V> ImmutableMultimap<K, V> index(
+      Iterable<V> values, Function<? super V, K> keyFunction) {
     checkNotNull(keyFunction);
-    checkNotNull(multimap);
+    ImmutableMultimap.Builder<K, V> builder = ImmutableMultimap.builder();
     for (V value : values) {
-      K key = keyFunction.apply(value);
-      multimap.put(key, value);
+      Preconditions.checkNotNull(value, values);
+      builder.put(keyFunction.apply(value), value);
     }
+    return builder.build();
   }
 }

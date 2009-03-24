@@ -154,7 +154,7 @@ public final class LinkedListMultimap<K, V>
   }
 
   // TODO: Make all constructors private.
-  
+
   /** Constructs an empty {@code LinkedListMultimap}. */
   public LinkedListMultimap() {
     keyCount = LinkedHashMultiset.create();
@@ -171,7 +171,7 @@ public final class LinkedListMultimap<K, V>
     keyToKeyHead = Maps.newHashMapWithExpectedSize(expectedKeys);
     keyToKeyTail = Maps.newHashMapWithExpectedSize(expectedKeys);
   }
-  
+
   /**
    * Constructs a {@code LinkedListMultimap} with the same mappings as the
    * specified {@code Multimap}. The new multimap has the same

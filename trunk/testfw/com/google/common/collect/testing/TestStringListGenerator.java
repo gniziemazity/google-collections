@@ -48,7 +48,7 @@ public abstract class TestStringListGenerator
   public String[] createArray(int length) {
     return new String[length];
   }
-  
+
   /** Returns the original element list, unchanged. */
   public List<String> order(List<String> insertionOrder) {
     return insertionOrder;

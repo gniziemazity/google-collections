@@ -17,7 +17,6 @@
 package com.google.common.collect;
 
 import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import static com.google.common.collect.Lists.newArrayList;
 import com.google.common.collect.testing.CollectionTestSuiteBuilder;
@@ -41,12 +40,12 @@ import junit.framework.TestSuite;
  * <p>Intentionally not testing {@link Collections2#setEquals(Set, Object)} as
  * it is not public, and it can be better tested indirectly using the collection
  * testers.
- * 
+ *
  * @author Chris Povirk
  * @author Jared Levy
  */
 public class Collections2Test extends TestCase {
-  
+
   public static Test suite() {
     TestSuite suite = new TestSuite(Collections2Test.class.getSimpleName());
     suite.addTest(testsForFilter());
@@ -67,7 +66,7 @@ public class Collections2Test extends TestCase {
     public boolean apply(String input) {
       return input.length() == 1;
     }
-  };  
+  };
 
   static final Predicate<String> STARTS_WITH_VOWEL = new Predicate<String>() {
     public boolean apply(String input) {
@@ -94,7 +93,7 @@ public class Collections2Test extends TestCase {
             CollectionSize.ANY)
         .suppressing(getIteratorKnownOrderRemoveSupportedMethod())
         .createTestSuite();
-  }  
+  }
 
   private static Test testsForFilterNoNulls() {
     return CollectionTestSuiteBuilder.using(
@@ -115,7 +114,7 @@ public class Collections2Test extends TestCase {
         .suppressing(getIteratorKnownOrderRemoveSupportedMethod())
         .createTestSuite();
   }
-  
+
   private static Test testsForFilterFiltered() {
     return CollectionTestSuiteBuilder.using(
         new TestStringCollectionGenerator() {
@@ -137,33 +136,33 @@ public class Collections2Test extends TestCase {
         .suppressing(getIteratorKnownOrderRemoveSupportedMethod())
         .createTestSuite();
   }
-  
+
   public void testFilterIllegalAdd() {
     List<String> unfiltered = Lists.newArrayList();
-    Collection<String> filtered 
+    Collection<String> filtered
         = Collections2.filter(unfiltered, NOT_YYY_ZZZ);
     filtered.add("a");
     filtered.add("b");
     JUnitAsserts.assertContentsInOrder(filtered, "a", "b");
-    
+
     try {
       filtered.add("yyy");
       fail();
     } catch (IllegalArgumentException expected) {}
-    
+
     try {
       filtered.addAll(Arrays.asList("c", "zzz", "d"));
       fail();
     } catch (IllegalArgumentException expected) {}
-    
-    JUnitAsserts.assertContentsInOrder(filtered, "a", "b");   
+
+    JUnitAsserts.assertContentsInOrder(filtered, "a", "b");
   }
-  
+
   public void testFilterChangeUnfiltered() {
     List<String> unfiltered = Lists.newArrayList();
-    Collection<String> filtered 
+    Collection<String> filtered
         = Collections2.filter(unfiltered, NOT_YYY_ZZZ);
-    
+
     unfiltered.add("a");
     unfiltered.add("yyy");
     unfiltered.add("b");
@@ -173,17 +172,17 @@ public class Collections2Test extends TestCase {
     unfiltered.remove("a");
     JUnitAsserts.assertContentsInOrder(unfiltered, "yyy", "b");
     JUnitAsserts.assertContentsInOrder(filtered, "b");
-    
+
     unfiltered.clear();
     JUnitAsserts.assertContentsInOrder(unfiltered);
     JUnitAsserts.assertContentsInOrder(filtered);
   }
-  
+
   public void testFilterChangeFiltered() {
     List<String> unfiltered = Lists.newArrayList();
-    Collection<String> filtered 
+    Collection<String> filtered
         = Collections2.filter(unfiltered, NOT_YYY_ZZZ);
-    
+
     unfiltered.add("a");
     unfiltered.add("yyy");
     filtered.add("b");
@@ -192,13 +191,13 @@ public class Collections2Test extends TestCase {
 
     filtered.remove("a");
     JUnitAsserts.assertContentsInOrder(unfiltered, "yyy", "b");
-    JUnitAsserts.assertContentsInOrder(filtered, "b");    
-    
+    JUnitAsserts.assertContentsInOrder(filtered, "b");
+
     filtered.clear();
     JUnitAsserts.assertContentsInOrder(unfiltered, "yyy");
     JUnitAsserts.assertContentsInOrder(filtered);
   }
-  
+
   public void testFilterFiltered() {
     List<String> unfiltered = Lists.newArrayList();
     Collection<String> filtered = Collections2.filter(
@@ -211,7 +210,7 @@ public class Collections2Test extends TestCase {
     JUnitAsserts.assertContentsInOrder(filtered, "a", "e");
     JUnitAsserts.assertContentsInOrder(unfiltered,
         "a", "b", "apple", "banana", "e");
-    
+
     try {
       filtered.add("d");
       fail();
@@ -223,12 +222,12 @@ public class Collections2Test extends TestCase {
     JUnitAsserts.assertContentsInOrder(filtered, "a", "e");
     JUnitAsserts.assertContentsInOrder(unfiltered,
         "a", "b", "apple", "banana", "e");
-    
+
     filtered.clear();
     assertTrue(filtered.isEmpty());
-    JUnitAsserts.assertContentsInOrder(unfiltered, "b", "apple", "banana");    
+    JUnitAsserts.assertContentsInOrder(unfiltered, "b", "apple", "banana");
   }
-  
+
   private static final Function<String, String> REMOVE_FIRST_CHAR
       = new Function<String, String>() {
         public String apply(String from) {
@@ -256,9 +255,9 @@ public class Collections2Test extends TestCase {
             CollectionSize.ANY)
         .createTestSuite();
   }
-  
+
   public void testNullPointerExceptions() throws Exception {
     NullPointerTester tester = new NullPointerTester();
     tester.testAllPublicStaticMethods(Collections2.class);
-  }  
+  }
 }

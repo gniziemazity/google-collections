@@ -32,7 +32,7 @@ import java.util.List;
  * A generic JUnit test which tests {@code addAll(int, Collection)} operations
  * on a list. Can't be invoked directly; please see
  * {@link com.google.common.collect.testing.ListTestSuiteBuilder}.
- * 
+ *
  * @author Chris Povirk
  */
 @SuppressWarnings("unchecked") // too many "unchecked generic array creations"

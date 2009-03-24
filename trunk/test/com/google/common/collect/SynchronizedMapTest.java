@@ -54,7 +54,7 @@ public class SynchronizedMapTest extends TestCase {
     @Override protected Map<K, V> delegate() {
       return delegate;
     }
-    
+
     @Override public int size() {
       assertTrue(Thread.holdsLock(mutex));
       return super.size();
@@ -129,8 +129,8 @@ public class SynchronizedMapTest extends TestCase {
       assertTrue(Thread.holdsLock(mutex));
       return super.toString();
     }
-    
-    private static final long serialVersionUID = 0;    
+
+    private static final long serialVersionUID = 0;
   }
 
   /*
@@ -211,7 +211,7 @@ public class SynchronizedMapTest extends TestCase {
   public void testToString() {
     create().toString();
   }
-  
+
   public void testSerialization() {
     SerializableTester.reserializeAndAssert(create());
   }

@@ -23,7 +23,7 @@ import java.util.Map.Entry;
 /**
  * Implementation helper for {@link TestMapGenerator} for use with maps of
  * strings.
- * 
+ *
  * @author Chris Povirk
  * @author Jared Levy
  * @author George van den Driessche

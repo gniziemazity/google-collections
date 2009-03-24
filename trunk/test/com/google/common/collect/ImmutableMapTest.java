@@ -48,7 +48,7 @@ import junit.framework.TestSuite;
 
 /**
  * Tests for {@link ImmutableMap}.
- * 
+ *
  * @author Kevin Bourrillion
  * @author Jesse Wilson
  */
@@ -155,10 +155,10 @@ public class ImmutableMapTest extends TestCase {
       public String[] createArray(int length) {
         return new String[length];
       }
-      
+
       public List<String> order(List<String> insertionOrder) {
         return insertionOrder;
-      }  
+      }
     };
   }
 
@@ -279,7 +279,7 @@ public class ImmutableMapTest extends TestCase {
     @Override protected Integer getValueNotInPopulatedMap() {
       return 4;
     }
-    
+
     @Override protected Integer getSecondValueNotInPopulatedMap() {
       return 5;
     }
@@ -494,7 +494,7 @@ public class ImmutableMapTest extends TestCase {
           ImmutableMap.of("one", 1, "two", 2, "three", 3));
     }
   }
-  
+
   private static <K, V> void assertMapEquals(Map<K, V> map,
       Object... alternatingKeysAndValues) {
     int i = 0;
@@ -502,29 +502,29 @@ public class ImmutableMapTest extends TestCase {
       assertEquals(alternatingKeysAndValues[i++], entry.getKey());
       assertEquals(alternatingKeysAndValues[i++], entry.getValue());
     }
-  }  
-  
+  }
+
   private static class IntHolder implements Serializable {
     public int value;
-    
+
     public IntHolder(int value) {
       this.value = value;
     }
-    
+
     @Override public boolean equals(Object o) {
       return (o instanceof IntHolder) && ((IntHolder) o).value == value;
     }
-    
+
     @Override public int hashCode() {
       return value;
     }
-    
+
     private static final long serialVersionUID = 5;
   }
-  
+
   public void testMutableValues() {
     IntHolder holderA = new IntHolder(1);
-    IntHolder holderB = new IntHolder(2);    
+    IntHolder holderB = new IntHolder(2);
     Map<String, IntHolder> map = ImmutableMap.of("a", holderA, "b", holderB);
     holderA.value = 3;
     assertTrue(map.entrySet().contains(

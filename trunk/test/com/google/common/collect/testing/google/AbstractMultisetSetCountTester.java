@@ -34,7 +34,7 @@ import java.util.List;
  * test calls to the unconditional {@code setCount()} method and calls to the
  * conditional {@code setCount()} method when the expected present count is
  * correct.
- * 
+ *
  * @author Chris Povirk
  */
 public abstract class AbstractMultisetSetCountTester<E>

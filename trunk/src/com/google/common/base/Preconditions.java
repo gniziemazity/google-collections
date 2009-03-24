@@ -18,8 +18,8 @@ package com.google.common.base;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.VisibleForTesting;
-import java.util.Collection;
 import java.util.NoSuchElementException;
+import javax.annotation.Nullable;
 
 /**
  * Simple static methods to be called at the start of your own methods to verify
@@ -52,7 +52,7 @@ import java.util.NoSuchElementException;
  * in their specifications to do so even when given perfectly valid input. That
  * is, {@code null} is a valid parameter to the method {@link
  * #checkNotNull(Object)} -- and technically this parameter could be even marked
- * as {@link javax.annotation.Nullable} -- yet the method will still throw an exception anyway,
+ * as {@link Nullable} -- yet the method will still throw an exception anyway,
  * because that's what its contract says to do.
  *
  * @author Kevin Bourrillion
@@ -260,7 +260,9 @@ public final class Preconditions {
    * @throws IllegalArgumentException if {@code size} is negative
    */
   public static void checkElementIndex(int index, int size, String desc) {
-    checkArgument(size >= 0, "negative size: %s", size);
+    if (size < 0) {
+      throw new IllegalArgumentException("negative size: " + size);
+    }
     if (index < 0) {
       throw new IndexOutOfBoundsException(
           format("%s (%s) must not be negative", desc, index));
@@ -301,7 +303,9 @@ public final class Preconditions {
    * @throws IllegalArgumentException if {@code size} is negative
    */
   public static void checkPositionIndex(int index, int size, String desc) {
-    checkArgument(size >= 0, "negative size: %s", size);
+    if (size < 0) {
+      throw new IllegalArgumentException("negative size: " + size);
+    }
     if (index < 0) {
       throw new IndexOutOfBoundsException(format(
           "%s (%s) must not be negative", desc, index));

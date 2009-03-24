@@ -36,9 +36,9 @@ public final class QueueTestSuiteBuilder<E>
       TestQueueGenerator<E> generator) {
     return new QueueTestSuiteBuilder<E>().usingGenerator(generator);
   }
-  
+
   private boolean runCollectionTests = true;
-  
+
   /**
    * Specify whether to skip the general collection tests. Call this method when
    * testing a collection that's both a queue and a list, to avoid running the
@@ -48,16 +48,16 @@ public final class QueueTestSuiteBuilder<E>
     runCollectionTests = false;
     return this;
   }
-  
+
   // Class parameters must be raw.
   @SuppressWarnings("unchecked")
   @Override protected List<Class<? extends AbstractTester>> getTesters() {
     List<Class<? extends AbstractTester>> testers =
         new ArrayList<Class<? extends AbstractTester>>();
     if (runCollectionTests) {
-      testers.addAll(super.getTesters()); 
+      testers.addAll(super.getTesters());
     }
-    
+
     testers.add(QueueElementTester.class);
     testers.add(QueueOfferTester.class);
     testers.add(QueuePeekTester.class);

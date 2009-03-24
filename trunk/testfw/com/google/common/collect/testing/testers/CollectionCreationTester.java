@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
  * A generic JUnit test which tests creation (typically through a constructor or
  * static factory method) of a collection. Can't be invoked directly; please see
  * {@link com.google.common.collect.testing.CollectionTestSuiteBuilder}.
- * 
+ *
  * @author Chris Povirk
  */
 public class CollectionCreationTester<E> extends AbstractCollectionTester<E> {

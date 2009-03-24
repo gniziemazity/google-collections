@@ -76,9 +76,9 @@ public class LinkedHashMultimapTest extends AbstractSetMultimapTest {
     Multimap<String, Integer> multimap = initializeMultimap5();
     Multimap<String, Integer> copy
         = SerializableTester.reserializeAndAssert(multimap);
-    assertOrderingReadOnly(copy); 
+    assertOrderingReadOnly(copy);
   }
-  
+
   private void assertOrderingReadOnly(Multimap<String, Integer> multimap) {
     assertContentsInOrder(multimap.get("foo"), 5, 3);
     assertContentsInOrder(multimap.get("bar"), 4, 1);
@@ -166,7 +166,7 @@ public class LinkedHashMultimapTest extends AbstractSetMultimapTest {
     assertEquals(ImmutableSet.of(1, 3), multimap.get("foo"));
     assertEquals(8, multimap.expectedValuesPerKey);
   }
-  
+
   public void testCreateFromMultimap() {
     Multimap<String, Integer> multimap = createSample();
     LinkedHashMultimap<String, Integer> copy =
@@ -174,7 +174,7 @@ public class LinkedHashMultimapTest extends AbstractSetMultimapTest {
     assertEquals(multimap, copy);
     assertEquals(8, copy.expectedValuesPerKey);
   }
-  
+
   public void testCreateFromSizes() {
     LinkedHashMultimap<String, Integer> multimap
         = LinkedHashMultimap.create(20, 15);
@@ -184,19 +184,19 @@ public class LinkedHashMultimapTest extends AbstractSetMultimapTest {
     assertEquals(ImmutableSet.of(1, 3), multimap.get("foo"));
     assertEquals(15, multimap.expectedValuesPerKey);
   }
-  
+
   public void testCreateFromIllegalSizes() {
     try {
       LinkedHashMultimap.create(-20, 15);
       fail();
     } catch (IllegalArgumentException expected) {}
-    
+
     try {
       LinkedHashMultimap.create(20, -15);
       fail();
     } catch (IllegalArgumentException expected) {}
   }
-  
+
   public void testGetIteration() throws Exception {
     new IteratorTester<Integer>(6, MODIFIABLE,
         newLinkedHashSet(asList(2, 3, 4, 7, 8)),
@@ -216,7 +216,7 @@ public class LinkedHashMultimapTest extends AbstractSetMultimapTest {
       }
     }.test();
   }
-  
+
   public void testEntriesIteration() throws Exception {
     @SuppressWarnings("unchecked")
     Set<Entry<String, Integer>> set = Sets.newLinkedHashSet(asList(
@@ -242,8 +242,8 @@ public class LinkedHashMultimapTest extends AbstractSetMultimapTest {
         assertEquals(newHashSet(elements), multimap.entries());
       }
     }.test();
-  }  
-  
+  }
+
   public void testKeysIteration() throws Exception {
     new IteratorTester<String>(6, MODIFIABLE, newArrayList("foo", "foo", "bar",
         "bar", "foo"), IteratorTester.KnownOrder.KNOWN_ORDER) {
@@ -261,8 +261,8 @@ public class LinkedHashMultimapTest extends AbstractSetMultimapTest {
         assertEquals(elements, Lists.newArrayList(multimap.keys()));
       }
     }.test();
-  }  
-  
+  }
+
   public void testValuesIteration() throws Exception {
     new IteratorTester<Integer>(6, MODIFIABLE, newArrayList(2, 3, 4, 5, 6),
         IteratorTester.KnownOrder.KNOWN_ORDER) {
@@ -281,7 +281,7 @@ public class LinkedHashMultimapTest extends AbstractSetMultimapTest {
       }
     }.test();
   }
-  
+
   public void testKeySetIteration() throws Exception {
     new IteratorTester<String>(6, MODIFIABLE, newLinkedHashSet(asList(
         "foo", "bar", "baz", "dog", "cat")),
@@ -304,8 +304,8 @@ public class LinkedHashMultimapTest extends AbstractSetMultimapTest {
         assertEquals(newHashSet(elements), multimap.keySet());
       }
     }.test();
-  }  
-  
+  }
+
   public void testAsSetIteration() throws Exception {
     @SuppressWarnings("unchecked")
     Set<Entry<String, Collection<Integer>>> set = newLinkedHashSet(asList(
@@ -342,6 +342,6 @@ public class LinkedHashMultimapTest extends AbstractSetMultimapTest {
         assertEquals(newHashSet(elements), multimap.asMap().entrySet());
       }
     }.test();
-  }  
-  
+  }
+
 }

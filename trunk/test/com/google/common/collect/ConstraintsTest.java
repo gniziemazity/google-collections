@@ -96,8 +96,7 @@ public class ConstraintsTest extends TestCase {
   }
 
   public void testConstrainedSetLegal() {
-    Set<String> set = Sets.newLinkedHashSet();
-    Collections.addAll(set, "foo", "bar");
+    Set<String> set = Sets.newLinkedHashSet(asList("foo", "bar"));
     Set<String> constrained = Constraints.constrainedSet(set, TEST_CONSTRAINT);
     set.add(TEST_ELEMENT);
     constrained.add("qux");
@@ -112,8 +111,7 @@ public class ConstraintsTest extends TestCase {
   }
 
   public void testConstrainedSetIllegal() {
-    Set<String> set = Sets.newLinkedHashSet();
-    Collections.addAll(set, "foo", "bar");
+    Set<String> set = Sets.newLinkedHashSet(asList("foo", "bar"));
     Set<String> constrained = Constraints.constrainedSet(set, TEST_CONSTRAINT);
     try {
       constrained.add(TEST_ELEMENT);
@@ -128,8 +126,7 @@ public class ConstraintsTest extends TestCase {
   }
 
   public void testConstrainedSortedSetLegal() {
-    SortedSet<String> sortedSet = Sets.newTreeSet();
-    Collections.addAll(sortedSet, "foo", "bar");
+    SortedSet<String> sortedSet = Sets.newTreeSet(asList("foo", "bar"));
     SortedSet<String> constrained = Constraints.constrainedSortedSet(
         sortedSet, TEST_CONSTRAINT);
     sortedSet.add(TEST_ELEMENT);
@@ -149,8 +146,7 @@ public class ConstraintsTest extends TestCase {
   }
 
   public void testConstrainedSortedSetIllegal() {
-    SortedSet<String> sortedSet = Sets.newTreeSet();
-    Collections.addAll(sortedSet, "foo", "bar");
+    SortedSet<String> sortedSet = Sets.newTreeSet(asList("foo", "bar"));
     SortedSet<String> constrained = Constraints.constrainedSortedSet(
         sortedSet, TEST_CONSTRAINT);
     try {
@@ -326,7 +322,7 @@ public class ConstraintsTest extends TestCase {
         }
       };
   }
-  
+
   public void testSerialization() {
     // TODO: Test serialization of constrained collections.
     assertSame(Constraints.notNull(),

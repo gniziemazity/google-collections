@@ -20,7 +20,7 @@ package com.google.common.collect.testing.google;
  * A generic JUnit test which tests unconditional {@code setCount()} operations
  * on a multiset. Can't be invoked directly; please see
  * {@link MultisetTestSuiteBuilder}.
- * 
+ *
  * @author Chris Povirk
  */
 public class MultisetSetCountUnconditionallyTester<E>

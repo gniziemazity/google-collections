@@ -150,7 +150,8 @@ public final class Functions {
     @Override public boolean equals(Object o) {
       if (o instanceof ForMapWithDefault) {
         ForMapWithDefault<?, ?> that = (ForMapWithDefault<?, ?>) o;
-        return map.equals(that.map) && defaultValue.equals(that.defaultValue);
+        return map.equals(that.map)
+            && Objects.equal(defaultValue, that.defaultValue);
       }
       return false;
     }

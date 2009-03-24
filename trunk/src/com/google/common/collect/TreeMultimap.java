@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
+import static com.google.common.base.Preconditions.checkNotNull;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -62,6 +63,57 @@ import javax.annotation.Nullable;
 public final class TreeMultimap<K, V> extends StandardSortedSetMultimap<K, V> {
   private transient Comparator<? super K> keyComparator;
   private transient Comparator<? super V> valueComparator;
+
+ /**
+  * Creates an empty {@code TreeMultimap} ordered by the natural ordering of its
+  * keys and values.
+  */
+  @SuppressWarnings("unchecked") // eclipse doesn't like the raw Comparable
+  public static <K extends Comparable, V extends Comparable>
+      TreeMultimap<K, V> create() {
+    return new TreeMultimap<K, V>(Ordering.natural(), Ordering.natural());
+  }
+
+  /**
+   * Creates an empty {@code TreeMultimap} instance using explicit comparators.
+   *
+   * @param keyComparator the comparator that determines the key ordering
+   * @param valueComparator the comparator that determines the value ordering
+   */
+  public static <K, V> TreeMultimap<K, V> create(
+      Comparator<? super K> keyComparator,
+      Comparator<? super V> valueComparator) {
+    return new TreeMultimap<K, V>(checkNotNull(keyComparator),
+        checkNotNull(valueComparator));
+  }
+
+  /**
+   * Constructs a {@code TreeMultimap}, ordered by the natural ordering of its
+   * keys and values, with the same mappings as the specified multimap.
+   *
+   * @param multimap the multimap whose contents are copied to this multimap
+   */
+  @SuppressWarnings("unchecked") // eclipse doesn't like the raw Comparable
+  public static <K extends Comparable, V extends Comparable>
+      TreeMultimap<K, V> create(Multimap<? extends K, ? extends V> multimap) {
+    return new TreeMultimap<K, V>(
+        Ordering.natural(), Ordering.natural(), multimap);
+  }
+
+  /*
+   * TODO: Make all constructors private.
+   *
+   * Note that the create methods differ from the constructors:
+   *
+   * 1) create() and create(Multimap) have the constraint
+   * <K extends Comparable, V extends Comparable>.
+   * 2) create() and create(Multimap) generate instances whose keyComparator()
+   * and valueComparator() methods return Ordering.natural().
+   * 3) create(Multimap) always sorts its keys and values by their natural
+   * ordering.
+   * 4) create(Comparator, Comparator) does not allow null inputs.
+   * 5) There is no create(Comparator, Comparator, Multimap) method.
+   */
 
   /**
    * Constructs an empty {@code TreeMultimap} using the natural ordering of the
@@ -145,8 +197,7 @@ public final class TreeMultimap<K, V> extends StandardSortedSetMultimap<K, V> {
   }
 
   /**
-   * Returns the comparator that orders the multimap keys, with a {@code null}
-   * indicating that natural ordering is used.
+   * Returns the comparator that orders the multimap keys.
    */
   public Comparator<? super K> keyComparator() {
     return keyComparator;

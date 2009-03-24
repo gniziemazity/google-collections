@@ -69,10 +69,10 @@ public final class SerializableTester {
       throw new SerializationException(e);
     }
   }
-  
+
   /**
    * Serializes and deserializes the specified object and verifies that the
-   * re-serialized object is equal to the provided object. 
+   * re-serialized object is equal to the provided object.
    *
    * <p>Note that the specified object may not be known by the compiler to be a
    * {@link java.io.Serializable} instance, and is thus declared an
@@ -91,5 +91,5 @@ public final class SerializableTester {
           " does not equal the original object " + object);
     }
     return copy;
-  }  
+  }
 }

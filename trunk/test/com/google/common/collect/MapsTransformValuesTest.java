@@ -163,7 +163,7 @@ public class MapsTransformValuesTest extends MapInterfaceTest<String, String> {
     underlying.remove("c");
     assertEquals(underlying.size(), map.size());
     assertFalse(map.containsKey("c"));
-    
+
     underlying.clear();
     assertEquals(underlying.size(), map.size());
   }
@@ -260,7 +260,7 @@ public class MapsTransformValuesTest extends MapInterfaceTest<String, String> {
     assertTrue(entries.contains(Maps.immutableEntry("b", (Boolean) null)));
     assertTrue(entries.contains(
         Maps.immutableEntry((String) null, (Boolean) null)));
-    
+
     assertFalse(entries.contains(Maps.immutableEntry("c", (Boolean) null)));
     assertFalse(entries.contains(Maps.immutableEntry((String) null, true)));
   }

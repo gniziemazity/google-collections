@@ -21,7 +21,7 @@ import com.google.common.collect.testing.SetTestSuiteBuilder;
 import com.google.common.collect.testing.TestStringSetGenerator;
 import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
-import java.util.Arrays;
+import static java.util.Arrays.asList;
 import java.util.HashSet;
 import java.util.Set;
 import junit.framework.Test;
@@ -87,9 +87,9 @@ public class SetOperationsTest {
             checkArgument(elements.length == 3);
             // Put the sets in different orders for the hell of it
             return Sets.union(
-                Sets.newLinkedHashSet(Arrays.<String>asList(elements)),
-                Sets.newLinkedHashSet(Arrays.<String>asList(
-                    elements[1], elements[0], elements[2])));
+                Sets.newLinkedHashSet(asList(elements)),
+                Sets.newLinkedHashSet(
+                    asList(elements[1], elements[0], elements[2])));
           }
         })
         .named("set U itself")
