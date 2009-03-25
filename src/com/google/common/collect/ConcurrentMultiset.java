@@ -20,6 +20,7 @@ import com.google.common.annotations.VisibleForTesting;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Multisets.checkNonnegative;
 import com.google.common.collect.Serialization.FieldSetter;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -32,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
 import javax.annotation.Nullable;
 
 /**
@@ -84,14 +86,14 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
   /**
    * Creates an empty instance.
    */
-  public ConcurrentMultiset() {
+  private ConcurrentMultiset() {
     this(new ConcurrentHashMap<E, Integer>());
   }
 
   /**
    * Creates an instance that contains the elements in a given collection.
    */
-  public ConcurrentMultiset(Collection<? extends E> collection) {
+  private ConcurrentMultiset(Collection<? extends E> collection) {
     this(new ConcurrentHashMap<E, Integer>(Maps.capacity(collection.size())));
     addAll(collection);
   }

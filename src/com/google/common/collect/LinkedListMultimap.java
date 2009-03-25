@@ -22,6 +22,7 @@ import com.google.common.base.Preconditions;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Multisets.setCountImpl;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -39,6 +40,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
+
 import javax.annotation.Nullable;
 
 /**
@@ -156,7 +158,7 @@ public final class LinkedListMultimap<K, V>
   // TODO: Make all constructors private.
 
   /** Constructs an empty {@code LinkedListMultimap}. */
-  public LinkedListMultimap() {
+  private LinkedListMultimap() {
     keyCount = LinkedHashMultiset.create();
     keyToKeyHead = Maps.newHashMap();
     keyToKeyTail = Maps.newHashMap();
@@ -177,7 +179,7 @@ public final class LinkedListMultimap<K, V>
    * specified {@code Multimap}. The new multimap has the same
    * {@link Multimap#entries()} iteration order as the input multimap.
    */
-  public LinkedListMultimap(Multimap<? extends K, ? extends V> multimap) {
+  private LinkedListMultimap(Multimap<? extends K, ? extends V> multimap) {
     this(multimap.keySet().size());
     putAll(multimap);
   }

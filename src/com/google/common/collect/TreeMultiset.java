@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -26,6 +27,7 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.annotation.Nullable;
 
 /**
@@ -101,7 +103,7 @@ public final class TreeMultiset<E> extends AbstractMapBasedMultiset<E> {
    * element to a set whose elements are integers), the {@code add(Object)}
    * call will throw a {@code ClassCastException}.
    */
-  public TreeMultiset() {
+  private TreeMultiset() {
     super(new TreeMap<E, AtomicInteger>());
   }
 

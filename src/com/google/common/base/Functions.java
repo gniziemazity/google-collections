@@ -18,8 +18,10 @@ package com.google.common.base;
 
 import com.google.common.annotations.GwtCompatible;
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.Serializable;
 import java.util.Map;
+
 import javax.annotation.Nullable;
 
 /**

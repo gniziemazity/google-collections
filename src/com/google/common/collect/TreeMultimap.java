@@ -18,6 +18,7 @@ package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -27,6 +28,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
 import javax.annotation.Nullable;
 
 /**
@@ -120,7 +122,7 @@ public final class TreeMultimap<K, V> extends StandardSortedSetMultimap<K, V> {
    * key and value classes. The key and value classes must satisfy the {@link
    * Comparable} interface.
    */
-  public TreeMultimap() {
+  private TreeMultimap() {
     this(null, null);
   }
 
@@ -132,7 +134,7 @@ public final class TreeMultimap<K, V> extends StandardSortedSetMultimap<K, V> {
    * @param valueComparator the comparator that determines value ordering, or
    *     {@code null} for natural ordering
    */
-  public TreeMultimap(@Nullable Comparator<? super K> keyComparator,
+  private TreeMultimap(@Nullable Comparator<? super K> keyComparator,
       @Nullable Comparator<? super V> valueComparator) {
     super((keyComparator == null)
         ? new TreeMap<K, Collection<V>>()
@@ -158,7 +160,7 @@ public final class TreeMultimap<K, V> extends StandardSortedSetMultimap<K, V> {
    * @param multimap the multimap whose contents are copied to this multimap
    */
   @SuppressWarnings("unchecked")
-  public TreeMultimap(Multimap<? extends K, ? extends V> multimap) {
+  private TreeMultimap(Multimap<? extends K, ? extends V> multimap) {
     this((multimap instanceof TreeMultimap)
             ? ((TreeMultimap<K, V>) multimap).keyComparator() : null,
         (multimap instanceof SortedSetMultimap)
@@ -176,7 +178,7 @@ public final class TreeMultimap<K, V> extends StandardSortedSetMultimap<K, V> {
    *     {@code null} for natural ordering
    * @param multimap the multimap whose contents are copied to this multimap
    */
-  public TreeMultimap(@Nullable Comparator<? super K> keyComparator,
+  private TreeMultimap(@Nullable Comparator<? super K> keyComparator,
       @Nullable Comparator<? super V> valueComparator,
       Multimap<? extends K, ? extends V> multimap) {
     this(keyComparator, valueComparator);

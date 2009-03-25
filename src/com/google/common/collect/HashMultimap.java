@@ -19,6 +19,7 @@ package com.google.common.collect;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -86,7 +87,7 @@ public final class HashMultimap<K, V> extends StandardSetMultimap<K, V> {
   // TODO: Make all constructors private.
 
   /** Constructs an empty {@code HashMultimap}. */
-  public HashMultimap() {
+  private HashMultimap() {
     super(new HashMap<K, Collection<V>>());
   }
 
@@ -107,7 +108,7 @@ public final class HashMultimap<K, V> extends StandardSetMultimap<K, V> {
    *
    * @param multimap the multimap whose contents are copied to this multimap.
    */
-  public HashMultimap(Multimap<? extends K, ? extends V> multimap) {
+  private HashMultimap(Multimap<? extends K, ? extends V> multimap) {
     super(Maps.<K, Collection<V>>newHashMapWithExpectedSize(
         multimap.keySet().size()));
     putAll(multimap);

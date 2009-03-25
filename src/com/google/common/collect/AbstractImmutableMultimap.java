@@ -17,10 +17,12 @@
 package com.google.common.collect;
 
 import com.google.common.collect.Serialization.FieldSetter;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+
 import javax.annotation.Nullable;
 
 /**

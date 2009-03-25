@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -64,7 +65,7 @@ public final class HashMultiset<E> extends AbstractMapBasedMultiset<E> {
    * Constructs a new empty {@code HashMultiset} using the default initial
    * capacity.
    */
-  public HashMultiset() {
+  private HashMultiset() {
     super(new HashMap<E, AtomicInteger>());
   }
 

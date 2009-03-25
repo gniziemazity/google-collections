@@ -17,6 +17,7 @@
 package com.google.common.base;
 
 import java.io.Serializable;
+
 import javax.annotation.Nullable;
 
 /**

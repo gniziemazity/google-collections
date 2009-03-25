@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
+
 import java.util.Iterator;
 
 /**
@@ -26,6 +27,7 @@ import java.util.Iterator;
  */
 @GwtCompatible
 public abstract class UnmodifiableIterator<E> implements Iterator<E> {
+  protected UnmodifiableIterator() {}
 
   /**
    * Guaranteed to throw an exception and leave the underlying data unmodified.

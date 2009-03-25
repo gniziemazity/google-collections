@@ -19,6 +19,7 @@ package com.google.common.collect;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -28,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+
 import javax.annotation.Nullable;
 
 /**
@@ -115,7 +117,7 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
   // TODO: Make all constructors private.
 
   /** Constructs an empty {@code LinkedHashMultimap}. */
-  public LinkedHashMultimap() {
+  private LinkedHashMultimap() {
     super(new LinkedHashMap<K, Collection<V>>());
     linkedEntries = Sets.newLinkedHashSet();
   }
@@ -139,7 +141,7 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
    * The new multimap has the same {@link Multimap#entries()} iteration order as
    * the input multimap, except for excluding duplicate mappings.
    */
-  public LinkedHashMultimap(Multimap<? extends K, ? extends V> multimap) {
+  private LinkedHashMultimap(Multimap<? extends K, ? extends V> multimap) {
     super(new LinkedHashMap<K, Collection<V>>(
         Maps.capacity(multimap.keySet().size())));
     linkedEntries

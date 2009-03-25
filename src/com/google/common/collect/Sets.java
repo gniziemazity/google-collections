@@ -22,6 +22,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2.FilteredCollection;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
@@ -40,6 +41,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+
 import javax.annotation.Nullable;
 
 /**
@@ -512,6 +514,8 @@ public final class Sets {
    * a new set which will then remain stable.
    */
   public static abstract class SetView<E> extends AbstractSet<E> {
+    private SetView() {}
+
     /**
      * Returns an immutable copy of the current contents of this set view.
      * Does not support null elements.
