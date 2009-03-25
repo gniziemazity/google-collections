@@ -17,7 +17,9 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
+
 import java.util.Map;
+
 import javax.annotation.Nullable;
 
 /**
@@ -199,6 +201,8 @@ public abstract class ImmutableBiMap<K, V> extends ImmutableMap<K,V>
     ImmutableMap<K, V> immutableMap = ImmutableMap.copyOf(map);
     return new RegularImmutableBiMap<K, V>(immutableMap);
   }
+
+  private ImmutableBiMap() {}
 
   abstract ImmutableMap<K, V> delegate();
 

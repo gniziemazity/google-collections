@@ -19,6 +19,7 @@ package com.google.common.collect;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.VisibleForTesting;
 import static com.google.common.base.Preconditions.checkArgument;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -94,7 +95,7 @@ public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
   // TODO: Make all constructors private.
 
   /** Constructs an empty {@code ArrayListMultimap}. */
-  public ArrayListMultimap() {
+  private ArrayListMultimap() {
     super(new HashMap<K, Collection<V>>());
     expectedValuesPerKey = DEFAULT_VALUES_PER_KEY;
   }
@@ -107,7 +108,7 @@ public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
    * @param expectedValuesPerKey the expected average number of values per key
    * @throws IllegalArgumentException if either argument is negative
    */
-  public ArrayListMultimap(int expectedKeys, int expectedValuesPerKey) {
+  private ArrayListMultimap(int expectedKeys, int expectedValuesPerKey) {
     super(Maps.<K, Collection<V>>newHashMapWithExpectedSize(expectedKeys));
     checkArgument(expectedValuesPerKey >= 0);
     this.expectedValuesPerKey = expectedValuesPerKey;
@@ -117,7 +118,7 @@ public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
    * Constructs an {@code ArrayListMultimap} with the same mappings as the
    * specified multimap.
    */
-  public ArrayListMultimap(Multimap<? extends K, ? extends V> multimap) {
+  private ArrayListMultimap(Multimap<? extends K, ? extends V> multimap) {
     this(multimap.keySet().size(),
         (multimap instanceof ArrayListMultimap) ?
             ((ArrayListMultimap<?, ?>) multimap).expectedValuesPerKey :

@@ -21,12 +21,14 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.annotation.Nullable;
 
 /**

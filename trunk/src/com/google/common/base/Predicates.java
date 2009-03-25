@@ -19,12 +19,14 @@ package com.google.common.base;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.annotation.Nullable;
 
 /**

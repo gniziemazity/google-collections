@@ -18,9 +18,11 @@ package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Preconditions;
+
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+
 import javax.annotation.Nullable;
 
 /**

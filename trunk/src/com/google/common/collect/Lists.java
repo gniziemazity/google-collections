@@ -22,6 +22,7 @@ import com.google.common.base.Function;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkElementIndex;
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.Serializable;
 import java.util.AbstractList;
 import java.util.AbstractSequentialList;
@@ -34,6 +35,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.RandomAccess;
+
 import javax.annotation.Nullable;
 
 /**

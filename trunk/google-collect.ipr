@@ -61,6 +61,18 @@
         </option>
         <option name="IMPORT_LAYOUT_TABLE">
           <value>
+            <package name="com.google" withSubpackages="true" />
+            <emptyLine />
+            <package name="com" withSubpackages="true" />
+            <emptyLine />
+            <package name="junit" withSubpackages="true" />
+            <emptyLine />
+            <package name="org" withSubpackages="true" />
+            <emptyLine />
+            <package name="java" withSubpackages="true" />
+            <emptyLine />
+            <package name="javax" withSubpackages="true" />
+            <emptyLine />
             <package name="" withSubpackages="true" />
           </value>
         </option>

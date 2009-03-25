@@ -17,12 +17,14 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+
 import javax.annotation.Nullable;
 
 /**

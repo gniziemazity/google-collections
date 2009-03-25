@@ -18,6 +18,7 @@ package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
 import static com.google.common.base.Preconditions.checkState;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 

@@ -24,6 +24,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+
 import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractMap;
@@ -43,6 +44,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
 import javax.annotation.Nullable;
 
 /**
@@ -1233,7 +1235,7 @@ public final class Maps {
    * implementation.
    */
   @GwtCompatible
-  public abstract static class ImprovedAbstractMap<K, V>
+  abstract static class ImprovedAbstractMap<K, V>
       extends AbstractMap<K, V> {
 
     /**

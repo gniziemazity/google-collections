@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -71,7 +72,7 @@ public final class LinkedHashMultiset<E> extends AbstractMapBasedMultiset<E> {
    * Constructs a new empty {@code LinkedHashMultiset} using the default initial
    * capacity.
    */
-  public LinkedHashMultiset() {
+  private LinkedHashMultiset() {
     super(new LinkedHashMap<E, AtomicInteger>());
   }
 
