@@ -18,9 +18,11 @@ package com.google.common.base;
 
 import com.google.common.collect.Lists;
 import static com.google.common.testutils.SerializableTester.reserialize;
+
+import junit.framework.TestCase;
+
 import java.util.ArrayList;
 import java.util.List;
-import junit.framework.TestCase;
 
 /**
  * Tests com.google.common.base.Suppliers.

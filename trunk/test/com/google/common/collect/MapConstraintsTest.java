@@ -19,6 +19,9 @@ package com.google.common.collect;
 import com.google.common.base.Supplier;
 import static com.google.common.testing.junit3.JUnitAsserts.assertContentsInOrder;
 import com.google.common.testutils.SerializableTester;
+
+import junit.framework.TestCase;
+
 import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.Arrays;
@@ -33,7 +36,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.concurrent.ArrayBlockingQueue;
-import junit.framework.TestCase;
 
 /**
  * Tests for {@code MapConstraints}.

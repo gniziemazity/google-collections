@@ -23,6 +23,7 @@ import static com.google.common.collect.testing.Helpers.assertContentsAnyOrder;
 import static com.google.common.collect.testing.IteratorFeature.MODIFIABLE;
 import com.google.common.collect.testing.IteratorTester;
 import com.google.common.testutils.SerializableTester;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import static java.util.Arrays.asList;
@@ -39,6 +40,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ArrayBlockingQueue;
+
 import javax.annotation.Nullable;
 
 /**

@@ -28,6 +28,11 @@ import com.google.common.collect.testing.features.CollectionSize;
 import static com.google.common.testing.junit3.JUnitAsserts.assertNotEqual;
 import com.google.common.testutils.NullPointerTester;
 import com.google.common.testutils.SerializableTester;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -39,9 +44,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * Unit test for {@link ImmutableList}.

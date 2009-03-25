@@ -21,12 +21,14 @@ import com.google.common.collect.testing.MapTestSuiteBuilder;
 import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.collect.testing.features.MapFeature;
 import com.google.common.collect.testing.testers.MapPutTester;
-import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.Map.Entry;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Unit test of {@link MutableClassToInstanceMap}.

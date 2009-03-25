@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.collect.testing.MapInterfaceTest;
+
 import java.util.Collection;
 import java.util.Map;
 

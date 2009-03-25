@@ -27,6 +27,11 @@ import static com.google.common.collect.testing.testers.CollectionIteratorTester
 import com.google.common.testing.junit3.JUnitAsserts;
 import com.google.common.testutils.NullPointerTester;
 import com.google.common.testutils.SerializableTester;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,10 +49,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
 import javax.annotation.Nullable;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * Unit test for {@code Sets}.

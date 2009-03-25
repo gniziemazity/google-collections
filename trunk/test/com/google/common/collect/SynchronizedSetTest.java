@@ -18,10 +18,12 @@ package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.testutils.SerializableTester;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+
 import javax.annotation.Nullable;
 
 /**

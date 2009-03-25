@@ -16,7 +16,7 @@
 
 package com.google.common.collect;
 
-import java.util.Arrays;
+import static java.util.Arrays.asList;
 
 /**
  * Unit test for {@link ConcurrentMultiset}.
@@ -38,7 +38,7 @@ public abstract class AbstractConcurrentMultisetTest
   @Override public void testEntryAfterElementSetIteratorRemove() {}
 
   public void testCopyConstructor() {
-    ms = new ConcurrentMultiset<String>(Arrays.asList("a", "b", "a", "c"));
+    ms = ConcurrentMultiset.create(asList("a", "b", "a", "c"));
     assertEquals(4, ms.size());
     assertEquals(2, ms.count("a"));
     assertEquals(1, ms.count("b"));
@@ -46,7 +46,7 @@ public abstract class AbstractConcurrentMultisetTest
   }
 
   public void testSetCount() {
-    ConcurrentMultiset<String> cms = new ConcurrentMultiset<String>();
+    ConcurrentMultiset<String> cms = ConcurrentMultiset.create();
     cms.add("a", 2);
     cms.add("b", 3);
 
@@ -65,7 +65,7 @@ public abstract class AbstractConcurrentMultisetTest
   }
 
   public void testSetCountConditional() {
-    ConcurrentMultiset<String> cms = new ConcurrentMultiset<String>();
+    ConcurrentMultiset<String> cms = ConcurrentMultiset.create();
     cms.add("a", 2);
     cms.add("b", 3);
 
@@ -101,7 +101,7 @@ public abstract class AbstractConcurrentMultisetTest
   }
 
   public void testRemoveExactly() {
-    ConcurrentMultiset<String> cms = new ConcurrentMultiset<String>();
+    ConcurrentMultiset<String> cms = ConcurrentMultiset.create();
     cms.add("a", 2);
     cms.add("b", 3);
 

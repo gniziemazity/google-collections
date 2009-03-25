@@ -16,10 +16,11 @@
 
 package com.google.common.collect.testing;
 
+import junit.framework.TestCase;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import junit.framework.TestCase;
 
 /**
  * Unit test for {@link MinimalIterable}.

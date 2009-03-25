@@ -18,6 +18,9 @@ package com.google.common.collect;
 
 import com.google.common.collect.testing.Helpers;
 import com.google.common.testutils.SerializableTester;
+
+import junit.framework.TestCase;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import static java.util.Arrays.asList;
@@ -29,7 +32,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import junit.framework.TestCase;
 
 /**
  * Tests for {@code Multimap} implementations. Caution: when subclassing avoid

@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.testing.junit3.JUnitAsserts;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;

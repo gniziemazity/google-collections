@@ -17,11 +17,13 @@
 package com.google.common.collect;
 
 import com.google.common.testing.junit3.JUnitAsserts;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+
 import javax.annotation.Nullable;
 
 /**

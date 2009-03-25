@@ -18,10 +18,12 @@ package com.google.common.collect;
 
 import static com.google.common.testing.junit3.JUnitAsserts.assertContentsInOrder;
 import com.google.common.testutils.NullPointerTester;
+
+import junit.framework.TestCase;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
-import junit.framework.TestCase;
 
 /**
  * Unit test for {@code ObjectArrays}.

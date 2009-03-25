@@ -21,12 +21,14 @@ import com.google.common.collect.testing.SetTestSuiteBuilder;
 import com.google.common.collect.testing.TestStringSetGenerator;
 import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
-import static java.util.Arrays.asList;
-import java.util.HashSet;
-import java.util.Set;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
+import static java.util.Arrays.asList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Unit tests for {@link Sets#union}, {@link Sets#intersection} and

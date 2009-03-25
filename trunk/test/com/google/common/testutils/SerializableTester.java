@@ -17,6 +17,7 @@
 package com.google.common.testutils;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

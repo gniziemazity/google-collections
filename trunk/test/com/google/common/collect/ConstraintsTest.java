@@ -19,6 +19,9 @@ package com.google.common.collect;
 import static com.google.common.collect.testing.Helpers.assertContentsAnyOrder;
 import static com.google.common.testing.junit3.JUnitAsserts.assertContentsInOrder;
 import com.google.common.testutils.SerializableTester;
+
+import junit.framework.TestCase;
+
 import java.util.AbstractCollection;
 import static java.util.Arrays.asList;
 import java.util.Collection;
@@ -28,7 +31,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 import java.util.SortedSet;
-import junit.framework.TestCase;
 
 /**
  * Tests for {@code Constraints}.

@@ -17,8 +17,10 @@
 package com.google.common.collect;
 
 import com.google.common.collect.Multiset.Entry;
-import java.util.Collections;
+
 import junit.framework.TestCase;
+
+import java.util.Collections;
 
 /**
  * Tests for {@link Multisets#immutableEntry}.

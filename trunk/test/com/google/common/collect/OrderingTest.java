@@ -18,12 +18,15 @@ package com.google.common.collect;
 
 import com.google.common.testutils.EqualsTester;
 import com.google.common.testutils.NullPointerTester;
+
+import junit.framework.TestCase;
+
 import static java.util.Arrays.asList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
 import javax.annotation.Nullable;
-import junit.framework.TestCase;
 
 /**
  * Unit tests for {@code Ordering}.

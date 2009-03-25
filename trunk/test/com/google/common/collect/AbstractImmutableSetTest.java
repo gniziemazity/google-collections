@@ -20,6 +20,9 @@ import static com.google.common.collect.testing.IteratorFeature.UNMODIFIABLE;
 import com.google.common.collect.testing.IteratorTester;
 import com.google.common.collect.testing.MinimalCollection;
 import com.google.common.testing.junit3.JUnitAsserts;
+
+import junit.framework.TestCase;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,7 +30,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import junit.framework.TestCase;
 
 /**
  * Base class for {@link ImmutableSet} and  {@link ImmutableSortedSet} tests.

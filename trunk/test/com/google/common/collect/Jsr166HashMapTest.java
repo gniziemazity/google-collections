@@ -8,6 +8,8 @@
 
 package com.google.common.collect;
 
+import junit.framework.TestCase;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -20,7 +22,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import junit.framework.TestCase;
 
 /**
  * ConcurrentHashMap tests copied from ConcurrentHashMapTest. Useful as a

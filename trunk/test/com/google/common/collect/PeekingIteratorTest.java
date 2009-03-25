@@ -20,13 +20,15 @@ import static com.google.common.collect.Iterators.peekingIterator;
 import static com.google.common.collect.testing.IteratorFeature.MODIFIABLE;
 import static com.google.common.collect.testing.IteratorFeature.UNMODIFIABLE;
 import com.google.common.collect.testing.IteratorTester;
+
+import junit.framework.TestCase;
+
 import java.util.Collection;
 import java.util.Collections;
 import static java.util.Collections.emptyList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import junit.framework.TestCase;
 
 /**
   * Unit test for {@link PeekingIterator}.
