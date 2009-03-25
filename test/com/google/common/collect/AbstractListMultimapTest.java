@@ -19,6 +19,7 @@ package com.google.common.collect;
 import static com.google.common.collect.testing.IteratorFeature.MODIFIABLE;
 import com.google.common.collect.testing.ListIteratorTester;
 import static com.google.common.testing.junit3.JUnitAsserts.assertContentsInOrder;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;

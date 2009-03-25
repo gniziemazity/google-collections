@@ -21,10 +21,12 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.testutils.NullPointerTester;
+
+import junit.framework.TestCase;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
-import junit.framework.TestCase;
 
 /**
  * Unit test for {@link Joiner}.

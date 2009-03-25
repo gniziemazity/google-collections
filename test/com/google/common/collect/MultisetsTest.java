@@ -20,10 +20,12 @@ import com.google.common.collect.SetsTest.Derived;
 import static com.google.common.collect.testing.Helpers.assertContentsAnyOrder;
 import com.google.common.testing.junit3.JUnitAsserts;
 import static com.google.common.testutils.SerializableTester.reserializeAndAssert;
+
+import junit.framework.TestCase;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import junit.framework.TestCase;
 
 /**
  * Tests for {@link Multisets}.
@@ -40,7 +42,7 @@ public class MultisetsTest extends TestCase {
     set.add("foo");
     set.add("bar");
     set.add(null);
-    Multiset<String> multiset = new HashMultiset<String>();
+    Multiset<String> multiset = HashMultiset.create();
     multiset.addAll(set);
     Multiset<String> multisetView = Multisets.forSet(set);
     assertTrue(multiset.equals(multisetView));

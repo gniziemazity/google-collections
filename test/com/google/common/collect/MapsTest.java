@@ -23,6 +23,11 @@ import com.google.common.collect.testing.MapInterfaceTest;
 import com.google.common.testing.junit3.JUnitAsserts;
 import com.google.common.testutils.EqualsTester;
 import com.google.common.testutils.NullPointerTester;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,9 +45,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * Unit test for {@code Maps}.

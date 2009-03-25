@@ -18,8 +18,10 @@ package com.google.common.collect;
 
 import com.google.common.collect.Synchronized.SynchronizedBiMap;
 import com.google.common.collect.Synchronized.SynchronizedSet;
-import java.util.Set;
+
 import junit.framework.TestSuite;
+
+import java.util.Set;
 
 /**
  * Tests for {@code Synchronized#biMap}.

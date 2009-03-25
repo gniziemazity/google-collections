@@ -21,8 +21,10 @@ import com.google.common.collect.Maps;
 import com.google.common.testutils.EqualsTester;
 import com.google.common.testutils.NullPointerTester;
 import com.google.common.testutils.SerializableTester;
-import java.util.Map;
+
 import junit.framework.TestCase;
+
+import java.util.Map;
 
 /**
  * Tests for {@link Functions}.

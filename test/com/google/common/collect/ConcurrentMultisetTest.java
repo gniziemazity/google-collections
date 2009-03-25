@@ -17,13 +17,17 @@
 package com.google.common.collect;
 
 import static com.google.common.testutils.SerializableTester.reserializeAndAssert;
+
+import junit.framework.TestCase;
+
+import static org.easymock.EasyMock.expect;
+import org.easymock.classextension.EasyMock;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentMap;
+
 import javax.annotation.Nullable;
-import junit.framework.TestCase;
-import static org.easymock.EasyMock.expect;
-import org.easymock.classextension.EasyMock;
 
 /**
  * Test case for {@link ConcurrentMultiset}.
@@ -276,7 +280,7 @@ public class ConcurrentMultisetTest extends TestCase {
 
   public void testIteratorRemove_actualMap() {
     // Override to avoid using mocks.
-    multiset = new ConcurrentMultiset<String>();
+    multiset = ConcurrentMultiset.create();
 
     multiset.add(KEY);
     multiset.add(KEY + "_2");

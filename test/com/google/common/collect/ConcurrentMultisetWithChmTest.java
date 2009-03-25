@@ -26,6 +26,6 @@ package com.google.common.collect;
 public class ConcurrentMultisetWithChmTest
     extends AbstractConcurrentMultisetTest {
   @Override protected <E> Multiset<E> create() {
-    return new ConcurrentMultiset<E>();
+    return ConcurrentMultiset.create();
   }
 }

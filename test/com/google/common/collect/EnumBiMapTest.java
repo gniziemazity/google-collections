@@ -18,9 +18,11 @@ package com.google.common.collect;
 
 import static com.google.common.testing.junit3.JUnitAsserts.assertContentsInOrder;
 import com.google.common.testutils.SerializableTester;
+
+import junit.framework.TestCase;
+
 import java.util.Collections;
 import java.util.Map;
-import junit.framework.TestCase;
 
 /**
  * Tests for {@code EnumBiMap}.

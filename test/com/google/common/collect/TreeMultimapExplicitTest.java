@@ -19,6 +19,7 @@ package com.google.common.collect;
 import static com.google.common.collect.testing.Helpers.assertContentsAnyOrder;
 import static com.google.common.testing.junit3.JUnitAsserts.assertContentsInOrder;
 import com.google.common.testutils.SerializableTester;
+
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;

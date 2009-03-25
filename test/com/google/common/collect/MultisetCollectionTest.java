@@ -24,12 +24,14 @@ import static com.google.common.collect.testing.google.MultisetReadsTester.getRe
 import com.google.common.collect.testing.google.MultisetTestSuiteBuilder;
 import com.google.common.collect.testing.google.TestEnumMultisetGenerator;
 import com.google.common.collect.testing.google.TestStringMultisetGenerator;
-import static java.util.Arrays.asList;
-import java.util.Collections;
-import java.util.List;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
+import static java.util.Arrays.asList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Collection tests for {@link Multiset} implementations.
@@ -111,7 +113,7 @@ public class MultisetCollectionTest extends TestCase {
   private static TestStringMultisetGenerator concurrentMultisetGenerator() {
     return new TestStringMultisetGenerator() {
       @Override protected Multiset<String> create(String[] elements) {
-        return new ConcurrentMultiset<String>(asList(elements));
+        return ConcurrentMultiset.create(asList(elements));
       }
     };
   }

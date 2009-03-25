@@ -26,13 +26,15 @@ import static com.google.common.testing.junit3.JUnitAsserts.assertContentsInOrde
 import static com.google.common.testing.junit3.JUnitAsserts.assertNotEqual;
 import com.google.common.testutils.NullPointerTester;
 import com.google.common.testutils.SerializableTester;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import static java.util.Arrays.asList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * Tests for {@link ImmutableMultiset}.

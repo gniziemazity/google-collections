@@ -18,6 +18,9 @@ package com.google.common.collect;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+
+import junit.framework.TestCase;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -27,7 +30,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import junit.framework.TestCase;
 
 /**
  * Base test case for testing the variety of forwarding classes.

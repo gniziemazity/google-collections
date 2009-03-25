@@ -29,6 +29,13 @@ import com.google.common.collect.testing.features.ListFeature;
 import static com.google.common.testing.junit3.JUnitAsserts.assertContentsInOrder;
 import com.google.common.testutils.NullPointerTester;
 import com.google.common.testutils.SerializableTester;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import org.easymock.classextension.EasyMock;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import static java.util.Arrays.asList;
@@ -41,10 +48,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import org.easymock.classextension.EasyMock;
 
 /**
  * Unit test for {@code Lists}.

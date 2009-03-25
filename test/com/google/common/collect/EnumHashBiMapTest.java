@@ -17,9 +17,11 @@
 package com.google.common.collect;
 
 import com.google.common.testutils.SerializableTester;
+
+import junit.framework.TestCase;
+
 import java.util.Collections;
 import java.util.Map;
-import junit.framework.TestCase;
 
 /**
  * Tests for {@code EnumHashBiMap}.

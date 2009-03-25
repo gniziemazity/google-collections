@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.testutils.SerializableTester;
+
 import java.io.Serializable;
 import java.util.Arrays;
 

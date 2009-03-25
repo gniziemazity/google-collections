@@ -17,9 +17,11 @@
 package com.google.common.collect;
 
 import com.google.common.collect.testing.MapInterfaceTest;
+
+import junit.framework.TestCase;
+
 import java.util.Map;
 import java.util.Map.Entry;
-import junit.framework.TestCase;
 
 /**
  * Map interface tests for bimaps.

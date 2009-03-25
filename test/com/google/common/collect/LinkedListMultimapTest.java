@@ -22,6 +22,7 @@ import static com.google.common.collect.Sets.newLinkedHashSet;
 import static com.google.common.collect.testing.IteratorFeature.MODIFIABLE;
 import com.google.common.collect.testing.IteratorTester;
 import static com.google.common.testing.junit3.JUnitAsserts.assertContentsInOrder;
+
 import java.util.Arrays;
 import static java.util.Arrays.asList;
 import java.util.Collection;

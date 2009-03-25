@@ -17,10 +17,12 @@
 package com.google.common.base;
 
 import com.google.common.collect.Iterables;
+
+import junit.framework.TestCase;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.TreeSet;
-import junit.framework.TestCase;
 
 /**
  * Unit test for {@link Preconditions}.

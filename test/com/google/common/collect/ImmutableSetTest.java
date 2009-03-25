@@ -18,6 +18,7 @@ package com.google.common.collect;
 
 import com.google.common.collect.ImmutableSet.Builder;
 import com.google.common.testutils.NullPointerTester;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;

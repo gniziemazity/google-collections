@@ -19,6 +19,7 @@ package com.google.common.collect.testing.google;
 import com.google.common.collect.testing.AbstractCollectionTestSuiteBuilder;
 import com.google.common.collect.testing.AbstractTester;
 import com.google.common.collect.testing.Helpers;
+
 import java.util.List;
 
 /**

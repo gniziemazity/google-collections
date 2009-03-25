@@ -20,6 +20,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.testing.IteratorFeature.MODIFIABLE;
 import com.google.common.collect.testing.IteratorTester;
 import static com.google.common.testing.junit3.JUnitAsserts.assertContentsInOrder;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -34,9 +35,9 @@ import java.util.SortedSet;
  * @author Neal Kanodia
  */
 public class TreeMultisetTest extends AbstractMultisetTest {
-
+  @SuppressWarnings("unchecked")
   @Override protected <E> Multiset<E> create() {
-    return new TreeMultiset<E>();
+    return (Multiset) TreeMultiset.create();
   }
 
   public void testCreate() {

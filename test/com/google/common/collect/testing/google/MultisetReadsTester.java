@@ -24,6 +24,7 @@ import com.google.common.collect.testing.features.CollectionSize;
 import static com.google.common.collect.testing.features.CollectionSize.ONE;
 import static com.google.common.collect.testing.features.CollectionSize.SEVERAL;
 import static com.google.common.collect.testing.features.CollectionSize.ZERO;
+
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;

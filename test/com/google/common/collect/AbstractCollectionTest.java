@@ -17,11 +17,13 @@
 package com.google.common.collect;
 
 import com.google.common.testutils.NullPointerTester;
+
+import junit.framework.TestCase;
+
 import static java.util.Arrays.asList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import junit.framework.TestCase;
 
 /**
  * Common tests for a {@code Collection}.

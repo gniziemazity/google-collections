@@ -37,6 +37,11 @@ import static com.google.common.collect.testing.google.AbstractMultisetSetCountT
 import static com.google.common.collect.testing.google.MultisetReadsTester.getReadsDuplicateInitializingMethods;
 import com.google.common.collect.testing.google.MultisetTestSuiteBuilder;
 import com.google.common.collect.testing.google.TestStringMultisetGenerator;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import static java.lang.reflect.Proxy.newProxyInstance;
@@ -48,9 +53,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * Run collection tests on {@link Multimap} implementations.

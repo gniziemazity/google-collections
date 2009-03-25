@@ -21,6 +21,7 @@ import static com.google.common.testing.junit3.JUnitAsserts.assertContentsInOrde
 import static com.google.common.testing.junit3.JUnitAsserts.assertNotEqual;
 import com.google.common.testutils.NullPointerTester;
 import com.google.common.testutils.SerializableTester;
+
 import static java.util.Arrays.asList;
 import java.util.Collections;
 import java.util.Comparator;

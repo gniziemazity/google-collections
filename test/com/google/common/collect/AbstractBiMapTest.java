@@ -17,6 +17,9 @@
 package com.google.common.collect;
 
 import com.google.common.testutils.SerializableTester;
+
+import junit.framework.TestCase;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,7 +27,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import junit.framework.TestCase;
 
 /**
  * Common tests for any {@code BiMap}.

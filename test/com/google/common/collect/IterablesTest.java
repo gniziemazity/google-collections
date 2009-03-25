@@ -27,6 +27,9 @@ import com.google.common.collect.testing.IteratorTester;
 import com.google.common.testing.junit3.JUnitAsserts;
 import static com.google.common.testing.junit3.JUnitAsserts.assertContentsInOrder;
 import com.google.common.testutils.NullPointerTester;
+
+import junit.framework.TestCase;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import static java.util.Arrays.asList;
@@ -38,7 +41,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
-import junit.framework.TestCase;
 
 /**
  * Unit test for {@code Iterables}.
