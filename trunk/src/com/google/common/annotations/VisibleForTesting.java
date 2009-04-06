@@ -18,35 +18,9 @@ package com.google.common.annotations;
 
 /**
  * An annotation that indicates that the visibility of a type or member has
- * been relaxed to make the code testable. The {@link #productionVisibility()}
- * field indicates the visibility applicable to production code.
+ * been relaxed to make the code testable.
  *
  * @author johannes@google.com (Johannes Henkel)
  */
 @GwtCompatible
-public @interface VisibleForTesting {
-
-  /**
-   * The possible set of visibility values.
-   */
-  public static final class Visibility {
-    /** Equivalent to no modifier */
-    public static final int PACKAGE_PRIVATE = 0;
-    /** Equivalent to java.lang.reflect.Modifier.PRIVATE */
-    public static final int PRIVATE = 0x00000002;
-    /** Equivalent to java.lang.reflect.Modifier.PROTECTED */
-    public static final int PROTECTED = 0x00000004;
-
-    private Visibility() {}
-  }
-
-  /**
-   * The visibility the annotated type or member would have if it did not need
-   * to be made visible for testing. E.g. {@link Visibility#PROTECTED}.
-   *
-   * <p>The default production visibility is private, and so, statements like
-   * {@code @VisibleForTesting(productionVisibility = Visibility.PRIVATE)}
-   * can always be replaced with the more terse {@code @VisibleForTesting}.
-   */
-  int productionVisibility() default Visibility.PRIVATE;
-}
+public @interface VisibleForTesting {}

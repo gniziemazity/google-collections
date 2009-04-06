@@ -33,7 +33,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
 import javax.annotation.Nullable;
@@ -66,44 +65,6 @@ public final class Iterators {
   @SuppressWarnings("unchecked")
   public static <T> UnmodifiableIterator<T> emptyIterator() {
     return (UnmodifiableIterator<T>) EMPTY_ITERATOR;
-  }
-
-  private static final ListIterator<Object> EMPTY_LIST_ITERATOR =
-      new ListIterator<Object>() {
-        public boolean hasNext() {
-          return false;
-        }
-        public boolean hasPrevious() {
-          return false;
-        }
-        public int nextIndex() {
-          return 0;
-        }
-        public int previousIndex() {
-          return -1;
-        }
-        public Object next() {
-          throw new NoSuchElementException();
-        }
-        public Object previous() {
-          throw new NoSuchElementException();
-        }
-        public void set(Object o) {
-          throw new UnsupportedOperationException();
-        }
-        public void add(Object o) {
-          throw new UnsupportedOperationException();
-        }
-        public void remove() {
-          throw new UnsupportedOperationException();
-        }
-      };
-
-  /** Returns the empty {@code ListIterator}. */
-  // Casting to any type is safe since there are no actual elements.
-  @SuppressWarnings("unchecked")
-  public static <T> ListIterator<T> emptyListIterator() {
-    return (ListIterator<T>) EMPTY_LIST_ITERATOR;
   }
 
   private static final Iterator<Object> EMPTY_MODIFIABLE_ITERATOR =
@@ -535,6 +496,8 @@ public final class Iterators {
    * [[a, b, c], [d, e]]} -- an outer iterator containing two inner lists of
    * three and two elements, all in the original order.
    *
+   * <p>The returned lists implement {@link java.util.RandomAccess}.
+   *
    * @param iterator the iterator to return a partitioned view of
    * @param size the desired size of each partition (the last may be smaller)
    * @return an iterator of immutable lists containing the elements of {@code
@@ -553,6 +516,8 @@ public final class Iterators {
    * yields {@code [[a, b, c], [d, e, null]]} -- an outer iterator containing
    * two inner lists of three elements each, all in the original order.
    *
+   * <p>The returned lists implement {@link java.util.RandomAccess}.
+   * 
    * @param iterator the iterator to return a partitioned view of
    * @param size the desired size of each partition
    * @return an iterator of immutable lists containing the elements of {@code
@@ -592,10 +557,9 @@ public final class Iterators {
   }
 
   /**
-   * Returns the elements of {@code unfiltered} that satisfy a predicate. The
-   * resulting iterator does not support {@code remove()}.
+   * Returns the elements of {@code unfiltered} that satisfy a predicate.
    */
-  public static <T> Iterator<T> filter(
+  public static <T> UnmodifiableIterator<T> filter(
       final Iterator<T> unfiltered, final Predicate<? super T> predicate) {
     checkNotNull(unfiltered);
     checkNotNull(predicate);
@@ -615,19 +579,19 @@ public final class Iterators {
   /**
    * Returns all instances of class {@code type} in {@code unfiltered}. The
    * returned iterator has elements whose class is {@code type} or a subclass of
-   * {@code type}. The returned iterator does not support {@code remove()}.
+   * {@code type}.
    *
    * @param unfiltered an iterator containing objects of any type
    * @param type the type of elements desired
    * @return an unmodifiable iterator containing all elements of the original
    *     iterator that were of the requested type
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("unchecked") // can cast to <T> because non-Ts are removed
   @GwtIncompatible("Class.isInstance")
-  public static <T> Iterator<T> filter(
-      Iterator<?> unfiltered, final Class<T> type) {
-    checkNotNull(type);
-    return (Iterator<T>) filter(unfiltered, Predicates.instanceOf(type));
+  public static <T> UnmodifiableIterator<T> filter(
+      Iterator<?> unfiltered, Class<T> type) {
+    return (UnmodifiableIterator<T>)
+        filter(unfiltered, Predicates.instanceOf(type));
   }
 
   /**
@@ -716,20 +680,22 @@ public final class Iterators {
    *     {@code iterator}
    */
   public static <T> T get(Iterator<T> iterator, int position) {
-    checkNotNull(iterator);
     if (position < 0) {
       throw new IndexOutOfBoundsException("position (" + position
           + ") must not be negative");
     }
 
-    int skipped = skip(iterator, position);
-    if (skipped < position || !iterator.hasNext()) {
-      throw new IndexOutOfBoundsException(
-          "position (" + position + ") must be less than the number of " +
-          "elements that remained (" + skipped + ")");
-    } else {
-      return iterator.next();
+    int skipped = 0;
+    while (iterator.hasNext()) {
+      T t = iterator.next();
+      if (skipped++ == position) {
+        return t;
+      }
     }
+
+    throw new IndexOutOfBoundsException("position (" + position
+        + ") must be less than the number of elements that remained ("
+        + skipped + ")");
   }
 
   /**
@@ -745,59 +711,6 @@ public final class Iterators {
         return current;
       }
     }
-  }
-
-  /**
-   * Calls {@code next()} on {@code iterator}, either {@code numberToSkip} times
-   * or until {@code hasNext()} returns {@code false}, whichever comes first.
-   *
-   * @return the number of elements skipped
-   */
-  public static <T> int skip(Iterator<T> iterator, int numberToSkip) {
-    checkNotNull(iterator);
-    checkArgument(numberToSkip >= 0, "number to skip cannot be negative");
-
-    int i;
-    for (i = 0; i < numberToSkip && iterator.hasNext(); i++) {
-      iterator.next();
-    }
-    return i;
-  }
-
-  /**
-   * Creates an iterator returning the first {@code limitSize} elements of the
-   * given iterator. If the original iterator does not contain that many
-   * elements, the returned iterator will have the same behavior as the original
-   * iterator. The returned iterator supports {@code remove()} if the original
-   * iterator does.
-   *
-   * @param iterator the iterator to limit
-   * @param limitSize the maximum number of elements in the returned iterator
-   * @throws IllegalArgumentException if {@code limitSize} is negative
-   */
-  public static <T> Iterator<T> limit(
-      final Iterator<T> iterator, final int limitSize) {
-    checkNotNull(iterator);
-    checkArgument(limitSize >= 0, "limit is negative");
-    return new Iterator<T>() {
-      private int count;
-
-      public boolean hasNext() {
-        return count < limitSize && iterator.hasNext();
-      }
-
-      public T next() {
-        if (!hasNext()) {
-          throw new NoSuchElementException();
-        }
-        count++;
-        return iterator.next();
-      }
-
-      public void remove() {
-        iterator.remove();
-      }
-    };
   }
 
   // Methods only in Iterators, not in Iterables
@@ -889,21 +802,17 @@ public final class Iterators {
   }
 
   /**
-   * Adapts an {@code Enumeration} to the {@code Iterator} interface. The
-   * returned iterator does not support {@code remove()}.
+   * Adapts an {@code Enumeration} to the {@code Iterator} interface.
    */
-  public static <T> Iterator<T> forEnumeration(final Enumeration<T> enumeration)
-  {
+  public static <T> UnmodifiableIterator<T> forEnumeration(
+      final Enumeration<T> enumeration) {
     checkNotNull(enumeration);
-    return new Iterator<T>() {
+    return new UnmodifiableIterator<T>() {
       public boolean hasNext() {
         return enumeration.hasMoreElements();
       }
       public T next() {
         return enumeration.nextElement();
-      }
-      public void remove() {
-        throw new UnsupportedOperationException();
       }
     };
   }

@@ -58,36 +58,18 @@ public final class HashMultiset<E> extends AbstractMapBasedMultiset<E> {
    * @param elements the elements that the multiset should contain
    */
   public static <E> HashMultiset<E> create(Iterable<? extends E> elements) {
-    return new HashMultiset<E>(elements);
+    HashMultiset<E> multiset =
+        create(Multisets.inferDistinctElements(elements));
+    Iterables.addAll(multiset, elements);
+    return multiset;
   }
 
-  /**
-   * Constructs a new empty {@code HashMultiset} using the default initial
-   * capacity.
-   */
   private HashMultiset() {
     super(new HashMap<E, AtomicInteger>());
   }
 
-  /**
-   * Constructs a new empty {@code HashMultiset} with the specified expected
-   * number of distinct elements.
-   *
-   * @param distinctElements the expected number of distinct elements
-   * @throws IllegalArgumentException if {@code distinctElements} is negative
-   */
   private HashMultiset(int distinctElements) {
     super(new HashMap<E, AtomicInteger>(Maps.capacity(distinctElements)));
-  }
-
-  /**
-   * Constructs a new {@code HashMultiset} containing the specified elements.
-   *
-   * @param elements the elements that the multiset should contain
-   */
-  private HashMultiset(Iterable<? extends E> elements) {
-    this(Multisets.inferDistinctElements(elements));
-    Iterables.addAll(this, elements); // careful if we make this class non-final
   }
 
   /**
@@ -102,8 +84,10 @@ public final class HashMultiset<E> extends AbstractMapBasedMultiset<E> {
   private void readObject(ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
-    setBackingMap(new HashMap<E, AtomicInteger>());
-    Serialization.populateMultiset(this, stream);
+    int distinctElements = Serialization.readCount(stream);
+    setBackingMap(
+        Maps.<E, AtomicInteger>newHashMapWithExpectedSize(distinctElements));
+    Serialization.populateMultiset(this, stream, distinctElements);
   }
 
   private static final long serialVersionUID = 0;

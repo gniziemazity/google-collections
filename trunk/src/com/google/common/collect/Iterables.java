@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.RandomAccess;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -49,23 +50,6 @@ import javax.annotation.Nullable;
 @GwtCompatible
 public final class Iterables {
   private Iterables() {}
-
-  private static final Iterable<Object> EMPTY_ITERABLE = new Iterable<Object>()
-  {
-    public Iterator<Object> iterator() {
-      return Iterators.EMPTY_ITERATOR;
-    }
-    @Override public String toString() {
-      return "[]";
-    }
-  };
-
-  /** Returns the empty {@code Iterable}. */
-  // Casting to any type is safe since there are no actual elements.
-  @SuppressWarnings("unchecked")
-  public static <T> Iterable<T> emptyIterable() {
-    return (Iterable<T>) EMPTY_ITERABLE;
-  }
 
   /** Returns an unmodifiable view of {@code iterable}. */
   public static <T> Iterable<T> unmodifiableIterable(final Iterable<T> iterable)
@@ -405,7 +389,8 @@ public final class Iterables {
    * three and two elements, all in the original order.
    *
    * <p>Iterators returned by the returned iterable do not support the {@link
-   * Iterator#remove()} method.
+   * Iterator#remove()} method. The returned lists implement {@link
+   * RandomAccess}, whether or not the input list does.
    *
    * <p><b>Note:</b> if {@code iterable} is a {@link List}, use {@link
    * Lists#partition(List, int)} instead.
@@ -595,106 +580,6 @@ public final class Iterables {
     return Iterators.getLast(iterable.iterator());
   }
 
-  /**
-   * Returns a view of {@code iterable} that skips its first
-   * {@code numberToSkip} elements. If {@code iterable} contains fewer than
-   * {@code numberToSkip} elements, the returned iterable skips all of its
-   * elements.
-   *
-   * <p>Modifications to the underlying {@link Iterable} before a call to
-   * {@code iterator()} are reflected in the returned iterator. That is, the
-   * iterator skips the first {@code numberToSkip} elements that exist when the
-   * {@code Iterator} is created, not when {@code skip()} is called.
-   *
-   * <p>The returned iterable's iterator supports {@code remove()} if the
-   * iterator of the underlying iterable supports it. Note that it is
-   * <i>not</i> possible to delete the last skipped element by immediately
-   * calling {@code remove()} on that iterator, as the {@code Iterator}
-   * contract states that a call to {@code remove()} before a call to
-   * {@code next()} will throw an {@link IllegalStateException}.
-   */
-  @GwtIncompatible("List.subList")
-  public static <T> Iterable<T> skip(final Iterable<T> iterable,
-      final int numberToSkip) {
-    checkNotNull(iterable);
-    checkArgument(numberToSkip >= 0, "number to skip cannot be negative");
-
-    if (iterable instanceof List) {
-      final List<T> list = (List<T>) iterable;
-      return new IterableWithToString<T>() {
-        public Iterator<T> iterator() {
-          // TODO: Support a concurrent list whose size changes while this
-          // method is running.
-          return (numberToSkip >= list.size())
-              ? Iterators.<T>emptyIterator()
-              : Platform.subList(list, numberToSkip, list.size()).iterator();
-        }
-      };
-    }
-
-    return new IterableWithToString<T>() {
-      public Iterator<T> iterator() {
-        final Iterator<T> iterator = iterable.iterator();
-
-        Iterators.skip(iterator, numberToSkip);
-
-        /*
-         * We can't just return the iterator because an immediate call to its
-         * remove() method would remove one of the skipped elements instead of
-         * throwing an IllegalStateException.
-         */
-        return new Iterator<T>() {
-          boolean atStart = true;
-
-          public boolean hasNext() {
-            return iterator.hasNext();
-          }
-
-          public T next() {
-            if (!hasNext()) {
-              throw new NoSuchElementException();
-            }
-
-            try {
-              return iterator.next();
-            } finally {
-              atStart = false;
-            }
-          }
-
-          public void remove() {
-            if (atStart) {
-              throw new IllegalStateException();
-            }
-            iterator.remove();
-          }
-        };
-      }
-    };
-  }
-
-  /**
-   * Creates an iterable with the first {@code limitSize} elements of the given
-   * iterable. If the original iterable does not contain that many elements, the
-   * returned iterator will have the same behavior as the original iterable. The
-   * returned iterable's iterator supports {@code remove()} if the original
-   * iterator does.
-   *
-   * @param iterable the iterable to limit
-   * @param limitSize the maximum number of elements in the returned iterator
-   * @throws IllegalArgumentException if {@code limitSize} is negative
-   */
-  public static <T> Iterable<T> limit(
-      final Iterable<T> iterable, final int limitSize) {
-    checkNotNull(iterable);
-    checkArgument(limitSize >= 0, "limit is negative");
-    return new IterableWithToString<T>() {
-      public Iterator<T> iterator() {
-        return Iterators.limit(iterable.iterator(), limitSize);
-      }
-    };
-  }
-
   // Methods only in Iterables, not in Iterators
 
   /**
@@ -724,69 +609,6 @@ public final class Iterables {
             listIter.remove();
           }
         };
-      }
-    };
-  }
-
-  // TODO: distance argument is opposite of Collections#rotate
-  /**
-   * Provides a rotated view of a list. Differs from {@link Collections#rotate}
-   * in that it leaves the underlying list unchanged. Note that this is a
-   * "live" view of the list that will change as the list changes. However, the
-   * behavior of an {@link Iterator} retrieved from a rotated view of the list
-   * is undefined if the list is structurally changed after the iterator is
-   * retrieved.
-   *
-   * <p>The iterators returned by the iterable do not support remove.
-   *
-   * @param list the list to return a rotated view of
-   * @param distance the distance to rotate the list. There are no constraints
-   *     on this value; it may be zero, negative, or greater than {@code
-   *     list.size()}.
-   * @return a rotated view of the given list
-   */
-  @GwtIncompatible("List.subList")
-  public static <T> Iterable<T> rotate(List<T> list, final int distance) {
-    final List<T> unmodifiable
-        = Collections.unmodifiableList(checkNotNull(list));
-
-
-    // If no rotation is requested, just return the original list
-    if (distance == 0) {
-      return unmodifiable;
-    }
-
-    return new IterableWithToString<T>() {
-      /**
-       * Determines the actual distance we need to rotate (distance provided
-       * might be larger than the size of the list or negative).
-       */
-      int calcActualDistance(int size) {
-        // we already know distance and size are non-zero
-        int actualDistance = distance % size;
-        if (actualDistance < 0) {
-          // distance must have been negative
-          actualDistance += size;
-        }
-        return actualDistance;
-      }
-
-      public Iterator<T> iterator() {
-        int size = unmodifiable.size();
-        if (size <= 1) {
-          return unmodifiable.iterator();
-        }
-
-        int actualDistance = calcActualDistance(size);
-        // lists of a size that go into the distance evenly don't need rotation
-        if (actualDistance == 0) {
-          return unmodifiable.iterator();
-        }
-
-        Iterable<T> rotated = concat(
-            Platform.subList(unmodifiable, actualDistance, size),
-            Platform.subList(unmodifiable, 0, actualDistance));
-        return rotated.iterator();
       }
     };
   }

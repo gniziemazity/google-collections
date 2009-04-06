@@ -21,6 +21,7 @@ import com.google.common.collect.testing.MinimalCollection;
 import com.google.common.collect.testing.WrongType;
 import com.google.common.collect.testing.features.CollectionSize;
 import static com.google.common.collect.testing.features.CollectionSize.ZERO;
+
 import java.util.Collection;
 
 /**

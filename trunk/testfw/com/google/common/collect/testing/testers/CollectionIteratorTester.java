@@ -26,6 +26,7 @@ import com.google.common.collect.testing.IteratorTester;
 import com.google.common.collect.testing.features.CollectionFeature;
 import static com.google.common.collect.testing.features.CollectionFeature.KNOWN_ORDER;
 import static com.google.common.collect.testing.features.CollectionFeature.SUPPORTS_REMOVE;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;

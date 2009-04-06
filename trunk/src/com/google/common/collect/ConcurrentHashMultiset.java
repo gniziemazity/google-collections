@@ -26,7 +26,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.AbstractSet;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -43,10 +42,10 @@ import javax.annotation.Nullable;
  *
  * @author Cliff L. Biffle
  */
-public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
+public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E>
     implements Serializable {
   /*
-   * The ConcurrentMultiset's atomic operations are implemented in terms of
+   * The ConcurrentHashMultiset's atomic operations are implemented in terms of
    * ConcurrentMap's atomic operations. Many of them, such as add(E, int), are
    * read-modify-write sequences, and so are implemented as loops that wrap
    * ConcurrentMap's compare-and-set operations (like putIfAbsent).
@@ -61,15 +60,16 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
   private static class FieldSettersHolder {
     @SuppressWarnings("unchecked")
     // eclipse doesn't like the raw type here, but it's harmless
-    static final FieldSetter<ConcurrentMultiset> COUNT_MAP_FIELD_SETTER
-        = Serialization.getFieldSetter(ConcurrentMultiset.class, "countMap");
+    static final FieldSetter<ConcurrentHashMultiset> COUNT_MAP_FIELD_SETTER =
+        Serialization.getFieldSetter(ConcurrentHashMultiset.class, "countMap");
   }
+
   /**
    * Creates a new empty {@code ConcurrentMultiset} using the default initial
    * capacity, load factor, and concurrency settings.
    */
-  public static <E> ConcurrentMultiset<E> create() {
-    return new ConcurrentMultiset<E>();
+  public static <E> ConcurrentHashMultiset<E> create() {
+    return new ConcurrentHashMultiset<E>(new ConcurrentHashMap<E, Integer>());
   }
 
   /**
@@ -78,38 +78,11 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
    *
    * @param elements the elements that the multiset should contain
    */
-  public static <E> ConcurrentMultiset<E> create(
+  public static <E> ConcurrentHashMultiset<E> create(
       Iterable<? extends E> elements) {
-    return new ConcurrentMultiset<E>(elements);
-  }
-
-  /**
-   * Creates an empty instance.
-   */
-  private ConcurrentMultiset() {
-    this(new ConcurrentHashMap<E, Integer>());
-  }
-
-  /**
-   * Creates an instance that contains the elements in a given collection.
-   */
-  private ConcurrentMultiset(Collection<? extends E> collection) {
-    this(new ConcurrentHashMap<E, Integer>(Maps.capacity(collection.size())));
-    addAll(collection);
-  }
-
-  /**
-   * Creates an instance using a {@link ConcurrentHashMap} to store elements
-   * and their counts, and initially containing all the elements from a given
-   * iterable.
-   *
-   * <p>The {@code ConcurrentHashMap} will have default capacity, load factor,
-   * and concurrency settings. For more control, use
-   * {@link #ConcurrentMultiset(ConcurrentMap)}.
-   */
-  private ConcurrentMultiset(Iterable<? extends E> iterable) {
-    this(new ConcurrentHashMap<E, Integer>());
-    Iterables.addAll(this, iterable);
+    ConcurrentHashMultiset<E> multiset = ConcurrentHashMultiset.create();
+    Iterables.addAll(multiset, elements);
+    return multiset;
   }
 
   /**
@@ -123,7 +96,8 @@ public final class ConcurrentMultiset<E> extends AbstractMultiset<E>
    *     their counts. It must be empty.
    * @throws IllegalArgumentException if {@code countMap} is not empty
    */
-  @VisibleForTesting ConcurrentMultiset(ConcurrentMap<E, Integer> countMap) {
+  @VisibleForTesting
+  ConcurrentHashMultiset(ConcurrentMap<E, Integer> countMap) {
     checkArgument(countMap.isEmpty());
     this.countMap = countMap;
   }

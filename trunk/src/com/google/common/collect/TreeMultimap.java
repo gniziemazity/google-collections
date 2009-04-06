@@ -103,8 +103,6 @@ public final class TreeMultimap<K, V> extends StandardSortedSetMultimap<K, V> {
   }
 
   /*
-   * TODO: Make all constructors private.
-   *
    * Note that the create methods differ from the constructors:
    *
    * 1) create() and create(Multimap) have the constraint

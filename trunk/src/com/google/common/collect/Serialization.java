@@ -27,14 +27,34 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * Provides static method for serializing collection classes.
+ * Provides static methods for serializing collection classes.
+ * 
+ * <p>This class assists the implementation of collection classes. Do not use
+ * this class to serialize collections that are defined elsewhere.
  *
  * @author Jared Levy
  */
 @GwtCompatible(emulated = true) // Accessible but not supported in GWT.
-public final class Serialization {
+final class Serialization {
   private Serialization() {}
 
+  /**
+   * Reads a count corresponding to a serialized map, multiset, or multimap. It
+   * returns the size of a map serialized by {@link
+   * #writeMap(Map, ObjectOutputStream)}, the number of distinct elements in a
+   * multiset serialized by {@link
+   * #writeMultiset(Multiset, ObjectOutputStream)}, or the number of distinct
+   * keys in a multimap serialized by {@link
+   * #writeMultimap(Multimap, ObjectOutputStream)}.
+   * 
+   * <p>The returned count may be used to construct an empty collection of the
+   * appropriate capacity before calling any of the {@code populate} methods.  
+   */
+  @GwtIncompatible("java.io.ObjectInputStream")
+  public static int readCount(ObjectInputStream stream) throws IOException {
+    return stream.readInt();
+  }
+  
   /**
    * Stores the contents of a map in an output stream, as part of serialization.
    * It does not support concurrent maps whose content may change while the
@@ -53,10 +73,6 @@ public final class Serialization {
     }
   }
 
-  // TODO: Separate the first line of each populate method, which reads the
-  // size, from the rest of the method, so an empty collection of the correct
-  // size may be created.
-
   /**
    * Populates a map by reading an input stream, as part of deserialization.
    * See {@link #writeMap} for the data format.
@@ -65,14 +81,26 @@ public final class Serialization {
   public static <K, V> void populateMap(Map<K, V> map, ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
     int size = stream.readInt();
+    populateMap(map, stream, size);
+  }
+  
+  /**
+   * Populates a map by reading an input stream, as part of deserialization.
+   * See {@link #writeMap} for the data format. The size is determined by a
+   * prior call to {@link #readCount}.
+   */
+  @GwtIncompatible("java.io.ObjectInputStream")
+  public static <K, V> void populateMap(Map<K, V> map, ObjectInputStream stream,
+      int size) throws IOException, ClassNotFoundException {
     for (int i = 0; i < size; i++) {
       @SuppressWarnings("unchecked") // reading data stored by writeMap
       K key = (K) stream.readObject();
       @SuppressWarnings("unchecked") // reading data stored by writeMap
       V value = (V) stream.readObject();
       map.put(key, value);
-    }
-  }
+    }    
+  }  
+  
   /**
    * Stores the contents of a multiset in an output stream, as part of
    * serialization. It does not support concurrent multisets whose content may
@@ -100,8 +128,20 @@ public final class Serialization {
   public static <E> void populateMultiset(
       Multiset<E> multiset, ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
-    int entryCount = stream.readInt();
-    for (int i = 0; i < entryCount; i++) {
+    int distinctElements = stream.readInt();
+    populateMultiset(multiset, stream, distinctElements);
+  }
+  
+  /**
+   * Populates a multiset by reading an input stream, as part of
+   * deserialization. See {@link #writeMultiset} for the data format. The number
+   * of distinct elements is determined by a prior call to {@link #readCount}.
+   */
+  @GwtIncompatible("java.io.ObjectInputStream")
+  public static <E> void populateMultiset(
+      Multiset<E> multiset, ObjectInputStream stream, int distinctElements)
+      throws IOException, ClassNotFoundException {
+    for (int i = 0; i < distinctElements; i++) {
       @SuppressWarnings("unchecked") // reading data stored by writeMultiset
       E element = (E) stream.readObject();
       int count = stream.readInt();
@@ -140,8 +180,20 @@ public final class Serialization {
   public static <K, V> void populateMultimap(
       Multimap<K, V> multimap, ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
-    int keyCount = stream.readInt();
-    for (int i = 0; i < keyCount; i++) {
+    int distinctKeys = stream.readInt();
+    populateMultimap(multimap, stream, distinctKeys);
+  }
+
+  /**
+   * Populates a multimap by reading an input stream, as part of
+   * deserialization. See {@link #writeMultimap} for the data format. The number
+   * of distinct keys is determined by a prior call to {@link #readCount}.
+   */
+  @GwtIncompatible("java.io.ObjectInputStream")
+  public static <K, V> void populateMultimap(
+      Multimap<K, V> multimap, ObjectInputStream stream, int distinctKeys)
+      throws IOException, ClassNotFoundException {
+    for (int i = 0; i < distinctKeys; i++) {
       @SuppressWarnings("unchecked") // reading data stored by writeMultimap
       K key = (K) stream.readObject();
       Collection<V> values = multimap.get(key);

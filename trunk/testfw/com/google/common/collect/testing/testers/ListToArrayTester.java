@@ -18,6 +18,7 @@ package com.google.common.collect.testing.testers;
 
 import com.google.common.collect.testing.features.CollectionSize;
 import static com.google.common.collect.testing.features.CollectionSize.ZERO;
+
 import java.util.Arrays;
 
 /**

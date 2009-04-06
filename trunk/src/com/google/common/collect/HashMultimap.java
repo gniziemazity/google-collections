@@ -25,6 +25,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -84,8 +85,6 @@ public final class HashMultimap<K, V> extends StandardSetMultimap<K, V> {
     return new HashMultimap<K, V>(multimap);
   }
 
-  // TODO: Make all constructors private.
-
   /** Constructs an empty {@code HashMultimap}. */
   private HashMultimap() {
     super(new HashMap<K, Collection<V>>());
@@ -139,9 +138,11 @@ public final class HashMultimap<K, V> extends StandardSetMultimap<K, V> {
   private void readObject(ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
-    setMap(new HashMap<K, Collection<V>>());
     expectedValuesPerKey = stream.readInt();
-    Serialization.populateMultimap(this, stream);
+    int distinctKeys = Serialization.readCount(stream);
+    Map<K, Collection<V>> map = Maps.newHashMapWithExpectedSize(distinctKeys);
+    setMap(map);
+    Serialization.populateMultimap(this, stream, distinctKeys);
   }
 
   private static final long serialVersionUID = 0;

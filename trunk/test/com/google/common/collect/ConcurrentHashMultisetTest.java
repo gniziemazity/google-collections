@@ -30,15 +30,15 @@ import java.util.concurrent.ConcurrentMap;
 import javax.annotation.Nullable;
 
 /**
- * Test case for {@link ConcurrentMultiset}.
+ * Test case for {@link ConcurrentHashMultiset}.
  *
  * @author Cliff L. Biffle
  */
-public class ConcurrentMultisetTest extends TestCase {
+public class ConcurrentHashMultisetTest extends TestCase {
   private static final String KEY = "puppies";
 
   ConcurrentMap<String, Integer> backingMap;
-  ConcurrentMultiset<String> multiset;
+  ConcurrentHashMultiset<String> multiset;
 
   @SuppressWarnings("unchecked")
   @Override protected void setUp() {
@@ -46,7 +46,7 @@ public class ConcurrentMultisetTest extends TestCase {
     expect(backingMap.isEmpty()).andReturn(true);
     replay();
 
-    multiset = new ConcurrentMultiset<String>(backingMap);
+    multiset = new ConcurrentHashMultiset<String>(backingMap);
     verify();
     reset();
   }
@@ -280,7 +280,7 @@ public class ConcurrentMultisetTest extends TestCase {
 
   public void testIteratorRemove_actualMap() {
     // Override to avoid using mocks.
-    multiset = ConcurrentMultiset.create();
+    multiset = ConcurrentHashMultiset.create();
 
     multiset.add(KEY);
     multiset.add(KEY + "_2");
@@ -335,14 +335,15 @@ public class ConcurrentMultisetTest extends TestCase {
   }
 
   public void testCreate() {
-    ConcurrentMultiset<Integer> multiset = ConcurrentMultiset.create();
+    ConcurrentHashMultiset<Integer> multiset = ConcurrentHashMultiset.create();
     assertTrue(multiset.isEmpty());
     reserializeAndAssert(multiset);
   }
 
   public void testCreateFromIterable() {
     Iterable<Integer> iterable = Arrays.asList(1, 2, 2, 3, 4);
-    ConcurrentMultiset<Integer> multiset = ConcurrentMultiset.create(iterable);
+    ConcurrentHashMultiset<Integer> multiset
+        = ConcurrentHashMultiset.create(iterable);
     assertEquals(2, multiset.count(2));
     reserializeAndAssert(multiset);
   }

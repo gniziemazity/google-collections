@@ -66,18 +66,4 @@ public final class Objects {
   public static int hashCode(Object... objects) {
     return Arrays.hashCode(objects);
   }
-
-  /**
-   * Returns the first of two given parameters that is not {@code null}, if
-   * either is, or otherwise throws a {@link NullPointerException}.
-   *
-   * @return {@code first} if {@code first} is not {@code null}, or
-   *     {@code second} if {@code first} is {@code null} and {@code second} is
-   *     not {@code null}
-   * @throws NullPointerException if both {@code first} and {@code second} were
-   *     {@code null}
-   */
-  public static <T> T firstNonNull(@Nullable T first, @Nullable T second) {
-    return first != null ? first : Preconditions.checkNotNull(second);
-  }
 }

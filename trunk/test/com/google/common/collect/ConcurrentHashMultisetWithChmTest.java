@@ -17,15 +17,15 @@
 package com.google.common.collect;
 
 /**
- * Unit test for {@link ConcurrentMultiset} behavior when backed by the
+ * Unit test for {@link ConcurrentHashMultiset} behavior when backed by the
  * standard {@link java.util.concurrent.ConcurrentHashMap}.
  *
  * @author Kevin Bourrillion
  * @author Jared Levy
  */
-public class ConcurrentMultisetWithChmTest
+public class ConcurrentHashMultisetWithChmTest
     extends AbstractConcurrentMultisetTest {
   @Override protected <E> Multiset<E> create() {
-    return ConcurrentMultiset.create();
+    return ConcurrentHashMultiset.create();
   }
 }

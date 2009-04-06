@@ -257,7 +257,9 @@ public abstract class Ordering<T> implements Comparator<T> {
    * outside the set of values it can compare. Extending {@link
    * ClassCastException} may seem odd, but it is required.
    */
-  @VisibleForTesting // TODO: this exception is odd, maybe promote it to public
+  // TODO: consider making this exception type public. or consider getting rid
+  // of it.
+  @VisibleForTesting
   static class IncomparableValueException extends ClassCastException {
     final Object value;
 
@@ -319,10 +321,11 @@ public abstract class Ordering<T> implements Comparator<T> {
       return 0;
     }
 
-    @Override
-    public <U extends T> Ordering<U> compound(Comparator<? super U> secondary) {
-      return new CompoundOrdering<U>(comparators, checkNotNull(secondary));
-    }
+    // Is this worth leaving compound() overrideable by callers?
+//  @Override
+//  public <U extends T> Ordering<U> compound(Comparator<? super U> secondary) {
+//    return new CompoundOrdering<U>(comparators, checkNotNull(secondary));
+//  }
 
     @Override public boolean equals(Object object) {
       if (object == this) {
@@ -359,7 +362,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    * is equivalent to one created using {@link Ordering#compound(Iterable)} on
    * the same component comparators.
    */
-  public <U extends T> Ordering<U> compound(
+  public final <U extends T> Ordering<U> compound(
       Comparator<? super U> secondaryComparator) {
     return new CompoundOrdering<U>(this, checkNotNull(secondaryComparator));
   }
@@ -368,7 +371,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    * Returns the reverse of this ordering; the {@code Ordering} equivalent to
    * {@link Collections#reverseOrder(Comparator)}.
    */
-  public Ordering<T> reverse() {
+  public final Ordering<T> reverse() {
     return new ReverseOrdering<T>(this);
   }
 
@@ -380,9 +383,8 @@ public abstract class Ordering<T> implements Comparator<T> {
       this.forwardOrder = checkNotNull(forwardOrder);
     }
 
-    @Override public Ordering<T> reverse() {
-      return forwardOrder;
-    }
+    // Is this worth leaving reverse() overrideable by callers?
+    // @Override public Ordering<T> reverse() { return forwardOrder; }
 
     public int compare(T a, T b) {
       return forwardOrder.compare(b, a);
@@ -419,7 +421,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    *   Ordering.from(String.CASE_INSENSITIVE_ORDER)
    *       .onResultOf(Functions.toStringFunction())}</pre>
    */
-  public <F> Ordering<F> onResultOf(Function<F, ? extends T> function) {
+  public final <F> Ordering<F> onResultOf(Function<F, ? extends T> function) {
     return new ByFunctionOrdering<F, T>(function, this);
   }
 
@@ -465,7 +467,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    * Returns an ordering that treats {@code null} as less than all other values
    * and uses {@code this} to compare non-null values.
    */
-  public Ordering<T> nullsFirst() {
+  public final Ordering<T> nullsFirst() {
     return new NullsFirstOrdering<T>(this);
   }
 
@@ -516,7 +518,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    * Returns an ordering that treats {@code null} as greater than all other
    * values and uses this ordering to compare non-null values.
    */
-  public Ordering<T> nullsLast() {
+  public final Ordering<T> nullsLast() {
     return new NullsLastOrdering<T>(this);
   }
 
@@ -573,7 +575,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    * @param sortedList the list to be searched
    * @param key the key to be searched for
    */
-  public int binarySearch(List<? extends T> sortedList, T key) {
+  public final int binarySearch(List<? extends T> sortedList, T key) {
     return Collections.binarySearch(sortedList, key, this);
   }
 
@@ -589,7 +591,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    * @param iterable the elements to be copied and sorted
    * @return a new list containing the given elements in sorted order
    */
-  public <E extends T> List<E> sortedCopy(Iterable<E> iterable) {
+  public final <E extends T> List<E> sortedCopy(Iterable<E> iterable) {
     List<E> list = Lists.newArrayList(iterable);
     Collections.sort(list, this);
     return list;
@@ -601,7 +603,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    * ordering. Note that this is always true when the iterable has fewer than
    * two elements.
    */
-  public boolean isOrdered(Iterable<? extends T> iterable) {
+  public final boolean isOrdered(Iterable<? extends T> iterable) {
     Iterator<? extends T> it = iterable.iterator();
     if (it.hasNext()) {
       T prev = it.next();
@@ -622,7 +624,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    * this ordering. Note that this is always true when the iterable has fewer
    * than two elements.
    */
-  public boolean isStrictlyOrdered(Iterable<? extends T> iterable) {
+  public final boolean isStrictlyOrdered(Iterable<? extends T> iterable) {
     Iterator<? extends T> it = iterable.iterator();
     if (it.hasNext()) {
       T prev = it.next();
@@ -646,7 +648,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    * @throws ClassCastException if the parameters are not <i>mutually
    *     comparable</i> under this ordering.
    */
-  public <E extends T> E max(Iterable<E> iterable) {
+  public final <E extends T> E max(Iterable<E> iterable) {
     Iterator<E> iterator = iterable.iterator();
 
     // let this throw NoSuchElementException as necessary
@@ -670,7 +672,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    * @throws ClassCastException if the parameters are not <i>mutually
    *     comparable</i> under this ordering.
    */
-  public <E extends T> E max(E a, E b, E c, E... rest) {
+  public final <E extends T> E max(E a, E b, E c, E... rest) {
     E maxSoFar = max(max(a, b), c);
 
     for (E r : rest) {
@@ -689,7 +691,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    * @throws ClassCastException if the parameters are not <i>mutually
    *     comparable</i> under this ordering.
    */
-  public <E extends T> E max(E a, E b) {
+  public final <E extends T> E max(E a, E b) {
     return compare(a, b) >= 0 ? a : b;
   }
 
@@ -702,7 +704,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    * @throws ClassCastException if the parameters are not <i>mutually
    *     comparable</i> under this ordering.
    */
-  public <E extends T> E min(Iterable<E> iterable) {
+  public final <E extends T> E min(Iterable<E> iterable) {
     Iterator<E> iterator = iterable.iterator();
 
     // let this throw NoSuchElementException as necessary
@@ -726,7 +728,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    * @throws ClassCastException if the parameters are not <i>mutually
    *     comparable</i> under this ordering.
    */
-  public <E extends T> E min(E a, E b, E c, E... rest) {
+  public final <E extends T> E min(E a, E b, E c, E... rest) {
     E minSoFar = min(min(a, b), c);
 
     for (E r : rest) {
@@ -745,7 +747,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    * @throws ClassCastException if the parameters are not <i>mutually
    *     comparable</i> under this ordering.
    */
-  public <E extends T> E min(E a, E b) {
+  public final <E extends T> E min(E a, E b) {
     return compare(a, b) <= 0 ? a : b;
   }
 }

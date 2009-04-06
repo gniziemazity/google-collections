@@ -69,9 +69,69 @@ public class ImmutableMultimap<K, V>
   /** Returns the empty multimap. */
   // Casting is safe because the multimap will never hold any elements.
   @SuppressWarnings("unchecked")
-  public static <K, V> ImmutableMultimap<K, V> empty() {
+  public static <K, V> ImmutableMultimap<K, V> of() {
     return (ImmutableMultimap<K, V>) EMPTY_MULTIMAP;
   }
+
+  /**
+   * Returns an immutable multimap containing a single entry.
+   */
+  public static <K, V> ImmutableMultimap<K, V> of(K k1, V v1) {
+    ImmutableMultimap.Builder<K, V> builder = ImmutableMultimap.builder();
+    builder.put(k1, v1);
+    return builder.build();
+  }
+
+  /**
+   * Returns an immutable multimap containing the given entries, in order.
+   */
+  public static <K, V> ImmutableMultimap<K, V> of(K k1, V v1, K k2, V v2) {
+    ImmutableMultimap.Builder<K, V> builder = ImmutableMultimap.builder();
+    builder.put(k1, v1);
+    builder.put(k2, v2);
+    return builder.build();
+  }
+
+  /**
+   * Returns an immutable multimap containing the given entries, in order.
+   */
+  public static <K, V> ImmutableMultimap<K, V> of(
+      K k1, V v1, K k2, V v2, K k3, V v3) {
+    ImmutableMultimap.Builder<K, V> builder = ImmutableMultimap.builder();
+    builder.put(k1, v1);
+    builder.put(k2, v2);
+    builder.put(k3, v3);
+    return builder.build();
+  }
+
+  /**
+   * Returns an immutable multimap containing the given entries, in order.
+   */
+  public static <K, V> ImmutableMultimap<K, V> of(
+      K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4) {
+    ImmutableMultimap.Builder<K, V> builder = ImmutableMultimap.builder();
+    builder.put(k1, v1);
+    builder.put(k2, v2);
+    builder.put(k3, v3);
+    builder.put(k4, v4);
+    return builder.build();
+  }
+
+  /**
+   * Returns an immutable multimap containing the given entries, in order.
+   */
+  public static <K, V> ImmutableMultimap<K, V> of(
+      K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4, K k5, V v5) {
+    ImmutableMultimap.Builder<K, V> builder = ImmutableMultimap.builder();
+    builder.put(k1, v1);
+    builder.put(k2, v2);
+    builder.put(k3, v3);
+    builder.put(k4, v4);
+    builder.put(k5, v5);
+    return builder.build();
+  }
+
+  // looking for of() with > 5 entries? Use the builder instead.
 
   /**
    * Returns a new builder. The generated builder is equivalent to the builder
@@ -82,8 +142,8 @@ public class ImmutableMultimap<K, V>
   }
 
   /**
-   * Multimap for {@link ImmutableMultimap.Builder} that maintains key and value
-   * orderings, allows duplicate values, and performs better than
+   * Multimap for {@link ImmutableMultimap.Builder} that maintains key and
+   * value orderings, allows duplicate values, and performs better than
    * {@link LinkedListMultimap}.
    */
   private static class BuilderMultimap<K, V> extends StandardMultimap<K, V> {
@@ -154,6 +214,26 @@ public class ImmutableMultimap<K, V>
       return putAll(key, Arrays.asList(values));
     }
 
+    /**
+     * Stores another multimap's entries in the built multimap. The generated
+     * multimap's key and value orderings correspond to the iteration ordering
+     * of the {@code multimap.asMap()} view, with new keys and values following
+     * any existing keys and values.
+     *
+     * @throws NullPointerException if any key or value in {@code multimap} is
+     *     null. The builder is left in an invalid state.
+     */
+    public Builder<K, V> putAll(Multimap<? extends K, ? extends V> multimap) {
+      for (Map.Entry<? extends K, ? extends Collection<? extends V>> entry
+          : multimap.asMap().entrySet()) {
+        putAll(entry.getKey(), entry.getValue());
+      }
+      return this;
+    }
+
+    /**
+     * Returns a newly-created immutable multimap.
+     */
     public ImmutableMultimap<K, V> build() {
       return copyOf(builderMultimap);
     }
@@ -174,7 +254,7 @@ public class ImmutableMultimap<K, V>
   public static <K, V> ImmutableMultimap<K, V> copyOf(
       Multimap<? extends K, ? extends V> multimap) {
     if (multimap.isEmpty()) {
-      return empty();
+      return of();
     }
 
     if (multimap instanceof ImmutableMultimap) {
@@ -206,9 +286,9 @@ public class ImmutableMultimap<K, V>
 
   /**
    * Returns an immutable list of the values for the given key.  If no mappings
-   * in the multimap have the provided key, an empty immutable list is returned.
-   * The values are in the same order as the parameters used to build this
-   * multimap.
+   * in the multimap have the provided key, an empty immutable list is
+   * returned. The values are in the same order as the parameters used to build
+   * this multimap.
    */
   public ImmutableList<V> get(@Nullable K key) {
     ImmutableList<V> list = map.get(key);

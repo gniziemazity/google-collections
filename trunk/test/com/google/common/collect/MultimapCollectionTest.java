@@ -699,7 +699,7 @@ public class MultimapCollectionTest extends TestCase {
     suite.addTest(CollectionTestSuiteBuilder.using(
         new TestEntriesGenerator() {
           @Override Multimap<String, Integer> createMultimap() {
-            return ImmutableMultimap.empty();
+            return ImmutableMultimap.of();
           }
 
           @Override public Collection<Entry<String, Integer>> create(

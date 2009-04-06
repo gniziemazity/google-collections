@@ -47,6 +47,30 @@ public class ArrayListMultimapTest extends AbstractListMultimapTest {
   }
 
   /**
+   * Confirm that removeAll() returns a List implementing RandomAccess.
+   */
+  public void testRemoveAllRandomAccess() {
+    Multimap<String, Integer> multimap = create();
+    multimap.put("foo", 1);
+    multimap.put("foo", 3);
+    assertTrue(multimap.removeAll("foo") instanceof RandomAccess);
+    assertTrue(multimap.removeAll("bar") instanceof RandomAccess);
+  }
+
+  /**
+   * Confirm that replaceValues() returns a List implementing RandomAccess.
+   */
+  public void testReplaceValuesRandomAccess() {
+    Multimap<String, Integer> multimap = create();
+    multimap.put("foo", 1);
+    multimap.put("foo", 3);
+    assertTrue(multimap.replaceValues("foo", Arrays.asList(2, 4))
+        instanceof RandomAccess);
+    assertTrue(multimap.replaceValues("bar", Arrays.asList(2, 4))
+        instanceof RandomAccess);
+  }
+
+  /**
    * Test throwing ConcurrentModificationException when a sublist's ancestor's
    * delegate changes.
    */

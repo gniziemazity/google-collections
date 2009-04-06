@@ -16,6 +16,8 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.GwtIncompatible;
 import com.google.common.base.FinalizableReferenceQueue;
 import com.google.common.base.FinalizableSoftReference;
 import com.google.common.base.FinalizableWeakReference;
@@ -91,6 +93,7 @@ import java.util.concurrent.TimeUnit;
  * @author Bob Lee
  * @author Kevin Bourrillion
  */
+@GwtCompatible(emulated = true)
 public final class MapMaker {
   private Strength keyStrength = Strength.STRONG;
   private Strength valueStrength = Strength.STRONG;
@@ -153,6 +156,7 @@ public final class MapMaker {
    * @throws IllegalStateException if a concurrency level was already set
    *     (TODO: make that true)
    */
+  @GwtIncompatible("java.util.concurrent.ConcurrentHashMap concurrencyLevel")
   public MapMaker concurrencyLevel(int concurrencyLevel) {
     builder.concurrencyLevel(concurrencyLevel);
     return this;
@@ -165,6 +169,7 @@ public final class MapMaker {
    *
    * @throws IllegalStateException if the key strength was already set
    */
+  @GwtIncompatible("java.lang.ref.WeakReference")
   public MapMaker weakKeys() {
     return setKeyStrength(Strength.WEAK);
   }
@@ -176,6 +181,7 @@ public final class MapMaker {
    *
    * @throws IllegalStateException if the key strength was already set
    */
+  @GwtIncompatible("java.lang.ref.SoftReference")
   public MapMaker softKeys() {
     return setKeyStrength(Strength.SOFT);
   }
@@ -197,6 +203,7 @@ public final class MapMaker {
    *
    * @throws IllegalStateException if the key strength was already set
    */
+  @GwtIncompatible("java.lang.ref.WeakReference")
   public MapMaker weakValues() {
     return setValueStrength(Strength.WEAK);
   }
@@ -208,6 +215,7 @@ public final class MapMaker {
    *
    * @throws IllegalStateException if the value strength was already set
    */
+  @GwtIncompatible("java.lang.ref.SoftReference")
   public MapMaker softValues() {
     return setValueStrength(Strength.SOFT);
   }

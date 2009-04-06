@@ -481,7 +481,7 @@ final class Synchronized {
    * mutex when iterating over the returned multiset:
    *
    * <pre>Multiset&lt;E&gt; s = Synchronized.multiset(
-   *      new HashMultiset&lt;E&gt;(), mutex);
+   *      HashMultiset.&lt;E&gt;create(), mutex);
    *   ...
    * synchronized (mutex) {
    *   Iterator&lt;E&gt; i = s.iterator(); // Must be in synchronized block
@@ -1224,7 +1224,7 @@ final class Synchronized {
    * mutex when accessing any of the return bimap's collection views:
    *
    * <pre>BiMap&lt;K,V> m = Synchronized.biMap(
-   *      new HashBiMap&lt;K,V>(), mutex);
+   *      HashBiMap.&lt;K,V>create(), mutex);
    *   ...
    *  Set&lt;K> s = m.keySet();  // Needn't be in synchronized block
    *   ...

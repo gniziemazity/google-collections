@@ -407,7 +407,7 @@ public class TreeMultimapNaturalTest<E> extends AbstractSetMultimapTest {
 
   public void testTreeMultimapDerived() {
     TreeMultimap<Derived, Derived> multimap = TreeMultimap.create();
-    assertEquals(ImmutableMultimap.empty(), multimap);
+    assertEquals(ImmutableMultimap.of(), multimap);
     multimap.put(new Derived("foo"), new Derived("f"));
     multimap.put(new Derived("foo"), new Derived("o"));
     multimap.put(new Derived("foo"), new Derived("o"));
@@ -427,7 +427,7 @@ public class TreeMultimapNaturalTest<E> extends AbstractSetMultimapTest {
   public void testTreeMultimapNonGeneric() {
     TreeMultimap<LegacyComparable, LegacyComparable> multimap
         = TreeMultimap.create();
-    assertEquals(ImmutableMultimap.empty(), multimap);
+    assertEquals(ImmutableMultimap.of(), multimap);
     multimap.put(new LegacyComparable("foo"), new LegacyComparable("f"));
     multimap.put(new LegacyComparable("foo"), new LegacyComparable("o"));
     multimap.put(new LegacyComparable("foo"), new LegacyComparable("o"));

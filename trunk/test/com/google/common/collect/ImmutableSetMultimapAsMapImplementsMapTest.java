@@ -35,7 +35,7 @@ public class ImmutableSetMultimapAsMapImplementsMapTest
   }
 
   @Override protected Map<String, Collection<Integer>> makeEmptyMap() {
-    return ImmutableSetMultimap.<String, Integer>empty().asMap();
+    return ImmutableSetMultimap.<String, Integer>of().asMap();
   }
 
   @Override protected Map<String, Collection<Integer>> makePopulatedMap() {

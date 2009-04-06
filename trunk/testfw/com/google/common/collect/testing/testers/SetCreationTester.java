@@ -23,6 +23,7 @@ import static com.google.common.collect.testing.features.CollectionSize.ONE;
 import static com.google.common.collect.testing.features.CollectionSize.ZERO;
 import com.google.common.collect.testing.features.SetFeature;
 import static com.google.common.collect.testing.features.SetFeature.REJECTS_DUPLICATES_AT_CREATION;
+
 import java.util.Arrays;
 import java.util.List;
 

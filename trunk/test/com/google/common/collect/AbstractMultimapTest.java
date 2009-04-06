@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.collect.testing.Helpers;
+import com.google.common.collect.testing.MinimalIterable;
 import com.google.common.testutils.SerializableTester;
 
 import junit.framework.TestCase;
@@ -240,7 +241,7 @@ public abstract class AbstractMultimapTest extends TestCase {
     assertTrue(multimap.containsEntry("foo", 3));
     assertSize(2);
 
-    Iterable<Integer> emptyIterable = Iterables.emptyIterable();
+    Iterable<Integer> emptyIterable = MinimalIterable.of();
     multimap.putAll("bar", emptyIterable);
     assertSize(2);
     assertEquals(Collections.singleton("foo"), multimap.keySet());

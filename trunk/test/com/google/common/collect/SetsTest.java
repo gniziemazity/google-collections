@@ -269,26 +269,6 @@ public class SetsTest extends TestCase {
     verifySetContents(set, SOME_COLLECTION);
   }
 
-  public void testNewConcurrentHashSetEmpty() {
-    Set<Integer> set = Sets.newConcurrentHashSet();
-    verifySetContents(set, EMPTY_COLLECTION);
-  }
-
-  public void testNewConcurrentHashSetFromCollection() {
-    Set<Integer> set = Sets.newConcurrentHashSet(SOME_COLLECTION);
-    verifySetContents(set, SOME_COLLECTION);
-  }
-
-  public void testNewConcurrentHashSetFromIterable() {
-    Set<Integer> set = Sets.newHashSet(SOME_ITERABLE);
-    verifySetContents(set, SOME_ITERABLE);
-  }
-
-  public void testNewConcurrentHashSetFromIterator() {
-    Set<Integer> set = Sets.newHashSet(SOME_COLLECTION.iterator());
-    verifySetContents(set, SOME_COLLECTION);
-  }
-
   public void testNewLinkedHashSetEmpty() {
     LinkedHashSet<Integer> set = Sets.newLinkedHashSet();
     verifyLinkedHashSetContents(set, EMPTY_COLLECTION);

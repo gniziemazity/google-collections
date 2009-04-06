@@ -312,12 +312,12 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
     }
 
     public ListIterator<Object> listIterator() {
-      return Iterators.emptyListIterator();
+      return Collections.emptyList().listIterator();
     }
 
     public ListIterator<Object> listIterator(int start) {
       Preconditions.checkPositionIndex(start, 0);
-      return Iterators.emptyListIterator();
+      return Collections.emptyList().listIterator();
     }
 
     @Override public boolean containsAll(Collection<?> targets) {

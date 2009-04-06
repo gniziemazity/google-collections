@@ -36,8 +36,10 @@ import com.google.common.collect.testing.testers.ListRetainAllTester;
 import com.google.common.collect.testing.testers.ListSetTester;
 import com.google.common.collect.testing.testers.ListSubListTester;
 import com.google.common.collect.testing.testers.ListToArrayTester;
-import java.util.List;
+
 import junit.framework.TestSuite;
+
+import java.util.List;
 
 /**
  * Creates, based on your criteria, a JUnit test suite that exhaustively tests

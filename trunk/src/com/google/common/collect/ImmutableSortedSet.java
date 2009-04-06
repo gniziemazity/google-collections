@@ -332,13 +332,12 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
    * Returns a builder that creates immutable sorted sets whose elements are
    * ordered by the reverse of their natural ordering.
    *
-   * <p>Unfortunately, until <a
+   * <p>Note: the type parameter {@code E} extends {@code Comparable<E>} rather
+   * than {@code Comparable<? super E>} as a workaround for javac <a
    * href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6468354">bug
-   * 6468354</a> is fixed in your JDK, you are forced to supply an explicit
-   * type parameter to this method, for example, {@code
-   * ImmutableSortedSet.<String>reverseOrder()}.
+   * 6468354</a>.
    */
-  public static <E extends Comparable<? super E>> Builder<E> reverseOrder() {
+  public static <E extends Comparable<E>> Builder<E> reverseOrder() {
     return new Builder<E>(Ordering.natural().reverse());
   }
 
@@ -349,13 +348,12 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
    * type-safety than {@link #builder()}, as it can be called only for classes
    * that implement {@link Comparable}.
    *
-   * <p>Unfortunately, until <a
+   * <p>Note: the type parameter {@code E} extends {@code Comparable<E>} rather
+   * than {@code Comparable<? super E>} as a workaround for javac <a
    * href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6468354">bug
-   * 6468354</a> is fixed in your JDK, you are forced to supply an explicit
-   * type parameter to this method, for example, {@code
-   * ImmutableSortedSet.<String>naturalOrder()}.
+   * 6468354</a>.
    */
-  public static <E extends Comparable<? super E>> Builder<E> naturalOrder() {
+  public static <E extends Comparable<E>> Builder<E> naturalOrder() {
     return new Builder<E>(Ordering.natural());
   }
 

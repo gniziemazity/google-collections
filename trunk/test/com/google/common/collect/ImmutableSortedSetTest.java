@@ -547,8 +547,8 @@ public class ImmutableSortedSetTest extends AbstractImmutableSetTest {
     assertContentsInOrder(set, 101, 12, 3, 44);
   }
 
-  @Override <E extends Comparable<? super E>> Builder<E> builder() {
-    return ImmutableSortedSet.<E>naturalOrder();
+  @Override <E extends Comparable<E>> Builder<E> builder() {
+    return ImmutableSortedSet.naturalOrder();
   }
 
   @Override int getComplexBuilderSetLastElement() {
