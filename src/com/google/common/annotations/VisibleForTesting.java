@@ -20,7 +20,7 @@ package com.google.common.annotations;
  * An annotation that indicates that the visibility of a type or member has
  * been relaxed to make the code testable.
  *
- * @author johannes@google.com (Johannes Henkel)
+ * @author Johannes Henkel
  */
 @GwtCompatible
 public @interface VisibleForTesting {}

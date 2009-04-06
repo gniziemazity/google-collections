@@ -69,8 +69,8 @@ import java.util.List;
  * <li>Invoke {@link #testEquals} on the EqualsTester.
  * </ol>
  *
- * @author jmcmaster@google.com (Jim McMaster)
- * @author benyu@google.com (Jige Yu)
+ * @author Jim McMaster
+ * @author Jige Yu
  */
 @GwtCompatible
 public final class EqualsTester {

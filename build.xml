@@ -112,13 +112,12 @@
       description="Generate Javadocs.">
     <delete dir="${build.dir}/javadoc"/>
     <mkdir dir="${build.dir}/javadoc"/>
-    <javadoc packagenames="${javadoc.packagenames}"
+    <javadoc packagenames="com.google.common.annotations,com.google.common.base,com.google.common.collect"
          destdir="${build.dir}/javadoc"
          author="true"
          protected="true"
-         windowtitle="Google Collections Library - ${version}">
+         windowtitle="Google Collections Library ${version}">
       <sourcepath>
-	<pathelement location="${env.JAVA6_HOME}/src/"/>
         <pathelement location="${src.dir}"/>
       </sourcepath>
       <!-- workaround for http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6442982 -->

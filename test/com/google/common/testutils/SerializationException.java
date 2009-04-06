@@ -20,7 +20,7 @@ package com.google.common.testutils;
  * Exception thrown when an object fails to serialize or deserialize.
  *
  * @see SerializableTester
- * @author mbostock@google.com (Mike Bostock)
+ * @author Mike Bostock
  */
 public class SerializationException extends RuntimeException {
   public SerializationException(Throwable cause) {

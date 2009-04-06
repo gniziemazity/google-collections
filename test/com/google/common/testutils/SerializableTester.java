@@ -36,7 +36,7 @@ import java.io.ObjectOutputStream;
  * diagnose which referenced fields were not serializable.
  *
  * @see java.io.Serializable
- * @author mbostock@google.com (Mike Bostock)
+ * @author Mike Bostock
  */
 public final class SerializableTester {
   private SerializableTester() {}
