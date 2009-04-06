@@ -3,15 +3,19 @@
 
 = General =
 
-== Does "alpha" mean that it's not safe to use? ==
+== Is the release candidate safe to use? ==
 
-We don't think so! We already use this library extensively in production for services like GMail, Reader, Blogger, Docs & Spreadsheets, !AdWords, !AdSense and dozens more. We consider it to be pretty safe. However, during the alpha period, we do reserve the right to make changes of any kind to it at any time. So if you use it, when you want to upgrade to the official version you may find that you have some work to do.
+Absolutely. It's been proven extensively in production in services like GMail, Reader, Blogger, Docs & Spreadsheets, !AdWords, !AdSense and dozens more. However, it is still possible that we will need to make a small number of API-level changes between now and when the release is finalized.  If you're skittish about change, just wait for 1.0 to be finalized.
 
 == Should I use it in my own library which I release publicly? ==
 
-Sure! But during the alpha period, be very careful. Use it only in the internals of your implementation; don't expose it in your public API. Use [http://tonicsystems.com/products/jarjar/ Jar Jar Links] or a similar tool to make sure your users won't have any conflicts.
+Sure! But until 1.0 is *final*, be careful. Use it only in the internals of your implementation; don't expose it in your public API. Use [http://tonicsystems.com/products/jarjar/ Jar Jar Links] or a similar tool to make sure your users won't have any conflicts.
 
 Once 1.0 is released, you should be safe to do just about anything with it.
+
+== Should I serialize your collections persistently and expect to be able to deserialize them with future versions of your library? == 
+
+NOT YET!  Wait for 1.0 to go final, please!
 
 == Why did Google build all this, when it could have tried to improve the Apache Commons Collections instead? ==
 
@@ -23,15 +27,11 @@ Our collections are fully generified and never violate their contracts (with iso
 
 == Why build on Java 5, instead of 6? ==
 
-Sometime between now and the release of 1.0, we will upgrade to 6. When we do this, we are committed to creating and maintaining a backport branch for Java 5 users.
+We had planned on moving to Java 6 in time for the 1.0 release, so that our library could build upon interfaces like `NavigableSet`.  However, this was deprioritized.  We can deliver 99% of the value while sticking to Java 5, so it's senseless to cut off a large chunk of user base.
 
 == Why build on Java 5, instead of 1.4? ==
 
 Because we hate Java 1.4. Just kidding (but we do). Basically, at Google we simply don't use Java 1.4 anymore, and haven't for years [http://code.google.com/webtoolkit/overview.html GWT] excepted). If you're using 1.4, please try feeding our library into [http://retrotranslator.sourceforge.net/ Retrotranslator]. Try out the results, tell us how it goes, and please kindly send us any patches you needed to make to our code to get it working.
-
-== Why won't you let us see your tests? ==
-
-Don't worry, the tests are coming over shortly. If it eases your mind at all, YES, we do have them.  :-)  We have about 2000 of them and our coverage is around 85%.  (Both these numbers will have to get much better before 1.0.)
 
 = Design =
 
@@ -67,7 +67,7 @@ This case seems analogous but is slightly different. A `BiMap` is also a `Map`; 
 
 Because this method comes from the Map interface, and such behavior on a `Map` would violate the principle of least surprise. If this is the behavior you want, just use `BiMap.forcePut()` instead.
 
-== Why is `BiMap.putAll()` is allowed to leave the bimap in an indeterminate state if it throws an exception? ==
+== Why is `BiMap.putAll()` allowed to leave the bimap in an indeterminate state if it throws an exception? ==
 
 In general, a method that throws an exception ought to leave the instance with its state unchanged. However, this is not always feasible. For a typical bimap implementation, it would be downright ugly, and slow. Note that this is no different from the regular behavior of `Map.putAll()`, `Collection.addAll()`, etc.
 
@@ -91,13 +91,9 @@ If your goal is to maintain type-safety and avoid casts when using the API "norm
   }
 }}}
 
-If you want the added protection, you can extend !ForwardingMap and use it in conjunction with `Constraints.constrainedMap()`.
-
 == Why do you use the type `<E extends Comparable>` in various APIs, which is not "fully generified"?  Shouldn't it be `<E extends Comparable<?>>`, `<E extends Comparable<E>>` or `<E extends Comparable<? super E>>`? ==
 
-Many reasons. For one, if we used any of these constructs, you would not be able to use our API with pre-Java-5 objects, like Joda-Time's !DateTime (which we use heavily here). No cast can fix that. Secondly, the "correct" syntax (the last one) does not play nicely with javac's type inference capabilities in certain cases.
-
-The only difference between our type and the "correct" type is that the "correct" construct would not be assignable from a deviant type which was comparable to something, but not comparable to itself, for example `Foo implements Comparable<String>`. In our opinion, creating such a type in the first place is already asking for trouble, as most APIs that accept a `Comparable` elements expect those elements to be mutually comparable.
+The last suggestion is the correct one, as explained in Effective Java.  However, we will be using '<E extends Comparable<E>>` on parameterless methods in order to work around a hideous javac bug.  This will cause you problems when you use a very unusual type like `java.sql.Timestamp` which is comparable to a supertype.  (Needs more explanation.)
 
 == Why does `Multimap` have no `putAll(K, Iterable<V>)` or `putAll(Map<K,V>)` methods? ==
 
@@ -106,8 +102,3 @@ These operations can be performed rather simply. First, it's important to realiz
 The second task is also simple to perform, because any `Map` can be viewed as a `Multimap`: `multimap.putAll(Multimaps.forMap(map))`.
 
 These "workarounds" are simple enough that we did not want to add two additional methods to `Multimap` interface, which is already quite large enough as it is.
-
-== Why do you have your own `@Nullable` annotation, when there's the !JetBrains annotations, and JSR-305 and . . .? ==
-
-We will figure out what to do about this situation before releasing 1.0. We've always seen our `@Nullable` as a stopgap measure only.
- 
