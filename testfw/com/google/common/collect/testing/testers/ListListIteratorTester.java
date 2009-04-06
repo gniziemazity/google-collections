@@ -26,6 +26,7 @@ import static com.google.common.collect.testing.features.CollectionFeature.SUPPO
 import com.google.common.collect.testing.features.ListFeature;
 import static com.google.common.collect.testing.features.ListFeature.SUPPORTS_ADD_WITH_INDEX;
 import static com.google.common.collect.testing.features.ListFeature.SUPPORTS_SET;
+
 import java.lang.reflect.Method;
 import static java.util.Collections.singleton;
 import java.util.List;

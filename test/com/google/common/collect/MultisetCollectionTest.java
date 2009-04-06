@@ -68,7 +68,7 @@ public class MultisetCollectionTest extends TestCase {
         concurrentMultisetGenerator())
         .withFeatures(CollectionSize.ANY,
             CollectionFeature.GENERAL_PURPOSE)
-        .named("ConcurrentMultiset")
+        .named("ConcurrentHashMultiset")
         .createTestSuite());
 
     suite.addTest(MultisetTestSuiteBuilder.using(enumMultisetGenerator())
@@ -113,7 +113,7 @@ public class MultisetCollectionTest extends TestCase {
   private static TestStringMultisetGenerator concurrentMultisetGenerator() {
     return new TestStringMultisetGenerator() {
       @Override protected Multiset<String> create(String[] elements) {
-        return ConcurrentMultiset.create(asList(elements));
+        return ConcurrentHashMultiset.create(asList(elements));
       }
     };
   }

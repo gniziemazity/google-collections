@@ -84,7 +84,7 @@ public class ImmutableSetTest extends AbstractImmutableSetTest {
     assertNotSame(sortedSet, copy);
   }
 
-  @Override <E extends Comparable<? super E>> Builder<E> builder() {
+  @Override <E extends Comparable<E>> Builder<E> builder() {
     return ImmutableSet.builder();
   }
 

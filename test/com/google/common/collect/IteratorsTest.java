@@ -21,7 +21,6 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import static com.google.common.collect.Iterators.get;
 import static com.google.common.collect.Iterators.getLast;
-import static com.google.common.collect.Iterators.skip;
 import static com.google.common.collect.Lists.newArrayList;
 import com.google.common.collect.testing.IteratorFeature;
 import static com.google.common.collect.testing.IteratorFeature.MODIFIABLE;
@@ -47,8 +46,8 @@ import static java.util.Collections.singleton;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.RandomAccess;
 import java.util.Set;
 import java.util.Vector;
 
@@ -73,39 +72,6 @@ public class IteratorsTest extends TestCase {
       iterator.next();
       fail("no exception thrown");
     } catch (NoSuchElementException expected) {
-    }
-    try {
-      iterator.remove();
-      fail("no exception thrown");
-    } catch (UnsupportedOperationException expected) {
-    }
-  }
-
-  public void testEmptyListIterator() {
-    ListIterator<String> iterator = Iterators.emptyListIterator();
-    assertFalse(iterator.hasNext());
-    assertFalse(iterator.hasPrevious());
-    assertEquals(0, iterator.nextIndex());
-    assertEquals(-1, iterator.previousIndex());
-    try {
-      iterator.next();
-      fail("no exception thrown");
-    } catch (NoSuchElementException expected) {
-    }
-    try {
-      iterator.previous();
-      fail("no exception thrown");
-    } catch (NoSuchElementException expected) {
-    }
-    try {
-      iterator.set("foo");
-      fail("no exception thrown");
-    } catch (UnsupportedOperationException expected) {
-    }
-    try {
-      iterator.add("bar");
-      fail("no exception thrown");
-    } catch (UnsupportedOperationException expected) {
     }
     try {
       iterator.remove();
@@ -801,6 +767,13 @@ public class IteratorsTest extends TestCase {
     assertEquals(ImmutableList.of(3), first);
   }
 
+  public void testPartitionRandomAccess() {
+    Iterator<Integer> source = asList(1, 2, 3).iterator();
+    Iterator<List<Integer>> partitions = Iterators.partition(source, 2);
+    assertTrue(partitions.next() instanceof RandomAccess);
+    assertTrue(partitions.next() instanceof RandomAccess);
+  }
+  
   public void testPaddedPartition_badSize() {
     Iterator<Integer> source = Iterators.singletonIterator(1);
     try {
@@ -862,6 +835,13 @@ public class IteratorsTest extends TestCase {
     list.set(0, 4);
 
     assertEquals(ImmutableList.of(3), first);
+  }
+
+  public void testPaddedPartitionRandomAccess() {
+    Iterator<Integer> source = asList(1, 2, 3).iterator();
+    Iterator<List<Integer>> partitions = Iterators.paddedPartition(source, 2);
+    assertTrue(partitions.next() instanceof RandomAccess);
+    assertTrue(partitions.next() instanceof RandomAccess);
   }
 
   public void testForArrayEmpty() {
@@ -1039,53 +1019,6 @@ public class IteratorsTest extends TestCase {
     assertEquals("[yam, bam, jam, ham]", Iterators.toString(list.iterator()));
   }
 
-  public void testLimit() {
-    List<String> list = newArrayList();
-    try {
-      Iterators.limit(list.iterator(), -1);
-      fail("expected exception");
-    } catch (IllegalArgumentException expected) {
-      // expected
-    }
-
-    assertFalse(Iterators.limit(list.iterator(), 0).hasNext());
-    assertFalse(Iterators.limit(list.iterator(), 1).hasNext());
-
-    list.add("cool");
-    assertFalse(Iterators.limit(list.iterator(), 0).hasNext());
-    assertEquals(list, newArrayList(Iterators.limit(list.iterator(), 1)));
-    assertEquals(list, newArrayList(Iterators.limit(list.iterator(), 2)));
-
-    list.add("pants");
-    assertFalse(Iterators.limit(list.iterator(), 0).hasNext());
-    assertEquals(ImmutableList.of("cool"),
-        newArrayList(Iterators.limit(list.iterator(), 1)));
-    assertEquals(list, newArrayList(Iterators.limit(list.iterator(), 2)));
-    assertEquals(list, newArrayList(Iterators.limit(list.iterator(), 3)));
-  }
-
-  public void testLimitRemove() {
-    List<String> list = newArrayList();
-    list.add("cool");
-    list.add("pants");
-    Iterator<String> iterator = Iterators.limit(list.iterator(), 1);
-    iterator.next();
-    iterator.remove();
-    assertFalse(iterator.hasNext());
-    assertEquals(1, list.size());
-    assertEquals("pants", list.get(0));
-  }
-
-  public void testLimitUsingIteratorTester() throws Exception {
-    final List<Integer> list = Lists.newArrayList(1, 2, 3, 4, 5);
-    new IteratorTester<Integer>(5, MODIFIABLE, newArrayList(1, 2, 3),
-        IteratorTester.KnownOrder.KNOWN_ORDER) {
-      @Override protected Iterator<Integer> newTargetIterator() {
-        return Iterators.limit(Lists.newArrayList(list).iterator(), 3);
-      }
-    }.test();
-  }
-
   public void testGetLast_basic() {
     List<String> list = newArrayList();
     list.add("a");
@@ -1152,33 +1085,6 @@ public class IteratorsTest extends TestCase {
       get(iterator, -1);
       fail();
     } catch (IndexOutOfBoundsException expected) {}
-  }
-
-  public void testSkip_basic() {
-    List<String> list = newArrayList();
-    list.add("a");
-    list.add("b");
-    Iterator<String> iterator = list.iterator();
-    skip(iterator, 1);
-    assertEquals("b", iterator.next());
-  }
-
-  public void testSkip_pastEnd() {
-    List<String> list = newArrayList();
-    list.add("a");
-    list.add("b");
-    Iterator<String> iterator = list.iterator();
-    skip(iterator, 5);
-    assertFalse(iterator.hasNext());
-  }
-
-  public void testSkip_illegalArgument() {
-    List<String> list = newArrayList("a", "b", "c");
-    Iterator<String> iterator = list.iterator();
-    try {
-      skip(iterator, -1);
-      fail();
-    } catch (IllegalArgumentException expected) {}
   }
 
   public void testFrequency() {

@@ -44,10 +44,6 @@ public final class HashBiMap<K, V> extends StandardBiMap<K, V> {
     return new HashBiMap<K, V>();
   }
 
-  private HashBiMap() {
-    super(new HashMap<K, V>(), new HashMap<V, K>());
-  }
-
   /**
    * Constructs a new empty bimap with the specified expected size.
    *
@@ -55,9 +51,8 @@ public final class HashBiMap<K, V> extends StandardBiMap<K, V> {
    * @throws IllegalArgumentException if the specified expected size is
    *     negative
    */
-  public HashBiMap(int expectedSize) {
-    super(new HashMap<K, V>(Maps.capacity(expectedSize)),
-        new HashMap<V, K>(Maps.capacity(expectedSize)));
+  public static <K, V> HashBiMap<K, V> create(int expectedSize) {
+    return new HashBiMap<K, V>(expectedSize);
   }
 
   /**
@@ -65,9 +60,20 @@ public final class HashBiMap<K, V> extends StandardBiMap<K, V> {
    * bimap is created with an initial capacity sufficient to hold the mappings
    * in the specified map.
    */
-  public HashBiMap(Map<? extends K, ? extends V> map) {
-    this(map.size());
-    putAll(map); // careful if we make this class non-final
+  public static <K, V> HashBiMap<K, V> create(
+      Map<? extends K, ? extends V> map) {
+    HashBiMap<K, V> bimap = create(map.size());
+    bimap.putAll(map);
+    return bimap;
+  }
+
+  private HashBiMap() {
+    super(new HashMap<K, V>(), new HashMap<V, K>());
+  }
+
+  private HashBiMap(int expectedSize) {
+    super(new HashMap<K, V>(Maps.capacity(expectedSize)),
+        new HashMap<V, K>(Maps.capacity(expectedSize)));
   }
 
   // Override these two methods to show that keys and values may be null
@@ -92,8 +98,10 @@ public final class HashBiMap<K, V> extends StandardBiMap<K, V> {
   private void readObject(ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
-    setDelegates(new HashMap<K, V>(), new HashMap<V, K>());
-    Serialization.populateMap(this, stream);
+    int size = Serialization.readCount(stream);
+    setDelegates(Maps.<K, V>newHashMapWithExpectedSize(size),
+        Maps.<V, K>newHashMapWithExpectedSize(size));
+    Serialization.populateMap(this, stream, size);
   }
 
   private static final long serialVersionUID = 0;

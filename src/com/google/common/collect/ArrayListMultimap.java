@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation of {@code Multimap} that uses an {@code ArrayList} to store
@@ -44,6 +45,9 @@ import java.util.List;
  *
  * <p>Keys and values may be null. All optional multimap methods are supported,
  * and all returned views are modifiable.
+ *
+ * <p>The lists returned by {@link #get}, {@link #removeAll}, and {@link
+ * #replaceValues} all implement {@link java.util.RandomAccess}.
  *
  * <p>This class is not threadsafe when any concurrent operations update the
  * multimap. Concurrent read operations will work correctly. To allow concurrent
@@ -91,8 +95,6 @@ public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
       Multimap<? extends K, ? extends V> multimap) {
     return new ArrayListMultimap<K, V>(multimap);
   }
-
-  // TODO: Make all constructors private.
 
   /** Constructs an empty {@code ArrayListMultimap}. */
   private ArrayListMultimap() {
@@ -158,9 +160,11 @@ public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
   private void readObject(ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
-    setMap(new HashMap<K, Collection<V>>());
     expectedValuesPerKey = stream.readInt();
-    Serialization.populateMultimap(this, stream);
+    int distinctKeys = Serialization.readCount(stream);
+    Map<K, Collection<V>> map = Maps.newHashMapWithExpectedSize(distinctKeys);
+    setMap(map);
+    Serialization.populateMultimap(this, stream, distinctKeys);
   }
 
   private static final long serialVersionUID = 0;

@@ -26,8 +26,8 @@ import java.util.SortedSet;
  *
  * @author Jared Levy
  */
-public abstract class TestStringSortedSetGenerator extends TestStringSetGenerator
-{
+public abstract class TestStringSortedSetGenerator
+    extends TestStringSetGenerator {
   @Override protected abstract SortedSet<String> create(String[] elements);
 
   /** Sorts the elements by their natural ordering. */

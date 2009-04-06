@@ -19,9 +19,7 @@ package com.google.common.collect;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import static com.google.common.collect.Iterables.skip;
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newLinkedHashSet;
 import static com.google.common.collect.testing.IteratorFeature.MODIFIABLE;
 import com.google.common.collect.testing.IteratorTester;
 import com.google.common.testing.junit3.JUnitAsserts;
@@ -33,12 +31,11 @@ import junit.framework.TestCase;
 import java.util.ArrayList;
 import java.util.Arrays;
 import static java.util.Arrays.asList;
-import java.util.Collection;
 import java.util.Collections;
-import static java.util.Collections.emptyList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.RandomAccess;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -49,17 +46,8 @@ import java.util.SortedSet;
  * @author Jared Levy
  */
 public class IterablesTest extends TestCase {
-
-  public void testEmptyIterable() {
-    Iterable<String> iterable = Iterables.emptyIterable();
-    for (String uhoh : iterable) {
-      fail(uhoh);
-    }
-    assertEquals("[]", iterable.toString());
-  }
-
   public void testSize0() {
-    Iterable<String> iterable = Iterables.emptyIterable();
+    Iterable<String> iterable = Collections.emptySet();
     assertEquals(0, Iterables.size(iterable));
   }
 
@@ -398,7 +386,7 @@ public class IterablesTest extends TestCase {
   }
 
   public void testPartition_empty() {
-    Iterable<Integer> source = Iterables.emptyIterable();
+    Iterable<Integer> source = Collections.emptySet();
     Iterable<List<Integer>> partitions = Iterables.partition(source, 1);
     assertTrue(Iterables.isEmpty(partitions));
   }
@@ -430,6 +418,24 @@ public class IterablesTest extends TestCase {
     assertEquals(ImmutableList.of(3, 4), first);
   }
 
+  public void testPartitionRandomAccessInput() {
+    Iterable<Integer> source = asList(1, 2, 3);
+    Iterable<List<Integer>> partitions = Iterables.partition(source, 2);
+    Iterator<List<Integer>> iterator = partitions.iterator(); 
+    assertTrue(iterator.next() instanceof RandomAccess);
+    assertTrue(iterator.next() instanceof RandomAccess);
+  }
+  
+  public void testPartitionNonRandomAccessInput() {
+    Iterable<Integer> source = Lists.newLinkedList(asList(1, 2, 3));
+    Iterable<List<Integer>> partitions = Iterables.partition(source, 2);
+    Iterator<List<Integer>> iterator = partitions.iterator();
+    // Even though the input list doesn't implement RandomAccess, the output
+    // lists do.
+    assertTrue(iterator.next() instanceof RandomAccess);
+    assertTrue(iterator.next() instanceof RandomAccess);
+  }
+  
   public void testPaddedPartition_basic() {
     List<Integer> list = asList(1, 2, 3, 4, 5);
     Iterable<List<Integer>> partitions = Iterables.paddedPartition(list, 2);
@@ -437,6 +443,24 @@ public class IterablesTest extends TestCase {
     assertEquals(asList(5, null), Iterables.getLast(partitions));
   }
 
+  public void testPaddedPartitionRandomAccessInput() {
+    Iterable<Integer> source = asList(1, 2, 3);
+    Iterable<List<Integer>> partitions = Iterables.paddedPartition(source, 2);
+    Iterator<List<Integer>> iterator = partitions.iterator(); 
+    assertTrue(iterator.next() instanceof RandomAccess);
+    assertTrue(iterator.next() instanceof RandomAccess);
+  }
+  
+  public void testPaddedPartitionNonRandomAccessInput() {
+    Iterable<Integer> source = Lists.newLinkedList(asList(1, 2, 3));
+    Iterable<List<Integer>> partitions = Iterables.paddedPartition(source, 2);
+    Iterator<List<Integer>> iterator = partitions.iterator(); 
+    // Even though the input list doesn't implement RandomAccess, the output
+    // lists do.
+    assertTrue(iterator.next() instanceof RandomAccess);
+    assertTrue(iterator.next() instanceof RandomAccess);
+  }
+  
   // More tests in IteratorsTest
   public void testAddAllToList() {
     List<String> alreadyThere = Lists.newArrayList("already", "there");
@@ -485,100 +509,6 @@ public class IterablesTest extends TestCase {
     assertFalse(Iterables.elementsEqual(b, a));
   }
 
-  public void testRotateNullList() {
-    try {
-      Iterables.rotate(null, 33);
-      fail("should have thrown an exception");
-    } catch (NullPointerException expected) {
-    }
-  }
-
-  private void testRotations(List<String> list, String[][] rotationResults) {
-    /*
-     * This is supposed to be a read-only operation.  Performing it on an
-     * unmodifiable list will show that it is.
-     */
-    List<String> unmodifiableList = Collections.unmodifiableList(list);
-    /*
-     * Establish the range of rotation distances by multiplying the size of the
-     * list by 4.  We're going to rotate by distances ranging from the negation
-     * of that result to the result itself.
-     */
-    int endDistance = unmodifiableList.size() * 4;
-    int startDistance = -endDistance;
-    int listSize = unmodifiableList.size();
-    for(int distance = startDistance; distance <= endDistance; distance++) {
-      Iterable<String> rotated = Iterables.rotate(unmodifiableList, distance);
-      // determine the index of the results we'll be comparing against
-      int rotationResultIndex = (endDistance - distance) % listSize;
-      int index = 0;
-      for(String str : rotated) {
-        assertEquals(rotationResults[rotationResultIndex][index++], str);
-      }
-    }
-  }
-
-  public void testRotateTwoElementList() {
-    List<String> list = Lists.newArrayList("yam", "bam");
-    String[][] rotations = {
-        {"yam", "bam"},
-        {"bam", "yam"}
-    };
-    testRotations(list, rotations);
-  }
-
-  public void testRotateThreeElementList() {
-    List<String> list = Lists.newArrayList("yam", "bam", "jam");
-    String[][] rotations = {
-        {"yam", "bam", "jam"},
-        {"jam", "yam", "bam"},
-        {"bam", "jam", "yam"}
-    };
-    testRotations(list, rotations);
-  }
-
-  public void testRotateFourElementList() {
-    List<String> list = Lists.newArrayList("yam", "bam", "jam", "ham");
-    String[][] rotations = {
-        {"yam", "bam", "jam", "ham"},
-        {"ham", "yam", "bam", "jam"},
-        {"jam", "ham", "yam", "bam"},
-        {"bam", "jam", "ham", "yam"},
-    };
-    testRotations(list, rotations);
-  }
-
-  public void testRotateRemoveNotAllowed() {
-    List<String> list = Lists.newArrayList("yam", "bam");
-    Iterator<String> rotated = Iterables.rotate(list, 1).iterator();
-    rotated.next();
-    try {
-      rotated.remove();
-      fail("expected exception");
-    } catch (UnsupportedOperationException expected) {}
-  }
-
-  public void testRotateAndClear() {
-    List<String> list = Lists.newArrayList("yam", "bam");
-    Iterable<String> rotated = Iterables.rotate(list, 1);
-    list.clear();
-    assertFalse(rotated.iterator().hasNext());
-  }
-
-  public void testRotateEmptyAndAdd() {
-    List<String> list = Lists.newArrayList();
-    Iterable<String> rotated = Iterables.rotate(list, 1);
-    list.addAll(asList("yam", "bam", "jam"));
-    JUnitAsserts.assertContentsInOrder(rotated, "bam", "jam", "yam");
-  }
-
-  public void testRotateOneElementAndAdd() {
-    List<String> list = Lists.newArrayList("yam");
-    Iterable<String> rotated = Iterables.rotate(list, 1);
-    list.addAll(asList("bam", "jam"));
-    JUnitAsserts.assertContentsInOrder(rotated, "bam", "jam", "yam");
-  }
-
   public void testReversePassesIteratorsTester() throws Exception {
     new IteratorTester<Integer>(5, MODIFIABLE, newArrayList(2, 4, 6, 8),
         IteratorTester.KnownOrder.KNOWN_ORDER) {
@@ -620,130 +550,12 @@ public class IterablesTest extends TestCase {
     assertEquals("[yam, bam, jam, ham]", Iterables.toString(list));
   }
 
-  public void testLimit() {
-    Iterable<String> iterable = Lists.newArrayList("foo", "bar", "baz");
-    Iterable<String> limited = Iterables.limit(iterable, 2);
-
-    List<String> expected = ImmutableList.of("foo", "bar");
-    List<String> actual = Lists.newArrayList(limited);
-    assertEquals(expected, actual);
-    assertCanIterateAgain(limited);
-    assertEquals("[foo, bar]", limited.toString());
-  }
-
-  public void testLimit_illegalArgument() {
-    List<String> list = newArrayList("a", "b", "c");
-    try {
-      Iterables.limit(list, -1);
-      fail();
-    } catch (IllegalArgumentException expected) {}
-  }
-
   public void testIsEmpty() {
     Iterable<String> emptyList = Collections.emptyList();
     assertTrue(Iterables.isEmpty(emptyList));
 
     Iterable<String> singletonList = Collections.singletonList("foo");
     assertFalse(Iterables.isEmpty(singletonList));
-  }
-
-  public void testSkip_simple() {
-    Collection<String> set = ImmutableSet.of("a", "b", "c", "d", "e");
-    assertEquals(newArrayList("c", "d", "e"), newArrayList(skip(set, 2)));
-    assertEquals("[c, d, e]", skip(set, 2).toString());
-  }
-
-  public void testSkip_simpleList() {
-    Collection<String> list = newArrayList("a", "b", "c", "d", "e");
-    assertEquals(newArrayList("c", "d", "e"), newArrayList(skip(list, 2)));
-    assertEquals("[c, d, e]", skip(list, 2).toString());
-  }
-
-  public void testSkip_pastEnd() {
-    Collection<String> set = ImmutableSet.of("a", "b");
-    assertEquals(emptyList(), newArrayList(skip(set, 20)));
-  }
-
-  public void testSkip_pastEndList() {
-    Collection<String> list = newArrayList("a", "b");
-    assertEquals(emptyList(), newArrayList(skip(list, 20)));
-  }
-
-  public void testSkip_skipNone() {
-    Collection<String> set = ImmutableSet.of("a", "b");
-    assertEquals(newArrayList("a", "b"), newArrayList(skip(set, 0)));
-  }
-
-  public void testSkip_skipNoneList() {
-    Collection<String> list = newArrayList("a", "b");
-    assertEquals(newArrayList("a", "b"), newArrayList(skip(list, 0)));
-  }
-
-  public void testSkip_iterator() throws Exception {
-    new IteratorTester<Integer>(5, MODIFIABLE, newArrayList(2, 3),
-        IteratorTester.KnownOrder.KNOWN_ORDER) {
-      @Override protected Iterator<Integer> newTargetIterator() {
-        return skip(newLinkedHashSet(asList(1, 2, 3)), 1).iterator();
-      }
-    }.test();
-  }
-
-  public void testSkip_iteratorList() throws Exception {
-    new IteratorTester<Integer>(5, MODIFIABLE, newArrayList(2, 3),
-        IteratorTester.KnownOrder.KNOWN_ORDER) {
-      @Override protected Iterator<Integer> newTargetIterator() {
-        return skip(newArrayList(1, 2, 3), 1).iterator();
-      }
-    }.test();
-  }
-
-  public void testSkip_nonStructurallyModifiedList() throws Exception {
-    List<String> list = newArrayList("a", "b", "c");
-    Iterable<String> tail = skip(list, 1);
-    Iterator<String> tailIterator = tail.iterator();
-    list.set(2, "C");
-    assertEquals("b", tailIterator.next());
-    assertEquals("C", tailIterator.next());
-    assertFalse(tailIterator.hasNext());
-  }
-
-  public void testSkip_structurallyModifiedSkipSome() throws Exception {
-    Collection<String> set = newLinkedHashSet(asList("a", "b", "c"));
-    Iterable<String> tail = skip(set, 1);
-    set.remove("b");
-    set.addAll(newArrayList("A", "B", "C"));
-    assertContentsInOrder(tail, "c", "A", "B", "C");
-  }
-
-  public void testSkip_structurallyModifiedSkipSomeList() throws Exception {
-    List<String> list = newArrayList("a", "b", "c");
-    Iterable<String> tail = skip(list, 1);
-    list.subList(1, 3).clear();
-    list.addAll(0, newArrayList("A", "B", "C"));
-    assertContentsInOrder(tail, "B", "C", "a");
-  }
-
-  public void testSkip_structurallyModifiedSkipAll() throws Exception {
-    Collection<String> set = newLinkedHashSet(asList("a", "b", "c"));
-    Iterable<String> tail = skip(set, 2);
-    set.remove("a");
-    set.remove("b");
-    assertFalse(tail.iterator().hasNext());
-  }
-
-  public void testSkip_structurallyModifiedSkipAllList() throws Exception {
-    List<String> list = newArrayList("a", "b", "c");
-    Iterable<String> tail = skip(list, 2);
-    list.subList(0, 2).clear();
-    assertTrue(Iterables.isEmpty(tail));
-  }
-
-  public void testSkip_illegalArgument() {
-    List<String> list = newArrayList("a", "b", "c");
-    try {
-      skip(list, -1);
-      fail();
-    } catch (IllegalArgumentException expected) {}
   }
 
   private void testGetOnAbc(Iterable<String> iterable) {

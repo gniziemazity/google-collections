@@ -65,38 +65,19 @@ public final class LinkedHashMultiset<E> extends AbstractMapBasedMultiset<E> {
    */
   public static <E> LinkedHashMultiset<E> create(
       Iterable<? extends E> elements) {
-    return new LinkedHashMultiset<E>(elements);
+    LinkedHashMultiset<E> multiset =
+        create(Multisets.inferDistinctElements(elements));
+    Iterables.addAll(multiset, elements);
+    return multiset;
   }
 
-  /**
-   * Constructs a new empty {@code LinkedHashMultiset} using the default initial
-   * capacity.
-   */
   private LinkedHashMultiset() {
     super(new LinkedHashMap<E, AtomicInteger>());
   }
 
-  /**
-   * Constructs a new empty {@code LinkedHashMultiset} with the specified
-   * expected number of distinct elements.
-   *
-   * @param distinctElements the expected number of distinct elements
-   * @throws IllegalArgumentException if {@code distinctElements} is negative
-   */
   private LinkedHashMultiset(int distinctElements) {
     // Could use newLinkedHashMapWithExpectedSize() if it existed
     super(new LinkedHashMap<E, AtomicInteger>(Maps.capacity(distinctElements)));
-  }
-
-  /**
-   * Constructs a new {@code LinkedHashMultiset} containing the specified
-   * elements.
-   *
-   * @param elements the elements that the multiset should contain
-   */
-  private LinkedHashMultiset(Iterable<? extends E> elements) {
-    this(Multisets.inferDistinctElements(elements));
-    Iterables.addAll(this, elements); // careful if we make this class non-final
   }
 
   /**
@@ -111,8 +92,10 @@ public final class LinkedHashMultiset<E> extends AbstractMapBasedMultiset<E> {
   private void readObject(ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
-    setBackingMap(new LinkedHashMap<E, AtomicInteger>());
-    Serialization.populateMultiset(this, stream);
+    int distinctElements = Serialization.readCount(stream);
+    setBackingMap(new LinkedHashMap<E, AtomicInteger>(
+        Maps.capacity(distinctElements)));
+    Serialization.populateMultiset(this, stream, distinctElements);
   }
 
   private static final long serialVersionUID = 0;

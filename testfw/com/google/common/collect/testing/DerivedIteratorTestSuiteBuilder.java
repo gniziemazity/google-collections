@@ -16,9 +16,10 @@
 
 package com.google.common.collect.testing;
 
+import junit.framework.TestSuite;
+
 import java.util.Iterator;
 import java.util.List;
-import junit.framework.TestSuite;
 
 /**
  * Given a test iterable generator, builds a test suite for the

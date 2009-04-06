@@ -21,19 +21,6 @@
  * <h2>Collection Types</h2>
  *
  * <dl>
- * <dt>{@link com.google.common.collect.BiMap}
- * <dd>An extension of {@link java.util.Map} that guarantees the uniqueness of
- *     its values as well as that of its keys. This is sometimes called an
- *     "invertible map," since the restriction on values enables it to support
- *     an {@linkplain com.google.common.collect.BiMap#inverse inverse view} --
- *     which is another instance of {@code BiMap}.
- *
- * <dt>{@link com.google.common.collect.Multiset}
- * <dd>An extension of {@link java.util.Collection} that may contain duplicate
- *     values like a {@link java.util.List}, yet has order-independent equality
- *     like a {@link java.util.Set}.  One typical use for a multiset is to
- *     represent a histogram.
- *
  * <dt>{@link com.google.common.collect.Multimap}
  * <dd>A new type, which is similar to {@link java.util.Map}, but may contain
  *     multiple entries with the same key. Some behaviors of
@@ -64,6 +51,19 @@
  *     collection values} associated with a given key is a
  *     {@link java.util.SortedSet}.
  *
+ * <dt>{@link com.google.common.collect.Multiset}
+ * <dd>An extension of {@link java.util.Collection} that may contain duplicate
+ *     values like a {@link java.util.List}, yet has order-independent equality
+ *     like a {@link java.util.Set}.  One typical use for a multiset is to
+ *     represent a histogram.
+ *
+ * <dt>{@link com.google.common.collect.BiMap}
+ * <dd>An extension of {@link java.util.Map} that guarantees the uniqueness of
+ *     its values as well as that of its keys. This is sometimes called an
+ *     "invertible map," since the restriction on values enables it to support
+ *     an {@linkplain com.google.common.collect.BiMap#inverse inverse view} --
+ *     which is another instance of {@code BiMap}.
+ *
  * <dt>{@link com.google.common.collect.ClassToInstanceMap}
  * <dd>An extension of {@link java.util.Map} that associates a raw type with an
  *     instance of that type.
@@ -89,7 +89,33 @@
  * <h3>of {@link java.util.Map}</h3>
  * <dl>
  * <dt>{@link com.google.common.collect.ImmutableMap}
+ * <dt>{@link com.google.common.collect.MapMaker} (produced by)
  * </ul>
+ *
+ * <h3>of {@link com.google.common.collect.Multimap}</h3>
+ * <dl>
+ * <dt>{@link com.google.common.collect.ImmutableMultimap}
+ * <dt>{@link com.google.common.collect.ImmutableSetMultimap}
+ * <dt>{@link com.google.common.collect.ArrayListMultimap}
+ * <dt>{@link com.google.common.collect.HashMultimap}
+ * <dt>{@link com.google.common.collect.LinkedHashMultimap}
+ * <dt>{@link com.google.common.collect.LinkedListMultimap}
+ * <dt>{@link com.google.common.collect.TreeMultimap}
+ * <dt>{@link com.google.common.collect.Multimaps#newMultimap}
+ * <dt>{@link com.google.common.collect.Multimaps#newListMultimap}
+ * <dt>{@link com.google.common.collect.Multimaps#newSetMultimap}
+ * <dt>{@link com.google.common.collect.Multimaps#newSortedSetMultimap}
+ * </dl>
+ *
+ * <h3>of {@link com.google.common.collect.Multiset}</h3>
+ * <dl>
+ * <dt>{@link com.google.common.collect.ImmutableMultiset}
+ * <dt>{@link com.google.common.collect.ConcurrentHashMultiset}
+ * <dt>{@link com.google.common.collect.HashMultiset}
+ * <dt>{@link com.google.common.collect.LinkedHashMultiset}
+ * <dt>{@link com.google.common.collect.TreeMultiset}
+ * <dt>{@link com.google.common.collect.EnumMultiset}
+ * </dl>
  *
  * <h3>of {@link com.google.common.collect.BiMap}</h3>
  * <dl>
@@ -98,24 +124,10 @@
  * <dt>{@link com.google.common.collect.EnumHashBiMap}
  * </dl>
  *
- * <h3>of {@link com.google.common.collect.Multiset}</h3>
+ * <h3>of {@link com.google.common.collect.ClassToInstanceMap}</h3>
  * <dl>
- * <dt>{@link com.google.common.collect.ConcurrentMultiset}
- * <dt>{@link com.google.common.collect.EnumMultiset}
- * <dt>{@link com.google.common.collect.HashMultiset}
- * <dt>{@link com.google.common.collect.ImmutableMultiset}
- * <dt>{@link com.google.common.collect.LinkedHashMultiset}
- * <dt>{@link com.google.common.collect.TreeMultiset}
- * </dl>
- *
- * <h3>of {@link com.google.common.collect.Multimap}</h3>
- * <dl>
- * <dt>{@link com.google.common.collect.ArrayListMultimap}
- * <dt>{@link com.google.common.collect.HashMultimap}
- * <dt>{@link com.google.common.collect.ImmutableMultimap}
- * <dt>{@link com.google.common.collect.LinkedHashMultimap}
- * <dt>{@link com.google.common.collect.LinkedListMultimap}
- * <dt>{@link com.google.common.collect.TreeMultimap}
+ * <dt>{@link com.google.common.collect.ImmutableClassToInstanceMap}
+ * <dt>{@link com.google.common.collect.MutableClassToInstanceMap}
  * </dl>
  *
  * <h2>Skeletal implementations</h2>
@@ -124,7 +136,7 @@
  * <dt>{@link com.google.common.collect.UnmodifiableIterator}
  * </dl>
  *
- * <h2>Classes of static utility methods</h2>
+ * <h2>Utilities</h2>
  *
  * <dl>
  * <dt>{@link com.google.common.collect.Collections2}
@@ -132,25 +144,13 @@
  * <dt>{@link com.google.common.collect.Iterables}
  * <dt>{@link com.google.common.collect.Lists}
  * <dt>{@link com.google.common.collect.Maps}
+ * <dt>{@link com.google.common.collect.Ordering}
  * <dt>{@link com.google.common.collect.Sets}
  * <dt>{@link com.google.common.collect.Multisets}
  * <dt>{@link com.google.common.collect.Multimaps}
  * <dt>{@link com.google.common.collect.ObjectArrays}
- * <dt>{@link com.google.common.collect.Serialization}
  * </dl>
 
- * <h2>Comparators</h2>
- * <dl>
- * <dt>{@link com.google.common.collect.Ordering}
- * </ul>
- *
- * <h2>Constraints</h2>
- *
- * <dt>{@link com.google.common.collect.Constraint}
- * <dt>{@link com.google.common.collect.Constraints}
- * <dt>{@link com.google.common.collect.MapConstraint}
- * <dt>{@link com.google.common.collect.MapConstraints}
- *
  * <h2>Forwarding collections</h2>
  *
  * <dl>
@@ -169,18 +169,6 @@
  * <dt>{@link com.google.common.collect.ForwardingSortedMap }
  * <dt>{@link com.google.common.collect.ForwardingSortedSet }
  * </dl>
- *
- * <h2>Common Behavior</h2>
- *
- * <p>The methods of this package always throw {@link
- * java.lang.NullPointerException} in response to a null value being supplied
- * for any parameter that is not explicitly annotated as being {@link
- * javax.annotation.Nullable @Nullable}.
- *
- * @author Mike Bostock
- * @author Kevin Bourrillion
- * @author Jared Levy
  */
-
 @javax.annotation.ParametersAreNonnullByDefault
 package com.google.common.collect;

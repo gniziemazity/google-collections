@@ -227,7 +227,7 @@ public abstract class AbstractImmutableSetTest extends TestCase {
     JUnitAsserts.assertNotEqual(c, of("a", "b", "d"));
   }
 
-  abstract <E extends Comparable<? super E>> ImmutableSet.Builder<E> builder();
+  abstract <E extends Comparable<E>> ImmutableSet.Builder<E> builder();
 
   public void testBuilderWithNonDuplicateElements() {
     ImmutableSet<String> set = this.<String>builder()

@@ -47,8 +47,7 @@ public class HashBiMapTest extends AbstractBiMapTest {
         "chile", "peso",
         "switzerland", "franc");
     @SuppressWarnings("hiding")
-    HashBiMap<String, String> bimap
-        = new HashBiMap<String, String>(map);
+    HashBiMap<String, String> bimap = HashBiMap.create(map);
     assertEquals("dollar", bimap.get("canada"));
     assertEquals("canada", bimap.inverse().get("dollar"));
   }
@@ -57,7 +56,7 @@ public class HashBiMapTest extends AbstractBiMapTest {
 
   public void testBashIt() throws Exception {
     @SuppressWarnings("hiding")
-    BiMap<Integer,Integer> bimap = new HashBiMap<Integer,Integer>(N);
+    BiMap<Integer,Integer> bimap = HashBiMap.create(N);
     BiMap<Integer,Integer> inverse = bimap.inverse();
 
     for (int i = 0; i < N; i++) {

@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
+import java.util.RandomAccess;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -62,6 +63,26 @@ public class MultimapsTest extends AbstractMultimapTest {
         ArrayListMultimap.<String, Integer>create(), true);
   }
 
+  public void testUnmodifiableArrayListMultimapRandomAccess() {
+    ListMultimap<String, Integer> delegate = ArrayListMultimap.create();
+    delegate.put("foo", 1);
+    delegate.put("foo", 3);
+    ListMultimap<String, Integer> multimap
+        = Multimaps.unmodifiableListMultimap(delegate);
+    assertTrue(multimap.get("foo") instanceof RandomAccess);
+    assertTrue(multimap.get("bar") instanceof RandomAccess);
+  }
+  
+  public void testUnmodifiableLinkedListMultimapRandomAccess() {
+    ListMultimap<String, Integer> delegate = LinkedListMultimap.create();
+    delegate.put("foo", 1);
+    delegate.put("foo", 3);
+    ListMultimap<String, Integer> multimap
+        = Multimaps.unmodifiableListMultimap(delegate);
+    assertFalse(multimap.get("foo") instanceof RandomAccess);
+    assertFalse(multimap.get("bar") instanceof RandomAccess);
+  }
+  
   public void testUnmodifiableHashMultimap() {
     checkUnmodifiableMultimap(HashMultimap.<String, Integer>create(), false);
   }
@@ -210,7 +231,7 @@ public class MultimapsTest extends AbstractMultimapTest {
   }
 
   public void testInvertFrom() {
-    ImmutableMultimap<Integer, String> empty = ImmutableMultimap.empty();
+    ImmutableMultimap<Integer, String> empty = ImmutableMultimap.of();
 
     // typical usage example - sad that ArrayListMultimap.create() won't work
     Multimap<String, Integer> multimap = Multimaps.invertFrom(empty,
@@ -442,6 +463,7 @@ public class MultimapsTest extends AbstractMultimapTest {
     multimap.putAll(Color.RED, asList(2, 7, 1, 8));
     assertEquals(2, factory.count);
     assertEquals("{BLUE=[3, 1, 4, 1], RED=[2, 7, 1, 8]}", multimap.toString());
+    assertFalse(multimap.get(Color.BLUE) instanceof RandomAccess);
     SerializableTester.reserializeAndAssert(multimap);
   }
 

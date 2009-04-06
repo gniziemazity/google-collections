@@ -195,9 +195,13 @@ public final class Predicates {
    * copy the collection passed in, so future changes to it will alter the
    * behavior of the predicate.
    *
+   * This method can technically accept any Collection<?>, but using a typed
+   * collection helps prevent bugs. This approach doesn't block any potential
+   * users since it is always possible to use {@code Predicates.<Object>in()}.
+   *
    * @param target the collection that may contain the function input
    */
-  public static <T> Predicate<T> in(Collection<?> target) {
+  public static <T> Predicate<T> in(Collection<? extends T> target) {
     return new InPredicate<T>(target);
   }
 

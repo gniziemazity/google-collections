@@ -102,8 +102,8 @@ public class ImmutableClassToInstanceMapTest extends TestCase {
     } catch (NullPointerException expected) {
     }
 
-    Map<? extends Class<? extends Number>, Number> nullValue = Collections.singletonMap(
-        Number.class, null);
+    Map<? extends Class<? extends Number>, Number> nullValue
+        = Collections.singletonMap(Number.class, null);
     try {
       ImmutableClassToInstanceMap.copyOf(nullValue);
       fail();

@@ -24,6 +24,7 @@ import com.google.common.collect.testing.features.ListFeature;
 import static com.google.common.collect.testing.features.ListFeature.SUPPORTS_ADD_WITH_INDEX;
 import static com.google.common.collect.testing.features.ListFeature.SUPPORTS_REMOVE_WITH_INDEX;
 import static com.google.common.collect.testing.features.ListFeature.SUPPORTS_SET;
+
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
@@ -319,7 +320,8 @@ public class ListSubListTester<E> extends AbstractListTester<E> {
    * href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6570631">Sun bug
    * 6570631</a> is fixed.
    */
-  public static Method getSubListOriginalListSetAffectsSubListLargeListMethod() {
+  public static Method
+      getSubListOriginalListSetAffectsSubListLargeListMethod() {
     try {
       return ListSubListTester.class
           .getMethod("testSubList_originalListSetAffectsSubListLargeList");

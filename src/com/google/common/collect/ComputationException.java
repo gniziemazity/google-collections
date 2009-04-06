@@ -16,9 +16,12 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
+
 /**
  * Wraps an exception that occured during a computation.
  */
+@GwtCompatible
 public class ComputationException extends RuntimeException {
   public ComputationException(Throwable cause) {
     super(cause);

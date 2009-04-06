@@ -36,7 +36,7 @@ import java.util.Set;
  *
  * @author Kevin Bourrillion
  */
-public class SetOperationsTest {
+public class SetOperationsTest extends TestCase {
   public static Test suite() {
     TestSuite suite = new TestSuite();
 

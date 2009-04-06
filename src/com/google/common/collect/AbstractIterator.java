@@ -19,7 +19,6 @@ package com.google.common.collect;
 import com.google.common.annotations.GwtCompatible;
 import static com.google.common.base.Preconditions.checkState;
 
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
@@ -53,14 +52,12 @@ import java.util.NoSuchElementException;
  *     };
  *   }}</pre>
  *
- * This class supports iterators that include null elements. The {@link
- * #remove()} method throws an {@link UnsupportedOperationException}, but
- * this can be overridden to support removal.
+ * This class supports iterators that include null elements.
  *
  * @author Kevin Bourrillion
  */
 @GwtCompatible
-public abstract class AbstractIterator<T> implements Iterator<T> {
+public abstract class AbstractIterator<T> extends UnmodifiableIterator<T> {
   private State state = State.NOT_READY;
 
   private enum State {
@@ -81,19 +78,23 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
 
   /**
    * Returns the next element. <b>Note:</b> the implementation must call {@link
-   * #endOfData} when there are no elements left in the iteration. Failure to do
-   * so could result in an infinite loop.
+   * #endOfData()} when there are no elements left in the iteration. Failure to
+   * do so could result in an infinite loop.
    *
    * <p>The initial invocation of {@link #hasNext()} or {@link #next()} calls
-   * this method, as does the first invocation of {@code hasNext} or
-   * {@code next} following each successful call to {@code next}. Once the
+   * this method, as does the first invocation of {@code hasNext} or {@code
+   * next} following each successful call to {@code next}. Once the
    * implementation either invokes {@code endOfData} or throws an exception,
    * {@code computeNext} is guaranteed to never be called again.
    *
    * <p>If this method throws an exception, it will propagate outward to the
-   * {@code hasNext()} or {@code next()} invocation that invoked this method.
-   * Any further attempts to use the iterator will result in an {@link
+   * {@code hasNext} or {@code next} invocation that invoked this method. Any
+   * further attempts to use the iterator will result in an {@link
    * IllegalStateException}.
+   *
+   * <p>The implementation of this method many not invoke the {@code hasNext},
+   * {@code next}, or {@link #peek()} methods on this instance; if it does, an
+   * {@code IllegalStateException} will result.
    *
    * @return the next element if there was one. If {@code endOfData} was called
    *     during execution, the return value will be ignored.
@@ -117,7 +118,7 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
     return null;
   }
 
-  public boolean hasNext() {
+  public final boolean hasNext() {
     checkState(state != State.FAILED);
     switch (state) {
       case DONE:
@@ -139,7 +140,7 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
     return false;
   }
 
-  public T next() {
+  public final T next() {
     if (!hasNext()) {
       throw new NoSuchElementException();
     }
@@ -154,17 +155,10 @@ public abstract class AbstractIterator<T> implements Iterator<T> {
    * <p>Implementations of {@code AbstractIterator} that wish to expose this
    * functionality should implement {@code PeekingIterator}.
    */
-  public T peek() {
+  public final T peek() {
     if (!hasNext()) {
       throw new NoSuchElementException();
     }
     return next;
-  }
-
-  /**
-   * This method is not supported.
-   */
-  public void remove() {
-    throw new UnsupportedOperationException();
   }
 }

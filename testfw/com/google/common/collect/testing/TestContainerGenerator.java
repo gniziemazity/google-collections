@@ -17,6 +17,7 @@
 package com.google.common.collect.testing;
 
 import com.google.common.collect.testing.features.CollectionFeature;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;

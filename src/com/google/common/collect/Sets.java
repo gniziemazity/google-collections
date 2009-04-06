@@ -40,7 +40,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nullable;
 
@@ -198,62 +197,6 @@ public final class Sets {
     HashSet<E> set = newHashSet();
     while (elements.hasNext()) {
       set.add(elements.next());
-    }
-    return set;
-  }
-
-  // ConcurrentHashSet
-
-  private static <E> Set<E> fixedRemoveAllAndRetainAll(final Set<E> original) {
-    return new ForwardingSet<E>() {
-      @Override protected Set<E> delegate() {
-        return original;
-      }
-      @Override public boolean removeAll(Collection<?> c) {
-        return Iterators.removeAll(iterator(), c);
-      }
-      @Override public boolean retainAll(Collection<?> c) {
-        return Iterators.retainAll(iterator(), c);
-      }
-    };
-  }
-
-  // TODO: Consider modifying the sets returned by newConcurrentHashSet so that
-  // remove(null) doesn't throw NPE (there are two schools of thought on this)
-
-  /**
-   * Creates a thread-safe set backed by a hash map. The set is backed by a
-   * {@link ConcurrentHashMap} instance, and thus carries the same concurrency
-   * guarantees.
-   *
-   * <p>Unlike {@code HashSet}, this class does NOT allow {@code null} to be
-   * used as an element. The set is serializable.
-   *
-   * @return a newly created, empty thread-safe {@code Set}
-   */
-  public static <E> Set<E> newConcurrentHashSet() {
-    return newSetFromMap(new ConcurrentHashMap<E, Boolean>());
-  }
-
-  /**
-   * Creates a thread-safe set backed by a hash map and containing the given
-   * elements. The set is backed by a {@link ConcurrentHashMap} instance, and
-   * thus carries the same concurrency guarantees.
-   *
-   * <p>Unlike {@code HashSet}, this class does NOT allow {@code null} to be
-   * used as an element. The set is serializable.
-   *
-   * @param elements the elements that the set should contain
-   * @return a newly created thread-safe {@code Set} containing those elements
-   *     (minus duplicates)
-   * @throws NullPointerException if {@code elements} or any of its contents is
-   *      null
-   */
-  public static <E> Set<E> newConcurrentHashSet(Iterable<? extends E> elements)
-  {
-    Set<E> set = newConcurrentHashSet();
-    for (E element : elements) {
-      set.add(element);
     }
     return set;
   }
@@ -514,7 +457,7 @@ public final class Sets {
    * a new set which will then remain stable.
    */
   public static abstract class SetView<E> extends AbstractSet<E> {
-    private SetView() {}
+    private SetView() {} // no subclasses but our own
 
     /**
      * Returns an immutable copy of the current contents of this set view.

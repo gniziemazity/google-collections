@@ -155,8 +155,6 @@ public final class LinkedListMultimap<K, V>
     return new LinkedListMultimap<K, V>(multimap);
   }
 
-  // TODO: Make all constructors private.
-
   /** Constructs an empty {@code LinkedListMultimap}. */
   private LinkedListMultimap() {
     keyCount = LinkedHashMultiset.create();
@@ -505,6 +503,8 @@ public final class LinkedListMultimap<K, V>
    * <p>If any entries for the specified {@code key} already exist in the
    * multimap, their values are changed in-place without affecting the iteration
    * order.
+   * 
+   * <p>The returned list implements {@link java.util.RandomAccess}.
    */
   public List<V> replaceValues(@Nullable K key, Iterable<? extends V> values) {
     List<V> oldValues = getCopy(key);
@@ -536,6 +536,11 @@ public final class LinkedListMultimap<K, V>
     return Lists.newArrayList(new ValueForKeyIterator(key));
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The returned list implements {@link java.util.RandomAccess}.
+   */
   public List<V> removeAll(@Nullable Object key) {
     List<V> oldValues = getCopy(key);
     removeAllNodes(key);
@@ -559,7 +564,7 @@ public final class LinkedListMultimap<K, V>
    * progress (except through the iterator's own {@code add}, {@code set} or
    * {@code remove} operations) the results of the iteration are undefined.
    *
-   * <p>The returned collection is not serializable.
+   * <p>The returned list is not serializable and does not have random access.
    */
   public List<V> get(final @Nullable K key) {
     return new AbstractSequentialList<V>() {

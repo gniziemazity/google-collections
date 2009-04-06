@@ -16,6 +16,9 @@
 
 package com.google.common.collect.testing;
 
+import junit.framework.Assert;
+import junit.framework.AssertionFailedError;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -31,8 +34,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map.Entry;
 import java.util.Set;
-import junit.framework.Assert;
-import junit.framework.AssertionFailedError;
 
 public class Helpers {
   public static <T> T checkNotNull(T reference) {

@@ -16,6 +16,8 @@
 
 package com.google.common.collect.testing;
 
+import junit.framework.TestCase;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,7 +27,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import junit.framework.TestCase;
 
 /**
  * Tests representing the contract of {@link Map}. Concrete subclasses of this

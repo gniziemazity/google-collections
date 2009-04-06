@@ -82,7 +82,7 @@ public abstract class ImmutableMap<K, V>
   /**
    * Returns an immutable map containing the given entries, in order.
    *
-   * @throws IllegalArgumentException if duplicate keys are added
+   * @throws IllegalArgumentException if duplicate keys are provided
    */
   public static <K, V> ImmutableMap<K, V> of(K k1, V v1, K k2, V v2) {
     return new RegularImmutableMap<K, V>(entryOf(k1, v1), entryOf(k2, v2));
@@ -91,7 +91,7 @@ public abstract class ImmutableMap<K, V>
   /**
    * Returns an immutable map containing the given entries, in order.
    *
-   * @throws IllegalArgumentException if duplicate keys are added
+   * @throws IllegalArgumentException if duplicate keys are provided
    */
   public static <K, V> ImmutableMap<K, V> of(
       K k1, V v1, K k2, V v2, K k3, V v3) {
@@ -102,7 +102,7 @@ public abstract class ImmutableMap<K, V>
   /**
    * Returns an immutable map containing the given entries, in order.
    *
-   * @throws IllegalArgumentException if duplicate keys are added
+   * @throws IllegalArgumentException if duplicate keys are provided
    */
   public static <K, V> ImmutableMap<K, V> of(
       K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4) {
@@ -113,7 +113,7 @@ public abstract class ImmutableMap<K, V>
   /**
    * Returns an immutable map containing the given entries, in order.
    *
-   * @throws IllegalArgumentException if duplicate keys are added
+   * @throws IllegalArgumentException if duplicate keys are provided
    */
   public static <K, V> ImmutableMap<K, V> of(
       K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4, K k5, V v5) {

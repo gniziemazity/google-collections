@@ -454,24 +454,44 @@ public final class Lists {
    * @return a list of consecutive sublists
    * @throws IllegalArgumentException if {@code partitionSize} is nonpositive
    */
-  public static <T> List<List<T>> partition(
-      final List<T> list, final int size) {
+  public static <T> List<List<T>> partition(List<T> list, int size) {
     checkNotNull(list);
     checkArgument(size > 0);
-    return new AbstractList<List<T>>() {
-      public List<T> get(int index) {
-        int listSize = size();
-        checkElementIndex(index, listSize);
-        int start = index * size;
-        int end = Math.min(start + size, list.size());
-        return Platform.subList(list, start, end);
-      }
-      public int size() {
-        return (list.size() + size - 1) / size;
-      }
-      @Override public boolean isEmpty() {
-        return list.isEmpty();
-      }
-    };
+    return (list instanceof RandomAccess)
+        ? new RandomAccessPartition<T>(list, size)
+        : new Partition<T>(list, size);
+  }
+
+  private static class Partition<T> extends AbstractList<List<T>> {
+    final List<T> list;
+    final int size;
+
+    Partition(List<T> list, int size) {
+      this.list = list;
+      this.size = size;
+    }
+
+    public List<T> get(int index) {
+      int listSize = size();
+      checkElementIndex(index, listSize);
+      int start = index * size;
+      int end = Math.min(start + size, list.size());
+      return Platform.subList(list, start, end);
+    }
+
+    public int size() {
+      return (list.size() + size - 1) / size;
+    }
+
+    @Override public boolean isEmpty() {
+      return list.isEmpty();
+    }
+  }
+
+  private static class RandomAccessPartition<T> extends Partition<T>
+      implements RandomAccess {
+    RandomAccessPartition(List<T> list, int size) {
+      super(list, size);
+    }
   }
 }

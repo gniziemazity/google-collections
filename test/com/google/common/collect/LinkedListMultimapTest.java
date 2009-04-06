@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.RandomAccess;
 import java.util.Set;
 
 /**
@@ -42,6 +43,43 @@ public class LinkedListMultimapTest extends AbstractListMultimapTest {
 
   @Override protected LinkedListMultimap<String, Integer> create() {
     return LinkedListMultimap.create();
+  }
+
+  /**
+   * Confirm that get() returns a List that doesn't implement RandomAccess.
+   */
+  public void testGetRandomAccess() {
+    Multimap<String, Integer> multimap = create();
+    multimap.put("foo", 1);
+    multimap.put("foo", 3);
+    assertFalse(multimap.get("foo") instanceof RandomAccess);
+    assertFalse(multimap.get("bar") instanceof RandomAccess);
+  }
+  
+  /**
+   * Confirm that removeAll() returns a List that implements RandomAccess, even
+   * though get() doesn't.
+   */
+  public void testRemoveAllRandomAccess() {
+    Multimap<String, Integer> multimap = create();
+    multimap.put("foo", 1);
+    multimap.put("foo", 3);
+    assertTrue(multimap.removeAll("foo") instanceof RandomAccess);
+    assertTrue(multimap.removeAll("bar") instanceof RandomAccess);
+  }
+
+  /**
+   * Confirm that replaceValues() returns a List that implements RandomAccess,
+   * even though get() doesn't.
+   */
+  public void testReplaceValuesRandomAccess() {
+    Multimap<String, Integer> multimap = create();
+    multimap.put("foo", 1);
+    multimap.put("foo", 3);
+    assertTrue(multimap.replaceValues("foo", Arrays.asList(2, 4))
+        instanceof RandomAccess);
+    assertTrue(multimap.replaceValues("bar", Arrays.asList(2, 4))
+        instanceof RandomAccess);
   }
 
   public void testCreateFromMultimap() {

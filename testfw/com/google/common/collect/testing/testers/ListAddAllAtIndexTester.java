@@ -25,6 +25,7 @@ import static com.google.common.collect.testing.features.CollectionSize.ZERO;
 import com.google.common.collect.testing.features.ListFeature;
 import static com.google.common.collect.testing.features.ListFeature.SUPPORTS_ADD_ALL_WITH_INDEX;
 import static com.google.common.collect.testing.features.ListFeature.SUPPORTS_ADD_WITH_INDEX;
+
 import static java.util.Collections.singletonList;
 import java.util.List;
 

@@ -226,7 +226,7 @@ public final class Maps {
    * when accessing any of its collection views:
    *
    * <pre>  Bimap&lt;K,V> m = Maps.synchronizedBiMap(
-   *      new HashBiMap&lt;K,V>());
+   *      HashBiMap.&lt;K,V>create());
    *   ...
    *  Set&lt;K> s = m.keySet();  // Needn't be in synchronized block
    *   ...
@@ -920,7 +920,7 @@ public final class Maps {
    * faster to copy the filtered map and use the copy.
    */
   public static <K, V> Map<K, V> filterEntries(
-      Map<K, V> unfiltered, Predicate<Entry<K, V>> entryPredicate) {
+      Map<K, V> unfiltered, Predicate<? super Entry<K, V>> entryPredicate) {
     checkNotNull(entryPredicate);
     return (unfiltered instanceof AbstractFilteredMap)
         ? filterFiltered((AbstractFilteredMap<K, V>) unfiltered, entryPredicate)
@@ -932,7 +932,8 @@ public final class Maps {
    * filtering a filtered map.
    */
   private static <K, V> Map<K, V> filterFiltered(
-      AbstractFilteredMap<K, V> map, Predicate<Entry<K, V>> entryPredicate) {
+      AbstractFilteredMap<K, V> map,
+      Predicate<? super Entry<K, V>> entryPredicate) {
     Predicate<Entry<K, V>> predicate
         = Predicates.and(map.predicate, entryPredicate);
     return new FilteredEntryMap<K, V>(map.unfiltered, predicate);
@@ -942,10 +943,10 @@ public final class Maps {
       extends AbstractMap<K, V> {
 
     final Map<K, V> unfiltered;
-    final Predicate<Entry<K, V>> predicate;
+    final Predicate<? super Entry<K, V>> predicate;
 
     AbstractFilteredMap(Map<K, V> unfiltered,
-        Predicate<Entry<K, V>> predicate) {
+        Predicate<? super Entry<K, V>> predicate) {
       this.unfiltered = unfiltered;
       this.predicate = predicate;
     }
@@ -1115,7 +1116,7 @@ public final class Maps {
     final Set<Entry<K, V>> filteredEntrySet;
 
     FilteredEntryMap(Map<K, V> unfiltered,
-        Predicate<Entry<K, V>> entryPredicate) {
+        Predicate<? super Entry<K, V>> entryPredicate) {
       super(unfiltered, entryPredicate);
       filteredEntrySet = Sets.filter(unfiltered.entrySet(), predicate);
     }
@@ -1239,12 +1240,9 @@ public final class Maps {
       extends AbstractMap<K, V> {
 
     /**
-     * Supplies an entry set, a wrapped version of which is returned by {@code
-     * entrySet()}. That way, {@link #entrySet} retrieves an entry set whose
-     * {@link Set#retainAll} method always throws an exception.
-     *
-     * <p>This method is invoked at most once on a given map, at the time when
-     * {@code entrySet()} is first called.
+     * Creates the entry set to be returned by {@link #entrySet()}. This method
+     * is invoked at most once on a given map, at the time when {@code
+     * entrySet} is first called.
      */
     protected abstract Set<Entry<K, V>> createEntrySet();
 

@@ -17,6 +17,7 @@
 package com.google.common.collect.testing;
 
 import com.google.common.collect.testing.features.CollectionSize;
+
 import java.util.Collection;
 
 /**

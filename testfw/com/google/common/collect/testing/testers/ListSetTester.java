@@ -22,6 +22,7 @@ import com.google.common.collect.testing.features.CollectionSize;
 import static com.google.common.collect.testing.features.CollectionSize.ZERO;
 import com.google.common.collect.testing.features.ListFeature;
 import static com.google.common.collect.testing.features.ListFeature.SUPPORTS_SET;
+
 import java.lang.reflect.Method;
 
 /**

@@ -18,6 +18,7 @@ package com.google.common.collect;
 
 import com.google.common.base.Functions;
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.collect.SetsTest.Derived;
 import com.google.common.collect.testing.MapInterfaceTest;
 import com.google.common.testing.junit3.JUnitAsserts;
@@ -247,12 +248,11 @@ public class MapsTest extends TestCase {
   }
 
   public void testEnumMapWithInitialEmptyMap() {
+    Map<SomeEnum, Integer> original = Maps.newHashMap();
     try {
-      Map<SomeEnum, Integer> original = Maps.newHashMap();
-      EnumMap<SomeEnum, Integer> copy = Maps.newEnumMap(original);
+      Maps.newEnumMap(original);
       fail("Empty map must result in an IllegalArgumentException");
-    } catch (IllegalArgumentException e) {
-    }
+    } catch (IllegalArgumentException expected) {}
   }
 
   public void testNullPointerExceptions() throws Exception {
@@ -655,7 +655,7 @@ public class MapsTest extends TestCase {
         }
       };
 
-   private static final Predicate<Entry<String, Integer>> CORRECT_LENGTH
+  private static final Predicate<Entry<String, Integer>> CORRECT_LENGTH
       = new Predicate<Entry<String, Integer>>() {
         public boolean apply(Entry<String, Integer> input) {
           return input.getKey().length() == input.getValue();
@@ -796,6 +796,33 @@ public class MapsTest extends TestCase {
     assertEquals(ImmutableMap.of("cat", 3, "horse", 5, "chicken", 7), filtered);
   }
 
+  public void testFilteredEntriesObjectPredicate() {
+    Map<String, Integer> unfiltered = Maps.newHashMap();
+    unfiltered.put("cat", 3);
+    unfiltered.put("dog", 2);
+    unfiltered.put("horse", 5);
+    Predicate<Object> predicate = Predicates.alwaysFalse();
+    Map<String, Integer> filtered
+        = Maps.filterEntries(unfiltered, predicate);
+    assertTrue(filtered.isEmpty());
+  }
+  
+  public void testFilteredEntriesWildCardEntryPredicate() {
+    Map<String, Integer> unfiltered = Maps.newHashMap();
+    unfiltered.put("cat", 3);
+    unfiltered.put("dog", 2);
+    unfiltered.put("horse", 5);
+    Predicate<Entry<?, ?>> predicate = new Predicate<Entry<?, ?>>() {
+      public boolean apply(Entry<?, ?> input) {
+         return "cat".equals(input.getKey())
+             || Integer.valueOf(2) == input.getValue();
+      }
+    };
+    Map<String, Integer> filtered
+        = Maps.filterEntries(unfiltered, predicate);
+    assertEquals(ImmutableMap.of("cat", 3, "dog", 2), filtered);
+  }
+  
   public static class FilteredKeysMapInterfaceTest
       extends MapInterfaceTest<String, Integer> {
 
@@ -860,13 +887,13 @@ public class MapsTest extends TestCase {
     }
   }
 
-  public static class FilteredEntriesMapInterfaceTest
+  public static class FilteredEntriesMapInterfaceTest 
       extends MapInterfaceTest<String, Integer> {
-
+    
     public FilteredEntriesMapInterfaceTest() {
       super(true, true, true, true, true, false);
     }
-
+    
     @Override protected String getKeyNotInPopulatedMap() {
       return "zero";
     }
@@ -889,9 +916,9 @@ public class MapsTest extends TestCase {
       map.put("eight", 8);
       map.put("tweleve", 12);
       return map;
-    }
+    }    
   }
-
+  
   public static class FilteredKeysFilteredValuesMapInterfaceTest
       extends MapInterfaceTest<String, Integer> {
 

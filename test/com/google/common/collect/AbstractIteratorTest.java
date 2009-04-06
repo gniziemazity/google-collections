@@ -237,6 +237,24 @@ public class AbstractIteratorTest extends TestCase {
     }
   }
 
+  public void testReentrantHasNext() {
+    Iterator<Integer> iter = new AbstractIterator<Integer>() {
+      protected Integer computeNext() {
+        hasNext();
+        return null;
+      }
+    };
+    try {
+      iter.hasNext();
+      fail();
+    } catch (IllegalStateException expected) {
+    }
+  }
+
+  // Technically we should test other reentrant scenarios (9 combinations of
+  // hasNext/next/peek), but we'll cop out for now, knowing that peek() and
+  // next() both start by invoking hasNext() anyway.
+
   /**
    * Throws a undeclared checked exception.
    */

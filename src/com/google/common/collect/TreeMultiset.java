@@ -89,50 +89,18 @@ public final class TreeMultiset<E> extends AbstractMapBasedMultiset<E> {
   @SuppressWarnings("unchecked") // eclipse doesn't like the raw Comparable
   public static <E extends Comparable> TreeMultiset<E> create(
       Iterable<? extends E> elements) {
-    return new TreeMultiset<E>(elements);
+    TreeMultiset<E> multiset = create();
+    Iterables.addAll(multiset, elements);
+    return multiset;
   }
 
-  /**
-   * Constructs a new, empty multiset, sorted according to the elements' natural
-   * order. All elements inserted into the multiset must implement the
-   * {@code Comparable} interface. Furthermore, all such elements must be
-   * <i>mutually comparable</i>: {@code e1.compareTo(e2)} must not throw a
-   * {@code ClassCastException} for any elements {@code e1} and {@code e2} in
-   * the multiset. If the user attempts to add an element to the multiset that
-   * violates this constraint (for example, the user attempts to add a string
-   * element to a set whose elements are integers), the {@code add(Object)}
-   * call will throw a {@code ClassCastException}.
-   */
   private TreeMultiset() {
     super(new TreeMap<E, AtomicInteger>());
   }
 
-  /**
-   * Constructs a new, empty multiset, sorted according to the specified
-   * comparator. All elements inserted into the multiset must be <i>mutually
-   * comparable</i> by the specified comparator: {@code comparator.compare(e1,
-   * e2)} must not throw a {@code ClassCastException} for any elements {@code
-   * e1} and {@code e2} in the multiset. If the user attempts to add an element
-   * to the multiset that violates this constraint, the {@code add(Object)} call
-   * will throw a {@code ClassCastException}.
-   *
-   * @param comparator the comparator that will be used to sort this multiset. A
-   *     null value indicates that the elements' <i>natural ordering</i> should
-   *     be used.
-   */
   private TreeMultiset(Comparator<? super E> comparator) {
     super(new TreeMap<E, AtomicInteger>(comparator));
   }
-
-  /**
-   * Constructs an empty multiset containing the given initial elements, sorted
-   * according to the elements' natural order.
-   */
-  private TreeMultiset(Iterable<? extends E> elements) {
-    this();
-    Iterables.addAll(this, elements); // careful if we make this class non-final
-  }
-
 
   /**
    * {@inheritDoc}

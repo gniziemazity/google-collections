@@ -499,6 +499,7 @@ public class ImmutableMapTest extends TestCase {
 
   private static <K, V> void assertMapEquals(Map<K, V> map,
       Object... alternatingKeysAndValues) {
+    assertEquals(map.size(), alternatingKeysAndValues.length / 2);
     int i = 0;
     for (Entry<K, V> entry : map.entrySet()) {
       assertEquals(alternatingKeysAndValues[i++], entry.getKey());

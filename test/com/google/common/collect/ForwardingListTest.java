@@ -18,6 +18,7 @@ package com.google.common.collect;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.RandomAccess;
 
 /**
  * Tests for {@code ForwardingList}.
@@ -169,5 +170,9 @@ public class ForwardingListTest extends ForwardingTestCase {
   public void testHashCode() {
     forward.hashCode();
     assertEquals("[hashCode]", getCalls());
+  }
+  
+  public void testRandomAccess() {
+    assertFalse(forward instanceof RandomAccess);
   }
 }

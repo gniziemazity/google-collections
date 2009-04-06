@@ -114,8 +114,6 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
     return new LinkedHashMultimap<K, V>(multimap);
   }
 
-  // TODO: Make all constructors private.
-
   /** Constructs an empty {@code LinkedHashMultimap}. */
   private LinkedHashMultimap() {
     super(new LinkedHashMap<K, Collection<V>>());
@@ -375,9 +373,11 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
       throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
     expectedValuesPerKey = stream.readInt();
-    setMap(new LinkedHashMap<K, Collection<V>>());
-    linkedEntries = Sets.newLinkedHashSet();
-    Serialization.populateMultimap(this, stream);
+    int distinctKeys = Serialization.readCount(stream);
+    setMap(new LinkedHashMap<K, Collection<V>>(Maps.capacity(distinctKeys)));
+    linkedEntries = new LinkedHashSet<Map.Entry<K, V>>(
+        distinctKeys * expectedValuesPerKey);
+    Serialization.populateMultimap(this, stream, distinctKeys);
     linkedEntries.clear(); // will clear and repopulate entries
     for (int i = 0; i < size(); i++) {
       @SuppressWarnings("unchecked") // reading data stored by writeObject

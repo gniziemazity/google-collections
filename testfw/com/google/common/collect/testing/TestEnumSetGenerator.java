@@ -17,6 +17,7 @@
 package com.google.common.collect.testing;
 
 import com.google.common.collect.testing.SampleElements.Enums;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
