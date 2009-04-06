@@ -93,7 +93,7 @@ If your goal is to maintain type-safety and avoid casts when using the API "norm
 
 == Why do you use the type `<E extends Comparable>` in various APIs, which is not "fully generified"?  Shouldn't it be `<E extends Comparable<?>>`, `<E extends Comparable<E>>` or `<E extends Comparable<? super E>>`? ==
 
-The last suggestion is the correct one, as explained in Effective Java.  However, we will be using '<E extends Comparable<E>>` on parameterless methods in order to work around a hideous javac bug.  This will cause you problems when you use a very unusual type like `java.sql.Timestamp` which is comparable to a supertype.  (Needs more explanation.)
+The last suggestion is the correct one, as explained in Effective Java.  However, we will be using `<E extends Comparable<E>>` on parameterless methods in order to work around a hideous javac bug.  This will cause you problems when you use a very unusual type like `java.sql.Timestamp` which is comparable to a supertype.  (Needs more explanation.)
 
 == Why does `Multimap` have no `putAll(K, Iterable<V>)` or `putAll(Map<K,V>)` methods? ==
 
