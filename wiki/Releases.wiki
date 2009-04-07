@@ -1,3 +1,46 @@
+= Release 1.0 (RC1 - 20090406) =
+
+==NEW:==
+
+  * [http://google-collections.googlecode.com/svn/trunk/javadoc/com/google/common/annotations/package-summary.html com.google.common.annotations] package with new annotations for marking types as gwt compatible ([http://google-collections.googlecode.com/svn/trunk/javadoc/com/google/common/annotations/GwtCompatible.html GwtCompatible], [http://google-collections.googlecode.com/svn/trunk/javadoc/com/google/common/annotations/GwtIncompatible.html GwtIncompatible]), and marking a type or member as being visible only for testing ([http://google-collections.googlecode.com/svn/trunk/javadoc/com/google/common/annotations/VisibleForTesting.html VisibleForTesting])
+  * [http://google-collections.googlecode.com/svn/trunk/javadoc/com/google/common/base/Joiner.html Joiner], which joins pieces of text together, replacing the old static methods on the Join class.
+  * [http://google-collections.googlecode.com/svn/trunk/javadoc/com/google/common/base/Predicates.html#instanceOf(java.lang.Class) Predicate.instanceOf(Class<?>)] returns a Predicate that evaluates to true if the object being tested is an instance of the given class.
+  * [http://google-collections.googlecode.com/svn/trunk/javadoc/com/google/common/collect/MutableClassToInstanceMap.html MutableClassToInstanceMap] and [http://google-collections.googlecode.com/svn/trunk/javadoc/com/google/common/collect/ImmutableClassToInstanceMap.html ImmutableClassToInstanceMap], which map a class to an instance of that class.
+  * [http://google-collections.googlecode.com/svn/trunk/javadoc/com/google/common/collect/ImmutableSetMultimap.html ImmutableSetMultimap] is a SetMultimap with reliable user specified key and value iteration order.
+  * [http://google-collections.googlecode.com/svn/trunk/javadoc/com/google/common/collect/Maps.html#difference(java.util.Map,%20java.util.Map) Maps.difference(...)] computes the difference between two maps, returning the result as a MapDifference.
+  * [http://google-collections.googlecode.com/svn/trunk/javadoc/com/google/common/collect/Collections2.html#transform(java.util.Collection,%20com.google.common.base.Function) Collections2.transform(...)] is the Collection-based equivalent of Iterables.transform(..), and returns the Collection that results from applying a Function to each element of a given Collection.
+  * New ImmutableMultimap.of(..) static methods were added to quickly create immutable maps of specified values.
+  * ImmutableMultimap.Builder has a new [http://google-collections.googlecode.com/svn/trunk/javadoc/com/google/common/collect/ImmutableMultimap.Builder.html#putAll(com.google.common.collect.Multimap) putAll(...)] method to store another multimap's entries in the built multimap.
+  * [http://google-collections.googlecode.com/svn/trunk/javadoc/com/google/common/collect/Multisets.html#immutableEntry(E,%20int) Multisets.immutableEntry(E, int)] returns a new immutable Multiset.Entry with the specified element and count.
+  * Multiset has new [http://google-collections.googlecode.com/svn/trunk/javadoc/com/google/common/collect/Multiset.html#setCount(E,%20int) setCount()] methods that can be used to add or remove the necessary number of occurences of an element such that the element attains the desired count. 
+
+==Removed:==
+
+  * The Join class was removed in favor of the new Joiner class.
+  * The Nullable annotation was removed in favor of the javax.annotation.Nullable annotation from the JSR-305 reference implementation (http://code.google.com/p/jsr-305/)
+  * Deprecated Functions.TO_STRING removed in favor of Functions.toStringFunction().
+  * Functions.toHashCode(). This isn't a commonly used function, and can be implemented by hand if needed.
+  * Preconditions.checkContentsNotNull(...)
+  * Predicates.isSameAs(Object). This wasn't commonly used, and can be easily implemented by hand.
+  * The following methods were removed from Iterables: containsNull(Iterable{{{<?>}}}), emptyIterable(), limit(Iterable{{{<T>}}}, int), rotate(List{{{<T>}}}, int), skip(Iterable{{{<T>}}}, int).
+  * The following methods were removed from Iterators: containsNull(Iterable{{{<?>}}}), emptyListIterator(), limit(Iterator{{{<T>}}}, int), skip(Iterator{{{<T>}}}, int).
+  * The Multimaps.index(..) method that takes a multimap as the third argument has been removed.
+  * The Sets.SetView constructor is no longer public (this was an oversight).
+  * Multiset.removeAllOccurrences(Object). You can replace usages of this with elementSet().remove(Object).
+  * AbstractMapEntry. Most usages of this can be replaced with java.util.AbstractMap.SimpleEntry/SimpleImmutableEntry provided their keys and values are directly stored in the Entry instance.
+  * Constraints, Constraint and MapConstraints.
+  * CustomConcurrentHashMap.
+  * Serialization.
+
+==Changed:==
+
+  * ConcurrentMultiset was renamed to [http://google-collections.googlecode.com/svn/trunk/javadoc/com/google/common/collect/ConcurrentHashMultiset.html ConcurrentHashMultiset].
+  * Predicates.isEqualTo(T) renamed to [http://google-collections.googlecode.com/svn/trunk/javadoc/com/google/common/base/Predicates.html#equalTo(T) Predicates.equalTo(T)]
+  * AbstractIterator now extends UnmodifiableIterator.
+  * The constructors on ArrayListMultimap, HashBiMap, HashMultimap, HashMultiset, ImmutableBiMap, LinkedHashMultimap, LinkedHashMultiset, LinkedListMultimap, TreeMultimap, and TreeMultiset were removed in favor of new static create() methods which provide type inference. The various static creation methods on Multimaps were removed in favor of  create() methods on each Multimap class.
+  * Iterators.newArray(..) and Iterables.newArray(..) were renamed to toArray(..).
+  * The instance methods in Ordering are all now final.
+
 = Release 0.9 (snapshot 20090211) =
 
 ==NEW:==
