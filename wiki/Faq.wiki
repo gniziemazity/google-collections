@@ -31,7 +31,7 @@ We had planned on moving to Java 6 in time for the 1.0 release, so that our libr
 
 == Why build on Java 5, instead of 1.4? ==
 
-Because we hate Java 1.4. Just kidding (but we do). Basically, at Google we simply don't use Java 1.4 anymore, and haven't for years [http://code.google.com/webtoolkit/overview.html GWT] excepted). If you're using 1.4, please try feeding our library into [http://retrotranslator.sourceforge.net/ Retrotranslator]. Try out the results, tell us how it goes, and please kindly send us any patches you needed to make to our code to get it working.
+Because we hate Java 1.4. Just kidding (but we do). Basically, at Google we simply don't use Java 1.4 anymore, and haven't for years ([http://code.google.com/webtoolkit/overview.html GWT] excepted, but even that has worked with 1.5 for a while now). If you're using 1.4, please try feeding our library into [http://retrotranslator.sourceforge.net/ Retrotranslator]. Try out the results, tell us how it goes, and please kindly send us any patches you needed to make to our code to get it working.
 
 = Design =
 
