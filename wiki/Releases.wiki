@@ -41,6 +41,8 @@
   * Iterators.newArray(..) and Iterables.newArray(..) were renamed to toArray(..).
   * The instance methods in Ordering are all now final.
 
+[http://google-collections.googlecode.com/files/google-collect-1.0-rc1.zip Download]
+
 = Release 0.9 (snapshot 20090211) =
 
 ==NEW:==
