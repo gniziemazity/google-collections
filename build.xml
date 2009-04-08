@@ -114,6 +114,7 @@
     <mkdir dir="${build.dir}/javadoc"/>
     <javadoc packagenames="com.google.common.annotations,com.google.common.base,com.google.common.collect"
          destdir="${build.dir}/javadoc"
+         use="true"
          author="true"
          protected="true"
          windowtitle="Google Collections Library ${version}">
