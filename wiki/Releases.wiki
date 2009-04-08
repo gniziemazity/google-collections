@@ -43,6 +43,8 @@
 
 [http://google-collections.googlecode.com/files/google-collect-1.0-rc1.zip Download]
 
+[http://repo2.maven.org/maven2/com/google/collections/google-collections/1.0-rc1/ Maven bundle]
+
 = Release 0.9 (snapshot 20090211) =
 
 ==NEW:==
