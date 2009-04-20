@@ -35,7 +35,7 @@
   </target>
 
   <target name="test.compile"
-      depends="compile"
+      depends="compile,testfw"
       description="Compile test source.">
     <mkdir dir="${build.dir}/test"/>
     <javac srcdir="${test.dir}"
@@ -71,7 +71,9 @@
         <pathelement location="${lib.dir}/tl4j-1.1.0.jar"/>
         <pathelement location="${lib.dir}/easymock-2.4.jar"/>
         <pathelement location="${lib.dir}/easymockclassextension-2.4.jar"/>
+        <pathelement location="${lib.dir}/cglib-nodep-2.2.jar"/>
       </classpath>
+      <arg value="com.google.common.collect.CollectTestSuite" />
     </java>
   </target>
 
