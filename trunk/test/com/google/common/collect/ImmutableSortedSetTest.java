@@ -243,7 +243,7 @@ public class ImmutableSortedSetTest extends AbstractImmutableSetTest {
     assertContentsInOrder(set, "a", "in", "the", "over", "quick", "jumped");
   }
 
-  public void testExplicit_orderingDupes() {
+  public void testExplicit_ordering_dupes() {
     SortedSet<String> set =  ImmutableSortedSet.orderedBy(STRING_LENGTH).add(
         "in", "the", "quick", "brown", "fox", "jumped",
         "over", "a", "lazy", "dog").build();
@@ -386,6 +386,27 @@ public class ImmutableSortedSetTest extends AbstractImmutableSetTest {
     assertSame(Ordering.natural(), set.comparator());
   }
 
+  public void testCopyOf_iterator_ordering() {
+    SortedSet<String> set =
+        ImmutableSortedSet.copyOf(asIterator(
+            "e", "a", "f", "b", "d", "c"));
+    assertContentsInOrder(set, "a", "b", "c", "d", "e", "f");
+  }
+
+  public void testCopyOf_iterator_ordering_dupes() {
+    SortedSet<String> set =
+        ImmutableSortedSet.copyOf(asIterator(
+            "e", "a", "e", "f", "b", "b", "d", "a", "c"));
+    assertContentsInOrder(set, "a", "b", "c", "d", "e", "f");
+  }
+
+  public void testCopyOf_iterator_comparator() {
+    SortedSet<String> set =
+        ImmutableSortedSet.copyOf(asIterator(
+            "e", "a", "f", "b", "d", "c"));
+    assertSame(Ordering.natural(), set.comparator());
+  }
+
   public void testCopyOf_sortedSet_ordering() {
     SortedSet<String> set =
         ImmutableSortedSet.copyOf(Sets.newTreeSet(asList(
@@ -401,23 +422,45 @@ public class ImmutableSortedSetTest extends AbstractImmutableSetTest {
 
   public void testCopyOfExplicit_ordering() {
     SortedSet<String> set =
-        ImmutableSortedSet.orderedBy(STRING_LENGTH).addAll(asList(
-            "in", "the", "quick", "jumped", "over", "a")).build();
+        ImmutableSortedSet.copyOf(STRING_LENGTH, asList(
+            "in", "the", "quick", "jumped", "over", "a"));
     assertContentsInOrder(set, "a", "in", "the", "over", "quick", "jumped");
   }
 
-  public void testCopyOfExplicit_orderingDupes() {
+  public void testCopyOfExplicit_ordering_dupes() {
     SortedSet<String> set =
-        ImmutableSortedSet.orderedBy(STRING_LENGTH).addAll(asList(
+        ImmutableSortedSet.copyOf(STRING_LENGTH, asList(
             "in", "the", "quick", "brown", "fox", "jumped", "over", "a",
-            "lazy", "dog")).build();
+            "lazy", "dog"));
     assertContentsInOrder(set, "a", "in", "the", "over", "quick", "jumped");
   }
 
   public void testCopyOfExplicit_comparator() {
     SortedSet<String> set =
-        ImmutableSortedSet.orderedBy(STRING_LENGTH).addAll(asList(
-            "in", "the", "quick", "jumped", "over", "a")).build();
+        ImmutableSortedSet.copyOf(STRING_LENGTH, asList(
+            "in", "the", "quick", "jumped", "over", "a"));
+    assertSame(STRING_LENGTH, set.comparator());
+  }
+
+  public void testCopyOfExplicit_iterator_ordering() {
+    SortedSet<String> set =
+        ImmutableSortedSet.copyOf(STRING_LENGTH, asIterator(
+            "in", "the", "quick", "jumped", "over", "a"));
+    assertContentsInOrder(set, "a", "in", "the", "over", "quick", "jumped");
+  }
+
+  public void testCopyOfExplicit_iterator_ordering_dupes() {
+    SortedSet<String> set =
+        ImmutableSortedSet.copyOf(STRING_LENGTH, asIterator(
+            "in", "the", "quick", "brown", "fox", "jumped", "over", "a",
+            "lazy", "dog"));
+    assertContentsInOrder(set, "a", "in", "the", "over", "quick", "jumped");
+  }
+
+  public void testCopyOfExplicit_iterator_comparator() {
+    SortedSet<String> set =
+        ImmutableSortedSet.copyOf(STRING_LENGTH, asIterator(
+            "in", "the", "quick", "jumped", "over", "a"));
     assertSame(STRING_LENGTH, set.comparator());
   }
 
@@ -616,5 +659,9 @@ public class ImmutableSortedSetTest extends AbstractImmutableSetTest {
       fail();
     } catch (UnsupportedOperationException expected) {
     }
+  }
+
+  private static final <E> Iterator<E> asIterator(E... elements) {
+    return asList(elements).iterator();
   }
 }

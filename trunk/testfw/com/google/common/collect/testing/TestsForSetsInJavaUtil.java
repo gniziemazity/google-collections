@@ -284,7 +284,7 @@ public class TestsForSetsInJavaUtil {
                 @Override public int size() {
                   return deduped.length;
                 }
-                public Iterator<String> iterator() {
+                @Override public Iterator<String> iterator() {
                   return MinimalCollection.of(deduped).iterator();
                 }
               };

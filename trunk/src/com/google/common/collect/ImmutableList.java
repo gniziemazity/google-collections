@@ -78,8 +78,7 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
    * @throws NullPointerException if {@code element} is null
    */
   public static <E> ImmutableList<E> of(E element) {
-    // TODO: evaluate a specialized SingletonImmutableList
-    return new RegularImmutableList<E>(copyIntoArray(element));
+    return new SingletonImmutableList<E>(element);
   }
 
   // TODO: Add similar overloadings to ImmutableSet and ImmutableSortedSet
@@ -126,9 +125,14 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
    * @throws NullPointerException if any of {@code elements} is null
    */
   public static <E> ImmutableList<E> of(E... elements) {
-    return (elements.length == 0)
-        ? ImmutableList.<E>of()
-        : new RegularImmutableList<E>(copyIntoArray(elements));
+    switch (elements.length) {
+      case 0:
+        return ImmutableList.of();
+      case 1:
+        return new SingletonImmutableList<E>(elements[0]);
+      default:
+        return new RegularImmutableList<E>(copyIntoArray(elements));
+    }
   }
 
   /**
@@ -175,9 +179,14 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
 
   private static <E> ImmutableList<E> copyOfInternal(
       ArrayList<? extends E> list) {
-    return (list.isEmpty())
-        ? ImmutableList.<E>of()
-        : new RegularImmutableList<E>(nullChecked(list.toArray()));
+    switch (list.size()) {
+      case 0:
+        return of();
+      case 1:
+        return new SingletonImmutableList<E>(list.iterator().next());
+      default:
+        return new RegularImmutableList<E>(nullChecked(list.toArray()));
+    }
   }
 
   /**
@@ -354,7 +363,7 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
   }
 
   private static <E> ImmutableList<E> createFromIterable(
-      Iterable<?> source, int estimatedSize) {
+      Iterable<? extends E> source, int estimatedSize) {
     Object[] array = new Object[estimatedSize];
     int index = 0;
 
@@ -372,6 +381,11 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
 
     if (index == 0) {
       return of();
+    } else if (index == 1)  {
+      // The elements of "array" come from a Iterable<? extends E>.
+      @SuppressWarnings("unchecked")
+      E element = (E) array[0];
+      return of(element);
     }
 
     if (index != estimatedSize) {
@@ -437,7 +451,7 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
    * multiple times to build multiple lists in series. Each new list
    * contains the one created before it.
    */
-  public static class Builder<E> {
+  public static final class Builder<E> {
     private final ArrayList<E> contents = Lists.newArrayList();
 
     /**
@@ -464,7 +478,7 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
      *
      * @param elements the {@code Iterable} to add to the {@code ImmutableList}
      * @return this {@code Builder} object
-     * @throws NullPointerException if {@code elements} is or contains null
+     * @throws NullPointerException if {@code elements} contains a null element
      */
     public Builder<E> addAll(Iterable<? extends E> elements) {
       if (elements instanceof Collection) {
@@ -478,6 +492,9 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
       }
       return this;
     }
+
+    // TODO: Add add(E...) and add(Iterator) methods, for consistency with the
+    // ImmutableSet Builder.
 
     /**
      * Returns a newly-created {@code ImmutableList} based on the contents of

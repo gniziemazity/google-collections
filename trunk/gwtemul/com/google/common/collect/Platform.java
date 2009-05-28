@@ -33,7 +33,7 @@ class Platform {
     throw new UnsupportedOperationException(
         "List.subList is not supported yet.");
   }
-  
+
   static boolean isInstance(Class<?> clazz, Object obj) {
     throw new UnsupportedOperationException(
         "Class.isInstance is not supported in GWT yet.");

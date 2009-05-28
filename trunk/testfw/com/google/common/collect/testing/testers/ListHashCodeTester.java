@@ -16,6 +16,8 @@
 
 package com.google.common.collect.testing.testers;
 
+import java.lang.reflect.Method;
+
 /**
  * Tests {@link java.util.List#hashCode}.
  *
@@ -31,5 +33,18 @@ public class ListHashCodeTester<E> extends AbstractListTester<E> {
     assertEquals(
         "A List's hashCode() should be computed from those of its elements.",
         expectedHashCode, getList().hashCode());
+  }
+
+  /**
+   * Returns the {@link Method} instance for {@link #testHashCode()} so that
+   * list tests on unhashable objects can suppress it with
+   * {@code FeatureSpecificTestSuiteBuilder.suppressing()}.
+   */
+  public static Method getHashCodeMethod() {
+    try {
+      return ListHashCodeTester.class.getMethod("testHashCode");
+    } catch (NoSuchMethodException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

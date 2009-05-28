@@ -25,6 +25,7 @@ import java.io.ObjectOutputStream;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -216,6 +217,17 @@ public final class TreeMultimap<K, V> extends StandardSortedSetMultimap<K, V> {
    */
   @Override public SortedSet<K> keySet() {
     return (SortedSet<K>) super.keySet();
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>Because a {@code TreeMultimap} has unique sorted keys, this method
+   * returns a {@link SortedMap}, instead of the {@link java.util.Map} specified
+   * in the {@link Multimap} interface.
+   */
+  @Override public SortedMap<K, Collection<V>> asMap() {
+    return (SortedMap<K, Collection<V>>) super.asMap();
   }
 
   /**

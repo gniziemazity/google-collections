@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.collect.Multiset.Entry;
+import com.google.common.collect.testing.google.UnmodifiableCollectionTests;
 import com.google.common.testutils.SerializableTester;
 
 import static java.util.Arrays.asList;

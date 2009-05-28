@@ -22,6 +22,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.collect.testing.Helpers.assertContentsAnyOrder;
 import static com.google.common.collect.testing.IteratorFeature.MODIFIABLE;
 import com.google.common.collect.testing.IteratorTester;
+import com.google.common.collect.testing.google.UnmodifiableCollectionTests;
 import com.google.common.testutils.SerializableTester;
 
 import java.io.Serializable;
@@ -39,6 +40,8 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.RandomAccess;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -72,7 +75,7 @@ public class MultimapsTest extends AbstractMultimapTest {
     assertTrue(multimap.get("foo") instanceof RandomAccess);
     assertTrue(multimap.get("bar") instanceof RandomAccess);
   }
-  
+
   public void testUnmodifiableLinkedListMultimapRandomAccess() {
     ListMultimap<String, Integer> delegate = LinkedListMultimap.create();
     delegate.put("foo", 1);
@@ -82,7 +85,7 @@ public class MultimapsTest extends AbstractMultimapTest {
     assertFalse(multimap.get("foo") instanceof RandomAccess);
     assertFalse(multimap.get("bar") instanceof RandomAccess);
   }
-  
+
   public void testUnmodifiableHashMultimap() {
     checkUnmodifiableMultimap(HashMultimap.<String, Integer>create(), false);
   }
@@ -274,7 +277,7 @@ public class MultimapsTest extends AbstractMultimapTest {
     multimap2.put("bar", 1);
     assertFalse(multimapView.equals(multimap2));
     ListMultimap<String, Integer> listMultimap
-        = new ImmutableMultimap.Builder<String, Integer>()
+        = new ImmutableListMultimap.Builder<String, Integer>()
             .put("foo", 1).put("bar", 2).build();
     assertFalse("SetMultimap equals ListMultimap",
         multimapView.equals(listMultimap));
@@ -442,6 +445,9 @@ public class MultimapsTest extends AbstractMultimapTest {
 
     Collection<Integer> collection = multimap.get(Color.BLUE);
     assertEquals(collection, collection);
+
+    assertFalse(multimap.keySet() instanceof SortedSet);
+    assertFalse(multimap.asMap() instanceof SortedMap);
   }
 
   private static class ListSupplier extends
@@ -454,7 +460,7 @@ public class MultimapsTest extends AbstractMultimapTest {
 
   public void testNewListMultimap() {
     CountingSupplier<LinkedList<Integer>> factory = new ListSupplier();
-    Map<Color, Collection<Integer>> map = Maps.newLinkedHashMap();
+    Map<Color, Collection<Integer>> map = Maps.newTreeMap();
     ListMultimap<Color, Integer> multimap =
         Multimaps.newListMultimap(map, factory);
     assertEquals(0, factory.count);
@@ -465,6 +471,9 @@ public class MultimapsTest extends AbstractMultimapTest {
     assertEquals("{BLUE=[3, 1, 4, 1], RED=[2, 7, 1, 8]}", multimap.toString());
     assertFalse(multimap.get(Color.BLUE) instanceof RandomAccess);
     SerializableTester.reserializeAndAssert(multimap);
+
+    assertTrue(multimap.keySet() instanceof SortedSet);
+    assertTrue(multimap.asMap() instanceof SortedMap);
   }
 
   private static class SetSupplier extends CountingSupplier<HashSet<Integer>> {

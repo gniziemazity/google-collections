@@ -64,9 +64,12 @@ public class OrderingTest extends TestCase {
     assertTrue(caseInsensitiveOrdering.compare("a", "B") < 0);
     assertTrue(caseInsensitiveOrdering.compare("B", "a") > 0);
 
+    @SuppressWarnings("deprecation") // test of deprecated method
+    Ordering<String> orderingFromOrdering =
+        Ordering.from(Ordering.<String>natural());
     new EqualsTester(caseInsensitiveOrdering)
         .addEqualObject(Ordering.from(String.CASE_INSENSITIVE_ORDER))
-        .addNotEqualObject(Ordering.from(Ordering.natural()))
+        .addNotEqualObject(orderingFromOrdering)
         .addNotEqualObject(Ordering.natural())
         .testEquals();
   }
@@ -95,16 +98,17 @@ public class OrderingTest extends TestCase {
   public void testReverseOfReverseSameAsForward() {
     Ordering<Number> reverseOfReverse
         = new NumberOrdering().reverse().reverse();
-    assertEquals(numberOrdering, reverseOfReverse);
-    assertEquals(numberOrdering.hashCode(), reverseOfReverse.hashCode());
+    assertTrue(reverseOfReverse.compare(1, 1) == 0);
+    assertTrue(reverseOfReverse.compare(1, 2) < 0);
+    assertTrue(reverseOfReverse.compare(2, 1) > 0);
   }
 
   // Note that other compound tests are still in ComparatorsTest and will be
   // copied over soonish.
   public void testCompound_instance_generics() {
-    Ordering<Object> objects = Ordering.givenOrder((Object) 1);
-    Ordering<Number> numbers = Ordering.givenOrder((Number) 1);
-    Ordering<Integer> integers = Ordering.givenOrder(1);
+    Ordering<Object> objects = Ordering.explicit((Object) 1);
+    Ordering<Number> numbers = Ordering.explicit((Number) 1);
+    Ordering<Integer> integers = Ordering.explicit(1);
 
     // Like by like equals like
     Ordering<Number> a = numbers.compound(numbers);
@@ -234,8 +238,7 @@ public class OrderingTest extends TestCase {
   }
 
   public void testNullsFirst() {
-    Ordering<Integer> ordering = Ordering.from(
-        Collections.<Integer>reverseOrder()).nullsFirst();
+    Ordering<Integer> ordering = Ordering.natural().reverse().nullsFirst();
     assertEquivalent(ordering, 1, 1);
     assertEquivalent(ordering, Integer.MIN_VALUE, Integer.MIN_VALUE);
     assertEquivalent(ordering, null, null);
@@ -246,8 +249,7 @@ public class OrderingTest extends TestCase {
   }
 
   public void testNullsLast() {
-    Ordering<Integer> ordering = Ordering.from(
-        Collections.<Integer>reverseOrder()).nullsLast();
+    Ordering<Integer> ordering = Ordering.natural().reverse().nullsLast();
     assertEquivalent(ordering, 1, 1);
     assertEquivalent(ordering, Integer.MIN_VALUE, Integer.MIN_VALUE);
     assertEquivalent(ordering, null, null);
@@ -259,7 +261,7 @@ public class OrderingTest extends TestCase {
 
   public void testNullPointerExceptions() throws Exception {
     NullPointerTester tester = new NullPointerTester();
-    tester.testAllPublicStaticMethods(Iterators.class);
+    tester.testAllPublicStaticMethods(Ordering.class);
   }
 
   static <T> void assertEquivalent(

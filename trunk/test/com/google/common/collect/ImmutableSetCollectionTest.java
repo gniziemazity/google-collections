@@ -18,11 +18,15 @@ package com.google.common.collect;
 
 import com.google.common.collect.testing.SetTestSuiteBuilder;
 import com.google.common.collect.testing.TestCollidingSetGenerator;
+import com.google.common.collect.testing.TestSetGenerator;
 import com.google.common.collect.testing.TestStringSetGenerator;
 import com.google.common.collect.testing.TestStringSortedSetGenerator;
+import com.google.common.collect.testing.TestUnhashableCollectionGenerator;
+import com.google.common.collect.testing.UnhashableObject;
 import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.testutils.SerializableTester;
+import com.google.common.collect.testing.testers.SetHashCodeTester;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -249,6 +253,22 @@ public class ImmutableSetCollectionTest extends TestCase {
         .withFeatures(CollectionSize.ANY, CollectionFeature.KNOWN_ORDER)
         .createTestSuite());
 
+    suite.addTest(SetTestSuiteBuilder.using(new TestUnhashableSetGenerator() {
+          @Override
+          public Set<UnhashableObject> create(UnhashableObject[] elements) {
+            return ImmutableSortedSet.of(elements);
+          }
+        })
+        .suppressing(SetHashCodeTester.getHashCodeMethods())
+        .named(ImmutableSortedSetTest.class.getName() + ", unhashable")
+        .withFeatures(CollectionSize.ANY, CollectionFeature.KNOWN_ORDER)
+        .createTestSuite());
+
     return suite;
+  }
+
+  private abstract static class TestUnhashableSetGenerator
+      extends TestUnhashableCollectionGenerator<Set<UnhashableObject>>
+      implements TestSetGenerator<UnhashableObject> {
   }
 }

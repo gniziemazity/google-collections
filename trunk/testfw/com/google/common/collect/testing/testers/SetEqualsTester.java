@@ -17,6 +17,7 @@
 package com.google.common.collect.testing.testers;
 
 import com.google.common.collect.testing.Helpers;
+import com.google.common.collect.testing.MinimalSet;
 import com.google.common.collect.testing.features.CollectionFeature;
 import static com.google.common.collect.testing.features.CollectionFeature.ALLOWS_NULL_VALUES;
 import com.google.common.collect.testing.features.CollectionSize;
@@ -33,16 +34,17 @@ public class SetEqualsTester<E> extends AbstractSetTester<E> {
   public void testEquals_otherSetWithSameElements() throws Exception {
     assertTrue(
         "A Set should equal any other Set containing the same elements.",
-        getSet().equals(Helpers.copyToSet(getSampleElements())));
+        getSet().equals(MinimalSet.from(getSampleElements())));
   }
 
   @CollectionSize.Require(absent=CollectionSize.ZERO)
   public void testEquals_otherSetWithDifferentElements() throws Exception {
-    Set<E> other = Helpers.copyToSet(getSampleElements(getNumElements() - 1));
-    other.add(getSubjectGenerator().samples().e3);
+    Collection<E> elements = getSampleElements(getNumElements() - 1);
+    elements.add(getSubjectGenerator().samples().e3);
+
     assertFalse(
         "A Set should not equal another Set containing different elements.",
-        getSet().equals(other)
+        getSet().equals(MinimalSet.from(elements))
     );
   }
 
@@ -55,14 +57,14 @@ public class SetEqualsTester<E> extends AbstractSetTester<E> {
     collection = getSubjectGenerator().create(elements.toArray());
     assertTrue("A Set should equal any other Set containing the same elements,"
         + " even if some elements are null.",
-        getSet().equals(Helpers.copyToSet(elements)));
+        getSet().equals(MinimalSet.from(elements)));
   }
 
   @CollectionSize.Require(absent=CollectionSize.ZERO)
   public void testEquals_otherContainsNull() {
     Collection<E> elements = getSampleElements(getNumElements() - 1);
     elements.add(null);
-    Set<E> other = Helpers.copyToSet(elements);
+    Set<E> other = MinimalSet.from(elements);
 
     assertFalse(
         "Two Sets should not be equal if exactly one of them contains null.",
@@ -73,13 +75,13 @@ public class SetEqualsTester<E> extends AbstractSetTester<E> {
   public void testEquals_smallerSet() throws Exception {
     Collection<E> fewerElements = getSampleElements(getNumElements() - 1);
     assertFalse("Sets of different sizes should not be equal.",
-        getSet().equals(Helpers.copyToSet(fewerElements)));
+        getSet().equals(MinimalSet.from(fewerElements)));
   }
 
   public void testEquals_largerSet() {
     Collection<E> moreElements = getSampleElements(getNumElements() + 1);
     assertFalse("Sets of different sizes should not be equal.",
-        getSet().equals(Helpers.copyToSet(moreElements)));
+        getSet().equals(MinimalSet.from(moreElements)));
   }
 
   public void testEquals_list() {

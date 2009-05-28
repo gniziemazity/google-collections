@@ -46,6 +46,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Unit test for {@code Maps}.
@@ -806,7 +808,7 @@ public class MapsTest extends TestCase {
         = Maps.filterEntries(unfiltered, predicate);
     assertTrue(filtered.isEmpty());
   }
-  
+
   public void testFilteredEntriesWildCardEntryPredicate() {
     Map<String, Integer> unfiltered = Maps.newHashMap();
     unfiltered.put("cat", 3);
@@ -822,7 +824,7 @@ public class MapsTest extends TestCase {
         = Maps.filterEntries(unfiltered, predicate);
     assertEquals(ImmutableMap.of("cat", 3, "dog", 2), filtered);
   }
-  
+
   public static class FilteredKeysMapInterfaceTest
       extends MapInterfaceTest<String, Integer> {
 
@@ -887,13 +889,13 @@ public class MapsTest extends TestCase {
     }
   }
 
-  public static class FilteredEntriesMapInterfaceTest 
+  public static class FilteredEntriesMapInterfaceTest
       extends MapInterfaceTest<String, Integer> {
-    
+
     public FilteredEntriesMapInterfaceTest() {
       super(true, true, true, true, true, false);
     }
-    
+
     @Override protected String getKeyNotInPopulatedMap() {
       return "zero";
     }
@@ -916,9 +918,9 @@ public class MapsTest extends TestCase {
       map.put("eight", 8);
       map.put("tweleve", 12);
       return map;
-    }    
+    }
   }
-  
+
   public static class FilteredKeysFilteredValuesMapInterfaceTest
       extends MapInterfaceTest<String, Integer> {
 

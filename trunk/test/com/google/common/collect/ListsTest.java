@@ -335,7 +335,7 @@ public class ListsTest extends TestCase {
     checkFooBarBazList(list);
     SerializableTester.reserializeAndAssert(list);
     assertTrue(list instanceof RandomAccess);
-    
+
     new IteratorTester<String>(5, UNMODIFIABLE,
         asList("foo", "bar", "baz"),
         IteratorTester.KnownOrder.KNOWN_ORDER) {
@@ -669,7 +669,7 @@ public class ListsTest extends TestCase {
     assertTrue(partitions.get(0) instanceof RandomAccess);
     assertTrue(partitions.get(1) instanceof RandomAccess);
   }
-  
+
   public void testPartitionRandomAccessFalse() {
     List<Integer> source = Lists.newLinkedList(asList(1, 2, 3));
     List<List<Integer>> partitions = Lists.partition(source, 2);
@@ -677,7 +677,7 @@ public class ListsTest extends TestCase {
     assertFalse(partitions.get(0) instanceof RandomAccess);
     assertFalse(partitions.get(1) instanceof RandomAccess);
   }
-  
+
   // TODO: use the ListTestSuiteBuilder
 
   public void testPartition_view() {

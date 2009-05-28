@@ -30,9 +30,18 @@ import javax.annotation.Nullable;
  */
 @GwtCompatible(serializable = true)
 final class SingletonImmutableMap<K, V> extends ImmutableMap<K, V> {
-  transient final K singleKey;
-  transient final V singleValue;
+
+  // These fields are not final so that GWT is able to derive the key and value
+  // types by inspecting these fields at GWT compile time.  It also makes this
+  // class GWT serializable without a custom field serializer.
+  private K singleKey;
+  private V singleValue;
+
   private transient Entry<K, V> entry;
+
+  // Only used in GWT deserialization.
+  private SingletonImmutableMap() {
+  }
 
   SingletonImmutableMap(K singleKey, V singleValue) {
     this.singleKey = singleKey;

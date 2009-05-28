@@ -140,6 +140,22 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     }
   }
 
+  protected final boolean supportsValuesHashCode(Map<K, V> map) {
+    // get the first non-null value
+    Collection<V> values = map.values();
+    for (V value : values) {
+      if (value != null) {
+        try {
+          value.hashCode();
+        } catch (Exception e) {
+          return false;
+        }
+        return true;
+      }
+    }
+    return true;
+  }
+
   /**
    * Checks all the properties that should always hold of a map. Also calls
    * {@link #assertMoreInvariants} to check invariants that are peculiar to
@@ -184,19 +200,23 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     assertEquals(entrySet.size() == 0, entrySet.isEmpty());
     assertEquals(!entrySet.isEmpty(), entrySet.iterator().hasNext());
     assertFalse(entrySet.contains("foo"));
-    int expectedEntrySetHash = 0;
-    for (Entry<K, V> entry : entrySet) {
-      assertTrue(map.containsKey(entry.getKey()));
-      assertTrue(map.containsValue(entry.getValue()));
-      int expectedHash =
-          (entry.getKey() == null ? 0 : entry.getKey().hashCode()) ^
-          (entry.getValue() == null ? 0 : entry.getValue().hashCode());
-      assertEquals(expectedHash, entry.hashCode());
-      expectedEntrySetHash += expectedHash;
+
+    boolean supportsValuesHashCode = supportsValuesHashCode(map);
+    if (supportsValuesHashCode) {
+      int expectedEntrySetHash = 0;
+      for (Entry<K, V> entry : entrySet) {
+        assertTrue(map.containsKey(entry.getKey()));
+        assertTrue(map.containsValue(entry.getValue()));
+        int expectedHash =
+            (entry.getKey() == null ? 0 : entry.getKey().hashCode()) ^
+            (entry.getValue() == null ? 0 : entry.getValue().hashCode());
+        assertEquals(expectedHash, entry.hashCode());
+        expectedEntrySetHash += expectedHash;
+      }
+      assertEquals(expectedEntrySetHash, entrySet.hashCode());
+      assertTrue(entrySet.containsAll(new HashSet<Entry<K, V>>(entrySet)));
+      assertTrue(entrySet.equals(new HashSet<Entry<K, V>>(entrySet)));
     }
-    assertEquals(expectedEntrySetHash, entrySet.hashCode());
-    assertTrue(entrySet.containsAll(new HashSet<Entry<K, V>>(entrySet)));
-    assertTrue(entrySet.equals(new HashSet<Entry<K, V>>(entrySet)));
 
     Object[] entrySetToArray1 = entrySet.toArray();
     assertEquals(map.size(), entrySetToArray1.length);
@@ -218,11 +238,13 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
     assertNull(valuesToArray2[map.size()]);
     assertTrue(Arrays.asList(valuesToArray2).containsAll(valueCollection));
 
-    int expectedHash = 0;
-    for (Entry<K, V> entry : entrySet) {
-      expectedHash += entry.hashCode();
+    if (supportsValuesHashCode) {
+      int expectedHash = 0;
+      for (Entry<K, V> entry : entrySet) {
+        expectedHash += entry.hashCode();
+      }
+      assertEquals(expectedHash, map.hashCode());
     }
-    assertEquals(expectedHash, map.hashCode());
 
     assertMoreInvariants(map);
   }

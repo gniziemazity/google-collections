@@ -48,7 +48,7 @@ public class Jsr166HashMap<K, V> extends ForwardingConcurrentMap<K, V>
 
   final ConcurrentMap<K, V> delegate;
 
-  protected ConcurrentMap<K, V> delegate() {
+  @Override protected ConcurrentMap<K, V> delegate() {
     return delegate;
   }
 

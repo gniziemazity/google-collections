@@ -745,7 +745,7 @@ public class IteratorsTest extends TestCase {
             asList(4, 5, 6),
             asList(7)),
         IteratorTester.KnownOrder.KNOWN_ORDER) {
-      protected Iterator<List<Integer>> newTargetIterator() {
+      @Override protected Iterator<List<Integer>> newTargetIterator() {
         Iterator<Integer> source = Iterators.forArray(1, 2, 3, 4, 5, 6, 7);
         return Iterators.partition(source, 3);
       }
@@ -773,7 +773,7 @@ public class IteratorsTest extends TestCase {
     assertTrue(partitions.next() instanceof RandomAccess);
     assertTrue(partitions.next() instanceof RandomAccess);
   }
-  
+
   public void testPaddedPartition_badSize() {
     Iterator<Integer> source = Iterators.singletonIterator(1);
     try {
@@ -815,7 +815,7 @@ public class IteratorsTest extends TestCase {
             asList(4, 5, 6),
             asList(7, null, null)),
         IteratorTester.KnownOrder.KNOWN_ORDER) {
-      protected Iterator<List<Integer>> newTargetIterator() {
+      @Override protected Iterator<List<Integer>> newTargetIterator() {
         Iterator<Integer> source = Iterators.forArray(1, 2, 3, 4, 5, 6, 7);
         return Iterators.paddedPartition(source, 3);
       }

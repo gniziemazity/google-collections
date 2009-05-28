@@ -16,6 +16,11 @@
 
 package com.google.common.collect.testing;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Collection;
 import java.util.List;
 
@@ -40,7 +45,24 @@ public class ReserializingTestCollectionGenerator<E>
   }
 
   public Collection<E> create(Object... elements) {
-    return Helpers.reserialize(delegate.create(elements));
+    return reserialize(delegate.create(elements));
+  }
+
+  @SuppressWarnings("unchecked")
+  static <T> T reserialize(T object) {
+    try {
+      ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+      ObjectOutputStream out = new ObjectOutputStream(bytes);
+      out.writeObject(object);
+      ObjectInputStream in = new ObjectInputStream(
+          new ByteArrayInputStream(bytes.toByteArray()));
+      return (T) in.readObject();
+    } catch (IOException e) {
+      Helpers.fail(e, e.getMessage());
+    } catch (ClassNotFoundException e) {
+      Helpers.fail(e, e.getMessage());
+    }
+    throw new AssertionError("not reachable");
   }
 
   public SampleElements<E> samples() {

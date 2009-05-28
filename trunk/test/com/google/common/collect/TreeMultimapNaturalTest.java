@@ -32,6 +32,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -445,5 +446,22 @@ public class TreeMultimapNaturalTest<E> extends AbstractSetMultimapTest {
     assertEquals(Ordering.natural(), multimap.keyComparator());
     assertEquals(Ordering.natural(), multimap.valueComparator());
     SerializableTester.reserializeAndAssert(multimap);
+  }
+
+  public void testTreeMultimapAsMapSorted() {
+    TreeMultimap<String, Integer> multimap = createPopulate();
+    SortedMap<String, Collection<Integer>> asMap = multimap.asMap();
+    assertEquals(Ordering.natural(), asMap.comparator());
+    assertEquals("foo", asMap.firstKey());
+    assertEquals("tree", asMap.lastKey());
+    Set<Integer> fooValues = ImmutableSet.of(1, 3, 7);
+    Set<Integer> googleValues = ImmutableSet.of(2, 6);
+    Set<Integer> treeValues = ImmutableSet.of(4, 0);
+    assertEquals(ImmutableMap.of("google", googleValues, "tree", treeValues),
+        asMap.tailMap("g"));
+    assertEquals(ImmutableMap.of("google", googleValues, "foo", fooValues),
+        asMap.headMap("h"));
+    assertEquals(ImmutableMap.of("google", googleValues),
+        asMap.subMap("g", "h"));
   }
 }

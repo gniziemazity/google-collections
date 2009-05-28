@@ -241,7 +241,11 @@ public abstract class AbstractMultimapTest extends TestCase {
     assertTrue(multimap.containsEntry("foo", 3));
     assertSize(2);
 
-    Iterable<Integer> emptyIterable = MinimalIterable.of();
+    /*
+     * For some reason, javac says "unchecked generic array creation" without
+     * the second <Integer>:
+     */
+    Iterable<Integer> emptyIterable = MinimalIterable.<Integer>of();
     multimap.putAll("bar", emptyIterable);
     assertSize(2);
     assertEquals(Collections.singleton("foo"), multimap.keySet());

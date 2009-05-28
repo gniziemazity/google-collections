@@ -62,7 +62,7 @@ public class MutableClassToInstanceMapTest extends TestCase {
               Entry<Class, Number> entry = (Entry<Class, Number>) object;
               map.putInstance(entry.getKey(), entry.getValue());
             }
-            return (Map<Class, Number>) (Map) map;
+            return (Map) map;
           }
         })
         .named("MutableClassToInstanceMap")

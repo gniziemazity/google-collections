@@ -35,6 +35,8 @@ import java.util.Stack;
 /**
  * Most of the logic for {@link IteratorTester} and {@link ListIteratorTester}.
  *
+ * <p>This class is GWT compatible.
+ *
  * @param <E> the type of element returned by the iterator
  * @param <I> the type of the iterator ({@link Iterator} or
  *     {@link ListIterator})
@@ -103,6 +105,7 @@ abstract class AbstractIteratorTester<E, I extends Iterator<E>> {
    * {@link AbstractIteratorTester.MultiExceptionListIterator} instead of
    * throwing any particular exception type.
    */
+  // This class is acessible but not supported in GWT.
   private static final class PermittedMetaException extends RuntimeException {
     final Set<? extends Class<? extends RuntimeException>> exceptionClasses;
 
@@ -116,6 +119,7 @@ abstract class AbstractIteratorTester<E, I extends Iterator<E>> {
       this(Collections.singleton(exceptionClass));
     }
 
+    // It's not supported In GWT, it always returns true.
     boolean isPermitted(RuntimeException exception) {
       for (Class<? extends RuntimeException> clazz : exceptionClasses) {
         if (clazz.isInstance(exception)) {
@@ -125,11 +129,12 @@ abstract class AbstractIteratorTester<E, I extends Iterator<E>> {
       return false;
     }
 
+    // It's not supported in GWT, it always passes.
     void assertPermitted(RuntimeException exception) {
       if (!isPermitted(exception)) {
         // TODO(Chris Povirk): use simple class names
-        String message = String.format("Exception %s was thrown; expected %s",
-            exception.getClass(), this);
+        String message = "Exception " + exception.getClass()
+            + " was thrown; expected " + this;
         Helpers.fail(exception, message);
       }
     }
@@ -143,9 +148,8 @@ abstract class AbstractIteratorTester<E, I extends Iterator<E>> {
 
   private static final class UnknownElementException extends RuntimeException {
     private UnknownElementException(Collection<?> expected, Object actual) {
-      super(String.format(
-          "Returned value '%s' not found. Remaining elements: %s", actual,
-          expected));
+      super("Returned value '"
+          + actual + "' not found. Remaining elements: " + expected);
     }
 
     private static final long serialVersionUID = 0;
@@ -164,6 +168,9 @@ abstract class AbstractIteratorTester<E, I extends Iterator<E>> {
    * Note that iterator implementations should always throw one of the
    * exceptions in a {@code PermittedExceptions} instance, since
    * {@code PermittedExceptions} is thrown only when a method call is invalid.
+   *
+   * <p>This class is accessible but not supported in GWT as it references
+   * {@link PermittedMetaException}.
    */
   protected final class MultiExceptionListIterator implements ListIterator<E> {
     // TODO(Chris Povirk): track seen elements when order isn't guaranteed
@@ -397,10 +404,16 @@ abstract class AbstractIteratorTester<E, I extends Iterator<E>> {
         List<E> elements = reference.getElements();
         verify(elements);
       } catch (AssertionFailedError cause) {
-        Helpers.fail(cause, "failed with stimuli " +
-            Arrays.asList(stimuli).subList(0, i + 1));
+        Helpers.fail(cause,
+            "failed with stimuli " + subListCopy(stimuli, i + 1));
       }
     }
+  }
+
+  private static List<Object> subListCopy(Object[] source, int size) {
+    final Object[] copy = new Object[size];
+    System.arraycopy(source, 0, copy, 0, size);
+    return Arrays.asList(copy);
   }
 
   private interface IteratorOperation {

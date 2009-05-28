@@ -23,7 +23,7 @@ import java.lang.reflect.Method;
 
 /**
  * Test suite for Google Collections.
- * 
+ *
  * @author Chris Povirk
  */
 public class CollectTestSuite {
@@ -85,6 +85,7 @@ public class CollectTestSuite {
       "com.google.common.collect.ImmutableBiMapTest$MapTests",
       "com.google.common.collect.ImmutableClassToInstanceMapTest",
       "com.google.common.collect.ImmutableListTest",
+      "com.google.common.collect.ImmutableListMultimapTest",
       "com.google.common.collect.ImmutableListTest$CreationTests",
       "com.google.common.collect.ImmutableMapTest",
       "com.google.common.collect.ImmutableMapTest$CreationTests",
@@ -98,6 +99,14 @@ public class CollectTestSuite {
       "com.google.common.collect.ImmutableSetCollectionTest",
       "com.google.common.collect.ImmutableSetMultimapAsMapImplementsMapTest",
       "com.google.common.collect.ImmutableSetTest",
+      "com.google.common.collect.ImmutableSortedMapTest",
+      "com.google.common.collect.ImmutableSortedMapTest$MapTests",
+      "com.google.common.collect.ImmutableSortedMapTest$SingletonMapTests",
+      "com.google.common.collect.ImmutableSortedMapTest$ReserializedMapTests",
+      "com.google.common.collect.ImmutableSortedMapTest$HeadMapTests",
+      "com.google.common.collect.ImmutableSortedMapTest$TailMapTests",
+      "com.google.common.collect.ImmutableSortedMapTest$SubMapTests",
+      "com.google.common.collect.ImmutableSortedMapTest$CreationTests",
       "com.google.common.collect.ImmutableSortedSetTest",
       "com.google.common.collect.InverseBiMapTest",
       "com.google.common.collect.IterablesTest",
@@ -146,5 +155,6 @@ public class CollectTestSuite {
       "com.google.common.collect.UnmodifiableMultimapAsMapImplementsMapTest",
       "com.google.common.collect.testing.MinimalCollectionTest",
       "com.google.common.collect.testing.MinimalIterableTest",
+      "com.google.common.collect.testing.MinimalSetTest",
   };
 }

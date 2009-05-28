@@ -28,7 +28,7 @@ import java.util.Map;
 
 /**
  * Provides static methods for serializing collection classes.
- * 
+ *
  * <p>This class assists the implementation of collection classes. Do not use
  * this class to serialize collections that are defined elsewhere.
  *
@@ -46,15 +46,15 @@ final class Serialization {
    * #writeMultiset(Multiset, ObjectOutputStream)}, or the number of distinct
    * keys in a multimap serialized by {@link
    * #writeMultimap(Multimap, ObjectOutputStream)}.
-   * 
+   *
    * <p>The returned count may be used to construct an empty collection of the
-   * appropriate capacity before calling any of the {@code populate} methods.  
+   * appropriate capacity before calling any of the {@code populate} methods.
    */
   @GwtIncompatible("java.io.ObjectInputStream")
   public static int readCount(ObjectInputStream stream) throws IOException {
     return stream.readInt();
   }
-  
+
   /**
    * Stores the contents of a map in an output stream, as part of serialization.
    * It does not support concurrent maps whose content may change while the
@@ -83,7 +83,7 @@ final class Serialization {
     int size = stream.readInt();
     populateMap(map, stream, size);
   }
-  
+
   /**
    * Populates a map by reading an input stream, as part of deserialization.
    * See {@link #writeMap} for the data format. The size is determined by a
@@ -98,9 +98,9 @@ final class Serialization {
       @SuppressWarnings("unchecked") // reading data stored by writeMap
       V value = (V) stream.readObject();
       map.put(key, value);
-    }    
-  }  
-  
+    }
+  }
+
   /**
    * Stores the contents of a multiset in an output stream, as part of
    * serialization. It does not support concurrent multisets whose content may
@@ -131,7 +131,7 @@ final class Serialization {
     int distinctElements = stream.readInt();
     populateMultiset(multiset, stream, distinctElements);
   }
-  
+
   /**
    * Populates a multiset by reading an input stream, as part of
    * deserialization. See {@link #writeMultiset} for the data format. The number

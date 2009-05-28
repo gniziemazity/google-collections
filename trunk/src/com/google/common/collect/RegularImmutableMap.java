@@ -20,8 +20,6 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.collect.ImmutableSet.ArrayImmutableSet;
 import com.google.common.collect.ImmutableSet.TransformedImmutableSet;
 
-import java.util.Iterator;
-
 /**
  * Implementation of {@link ImmutableMap} with two or more entries.
  *
@@ -91,12 +89,8 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
     return entries.length;
   }
 
-  public boolean isEmpty() {
+  @Override public boolean isEmpty() {
     return false;
-  }
-
-  @Override public boolean containsKey(Object key) {
-    return get(key) != null;
   }
 
   @Override public boolean containsValue(Object value) {
@@ -124,7 +118,7 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
   }
 
   private static class EntrySet<K, V> extends ArrayImmutableSet<Entry<K, V>> {
-    final RegularImmutableMap<K, V> map;
+    transient final RegularImmutableMap<K, V> map;
 
     EntrySet(RegularImmutableMap<K, V> map) {
       super(map.entries);
@@ -184,12 +178,8 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
       return map.entries.length;
     }
 
-    @Override public boolean isEmpty() {
-      return false;
-    }
-
     @Override public UnmodifiableIterator<V> iterator() {
-      Iterator<V> iterator = new AbstractIterator<V>() {
+      return new AbstractIterator<V>() {
         int index = 0;
         @Override protected V computeNext() {
           return (index < map.entries.length)
@@ -197,9 +187,6 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
               : endOfData();
         }
       };
-      // Though the AbstractIterator is unmodifiable, it isn't an
-      // UnmodifiableIterator.
-      return Iterators.unmodifiableIterator(iterator);
     }
 
     @Override public boolean contains(Object target) {
