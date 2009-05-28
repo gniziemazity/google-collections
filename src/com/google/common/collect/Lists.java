@@ -471,7 +471,7 @@ public final class Lists {
       this.size = size;
     }
 
-    public List<T> get(int index) {
+    @Override public List<T> get(int index) {
       int listSize = size();
       checkElementIndex(index, listSize);
       int start = index * size;
@@ -479,7 +479,7 @@ public final class Lists {
       return Platform.subList(list, start, end);
     }
 
-    public int size() {
+    @Override public int size() {
       return (list.size() + size - 1) / size;
     }
 

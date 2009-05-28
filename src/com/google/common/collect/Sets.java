@@ -60,14 +60,48 @@ public final class Sets {
    * {@link ImmutableSet} for a description of immutability. The set is
    * serializable.
    *
+   * <p>The iteration order of the returned set follows the enum's iteration
+   * order, not the order in which the elements are provided to the method.
+   *
    * @param anElement one of the elements the set should contain
    * @param otherElements the rest of the elements the set should contain
    * @return an immutable {@code Set} instance containing those elements, minus
    *     duplicates
    */
-  public static <E extends Enum<E>> Set<E> immutableEnumSet(
+  public static <E extends Enum<E>> ImmutableSet<E> immutableEnumSet(
       E anElement, E... otherElements) {
-    return Collections.unmodifiableSet(EnumSet.of(anElement, otherElements));
+    return new ImmutableSet.ForwardingImmutableSet<E>(
+        EnumSet.of(anElement, otherElements));
+  }
+
+  /**
+   * Returns an immutable set instance containing the given enum elements.
+   * Internally, the returned set will be backed by an {@link EnumSet}. See
+   * {@link ImmutableSet} for a description of immutability. The set is
+   * serializable.
+   *
+   * <p>The iteration order of the returned set follows the enum's iteration
+   * order, not the order in which the elements appear in the given collection.
+   *
+   * @param elements the elements, all of the same {@code enum} type, that the
+   *     set should contain
+   * @return an immutable {@code Set} instance containing those elements, minus
+   *     duplicates
+   */
+  public static <E extends Enum<E>> ImmutableSet<E> immutableEnumSet(
+      Iterable<E> elements) {
+    // TODO: consider checking if elements is an EnumSet and cloning it.
+    // This would be very fast, but would it happen often enough?
+    Iterator<E> iterator = elements.iterator();
+    if (!iterator.hasNext()) {
+      return ImmutableSet.of();
+    }
+    E first = iterator.next();
+    EnumSet<E> set = EnumSet.of(first);
+    while (iterator.hasNext()) {
+      set.add(iterator.next());
+    }
+    return new ImmutableSet.ForwardingImmutableSet<E>(set);
   }
 
   /**

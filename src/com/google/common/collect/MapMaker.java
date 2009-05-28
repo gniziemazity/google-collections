@@ -167,7 +167,14 @@ public final class MapMaker {
    * wrapped in a {@link WeakReference} (by default, strong references
    * are used).
    *
+   * <p><b>Note:</b> the map will use identity ({@code ==}) comparison
+   * to determine equality of weak keys, which may not behave as you expect.
+   * For example, storing a key in the map and then attempting a lookup
+   * using a different but {@link Object#equals(Object) equals}-equivalent
+   * key will always fail.
+   *
    * @throws IllegalStateException if the key strength was already set
+   * @see WeakReference
    */
   @GwtIncompatible("java.lang.ref.WeakReference")
   public MapMaker weakKeys() {
@@ -179,7 +186,14 @@ public final class MapMaker {
    * wrapped in a {@link SoftReference} (by default, strong references
    * are used).
    *
+   * <p><b>Note:</b> the map will use identity ({@code ==}) comparison
+   * to determine equality of soft keys, which may not behave as you expect.
+   * For example, storing a key in the map and then attempting a lookup
+   * using a different but {@link Object#equals(Object) equals}-equivalent
+   * key will always fail.
+   *
    * @throws IllegalStateException if the key strength was already set
+   * @see SoftReference
    */
   @GwtIncompatible("java.lang.ref.SoftReference")
   public MapMaker softKeys() {
@@ -201,7 +215,18 @@ public final class MapMaker {
    * wrapped in a {@link WeakReference} (by default, strong references
    * are used).
    *
+   * <p>Weak values will be garbage collected once they are weakly
+   * reachable. This makes them a poor candidate for caching; consider
+   * {@link #softValues()} instead.
+   *
+   * <p><b>Note:</b> the map will use identity ({@code ==}) comparison
+   * to determine equality of weak values. This will notably impact
+   * the behavior of {@link Map#containsValue(Object) containsValue},
+   * {@link ConcurrentMap#remove(Object, Object) remove(Object, Object)},
+   * and {@link ConcurrentMap#replace(Object, Object, Object) replace(K, V, V)}.
+   *
    * @throws IllegalStateException if the key strength was already set
+   * @see WeakReference
    */
   @GwtIncompatible("java.lang.ref.WeakReference")
   public MapMaker weakValues() {
@@ -213,7 +238,18 @@ public final class MapMaker {
    * wrapped in a {@link SoftReference} (by default, strong references
    * are used).
    *
+   * <p>Soft values will be garbage collected in response to memory
+   * demand, and in a least-recently-used manner. This makes them a
+   * good candidate for caching.
+   *
+   * <p><b>Note:</b> the map will use identity ({@code ==}) comparison
+   * to determine equality of soft values. This will notably impact
+   * the behavior of {@link Map#containsValue(Object) containsValue},
+   * {@link ConcurrentMap#remove(Object, Object) remove(Object, Object)},
+   * and {@link ConcurrentMap#replace(Object, Object, Object) replace(K, V, V)}.
+   *
    * @throws IllegalStateException if the value strength was already set
+   * @see SoftReference
    */
   @GwtIncompatible("java.lang.ref.SoftReference")
   public MapMaker softValues() {
@@ -285,7 +321,8 @@ public final class MapMaker {
    * <li>{@link NullPointerException} if the key is null or the computer returns
    *     null</li>
    * <li>or {@link ComputationException} wrapping an exception thrown by the
-   *     computation</li>
+   *     computation.  If a {@link ComputationException} was thrown from the
+   *     computer, it will be propagated.</li>
    * </ul>
    *
    * <p><b>Note:</b> Callers of {@code get()} <i>must</i> ensure that the key
@@ -309,24 +346,24 @@ public final class MapMaker {
 
   private enum Strength {
     WEAK {
-      boolean equal(Object a, Object b) {
+      @Override boolean equal(Object a, Object b) {
         return a == b;
       }
-      int hash(Object o) {
+      @Override int hash(Object o) {
         return System.identityHashCode(o);
       }
-      <K, V> ValueReference<K, V> referenceValue(
+      @Override <K, V> ValueReference<K, V> referenceValue(
           ReferenceEntry<K, V> entry, V value) {
         return new WeakValueReference<K, V>(value, entry);
       }
-      <K, V> ReferenceEntry<K, V> newEntry(
+      @Override <K, V> ReferenceEntry<K, V> newEntry(
           Internals<K, V, ReferenceEntry<K, V>> internals, K key,
           int hash, ReferenceEntry<K, V> next) {
         return (next == null)
             ? new WeakEntry<K, V>(internals, key, hash)
             : new LinkedWeakEntry<K, V>(internals, key, hash, next);
       }
-      <K, V> ReferenceEntry<K, V> copyEntry(
+      @Override <K, V> ReferenceEntry<K, V> copyEntry(
           K key, ReferenceEntry<K, V> original,
           ReferenceEntry<K, V> newNext) {
         WeakEntry<K, V> from = (WeakEntry<K, V>) original;
@@ -338,24 +375,24 @@ public final class MapMaker {
     },
 
     SOFT {
-      boolean equal(Object a, Object b) {
+      @Override boolean equal(Object a, Object b) {
         return a == b;
       }
-      int hash(Object o) {
+      @Override int hash(Object o) {
         return System.identityHashCode(o);
       }
-      <K, V> ValueReference<K, V> referenceValue(
+      @Override <K, V> ValueReference<K, V> referenceValue(
           ReferenceEntry<K, V> entry, V value) {
         return new SoftValueReference<K, V>(value, entry);
       }
-      <K, V> ReferenceEntry<K, V> newEntry(
+      @Override <K, V> ReferenceEntry<K, V> newEntry(
           Internals<K, V, ReferenceEntry<K, V>> internals, K key,
           int hash, ReferenceEntry<K, V> next) {
         return (next == null)
             ? new SoftEntry<K, V>(internals, key, hash)
             : new LinkedSoftEntry<K, V>(internals, key, hash, next);
       }
-      <K, V> ReferenceEntry<K, V> copyEntry(
+      @Override <K, V> ReferenceEntry<K, V> copyEntry(
           K key, ReferenceEntry<K, V> original,
           ReferenceEntry<K, V> newNext) {
         SoftEntry<K, V> from = (SoftEntry<K, V>) original;
@@ -367,17 +404,17 @@ public final class MapMaker {
     },
 
     STRONG {
-      boolean equal(Object a, Object b) {
+      @Override boolean equal(Object a, Object b) {
         return a.equals(b);
       }
-      int hash(Object o) {
+      @Override int hash(Object o) {
         return o.hashCode();
       }
-      <K, V> ValueReference<K, V> referenceValue(
+      @Override <K, V> ValueReference<K, V> referenceValue(
           ReferenceEntry<K, V> entry, V value) {
         return new StrongValueReference<K, V>(value);
       }
-      <K, V> ReferenceEntry<K, V> newEntry(
+      @Override <K, V> ReferenceEntry<K, V> newEntry(
           Internals<K, V, ReferenceEntry<K, V>> internals, K key,
           int hash, ReferenceEntry<K, V> next) {
         return (next == null)
@@ -385,7 +422,7 @@ public final class MapMaker {
             : new LinkedStrongEntry<K, V>(
                 internals, key, hash, next);
       }
-      <K, V> ReferenceEntry<K, V> copyEntry(
+      @Override <K, V> ReferenceEntry<K, V> copyEntry(
           K key, ReferenceEntry<K, V> original,
           ReferenceEntry<K, V> newNext) {
         StrongEntry<K, V> from = (StrongEntry<K, V>) original;
@@ -476,7 +513,7 @@ public final class MapMaker {
       final WeakReference<V> valueReference = new WeakReference<V>(value);
       ExpirationTimer.instance.schedule(
           new TimerTask() {
-            public void run() {
+            @Override public void run() {
               K key = keyReference.get();
               if (key != null) {
                 // Remove if the value is still the same.
@@ -502,7 +539,7 @@ public final class MapMaker {
       return entry.getKey();
     }
 
-    public int getHash(ReferenceEntry entry) {
+    public int getHash(ReferenceEntry<K, V> entry) {
       return entry.getHash();
     }
 
@@ -560,6 +597,12 @@ public final class MapMaker {
       V value;
       try {
         value = computer.apply(key);
+      } catch (ComputationException e) {
+        // if computer has thrown a computation exception, propagate rather
+        // than wrap
+        setValueReference(entry,
+            new ComputationExceptionReference<K, V>(e.getCause()));
+        throw e;
       } catch (Throwable t) {
         setValueReference(
           entry, new ComputationExceptionReference<K, V>(t));
@@ -1027,7 +1070,7 @@ public final class MapMaker {
       return new WeakValueReference<K, V>(get(), entry);
     }
 
-    public V waitForValue() throws InterruptedException {
+    public V waitForValue() {
       return get();
     }
   }

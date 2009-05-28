@@ -86,7 +86,7 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
    * maintainability of your code.
    */
   public static <E> ImmutableSet<E> of(E element) {
-    return new SingletonImmutableSet<E>(element, element.hashCode());
+    return new SingletonImmutableSet<E>(element);
   }
 
   /**
@@ -286,7 +286,8 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
   }
 
   abstract static class ArrayImmutableSet<E> extends ImmutableSet<E> {
-    final Object[] elements; // the elements (two or more) in the desired order
+    // the elements (two or more) in the desired order.
+    transient final Object[] elements;
 
     ArrayImmutableSet(Object[] elements) {
       this.elements = elements;
@@ -391,14 +392,10 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
         array[size] = null;
       }
 
+      // Writes will produce ArrayStoreException when the toArray() doc requires.
+      Object[] objectArray = array;
       for (int i = 0; i < source.length; i++) {
-        // Technically unsafe. But if T is generic, the caller already got a
-        // warning when they created their array, and if it isn't, we can count
-        // on an ArrayStoreException in the following statement to catch any
-        // problem.
-        @SuppressWarnings("unchecked")
-        T t = (T) transform(source[i]);
-        array[i] = t;
+        objectArray[i] = transform(source[i]);
       }
       return array;
     }
@@ -412,12 +409,70 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
     }
   }
 
+  /**
+   * Implementation that forwards all accessors to the provided delegate.
+   * Similar to {@link ForwardingSet}.
+   */
+  static class ForwardingImmutableSet<E> extends ImmutableSet<E> {
+    private final Set<E> delegate;
+
+    ForwardingImmutableSet(Set<E> delegate) {
+      this.delegate = delegate;
+    }
+
+    @Override public UnmodifiableIterator<E> iterator() {
+      return Iterators.unmodifiableIterator(delegate.iterator());
+    }
+
+    public int size() {
+      return delegate.size();
+    }
+
+    @Override public boolean contains(Object object) {
+      return delegate.contains(object);
+    }
+
+    @Override public boolean containsAll(Collection<?> collection) {
+      return delegate.containsAll(collection);
+    }
+
+    @Override public boolean isEmpty() {
+      return delegate.isEmpty();
+    }
+
+    @Override public Object[] toArray() {
+      return delegate.toArray();
+    }
+
+    @Override public <T> T[] toArray(T[] array) {
+      return delegate.toArray(array);
+    }
+
+    @Override public boolean equals(Object object) {
+      return object == this || delegate.equals(object);
+    }
+
+    private transient int hash;
+
+    @Override public int hashCode() {
+      return (hash == 0) ? hash = delegate.hashCode() : hash;
+    }
+
+    @Override public String toString() {
+      return delegate.toString();
+    }
+
+    @Override Object writeReplace() {
+      return new ForwardingSerializedForm<E>(delegate);
+    }
+  }
+
   /*
-   * This class is used to serialize all ImmutableSet instances, regardless of
-   * implementation type. It captures their "logical contents" and they are
-   * reconstructed using public static factories. This is necessary to ensure
-   * that the existence of a particular implementation type is an implementation
-   * detail.
+   * This class is used to serialize all ImmutableSet instances, except for
+   * ForwardingImmutableSet, regardless of implementation type. It captures
+   * their "logical contents" and they are reconstructed using public static
+   * factories. This is necessary to ensure that the existence of a particular
+   * implementation type is an implementation detail.
    */
   private static class SerializedForm implements Serializable {
     final Object[] elements;
@@ -432,6 +487,20 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
 
   @Override Object writeReplace() {
     return new SerializedForm(toArray());
+  }
+
+  /*
+   * This class is used to serialize ForwardingImmutableSet instances.
+   */
+  private static class ForwardingSerializedForm<E> implements Serializable {
+    final Set<E> delegate;
+    ForwardingSerializedForm(Set<E> delegate) {
+      this.delegate = delegate;
+    }
+    Object readResolve() {
+      return new ForwardingImmutableSet<E>(delegate);
+    }
+    private static final long serialVersionUID = 0;
   }
 
   /**
@@ -489,7 +558,7 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
      *
      * @param elements the elements to add
      * @return this {@code Builder} object
-     * @throws NullPointerException if {@code elements} is or contains null
+     * @throws NullPointerException if {@code elements} contains a null element
      */
     public Builder<E> add(E... elements) {
       checkNotNull(elements, "elements cannot be null");
@@ -509,7 +578,7 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
      *
      * @param elements the {@code Iterable} to add to the {@code ImmutableSet}
      * @return this {@code Builder} object
-     * @throws NullPointerException if {@code elements} is or contains null
+     * @throws NullPointerException if {@code elements} contains a null element
      */
     public Builder<E> addAll(Iterable<? extends E> elements) {
       if (elements instanceof Collection) {
@@ -530,7 +599,7 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
      *
      * @param elements the elements to add to the {@code ImmutableSet}
      * @return this {@code Builder} object
-     * @throws NullPointerException if {@code elements} is or contains null
+     * @throws NullPointerException if {@code elements} contains a null element
      */
     public Builder<E> addAll(Iterator<? extends E> elements) {
       while (elements.hasNext()) {

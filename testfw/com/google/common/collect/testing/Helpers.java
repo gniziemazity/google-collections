@@ -19,11 +19,6 @@ package com.google.common.collect.testing;
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,6 +30,7 @@ import java.util.ListIterator;
 import java.util.Map.Entry;
 import java.util.Set;
 
+// This class is GWT compatible.
 public class Helpers {
   public static <T> T checkNotNull(T reference) {
     if (reference == null) {
@@ -146,23 +142,6 @@ public class Helpers {
       iterator.next();
     }
     return iterator.next();
-  }
-
-  @SuppressWarnings("unchecked")
-  static <T> T reserialize(T object) {
-    try {
-      ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-      ObjectOutputStream out = new ObjectOutputStream(bytes);
-      out.writeObject(object);
-      ObjectInputStream in = new ObjectInputStream(
-          new ByteArrayInputStream(bytes.toByteArray()));
-      return (T) in.readObject();
-    } catch (IOException e) {
-      fail(e, e.getMessage());
-    } catch (ClassNotFoundException e) {
-      fail(e, e.getMessage());
-    }
-    throw new AssertionError("not reachable");
   }
 
   static void fail(Throwable cause, Object message) {

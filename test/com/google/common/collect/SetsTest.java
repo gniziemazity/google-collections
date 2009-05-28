@@ -18,7 +18,10 @@ package com.google.common.collect;
 
 import static com.google.common.collect.Iterables.unmodifiableIterable;
 import static com.google.common.collect.Sets.newEnumSet;
+import com.google.common.collect.testing.AnEnum;
+import com.google.common.collect.testing.MinimalIterable;
 import com.google.common.collect.testing.SetTestSuiteBuilder;
+import com.google.common.collect.testing.TestEnumSetGenerator;
 import com.google.common.collect.testing.TestStringSetGenerator;
 import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
@@ -27,6 +30,7 @@ import static com.google.common.collect.testing.testers.CollectionIteratorTester
 import com.google.common.testing.junit3.JUnitAsserts;
 import com.google.common.testutils.NullPointerTester;
 import com.google.common.testutils.SerializableTester;
+import static com.google.common.testing.junit3.JUnitAsserts.assertContentsInOrder;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -128,6 +132,18 @@ public class SetsTest extends TestCase {
         .withFeatures(CollectionSize.ANY, CollectionFeature.ALLOWS_NULL_VALUES)
         .createTestSuite());
 
+    suite.addTest(SetTestSuiteBuilder.using(new TestEnumSetGenerator() {
+          @Override protected Set<AnEnum> create(AnEnum[] elements) {
+            AnEnum[] otherElements = new AnEnum[elements.length - 1];
+            System.arraycopy(
+                elements, 1, otherElements, 0, otherElements.length);
+            return Sets.immutableEnumSet(elements[0], otherElements);
+          }
+        })
+        .named("Sets.immutableEnumSet")
+        .withFeatures(CollectionSize.ONE, CollectionSize.SEVERAL)
+        .createTestSuite());
+
     suite.addTest(testsForFilter());
     suite.addTest(testsForFilterNoNulls());
     suite.addTest(testsForFilterFiltered());
@@ -199,9 +215,12 @@ public class SetsTest extends TestCase {
   private enum SomeEnum { A, B, C, D }
 
   public void testImmutableEnumSet() {
-    Set<SomeEnum> units = Sets.immutableEnumSet(SomeEnum.B, SomeEnum.D);
+    Set<SomeEnum> units = Sets.immutableEnumSet(SomeEnum.D, SomeEnum.B);
 
-    verifySetContents(units, Arrays.asList(SomeEnum.B, SomeEnum.D));
+    assertContentsInOrder(units, SomeEnum.B, SomeEnum.D);
+
+    Set<SomeEnum> copy = SerializableTester.reserializeAndAssert(units);
+    assertTrue(copy instanceof ImmutableSet.ForwardingImmutableSet);
 
     try {
       units.remove(SomeEnum.B);
@@ -211,6 +230,20 @@ public class SetsTest extends TestCase {
       units.add(SomeEnum.C);
       fail("ImmutableEnumSet should throw an exception on add()");
     } catch (UnsupportedOperationException expected) {}
+  }
+
+  public void testImmutableEnumSet_fromIterable() {
+    ImmutableSet<SomeEnum> none
+        = Sets.immutableEnumSet(MinimalIterable.<SomeEnum>of());
+    assertContentsInOrder(none);
+
+    ImmutableSet<SomeEnum> one
+        = Sets.immutableEnumSet(MinimalIterable.of(SomeEnum.B));
+    assertContentsInOrder(one, SomeEnum.B);
+
+    ImmutableSet<SomeEnum> two
+        = Sets.immutableEnumSet(MinimalIterable.of(SomeEnum.D, SomeEnum.B));
+    assertContentsInOrder(two, SomeEnum.B, SomeEnum.D);
   }
 
   public void testNewEnumSet_empty() {

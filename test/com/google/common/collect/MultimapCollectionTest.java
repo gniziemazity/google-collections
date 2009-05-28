@@ -317,8 +317,8 @@ public class MultimapCollectionTest extends TestCase {
 
     suite.addTest(ListTestSuiteBuilder.using(new TestStringListGenerator() {
           @Override protected List<String> create(String[] elements) {
-            ImmutableMultimap.Builder<Integer, String> builder
-                = ImmutableMultimap.builder();
+            ImmutableListMultimap.Builder<Integer, String> builder
+                = ImmutableListMultimap.builder();
             ListMultimap<Integer, String> multimap
                 = builder.put(2, "foo")
                 .putAll(3, elements)
@@ -326,7 +326,7 @@ public class MultimapCollectionTest extends TestCase {
             return multimap.get(3);
           }
         })
-        .named("ImmutableMultimap.get")
+        .named("ImmutableListMultimap.get")
         .withFeatures(CollectionSize.ANY)
         .createTestSuite());
 
@@ -407,8 +407,8 @@ public class MultimapCollectionTest extends TestCase {
 
     suite.addTest(SetTestSuiteBuilder.using(new TestStringSetGenerator() {
           @Override protected Set<String> create(String[] elements) {
-            ImmutableMultimap.Builder<String, Integer> builder
-                = ImmutableMultimap.builder();
+            ImmutableListMultimap.Builder<String, Integer> builder
+                = ImmutableListMultimap.builder();
             for (String element : elements) {
               builder.put(element, 2);
               builder.put(element, 3);
@@ -417,7 +417,7 @@ public class MultimapCollectionTest extends TestCase {
             return multimap.keySet();
           }
         })
-        .named("ImmutableMultimap.keySet")
+        .named("ImmutableListMultimap.keySet")
         .withFeatures(CollectionSize.ANY, CollectionFeature.KNOWN_ORDER)
         .createTestSuite());
 
@@ -502,15 +502,15 @@ public class MultimapCollectionTest extends TestCase {
     suite.addTest(CollectionTestSuiteBuilder.using(
         new TestStringCollectionGenerator() {
           @Override public Collection<String> create(String[] elements) {
-            ImmutableMultimap.Builder<Integer, String> builder
-                = ImmutableMultimap.builder();
+            ImmutableListMultimap.Builder<Integer, String> builder
+                = ImmutableListMultimap.builder();
             for (int i = 0; i < elements.length; i++) {
               builder.put(i % 2, elements[i]);
             }
             return builder.build().values();
           }
         })
-        .named("ImmutableMultimap.values")
+        .named("ImmutableListMultimap.values")
         .withFeatures(CollectionSize.ANY)
         .createTestSuite());
 
@@ -603,8 +603,8 @@ public class MultimapCollectionTest extends TestCase {
     suite.addTest(MultisetTestSuiteBuilder.using(
         new TestStringMultisetGenerator() {
           @Override protected Multiset<String> create(String[] elements) {
-            ImmutableMultimap.Builder<String, Integer> builder
-                = ImmutableMultimap.builder();
+            ImmutableListMultimap.Builder<String, Integer> builder
+                = ImmutableListMultimap.builder();
             for (int i = 0; i < elements.length; i++) {
               builder.put(elements[i], i);
             }
@@ -612,7 +612,7 @@ public class MultimapCollectionTest extends TestCase {
             return multimap.keys();
           }
         })
-        .named("ImmutableMultimap.keys")
+        .named("ImmutableListMultimap.keys")
         .withFeatures(CollectionSize.ANY, CollectionFeature.KNOWN_ORDER)
         .createTestSuite());
 
@@ -699,13 +699,13 @@ public class MultimapCollectionTest extends TestCase {
     suite.addTest(CollectionTestSuiteBuilder.using(
         new TestEntriesGenerator() {
           @Override Multimap<String, Integer> createMultimap() {
-            return ImmutableMultimap.of();
+            return ImmutableListMultimap.of();
           }
 
           @Override public Collection<Entry<String, Integer>> create(
               Object... elements) {
-            ImmutableMultimap.Builder<String, Integer> builder
-                = ImmutableMultimap.builder();
+            ImmutableListMultimap.Builder<String, Integer> builder
+                = ImmutableListMultimap.builder();
             for (Object element : elements) {
               @SuppressWarnings("unchecked")
               Entry<String, Integer> entry = (Entry<String, Integer>) element;
@@ -714,7 +714,7 @@ public class MultimapCollectionTest extends TestCase {
             return builder.build().entries();
           }
         })
-        .named("ImmutableMultimap.entries")
+        .named("ImmutableListMultimap.entries")
         .withFeatures(CollectionSize.ANY, CollectionFeature.KNOWN_ORDER)
         .createTestSuite());
 

@@ -1207,10 +1207,11 @@ public final class Multimaps {
    * <li> {@code keyFunction} returns null for any element of {@code values}
    * </ul>
    */
-  public static <K, V> ImmutableMultimap<K, V> index(
+  public static <K, V> ImmutableListMultimap<K, V> index(
       Iterable<V> values, Function<? super V, K> keyFunction) {
     checkNotNull(keyFunction);
-    ImmutableMultimap.Builder<K, V> builder = ImmutableMultimap.builder();
+    ImmutableListMultimap.Builder<K, V> builder
+        = ImmutableListMultimap.builder();
     for (V value : values) {
       Preconditions.checkNotNull(value, values);
       builder.put(keyFunction.apply(value), value);

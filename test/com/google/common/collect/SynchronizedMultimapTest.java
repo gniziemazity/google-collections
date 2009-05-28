@@ -194,7 +194,7 @@ public class SynchronizedMultimapTest extends AbstractSetMultimapTest {
         multimap.replaceValues("bar", Arrays.asList(6, 5)), 1, 2, 3);
     JUnitAsserts.assertContentsInOrder(multimap.get("bar"), 5, 6);
   }
-  
+
   public void testSynchronizedArrayListMultimapRandomAccess() {
     ListMultimap<String, Integer> delegate = ArrayListMultimap.create();
     delegate.put("foo", 1);
@@ -204,7 +204,7 @@ public class SynchronizedMultimapTest extends AbstractSetMultimapTest {
     assertTrue(multimap.get("foo") instanceof RandomAccess);
     assertTrue(multimap.get("bar") instanceof RandomAccess);
   }
-  
+
   public void testSynchronizedLinkedListMultimapRandomAccess() {
     ListMultimap<String, Integer> delegate = LinkedListMultimap.create();
     delegate.put("foo", 1);
@@ -213,5 +213,5 @@ public class SynchronizedMultimapTest extends AbstractSetMultimapTest {
         = Multimaps.synchronizedListMultimap(delegate);
     assertFalse(multimap.get("foo") instanceof RandomAccess);
     assertFalse(multimap.get("bar") instanceof RandomAccess);
-  }  
+  }
 }

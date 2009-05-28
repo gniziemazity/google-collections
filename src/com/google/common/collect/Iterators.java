@@ -468,10 +468,13 @@ public final class Iterators {
       Iterator<? extends T> removeFrom;
 
       public boolean hasNext() {
-        while (!current.hasNext() && inputs.hasNext()) {
+        // http://code.google.com/p/google-collections/issues/detail?id=151
+        // current.hasNext() might be relatively expensive, worth minimizing.
+        boolean currentHasNext;
+        while (!(currentHasNext = current.hasNext()) && inputs.hasNext()) {
           current = inputs.next();
         }
-        return current.hasNext();
+        return currentHasNext;
       }
       public T next() {
         if (!hasNext()) {
@@ -517,7 +520,7 @@ public final class Iterators {
    * two inner lists of three elements each, all in the original order.
    *
    * <p>The returned lists implement {@link java.util.RandomAccess}.
-   * 
+   *
    * @param iterator the iterator to return a partitioned view of
    * @param size the desired size of each partition
    * @return an iterator of immutable lists containing the elements of {@code

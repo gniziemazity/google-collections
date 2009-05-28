@@ -60,21 +60,23 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E>
   private static class FieldSettersHolder {
     @SuppressWarnings("unchecked")
     // eclipse doesn't like the raw type here, but it's harmless
-    static final FieldSetter<ConcurrentHashMultiset> COUNT_MAP_FIELD_SETTER =
-        Serialization.getFieldSetter(ConcurrentHashMultiset.class, "countMap");
+    static final FieldSetter<ConcurrentHashMultiset> COUNT_MAP_FIELD_SETTER
+        = Serialization.getFieldSetter(
+            ConcurrentHashMultiset.class, "countMap");
   }
 
   /**
-   * Creates a new empty {@code ConcurrentMultiset} using the default initial
-   * capacity, load factor, and concurrency settings.
+   * Creates a new empty {@code ConcurrentHashMultiset} using the default
+   * initial capacity, load factor, and concurrency settings.
    */
   public static <E> ConcurrentHashMultiset<E> create() {
     return new ConcurrentHashMultiset<E>(new ConcurrentHashMap<E, Integer>());
   }
 
   /**
-   * Creates a new {@code ConcurrentMultiset} containing the specified elements,
-   * using the default initial capacity, load factor, and concurrency settings.
+   * Creates a new {@code ConcurrentHashMultiset} containing the specified
+   * elements, using the default initial capacity, load factor, and concurrency
+   * settings.
    *
    * @param elements the elements that the multiset should contain
    */
@@ -96,8 +98,8 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E>
    *     their counts. It must be empty.
    * @throws IllegalArgumentException if {@code countMap} is not empty
    */
-  @VisibleForTesting
-  ConcurrentHashMultiset(ConcurrentMap<E, Integer> countMap) {
+  @VisibleForTesting ConcurrentHashMultiset(
+      ConcurrentMap<E, Integer> countMap) {
     checkArgument(countMap.isEmpty());
     this.countMap = countMap;
   }

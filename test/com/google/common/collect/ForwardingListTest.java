@@ -171,7 +171,7 @@ public class ForwardingListTest extends ForwardingTestCase {
     forward.hashCode();
     assertEquals("[hashCode]", getCalls());
   }
-  
+
   public void testRandomAccess() {
     assertFalse(forward instanceof RandomAccess);
   }

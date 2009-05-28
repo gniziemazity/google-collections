@@ -26,6 +26,8 @@ import java.util.Set;
  * A method supported by implementations of the {@link Iterator} or
  * {@link ListIterator} interface.
  *
+ * <p>This enum is GWT compatible.
+ *
  * @author Chris Povirk
  */
 public enum IteratorFeature {

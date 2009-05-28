@@ -55,7 +55,7 @@ public class ImmutableClassToInstanceMapTest extends TestCase {
               Entry<Class, Number> entry = (Entry<Class, Number>) object;
               builder.put(entry.getKey(), entry.getValue());
             }
-            return (Map<Class, Number>) (Map) builder.build();
+            return (Map) builder.build();
           }
         })
         .named("ImmutableClassToInstanceMap")
@@ -85,7 +85,7 @@ public class ImmutableClassToInstanceMapTest extends TestCase {
     assertEquals(2, map.size());
 
     Number zero = map.getInstance(Number.class);
-    assertEquals((Integer) 0, zero);
+    assertEquals(0, zero);
 
     Double pi = map.getInstance(Double.class);
     assertEquals(Math.PI, pi, 0.0);
@@ -124,7 +124,7 @@ public class ImmutableClassToInstanceMapTest extends TestCase {
     assertEquals(2, map.size());
 
     Number zero = map.getInstance(Number.class);
-    assertEquals((Integer) 0, zero);
+    assertEquals(0, zero);
 
     Double pi = map.getInstance(Double.class);
     assertEquals(Math.PI, pi, 0.0);
@@ -142,6 +142,9 @@ public class ImmutableClassToInstanceMapTest extends TestCase {
     assertEquals(1, (int) ictim.getInstance(int.class));
   }
 
+  // Other tests will verify what real, warning-free usage looks like
+  // but here we have to do some serious fudging
+  @SuppressWarnings("unchecked")
   abstract static class TestClassToInstanceMapGenerator
       implements TestMapGenerator<Class, Number> {
 

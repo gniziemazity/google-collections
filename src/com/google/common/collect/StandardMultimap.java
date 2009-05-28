@@ -18,7 +18,6 @@ package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
-import com.google.common.base.Objects;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -1257,10 +1256,25 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
 
   public Map<K, Collection<V>> asMap() {
     Map<K, Collection<V>> result = asMap;
-    return (result == null) ? asMap = new AsMap() : result;
+    return (result == null) ? asMap = createAsMap() : result;
+  }
+
+  private Map<K, Collection<V>> createAsMap() {
+    return (map instanceof SortedMap)
+        ? new SortedAsMap((SortedMap<K, Collection<V>>) map) : new AsMap(map);
   }
 
   private class AsMap extends AbstractMap<K, Collection<V>> {
+    /**
+     * Usually the same as map, but smaller for the headMap(), tailMap(), or
+     * subMap() of a SortedAsMap.
+     */
+    transient Map<K, Collection<V>> submap;
+
+    AsMap(Map<K, Collection<V>> submap) {
+      this.submap = submap;
+    }
+
     transient Set<Map.Entry<K, Collection<V>>> entrySet;
 
     @Override public Set<Map.Entry<K, Collection<V>>> entrySet() {
@@ -1270,16 +1284,12 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
 
     // The following methods are included for performance.
 
-    @Override public void clear() {
-      StandardMultimap.this.clear();
-    }
-
     @Override public boolean containsKey(Object key) {
-      return map.containsKey(key);
+      return submap.containsKey(key);
     }
 
     @Override public Collection<V> get(Object key) {
-      Collection<V> collection = map.get(key);
+      Collection<V> collection = submap.get(key);
       if (collection == null) {
         return null;
       }
@@ -1293,75 +1303,122 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
     }
 
     @Override public Collection<V> remove(Object key) {
-      Collection<V> collection = removeAll(key);
-      return collection.isEmpty() ? null : collection;
+      Collection<V> collection = submap.remove(key);
+      if (collection == null) {
+        return null;
+      }
+
+      Collection<V> output = createCollection();
+      output.addAll(collection);
+      totalSize -= collection.size();
+      collection.clear();
+      return output;
     }
 
     @Override public boolean equals(@Nullable Object object) {
-      return this == object || map.equals(object);
+      return this == object || submap.equals(object);
     }
 
     @Override public int hashCode() {
-      return map.hashCode();
+      return submap.hashCode();
     }
 
     @Override public String toString() {
-      return map.toString();
+      return submap.toString();
+    }
+
+    class AsMapEntries extends AbstractSet<Map.Entry<K, Collection<V>>> {
+      @Override public Iterator<Map.Entry<K, Collection<V>>> iterator() {
+        return new AsMapIterator();
+      }
+
+      @Override public int size() {
+        return submap.size();
+      }
+
+      // The following methods are included for performance.
+
+      @Override public boolean contains(Object o) {
+        return submap.entrySet().contains(o);
+      }
+
+      @Override public boolean remove(Object o) {
+        if (!contains(o)) {
+          return false;
+        }
+        Map.Entry<?, ?> entry = (Map.Entry<?, ?>) o;
+        removeValuesForKey(entry.getKey());
+        return true;
+      }
+    }
+
+    /** Iterator across all keys and value collections. */
+    class AsMapIterator implements Iterator<Map.Entry<K, Collection<V>>> {
+      final Iterator<Map.Entry<K, Collection<V>>> delegateIterator
+          = submap.entrySet().iterator();
+      Collection<V> collection;
+
+      public boolean hasNext() {
+        return delegateIterator.hasNext();
+      }
+
+      public Map.Entry<K, Collection<V>> next() {
+        Map.Entry<K, Collection<V>> entry = delegateIterator.next();
+        K key = entry.getKey();
+        collection = entry.getValue();
+        return Maps.immutableEntry(key, wrapCollection(key, collection));
+      }
+
+      public void remove() {
+        delegateIterator.remove();
+        totalSize -= collection.size();
+        collection.clear();
+      }
     }
   }
 
-  private class AsMapEntries extends AbstractSet<Map.Entry<K, Collection<V>>> {
-    @Override public Iterator<Map.Entry<K, Collection<V>>> iterator() {
-      return new AsMapIterator();
+  private class SortedAsMap extends AsMap
+      implements SortedMap<K, Collection<V>> {
+    SortedAsMap(SortedMap<K, Collection<V>> submap) {
+      super(submap);
     }
 
-    @Override public int size() {
-      return map.size();
+    SortedMap<K, Collection<V>> sortedMap() {
+      return (SortedMap<K, Collection<V>>) submap;
     }
 
-    // The following methods are included for performance.
-
-    @Override public void clear() {
-      StandardMultimap.this.clear();
+    public Comparator<? super K> comparator() {
+      return sortedMap().comparator();
     }
 
-    @Override public boolean contains(Object o) {
-      if (!(o instanceof Map.Entry)) {
-        return false;
-      }
-      Map.Entry<?, ?> entry = (Map.Entry<?, ?>) o;
-      return (entry.getValue() != null)
-          && Objects.equal(map.get(entry.getKey()), entry.getValue());
+    public K firstKey() {
+      return sortedMap().firstKey();
     }
 
-    @Override public boolean remove(Object o) {
-      if (!(o instanceof Map.Entry)) {
-        return false;
-      }
-      Map.Entry<?, ?> entry = (Map.Entry<?, ?>) o;
-      return contains(entry) && (removeValuesForKey(entry.getKey()) > 0);
+    public K lastKey() {
+      return sortedMap().lastKey();
     }
-  }
 
-  /** Iterator across all keys and value collections. */
-  private class AsMapIterator implements Iterator<Map.Entry<K, Collection<V>>> {
-    final Iterator<Map.Entry<K, Collection<V>>> delegateIterator
-        = map.entrySet().iterator();
-    Collection<V> collection;
+    public SortedMap<K, Collection<V>> headMap(K toKey) {
+      return new SortedAsMap(sortedMap().headMap(toKey));
+    }
 
-    public boolean hasNext() {
-      return delegateIterator.hasNext();
+    public SortedMap<K, Collection<V>> subMap(K fromKey, K toKey) {
+      return new SortedAsMap(sortedMap().subMap(fromKey, toKey));
     }
-    public Map.Entry<K, Collection<V>> next() {
-      Map.Entry<K, Collection<V>> entry = delegateIterator.next();
-      K key = entry.getKey();
-      collection = entry.getValue();
-      return Maps.immutableEntry(key, wrapCollection(key, collection));
+
+    public SortedMap<K, Collection<V>> tailMap(K fromKey) {
+      return new SortedAsMap(sortedMap().tailMap(fromKey));
     }
-    public void remove() {
-      delegateIterator.remove();
-      totalSize -= collection.size();
-      collection.clear();
+
+    SortedSet<K> sortedKeySet;
+
+    // returns a SortedSet, even though returning a Set would be sufficient to
+    // satisfy the SortedMap.keySet() interface
+    @Override public SortedSet<K> keySet() {
+      SortedSet<K> result = sortedKeySet;
+      return (result == null)
+          ? sortedKeySet = new SortedKeySet(sortedMap()) : result;
     }
   }
 

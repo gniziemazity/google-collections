@@ -16,6 +16,9 @@
 
 package com.google.common.collect;
 
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.collect.CustomConcurrentHashMap.Impl;
@@ -42,8 +45,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * Unit tests for MapMaker. Also less directly serves as the test suite for
@@ -498,6 +499,45 @@ public class MapMakerTestSuite extends TestCase {
         fail();
       } catch (ComputationException ce) {
         assertSame(e, ce.getCause());
+      }
+    }
+
+    public void testComputationExceptionWithCause() {
+      final Exception cause = new Exception();
+      final ComputationException e = new ComputationException(cause);
+
+      ConcurrentMap<Object, Object> map = new MapMaker().makeComputingMap(
+          new Function<Object, Object>() {
+        public Object apply(Object from) {
+          throw e;
+        }
+      });
+
+      try {
+        map.get(new Object());
+        fail();
+      } catch (ComputationException ce) {
+        assertSame(e, ce);
+        assertSame(cause, ce.getCause());
+      }
+    }
+
+    public void testComputationExceptionWithoutCause() {
+      final ComputationException e = new ComputationException(null);
+
+      ConcurrentMap<Object, Object> map = new MapMaker().makeComputingMap(
+          new Function<Object, Object>() {
+        public Object apply(Object from) {
+          throw e;
+        }
+      });
+
+      try {
+        map.get(new Object());
+        fail();
+      } catch (ComputationException ce) {
+        assertSame(e, ce);
+        assertNull(ce.getCause());
       }
     }
 

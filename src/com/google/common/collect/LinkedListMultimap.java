@@ -49,7 +49,7 @@ import javax.annotation.Nullable;
  * across non-distinct key values. For example, for the following multimap
  * definition: <pre>   {@code
  *
- *   Multimap<K, V> multimap = new LinkedListMultimap<K, V>();
+ *   Multimap<K, V> multimap = LinkedListMultimap.create();
  *   multimap.put(key1, foo);
  *   multimap.put(key2, bar);
  *   multimap.put(key1, baz);}</pre>
@@ -503,7 +503,7 @@ public final class LinkedListMultimap<K, V>
    * <p>If any entries for the specified {@code key} already exist in the
    * multimap, their values are changed in-place without affecting the iteration
    * order.
-   * 
+   *
    * <p>The returned list implements {@link java.util.RandomAccess}.
    */
   public List<V> replaceValues(@Nullable K key, Iterable<? extends V> values) {

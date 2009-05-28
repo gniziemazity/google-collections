@@ -14,7 +14,15 @@
  * limitations under the License.
  */
 
-package com.google.common.collect;
+package com.google.common.collect.testing.google;
+
+import com.google.common.annotations.GwtCompatible;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.LinkedHashMultiset;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multiset;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
@@ -34,6 +42,7 @@ import java.util.Set;
  *
  * @author Robert Konigsberg
  */
+@GwtCompatible
 public class UnmodifiableCollectionTests {
 
   public static void assertMapEntryIsUnmodifiable(Entry<?, ?> entry) {
@@ -72,17 +81,16 @@ public class UnmodifiableCollectionTests {
       Object expected = expectedIterator.next();
 
       assertTrue(
-        String.format(
-          "index %d, expected <%s>, actual is exhausted", i, expected),
+          "index " + i + " expected <" + expected + "., actual is exhausted",
         actualIterator.hasNext());
 
       Object actual = actualIterator.next();
-      assertEquals(String.format("index %d", i), expected, actual);
+      assertEquals("index " + i, expected, actual);
       i++;
     }
     if(actualIterator.hasNext()) {
-      fail(String.format("index %d, expected is exhausted, actual <%s>",
-        i, actualIterator.next()));
+      fail("index " + i
+          + ", expected is exhausted, actual <" + actualIterator.next() + ">");
     }
   }
 

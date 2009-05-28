@@ -16,13 +16,14 @@
 
 package com.google.common.collect.testing.testers;
 
-import com.google.common.collect.testing.features.CollectionFeature;
 import static com.google.common.collect.testing.features.CollectionFeature.ALLOWS_NULL_VALUES;
+
+import com.google.common.collect.testing.MinimalSet;
+import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
@@ -82,6 +83,6 @@ public class ListEqualsTester<E> extends AbstractListTester<E> {
 
   public void testEquals_set() {
     assertFalse("A List should never equal a Set.",
-        getList().equals(new LinkedHashSet<E>(getList())));
+        getList().equals(MinimalSet.from(getList())));
   }
 }

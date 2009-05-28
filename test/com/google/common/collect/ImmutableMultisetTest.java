@@ -22,6 +22,7 @@ import com.google.common.collect.testing.TestStringSetGenerator;
 import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.collect.testing.google.MultisetTestSuiteBuilder;
 import com.google.common.collect.testing.google.TestStringMultisetGenerator;
+import com.google.common.collect.testing.google.UnmodifiableCollectionTests;
 import static com.google.common.testing.junit3.JUnitAsserts.assertContentsInOrder;
 import static com.google.common.testing.junit3.JUnitAsserts.assertNotEqual;
 import com.google.common.testutils.NullPointerTester;
@@ -34,6 +35,7 @@ import junit.framework.TestSuite;
 import static java.util.Arrays.asList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -226,6 +228,128 @@ public class ImmutableMultisetTest extends TestCase {
   public void testCopyOf_shortcut_immutableMultiset() {
     Collection<String> c = ImmutableMultiset.of("a", "b", "c");
     assertSame(c, ImmutableMultiset.copyOf(c));
+  }
+
+  public void testBuilderAdd() {
+    ImmutableMultiset<String> multiset = new ImmutableMultiset.Builder<String>()
+        .add("a")
+        .add("b")
+        .add("a")
+        .add("c")
+        .build();
+    assertEquals(HashMultiset.create(asList("a", "b", "a", "c")), multiset);
+  }
+
+  public void testBuilderAddAll() {
+    List<String> a = asList("a", "b");
+    List<String> b = asList("c", "d");
+    ImmutableMultiset<String> multiset = new ImmutableMultiset.Builder<String>()
+        .addAll(a)
+        .addAll(b)
+        .build();
+    assertEquals(HashMultiset.create(asList("a", "b", "c", "d")), multiset);
+  }
+
+  public void testBuilderAddAllMultiset() {
+    Multiset<String> a = HashMultiset.create(asList("a", "b", "b"));
+    Multiset<String> b = HashMultiset.create(asList("c", "b"));
+    ImmutableMultiset<String> multiset = new ImmutableMultiset.Builder<String>()
+        .addAll(a)
+        .addAll(b)
+        .build();
+    assertEquals(
+        HashMultiset.create(asList("a", "b", "b", "b", "c")), multiset);
+  }
+
+  public void testBuilderAddAllIterator() {
+    Iterator<String> iterator = asList("a", "b", "a", "c").iterator();
+    ImmutableMultiset<String> multiset = new ImmutableMultiset.Builder<String>()
+        .addAll(iterator)
+        .build();
+    assertEquals(HashMultiset.create(asList("a", "b", "a", "c")), multiset);
+  }
+
+  public void testBuilderAddOccurrences() {
+    ImmutableMultiset<String> multiset = new ImmutableMultiset.Builder<String>()
+        .add("a", 2)
+        .add("b", 3)
+        .add("c", 0)
+        .build();
+    assertEquals(
+        HashMultiset.create(asList("a", "a", "b", "b", "b")), multiset);
+  }
+
+  public void testBuilderSetCount() {
+    ImmutableMultiset<String> multiset = new ImmutableMultiset.Builder<String>()
+        .add("a")
+        .setCount("a", 2)
+        .setCount("b", 3)
+        .build();
+    assertEquals(
+        HashMultiset.create(asList("a", "a", "b", "b", "b")), multiset);
+  }
+
+  public void testBuilderAddHandlesNullsCorrectly() {
+    ImmutableMultiset.Builder<String> builder = ImmutableMultiset.builder();
+    try {
+      builder.add((String) null);
+      fail("expected NullPointerException");
+    } catch (NullPointerException expected) {}
+  }
+
+  public void testBuilderAddAllHandlesNullsCorrectly() {
+    ImmutableMultiset.Builder<String> builder = ImmutableMultiset.builder();
+    try {
+      builder.addAll((Collection<String>) null);
+      fail("expected NullPointerException");
+    } catch (NullPointerException expected) {}
+
+    builder = ImmutableMultiset.builder();
+    List<String> listWithNulls = asList("a", null, "b");
+    try {
+      builder.addAll(listWithNulls);
+      fail("expected NullPointerException");
+    } catch (NullPointerException expected) {}
+
+    builder = ImmutableMultiset.builder();
+    Multiset<String> multisetWithNull
+        = LinkedHashMultiset.create(asList("a", null, "b"));
+    try {
+      builder.addAll(multisetWithNull);
+      fail("expected NullPointerException");
+    } catch (NullPointerException expected) {}
+  }
+
+  public void testBuilderAddOccurrencesHandlesNullsCorrectly() {
+    ImmutableMultiset.Builder<String> builder = ImmutableMultiset.builder();
+    try {
+      builder.add(null, 2);
+      fail("expected NullPointerException");
+    } catch (NullPointerException expected) {}
+  }
+
+  public void testBuilderAddOccurrencesIllegal() {
+    ImmutableMultiset.Builder<String> builder = ImmutableMultiset.builder();
+    try {
+      builder.add("a", -2);
+      fail("expected IllegalArgumentException");
+    } catch (IllegalArgumentException expected) {}
+  }
+
+  public void testBuilderSetCountHandlesNullsCorrectly() {
+    ImmutableMultiset.Builder<String> builder = ImmutableMultiset.builder();
+    try {
+      builder.setCount(null, 2);
+      fail("expected NullPointerException");
+    } catch (NullPointerException expected) {}
+  }
+
+  public void testBuilderSetCountIllegal() {
+    ImmutableMultiset.Builder<String> builder = ImmutableMultiset.builder();
+    try {
+      builder.setCount("a", -2);
+      fail("expected IllegalArgumentException");
+    } catch (IllegalArgumentException expected) {}
   }
 
   public void testNullPointers() throws Exception {

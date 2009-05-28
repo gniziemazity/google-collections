@@ -55,7 +55,7 @@ public class LinkedListMultimapTest extends AbstractListMultimapTest {
     assertFalse(multimap.get("foo") instanceof RandomAccess);
     assertFalse(multimap.get("bar") instanceof RandomAccess);
   }
-  
+
   /**
    * Confirm that removeAll() returns a List that implements RandomAccess, even
    * though get() doesn't.

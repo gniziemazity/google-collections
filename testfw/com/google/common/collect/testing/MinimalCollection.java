@@ -28,28 +28,34 @@ import java.util.Iterator;
  * @author Kevin Bourrillion
  */
 public class MinimalCollection<E> extends AbstractCollection<E> {
+  // TODO: expose allow nulls parameter?
+
   public static <E> MinimalCollection<E> of(E... contents) {
-    return new MinimalCollection<E>(Object.class, contents);
+    return new MinimalCollection<E>(Object.class, true, contents);
   }
 
   // TODO: use this
   public static <E> MinimalCollection<E> ofClassAndContents(
       Class<? super E> type, E... contents) {
-    return new MinimalCollection<E>(type, contents);
+    return new MinimalCollection<E>(type, true, contents);
   }
 
   private final E[] contents;
   private final Class<? super E> type;
+  private final boolean allowNulls;
 
-  private MinimalCollection(Class<? super E> type, E... contents) {
+  // Package-private so that it can be extended.
+  MinimalCollection(Class<? super E> type, boolean allowNulls, E... contents) {
+    // TODO: consider making it shuffle the contents to test iteration order.
     this.contents = contents.clone();
     this.type = type;
+    this.allowNulls = allowNulls;
 
-    // TODO: shouldn't we reject nulls, since we don't support asking whether
-    // one is present?
-//    for (Object element : contents) {
-//      Helpers.checkNotNull(element);
-//    }
+    if (!allowNulls) {
+      for (Object element : contents) {
+        Helpers.checkNotNull(element);
+      }
+    }
   }
 
   @Override public int size() {
@@ -57,14 +63,18 @@ public class MinimalCollection<E> extends AbstractCollection<E> {
   }
 
   @Override public boolean contains(Object object) {
-    Helpers.checkNotNull(object); // behave badly
+    if (!allowNulls) {
+      Helpers.checkNotNull(object); // behave badly
+    }
     type.cast(object); // behave badly
     return Arrays.asList(contents).contains(object);
   }
 
   @Override public boolean containsAll(Collection<?> collection) {
-    for (Object object : collection) {
-      Helpers.checkNotNull(object); // behave badly
+    if (!allowNulls) {
+      for (Object object : collection) {
+        Helpers.checkNotNull(object); // behave badly
+      }
     }
     return super.containsAll(collection);
   }

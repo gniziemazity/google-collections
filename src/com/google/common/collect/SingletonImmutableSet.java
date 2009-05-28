@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
+import com.google.common.base.Preconditions;
 
 import java.util.Set;
 
@@ -30,12 +31,23 @@ import javax.annotation.Nullable;
  */
 @GwtCompatible(serializable = true)
 final class SingletonImmutableSet<E> extends ImmutableSet<E> {
-  final E element;
-  private final int hashCode;
+
+  // This field is not final so that GWT is able to derive the element type
+  // by inspecting this field at GWT compile time.
+  private E element;
+  // Non-volatile because:
+  //   - Integer is immutable and thus thread-safe;
+  //   - no problems if one thread overwrites the cachedHashCode from another.
+  private transient Integer cachedHashCode;
+
+  SingletonImmutableSet(E element) {
+    this.element = Preconditions.checkNotNull(element);
+  }
 
   SingletonImmutableSet(E element, int hashCode) {
+    // Guaranteed to be non-null by the presence of the pre-computed hash code.
     this.element = element;
-    this.hashCode = hashCode;
+    cachedHashCode = hashCode;
   }
 
   public int size() {
@@ -65,7 +77,9 @@ final class SingletonImmutableSet<E> extends ImmutableSet<E> {
     } else if (array.length > 1) {
       array[1] = null;
     }
-    array[0] = (T) element;
+    // Writes will produce ArrayStoreException when the toArray() doc requires.
+    Object[] objectArray = array;
+    objectArray[0] = element;
     return array;
   }
 
@@ -81,11 +95,15 @@ final class SingletonImmutableSet<E> extends ImmutableSet<E> {
   }
 
   @Override public final int hashCode() {
-    return hashCode;
+    Integer code = cachedHashCode;
+    if (code == null) {
+      return cachedHashCode = element.hashCode();
+    }
+    return code;
   }
 
   @Override boolean isHashCodeFast() {
-    return true;
+    return false;
   }
 
   @Override public String toString() {
@@ -95,5 +113,10 @@ final class SingletonImmutableSet<E> extends ImmutableSet<E> {
         .append(elementToString)
         .append(']')
         .toString();
+  }
+
+  /** Returns the only element in this set. */
+  E getElement() {
+    return element;
   }
 }

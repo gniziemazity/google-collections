@@ -99,7 +99,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
     return (ImmutableSortedSet<E>) NATURAL_EMPTY_SET;
   }
 
-  private static <E> ImmutableSortedSet<E> emptySet(
+  static <E> ImmutableSortedSet<E> emptySet(
       Comparator<? super E> comparator) {
     if (NATURAL_ORDER.equals(comparator)) {
       return emptySet();
@@ -197,9 +197,9 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
    * at most once.
    *
    * <p>Note that if {@code s} is a {@code Set<String>}, then
-   * {@code ImmutableSortedSet.copyOf(s)} returns a
+   * {@code ImmutableSortedSet.copyOf(s)} returns an
    * {@code ImmutableSortedSet<String>} containing each of the strings in
-   * {@code s}, while {@code ImmutableSortedSet.of(s)} returns a
+   * {@code s}, while {@code ImmutableSortedSet.of(s)} returns an
    * {@code ImmutableSortedSet<Set<String>>} containing one element (the given
    * set itself).
    *
@@ -223,6 +223,39 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
   public static <E extends Comparable<? super E>> ImmutableSortedSet<E> copyOf(
       Iterator<? extends E> elements) {
     return copyOfInternal(Ordering.natural(), elements);
+  }
+
+  /**
+   * Returns an immutable sorted set containing the given elements sorted by
+   * the given {@code Comparator}. When multiple elements are equivalent
+   * according to {@code compare()}, only the first one specified is
+   * included. This method iterates over {@code elements} at most once.
+   *
+   * <p><b>Note:</b> Despite what the method name suggests, if {@code elements}
+   * is an {@code ImmutableSortedSet}, it may be returned instead of a copy.
+   *
+   * @throws NullPointerException if {@code comparator} or any of
+   *     {@code elements} is null
+   */
+  public static <E> ImmutableSortedSet<E> copyOf(
+      Comparator<? super E> comparator, Iterable<? extends E> elements) {
+    checkNotNull(comparator);
+    return copyOfInternal(comparator, elements, false);
+  }
+
+  /**
+   * Returns an immutable sorted set containing the given elements sorted by
+   * the given {@code Comparator}. When multiple elements are equivalent
+   * according to {@code compareTo()}, only the first one specified is
+   * included.
+   *
+   * @throws NullPointerException if {@code comparator} or any of
+   *     {@code elements} is null
+   */
+  public static <E> ImmutableSortedSet<E> copyOf(
+      Comparator<? super E> comparator, Iterator<? extends E> elements) {
+    checkNotNull(comparator);
+    return copyOfInternal(comparator, elements);
   }
 
   /**
@@ -345,7 +378,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
    * Returns a builder that creates immutable sorted sets whose elements are
    * ordered by their natural ordering. The sorted sets use {@link
    * Ordering#natural()} as the comparator. This method provides more
-   * type-safety than {@link #builder()}, as it can be called only for classes
+   * type-safety than {@link #builder}, as it can be called only for classes
    * that implement {@link Comparable}.
    *
    * <p>Note: the type parameter {@code E} extends {@code Comparable<E>} rather
@@ -358,14 +391,12 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
   }
 
   /**
-   * Not supported. Use {@link #naturalOrder()}, which offers better
-   * type-safety, instead. This method exists only to hide
-   * {@link ImmutableSet#builder()} from consumers of
-   * {@code ImmutableSortedSet}.
+   * Not supported. Use {@link #naturalOrder}, which offers better type-safety,
+   * instead. This method exists only to hide {@link ImmutableSet#builder}
+   * from consumers of {@code ImmutableSortedSet}.
    *
    * @throws UnsupportedOperationException always
-   *
-   * @deprecated Use {@link #naturalOrder()}, which offers better type-safety.
+   * @deprecated Use {@link #naturalOrder}, which offers better type-safety.
    */
   @Deprecated public static <E> Builder<E> builder() {
     throw new UnsupportedOperationException();
@@ -388,7 +419,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
    * multiple times to build multiple sets in series. Each set
    * is a superset of the set created before it.
    */
-  public static class Builder<E> extends ImmutableSet.Builder<E> {
+  public static final class Builder<E> extends ImmutableSet.Builder<E> {
     private final Comparator<? super E> comparator;
 
     /**
@@ -420,7 +451,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
      *
      * @param elements the elements to add
      * @return this {@code Builder} object
-     * @throws NullPointerException if {@code elements} is or contains null
+     * @throws NullPointerException if {@code elements} contains a null element
      */
     @Override public Builder<E> add(E... elements) {
       super.add(elements);
@@ -433,7 +464,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
      *
      * @param elements the elements to add to the {@code ImmutableSortedSet}
      * @return this {@code Builder} object
-     * @throws NullPointerException if {@code elements} is or contains null
+     * @throws NullPointerException if {@code elements} contains a null element
      */
     @Override public Builder<E> addAll(Iterable<? extends E> elements) {
       super.addAll(elements);
@@ -446,7 +477,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
      *
      * @param elements the elements to add to the {@code ImmutableSortedSet}
      * @return this {@code Builder} object
-     * @throws NullPointerException if {@code elements} is or contains null
+     * @throws NullPointerException if {@code elements} contains a null element
      */
     @Override public Builder<E> addAll(Iterator<? extends E> elements) {
       super.addAll(elements);
@@ -466,7 +497,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
     return unsafeCompare(comparator, a, b);
   }
 
-  private static int unsafeCompare(
+  static int unsafeCompare(
       Comparator<?> comparator, Object a, Object b) {
     // Pretend the comparator can compare anything. If it turns out it can't
     // compare a and b, we should get a CCE on the subsequent line. Only methods
@@ -515,7 +546,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
    *
    * <p>The {@link SortedSet#subSet} documentation states that a subset of a
    * subset throws an {@link IllegalArgumentException} if passed a
-   * {@code fromElement} smaller than an earlier {@code toElement}. However,
+   * {@code fromElement} smaller than an earlier {@code fromElement}. However,
    * this method doesn't throw an exception in that situation, but instead keeps
    * the original {@code fromElement}. Similarly, this method keeps the
    * original {@code toElement}, instead of throwing an exception, if passed a
@@ -641,20 +672,20 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
    * TODO: Consider creating a separate class for a single-element sorted set.
    */
   @SuppressWarnings("serial")
-  private static final class RegularImmutableSortedSet<E>
+  static final class RegularImmutableSortedSet<E>
       extends ImmutableSortedSet<E> {
 
-    final Object[] elements;
+    private final Object[] elements;
     /**
      * The index of the first element that's in the sorted set (inclusive
      * index).
      */
-    final int fromIndex;
+    private final int fromIndex;
     /**
      * The index after the last element that's in the sorted set (exclusive
      * index).
      */
-    final int toIndex;
+    private final int toIndex;
 
     RegularImmutableSortedSet(Object[] elements,
         Comparator<? super E> comparator) {
@@ -734,7 +765,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
       }
     }
 
-    int binarySearch(Object key) {
+    private int binarySearch(Object key) {
       int lower = fromIndex;
       int upper = toIndex - 1;
 
@@ -839,12 +870,13 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
       return createSubset(findSubsetIndex(fromElement), toIndex);
     }
 
-    int findSubsetIndex(E fromElement) {
-      int index = binarySearch(fromElement);
+    private int findSubsetIndex(E element) {
+      int index = binarySearch(element);
       return (index >= 0) ? index : (-index - 1);
     }
 
-    ImmutableSortedSet<E> createSubset(int newFromIndex, int newToIndex) {
+    private ImmutableSortedSet<E> createSubset(
+        int newFromIndex, int newToIndex) {
       if (newFromIndex < newToIndex) {
         return new RegularImmutableSortedSet<E>(elements, comparator,
             newFromIndex, newToIndex);

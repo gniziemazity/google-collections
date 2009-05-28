@@ -135,7 +135,7 @@ public abstract class ImmutableMap<K, V>
    * Verifies that {@code key} and {@code value} are non-null, and returns a new
    * entry with those values.
    */
-  private static <K, V> Entry<K, V> entryOf(K key, V value) {
+  static <K, V> Entry<K, V> entryOf(K key, V value) {
     return Maps.immutableEntry(checkNotNull(key), checkNotNull(value));
   }
 
@@ -176,7 +176,7 @@ public abstract class ImmutableMap<K, V>
     }
 
     /**
-     * Associates all of {@code map's} keys and values in the built map.
+     * Associates all of the given map's keys and values in the built map.
      * Duplicate keys are not allowed, and will cause {@link #build} to fail.
      *
      * @throws NullPointerException if any key or value in {@code map} is null
@@ -188,8 +188,8 @@ public abstract class ImmutableMap<K, V>
       return this;
     }
 
-    // TODO: Should build() and the ImmutableBiMap version throw an
-    // IllegalStateException instead?
+    // TODO: Should build() and the ImmutableBiMap & ImmutableSortedMap versions
+    // throw an IllegalStateException instead?
 
     /**
      * Returns a newly-created immutable map.
@@ -230,7 +230,7 @@ public abstract class ImmutableMap<K, V>
    */
   public static <K, V> ImmutableMap<K, V> copyOf(
       Map<? extends K, ? extends V> map) {
-    if (map instanceof ImmutableMap) {
+    if ((map instanceof ImmutableMap) && !(map instanceof ImmutableSortedMap)) {
       @SuppressWarnings("unchecked") // safe since map is not writable
       ImmutableMap<K, V> kvMap = (ImmutableMap<K, V>) map;
       return kvMap;
@@ -337,8 +337,13 @@ public abstract class ImmutableMap<K, V>
     throw new UnsupportedOperationException();
   }
 
-  // Overriding to mark it Nullable
-  public abstract boolean containsKey(@Nullable Object key);
+  public boolean isEmpty() {
+    return size() == 0;
+  }
+
+  public boolean containsKey(@Nullable Object key) {
+    return get(key) != null;
+  }
 
   // Overriding to mark it Nullable
   public abstract boolean containsValue(@Nullable Object value);
@@ -398,7 +403,7 @@ public abstract class ImmutableMap<K, V>
       return 0;
     }
 
-    public boolean isEmpty() {
+    @Override public boolean isEmpty() {
       return true;
     }
 

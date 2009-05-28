@@ -23,11 +23,16 @@ import static com.google.common.collect.ObjectArrays.concat;
 import static com.google.common.collect.Sets.newHashSet;
 import com.google.common.collect.testing.ListTestSuiteBuilder;
 import com.google.common.collect.testing.MinimalCollection;
+import com.google.common.collect.testing.TestListGenerator;
 import com.google.common.collect.testing.TestStringListGenerator;
+import com.google.common.collect.testing.TestUnhashableCollectionGenerator;
+import com.google.common.collect.testing.UnhashableObject;
 import com.google.common.collect.testing.features.CollectionSize;
 import static com.google.common.testing.junit3.JUnitAsserts.assertNotEqual;
+import com.google.common.testing.junit3.JUnitAsserts;
 import com.google.common.testutils.NullPointerTester;
 import com.google.common.testutils.SerializableTester;
+import com.google.common.collect.testing.testers.ListHashCodeTester;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -128,7 +133,22 @@ public class ImmutableListTest extends TestCase {
         .named("ImmutableList, middle subList")
         .withFeatures(CollectionSize.ANY)
         .createTestSuite());
+    suite.addTest(ListTestSuiteBuilder.using(new TestUnhashableListGenerator() {
+          @Override
+          public List<UnhashableObject> create(UnhashableObject[] elements) {
+            return ImmutableList.of(elements);
+          }
+        })
+        .suppressing(ListHashCodeTester.getHashCodeMethod())
+        .named("ImmutableList, unhashable values")
+        .withFeatures(CollectionSize.ANY)
+        .createTestSuite());
     return suite;
+  }
+
+  private abstract static class TestUnhashableListGenerator
+      extends TestUnhashableCollectionGenerator<List<UnhashableObject>>
+      implements TestListGenerator<UnhashableObject> {
   }
 
   public static class CreationTests extends TestCase {
@@ -160,6 +180,14 @@ public class ImmutableListTest extends TestCase {
     public void testCreation_fiveElements() {
       List<String> list = ImmutableList.of("a", "b", "c", "d", "e");
       assertEquals(Lists.newArrayList("a", "b", "c", "d", "e"), list);
+    }
+
+    public void testCreation_singletonNull() {
+      try {
+        ImmutableList.of((String) null);
+        fail();
+      } catch (NullPointerException expected) {
+      }
     }
 
     public void testCreation_withNull() {
@@ -507,6 +535,12 @@ public class ImmutableListTest extends TestCase {
     public void testSerialization_empty() {
       Collection<String> c = ImmutableList.of();
       assertSame(c, SerializableTester.reserialize(c));
+    }
+
+    public void testSerialization_singleton() {
+      Collection<String> c = ImmutableList.of("a");
+      ImmutableList<String> copy = (SingletonImmutableList<String>)
+          SerializableTester.reserializeAndAssert(c);
     }
 
     public void testSerialization_multiple() {

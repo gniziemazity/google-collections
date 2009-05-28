@@ -45,8 +45,7 @@ import javax.annotation.Nullable;
  * provides the surrounding concurrent data structure which implements {@link
  * ConcurrentMap}. Additionally supports implementing maps where {@link
  * Map#get} atomically computes values on demand (see {@link
- * Builder#buildComputingMap(CustomConcurrentHashMap.ComputingStrategy,
- * Function)}).
+ * Builder#buildComputingMap(ComputingStrategy, Function)}
  *
  * <p>The resulting hash table supports full concurrency of retrievals and
  * adjustable expected concurrency for updates. Even though all operations are
@@ -468,7 +467,7 @@ final class CustomConcurrentHashMap {
    * throw {@link UnsupportedOperationException} in {@link #setValue(Object,
    * Object)} if they wish to prevent users from setting values directly.
    *
-   * @see Builder#buildComputingMap(CustomConcurrentHashMap.ComputingStrategy,
+   * @see CustomConcurrentHashMap.Builder#buildComputingMap(ComputingStrategy,
    *     Function)
    */
   public interface ComputingStrategy<K, V, E> extends Strategy<K, V, E> {
@@ -1603,7 +1602,7 @@ final class CustomConcurrentHashMap {
      * iterator, and may (but is not guaranteed to) reflect any modifications
      * subsequent to construction.
      */
-    public Set<Entry<K, V>> entrySet() {
+    @Override public Set<Entry<K, V>> entrySet() {
       Set<Entry<K, V>> es = entrySet;
       return (es != null) ? es : (entrySet = new EntrySet());
     }
@@ -1750,11 +1749,11 @@ final class CustomConcurrentHashMap {
         this.value = value;
       }
 
-      public K getKey() {
+      @Override public K getKey() {
         return key;
       }
 
-      public V getValue() {
+      @Override public V getValue() {
         return value;
       }
 
@@ -1786,11 +1785,11 @@ final class CustomConcurrentHashMap {
 
     final class KeySet extends AbstractSet<K> {
 
-      public Iterator<K> iterator() {
+      @Override public Iterator<K> iterator() {
         return new KeyIterator();
       }
 
-      public int size() {
+      @Override public int size() {
         return Impl.this.size();
       }
 
@@ -1813,11 +1812,11 @@ final class CustomConcurrentHashMap {
 
     final class Values extends AbstractCollection<V> {
 
-      public Iterator<V> iterator() {
+      @Override public Iterator<V> iterator() {
         return new ValueIterator();
       }
 
-      public int size() {
+      @Override public int size() {
         return Impl.this.size();
       }
 
@@ -1836,7 +1835,7 @@ final class CustomConcurrentHashMap {
 
     final class EntrySet extends AbstractSet<Entry<K, V>> {
 
-      public Iterator<Entry<K, V>> iterator() {
+      @Override public Iterator<Entry<K, V>> iterator() {
         return new EntryIterator();
       }
 
@@ -1863,7 +1862,7 @@ final class CustomConcurrentHashMap {
         return key != null && Impl.this.remove(key, e.getValue());
       }
 
-      public int size() {
+      @Override public int size() {
         return Impl.this.size();
       }
 

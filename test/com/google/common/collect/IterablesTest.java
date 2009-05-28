@@ -421,11 +421,11 @@ public class IterablesTest extends TestCase {
   public void testPartitionRandomAccessInput() {
     Iterable<Integer> source = asList(1, 2, 3);
     Iterable<List<Integer>> partitions = Iterables.partition(source, 2);
-    Iterator<List<Integer>> iterator = partitions.iterator(); 
+    Iterator<List<Integer>> iterator = partitions.iterator();
     assertTrue(iterator.next() instanceof RandomAccess);
     assertTrue(iterator.next() instanceof RandomAccess);
   }
-  
+
   public void testPartitionNonRandomAccessInput() {
     Iterable<Integer> source = Lists.newLinkedList(asList(1, 2, 3));
     Iterable<List<Integer>> partitions = Iterables.partition(source, 2);
@@ -435,7 +435,7 @@ public class IterablesTest extends TestCase {
     assertTrue(iterator.next() instanceof RandomAccess);
     assertTrue(iterator.next() instanceof RandomAccess);
   }
-  
+
   public void testPaddedPartition_basic() {
     List<Integer> list = asList(1, 2, 3, 4, 5);
     Iterable<List<Integer>> partitions = Iterables.paddedPartition(list, 2);
@@ -446,21 +446,21 @@ public class IterablesTest extends TestCase {
   public void testPaddedPartitionRandomAccessInput() {
     Iterable<Integer> source = asList(1, 2, 3);
     Iterable<List<Integer>> partitions = Iterables.paddedPartition(source, 2);
-    Iterator<List<Integer>> iterator = partitions.iterator(); 
+    Iterator<List<Integer>> iterator = partitions.iterator();
     assertTrue(iterator.next() instanceof RandomAccess);
     assertTrue(iterator.next() instanceof RandomAccess);
   }
-  
+
   public void testPaddedPartitionNonRandomAccessInput() {
     Iterable<Integer> source = Lists.newLinkedList(asList(1, 2, 3));
     Iterable<List<Integer>> partitions = Iterables.paddedPartition(source, 2);
-    Iterator<List<Integer>> iterator = partitions.iterator(); 
+    Iterator<List<Integer>> iterator = partitions.iterator();
     // Even though the input list doesn't implement RandomAccess, the output
     // lists do.
     assertTrue(iterator.next() instanceof RandomAccess);
     assertTrue(iterator.next() instanceof RandomAccess);
   }
-  
+
   // More tests in IteratorsTest
   public void testAddAllToList() {
     List<String> alreadyThere = Lists.newArrayList("already", "there");

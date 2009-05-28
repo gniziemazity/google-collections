@@ -59,15 +59,12 @@ public abstract class ImmutableCollection<E>
     } else if (other.length > size) {
       other[size] = null;
     }
+
+    // Writes will produce ArrayStoreException when the toArray() doc requires.
+    Object[] otherAsObjectArray = other;
     int index = 0;
     for (E element : this) {
-      // Technically unsafe. But if T is generic, the caller already got a
-      // warning when they created their array, and if it isn't, we can count on
-      // an ArrayStoreException in the following statement to catch any problem.
-      @SuppressWarnings("unchecked")
-      T elementAsT = (T) element;
-
-      other[index++] = elementAsT;
+      otherAsObjectArray[index++] = element;
     }
     return other;
   }

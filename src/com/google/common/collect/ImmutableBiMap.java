@@ -149,7 +149,7 @@ public abstract class ImmutableBiMap<K, V> extends ImmutableMap<K,V>
     }
 
     /**
-     * Associates all of {@code map's} keys and values in the built bimap.
+     * Associates all of the given map's keys and values in the built bimap.
      * Duplicate keys or values are not allowed, and will cause {@link #build}
      * to fail.
      *
@@ -251,7 +251,7 @@ public abstract class ImmutableBiMap<K, V> extends ImmutableMap<K,V>
     throw new UnsupportedOperationException();
   }
 
-  public boolean isEmpty() {
+  @Override public boolean isEmpty() {
     return delegate().isEmpty();
   }
 

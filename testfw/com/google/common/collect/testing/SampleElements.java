@@ -44,6 +44,11 @@ public class SampleElements<E> {
       // elements aren't sorted, to better test SortedSet iteration ordering
       super("b", "a", "c", "d", "e");
     }
+
+    // for testing SortedSet and SortedMap methods
+    public static final String BEFORE_FIRST = "\0";
+    public static final String MIN_ELEMENT = "a";
+    public static final String AFTER_LAST = "z";
   }
 
   public static class Enums extends SampleElements<AnEnum> {
@@ -61,6 +66,16 @@ public class SampleElements<E> {
         Helpers.mapEntry(keys.e2, values.e2),
         Helpers.mapEntry(keys.e3, values.e3),
         Helpers.mapEntry(keys.e4, values.e4));
+  }
+
+  public static class Unhashables extends SampleElements<UnhashableObject> {
+    public Unhashables() {
+      super(new UnhashableObject(1),
+          new UnhashableObject(2),
+          new UnhashableObject(3),
+          new UnhashableObject(4),
+          new UnhashableObject(5));
+    }
   }
 
   public static class Colliders extends SampleElements<Object> {

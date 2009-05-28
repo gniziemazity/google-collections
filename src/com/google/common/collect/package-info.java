@@ -92,17 +92,31 @@
  * <dt>{@link com.google.common.collect.MapMaker} (produced by)
  * </ul>
  *
+ * <h3>of {@link java.util.SortedMap}</h3>
+ * <dl>
+ * <dt>{@link com.google.common.collect.ImmutableSortedMap}
+ * </dl>
+ *
  * <h3>of {@link com.google.common.collect.Multimap}</h3>
  * <dl>
  * <dt>{@link com.google.common.collect.ImmutableMultimap}
- * <dt>{@link com.google.common.collect.ImmutableSetMultimap}
+ * <dt>{@link com.google.common.collect.Multimaps#newMultimap}
+ * </dl>
+ *
+ * <h3>of {@link com.google.common.collect.ListMultimap}</h3>
+ * <dl>
+ * <dt>{@link com.google.common.collect.ImmutableListMultimap}
  * <dt>{@link com.google.common.collect.ArrayListMultimap}
+ * <dt>{@link com.google.common.collect.LinkedListMultimap}
+ * <dt>{@link com.google.common.collect.Multimaps#newListMultimap}
+ * </dl>
+ *
+ * <h3>of {@link com.google.common.collect.SetMultimap}</h3>
+ * <dl>
+ * <dt>{@link com.google.common.collect.ImmutableSetMultimap}
  * <dt>{@link com.google.common.collect.HashMultimap}
  * <dt>{@link com.google.common.collect.LinkedHashMultimap}
- * <dt>{@link com.google.common.collect.LinkedListMultimap}
  * <dt>{@link com.google.common.collect.TreeMultimap}
- * <dt>{@link com.google.common.collect.Multimaps#newMultimap}
- * <dt>{@link com.google.common.collect.Multimaps#newListMultimap}
  * <dt>{@link com.google.common.collect.Multimaps#newSetMultimap}
  * <dt>{@link com.google.common.collect.Multimaps#newSortedSetMultimap}
  * </dl>
