@@ -29,7 +29,9 @@
     <mkdir dir="${build.dir}/testfwclasses"/>
     <javac srcdir="${testfw.dir}"
          debug="on"
-         destdir="${build.dir}/testfwclasses">
+         destdir="${build.dir}/testfwclasses"
+         source="1.5"
+         target="1.5">
       <classpath>
         <pathelement location="${lib.dir}/junit.jar"/>
       </classpath>
@@ -42,7 +44,9 @@
     <mkdir dir="${build.dir}/test"/>
     <javac srcdir="${test.dir}"
          debug="on"
-         destdir="${build.dir}/test">
+         destdir="${build.dir}/test"
+         source="1.5"
+         target="1.5">
       <classpath>
         <pathelement location="${build.dir}/classes"/>
         <pathelement location="${build.dir}/testfwclasses"/>
