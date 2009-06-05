@@ -1,3 +1,28 @@
+= Release 1.0 (RC2 - 20090602) =
+
+==NEW:==
+
+  * ImmutableSortedMap (!)
+  * ImmutableMultiset.Builder
+  * ImmutableListMultimap (well, it's essentially the same as ImmutableMultimap.)
+  * ImmutableSortedSet.copyOf() (new overloads)
+  * Sets.immutableEnumSet(Iterable) (new overload)
+  * Ordering.usingToString()
+
+==Changed:==
+
+  * Ordering.givenOrder() renamed to Ordering.explicit() (note: givenOrder() is still there, deprecated, to ease your pain)
+  * Sets.immutableEnumSet() now returns ImmutableSet, not Set
+  * ImmutableMultimap.get() now returns ImmutableCollection, not Collection
+  * Multimaps.index() now returns ImmutableListMultimap, not ImmutableMultimap
+  * TreeMultimap.asMap() now returns SortedMap, not Map
+  * Immutable Builder classes now made final (whoops)
+  * Fixed the {{{Ordering.<Long>natural().reverse()}}} problem (also applies to nullsFirst(), nullsLast())
+
+[http://google-collections.googlecode.com/files/google-collect-1.0-rc2.zip Download]
+
+[http://repo2.maven.org/maven2/com/google/collections/google-collections/1.0-rc2/ Maven bundle]
+
 = Release 1.0 (RC1 - 20090406) =
 
 ==NEW:==
