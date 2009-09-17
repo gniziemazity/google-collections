@@ -129,6 +129,7 @@
          windowtitle="Google Collections Library ${version}">
       <sourcepath>
         <pathelement location="${src.dir}"/>
+        <pathelement location="${env.JAVA_HOME}/src"/>
       </sourcepath>
       <!-- workaround for http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6442982 -->
       <classpath>
