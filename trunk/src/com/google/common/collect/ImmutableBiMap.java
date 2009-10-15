@@ -38,7 +38,7 @@ import javax.annotation.Nullable;
  *
  * @author Jared Levy
  */
-@GwtCompatible
+@GwtCompatible(serializable = true)
 public abstract class ImmutableBiMap<K, V> extends ImmutableMap<K,V>
     implements BiMap<K, V> {
 
@@ -202,7 +202,7 @@ public abstract class ImmutableBiMap<K, V> extends ImmutableMap<K,V>
     return new RegularImmutableBiMap<K, V>(immutableMap);
   }
 
-  private ImmutableBiMap() {}
+  ImmutableBiMap() {}
 
   abstract ImmutableMap<K, V> delegate();
 
@@ -272,7 +272,8 @@ public abstract class ImmutableBiMap<K, V> extends ImmutableMap<K,V>
   }
 
   /** Bimap with no mappings. */
-  private static class EmptyBiMap extends ImmutableBiMap<Object, Object> {
+  @SuppressWarnings("serial") // uses writeReplace(), not default serialization
+  static class EmptyBiMap extends ImmutableBiMap<Object, Object> {
     @Override ImmutableMap<Object, Object> delegate() {
       return ImmutableMap.of();
     }
@@ -281,38 +282,6 @@ public abstract class ImmutableBiMap<K, V> extends ImmutableMap<K,V>
     }
     Object readResolve() {
       return EMPTY_IMMUTABLE_BIMAP; // preserve singleton property
-    }
-  }
-
-  /** Bimap with one or more mappings. */
-  private static class RegularImmutableBiMap<K, V>
-      extends ImmutableBiMap<K, V> {
-    transient final ImmutableMap<K, V> delegate;
-    transient final ImmutableBiMap<V, K> inverse;
-
-    RegularImmutableBiMap(ImmutableMap<K, V> delegate) {
-      this.delegate = delegate;
-
-      ImmutableMap.Builder<V, K> builder = ImmutableMap.builder();
-      for (Entry<K, V> entry : delegate.entrySet()) {
-        builder.put(entry.getValue(), entry.getKey());
-      }
-      ImmutableMap<V, K> backwardMap = builder.build();
-      this.inverse = new RegularImmutableBiMap<V, K>(backwardMap, this);
-    }
-
-    RegularImmutableBiMap(ImmutableMap<K, V> delegate,
-        ImmutableBiMap<V, K> inverse) {
-      this.delegate = delegate;
-      this.inverse = inverse;
-    }
-
-    @Override ImmutableMap<K, V> delegate() {
-      return delegate;
-    }
-
-    @Override public ImmutableBiMap<V, K> inverse() {
-      return inverse;
     }
   }
 

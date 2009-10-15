@@ -53,6 +53,28 @@ public class ImmutableSortedSetTest extends AbstractImmutableSetTest {
     return ImmutableSortedSet.of();
   }
 
+  @Override protected Set<String> of(String e) {
+    return ImmutableSortedSet.of(e);
+  }
+
+  @Override protected Set<String> of(String e1, String e2) {
+    return ImmutableSortedSet.of(e1, e2);
+  }
+
+  @Override protected Set<String> of(String e1, String e2, String e3) {
+    return ImmutableSortedSet.of(e1, e2, e3);
+  }
+
+  @Override protected Set<String> of(
+      String e1, String e2, String e3, String e4) {
+    return ImmutableSortedSet.of(e1, e2, e3, e4);
+  }
+
+  @Override protected Set<String> of(
+      String e1, String e2, String e3, String e4, String e5) {
+    return ImmutableSortedSet.of(e1, e2, e3, e4, e5);
+  }
+
   @Override protected Set<String> of(String... elements) {
     return ImmutableSortedSet.of(elements);
   }
@@ -244,7 +266,7 @@ public class ImmutableSortedSetTest extends AbstractImmutableSetTest {
   }
 
   public void testExplicit_ordering_dupes() {
-    SortedSet<String> set =  ImmutableSortedSet.orderedBy(STRING_LENGTH).add(
+    SortedSet<String> set = ImmutableSortedSet.orderedBy(STRING_LENGTH).add(
         "in", "the", "quick", "brown", "fox", "jumped",
         "over", "a", "lazy", "dog").build();
     assertContentsInOrder(set, "a", "in", "the", "over", "quick", "jumped");

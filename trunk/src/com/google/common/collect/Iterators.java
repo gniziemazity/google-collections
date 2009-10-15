@@ -59,7 +59,6 @@ public final class Iterators {
         }
       };
 
-
   /** Returns the empty {@code Iterator}. */
   // Casting to any type is safe since there are no actual elements.
   @SuppressWarnings("unchecked")
@@ -157,6 +156,30 @@ public final class Iterators {
     boolean modified = false;
     while (iterator.hasNext()) {
       if (c.contains(iterator.next())) {
+        iterator.remove();
+        modified = true;
+      }
+    }
+    return modified;
+  }
+
+  /**
+   * Removes every element that satisfies the provided predicate from the
+   * iterator. The iterator will be left exhausted: its {@code hasNext()}
+   * method will return {@code false}.
+   *
+   * @param iterator the iterator to (potentially) remove elements from
+   * @param predicate a predicate that determines whether an element should be
+   *     removed
+   * @return {@code true} if any elements were removed from the iterator
+   */
+  // TODO: make public post-1.0
+  static <T> boolean removeIf(
+      Iterator<T> iterator, Predicate<? super T> predicate) {
+    checkNotNull(predicate);
+    boolean modified = false;
+    while (iterator.hasNext()) {
+      if (predicate.apply(iterator.next())) {
         iterator.remove();
         modified = true;
       }
@@ -899,6 +922,13 @@ public final class Iterators {
    * <p>The returned iterator does not support removal after peeking, as
    * explained by {@link PeekingIterator#remove()}.
    *
+   * <p>Note: If the given iterator is already a {@code PeekingIterator},
+   * it <i>might</i> be returned to the caller, although this is neither
+   * guaranteed to occur nor required to be consistent.  For example, this
+   * method <i>might</i> choose to pass through recognized implementations of
+   * {@code PeekingIterator} when the behavior of the implementation is
+   * known to meet the contract guaranteed by this method.
+   *
    * @param iterator the backing iterator. The {@link PeekingIterator} assumes
    *     ownership of this iterator, so users should cease making direct calls
    *     to it after calling this method.
@@ -908,6 +938,13 @@ public final class Iterators {
    */
   public static <T> PeekingIterator<T> peekingIterator(
       Iterator<? extends T> iterator) {
+    if (iterator instanceof PeekingImpl) {
+      // Safe to cast <? extends T> to <T> because PeekingImpl only uses T
+      // covariantly (and cannot be subclassed to add non-covariant uses).
+      @SuppressWarnings("unchecked")
+      PeekingImpl<T> peeking = (PeekingImpl<T>) iterator;
+      return peeking;
+    }
     return new PeekingImpl<T>(iterator);
   }
 }

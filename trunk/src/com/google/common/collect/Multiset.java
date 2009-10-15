@@ -21,6 +21,7 @@ import com.google.common.annotations.GwtCompatible;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.IdentityHashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -56,8 +57,8 @@ import javax.annotation.Nullable;
  *
  * <p>In addition to these required methods, implementations of {@code
  * Multiset} are expected to provide two {@code static} creation methods:
- * {@code newInstance()}, returning an empty multiset, and {@code
- * newInstance(Iterable<? extends E>)}, returning a multiset containing the
+ * {@code create()}, returning an empty multiset, and {@code
+ * create(Iterable<? extends E>)}, returning a multiset containing the
  * given initial elements. This is simply a refinement of {@code Collection}'s
  * constructor recommendations, reflecting the new developments of Java 5.
  *
@@ -115,7 +116,7 @@ public interface Multiset<E> extends Collection<E> {
    * @return the number of occurrences of the element in this multiset; possibly
    *     zero but never negative
    */
-  int count(@Nullable Object element); // TODO: possibly rename getCount
+  int count(@Nullable Object element);
 
   // Bulk Operations
 
@@ -168,7 +169,7 @@ public interface Multiset<E> extends Collection<E> {
    *     implementation does not permit null elements. Note that if {@code
    *     count} is zero, the implementor may optionally return zero instead.
    */
-   int setCount(E element, int count);
+  int setCount(E element, int count);
 
   /**
    * Conditionally sets the count of an element to a new value, as described in
@@ -180,9 +181,9 @@ public interface Multiset<E> extends Collection<E> {
    *     only if explicitly allowed by the implementation
    * @param oldCount the expected present count of the element in this multiset
    * @param newCount the desired count of the element in this multiset
-   * @return {@code true} if the condition for modification was met. Unless
-   *     {@code oldCount == newCount}, this implies that the multiset was
-   *     indeed modified.
+   * @return {@code true} if the condition for modification was met. This
+   *     implies that the multiset was indeed modified, unless
+   *     {@code oldCount == newCount}.
    * @throws IllegalArgumentException if {@code oldCount} or {@code newCount} is
    *     negative
    * @throws NullPointerException if {@code element} is null and the
@@ -190,7 +191,7 @@ public interface Multiset<E> extends Collection<E> {
    *     oldCount} and {@code newCount} are both zero, the implementor may
    *     optionally return {@code true} instead.
    */
-   boolean setCount(E element, int oldCount, int newCount);
+  boolean setCount(E element, int oldCount, int newCount);
 
   // Views
 
@@ -333,6 +334,14 @@ public interface Multiset<E> extends Collection<E> {
   String toString();
 
   // Refined Collection Methods
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>Elements that occur multiple times in the multiset will appear
+   * multiple times in this iterator, though not necessarily sequentially.
+   */
+  Iterator<E> iterator();
 
   /**
    * Determines whether this multiset contains the specified element.

@@ -47,7 +47,7 @@ public abstract class ForwardingConcurrentMap<K, V> extends ForwardingMap<K, V>
     return delegate().replace(key, value);
   }
 
-  public boolean replace(K key, V oldValue, V newValue)  {
+  public boolean replace(K key, V oldValue, V newValue) {
     return delegate().replace(key, oldValue, newValue);
   }
 

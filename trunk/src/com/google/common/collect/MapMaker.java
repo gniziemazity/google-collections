@@ -117,7 +117,6 @@ public final class MapMaker {
    * @throws IllegalArgumentException if {@code initialCapacity} is
    *   negative
    * @throws IllegalStateException if an initial capacity was already set
-   *     (TODO: make that true)
    */
   public MapMaker initialCapacity(int initialCapacity) {
     builder.initialCapacity(initialCapacity);
@@ -130,7 +129,6 @@ public final class MapMaker {
    * @throws IllegalArgumentException if {@code loadFactor} is
    *     nonpositive
    * @throws IllegalStateException if a load factor was already set
-   *     (TODO: make that true)
    */
   public MapMaker loadFactor(float loadFactor) {
     builder.loadFactor(loadFactor);
@@ -154,7 +152,6 @@ public final class MapMaker {
    * @throws IllegalArgumentException if {@code concurrencyLevel} is
    *     nonpositive
    * @throws IllegalStateException if a concurrency level was already set
-   *     (TODO: make that true)
    */
   @GwtIncompatible("java.util.concurrent.ConcurrentHashMap concurrencyLevel")
   public MapMaker concurrencyLevel(int concurrencyLevel) {
@@ -290,7 +287,9 @@ public final class MapMaker {
   }
 
   /**
-   * Builds the final map, without on-demand computation of values.
+   * Builds the final map, without on-demand computation of values. This method
+   * does not alter the state of this {@code MapMaker} instance, so it can be
+   * invoked again to create multiple independent maps.
    *
    * @param <K> the type of keys to be stored in the returned map
    * @param <V> the type of values to be stored in the returned map
@@ -299,20 +298,21 @@ public final class MapMaker {
   public <K, V> ConcurrentMap<K, V> makeMap() {
     return useCustomMap
         ? new StrategyImpl<K, V>(this).map
-        : new ConcurrentHashMap<K, V>(builder.initialCapacity,
-            builder.loadFactor, builder.concurrencyLevel);
+        : new ConcurrentHashMap<K, V>(builder.getInitialCapacity(),
+            builder.getLoadFactor(), builder.getConcurrencyLevel());
   }
 
   /**
    * Builds a map that supports atomic, on-demand computation of values. {@link
-   * Map#get} returns the value corresponding to the given key, atomically
-   * computes it using the computer function passed to this builder, or waits
-   * for another thread to compute the value if necessary. Only one value will
-   * be computed for each key at a given time.
+   * Map#get} either returns an already-computed value for the given key,
+   * atomically computes it using the supplied function, or, if another thread
+   * is currently computing the value for this key, simply waits for that thread
+   * to finish and returns its computed value. Note that the function may be
+   * executed concurrently by multiple threads, but only for distinct keys.
    *
    * <p>If an entry's value has not finished computing yet, query methods
-   * besides {@link java.util.Map#get} return immediately as if an entry doesn't
-   * exist. In other words, an entry isn't externally visible until the value's
+   * besides {@code get} return immediately as if an entry doesn't exist. In
+   * other words, an entry isn't externally visible until the value's
    * computation completes.
    *
    * <p>{@link Map#get} in the returned map implementation throws:
@@ -325,17 +325,20 @@ public final class MapMaker {
    *     computer, it will be propagated.</li>
    * </ul>
    *
-   * <p><b>Note:</b> Callers of {@code get()} <i>must</i> ensure that the key
-   * argument is of type {@code K}. {@code Map.get()} takes {@code Object}, so
-   * the key type is not checked at compile time. Passing an object of a type
-   * other than {@code K} can result in that object being unsafely passed to the
-   * computer function as type {@code K} not to mention the unsafe key being
-   * stored in the map.
+   * <p><b>Note:</b> Callers of {@code get} <i>must</i> ensure that the key
+   * argument is of type {@code K}. The {@code get} method accepts {@code
+   * Object}, so the key type is not checked at compile time. Passing an object
+   * of a type other than {@code K} can result in that object being unsafely
+   * passed to the computer function as type {@code K}, and unsafely stored in
+   * the map.
    *
-   * <p>If {@link java.util.Map#put} is called before a computation completes,
-   * other threads waiting on the computation will wake up and return the put
-   * value up until the computation completes, at which point the computation
-   * result will overwrite the value from the {@code put} in the map.
+   * <p>If {@link Map#put} is called before a computation completes, other
+   * threads waiting on the computation will wake up and return the stored
+   * value. When the computation completes, its new result will overwrite the
+   * value that was put in the map manually.
+   *
+   * <p>This method does not alter the state of this {@code MapMaker} instance,
+   * so it can be invoked again to create multiple independent maps.
    */
   public <K, V> ConcurrentMap<K, V> makeComputingMap(
       Function<? super K, ? extends V> computer) {

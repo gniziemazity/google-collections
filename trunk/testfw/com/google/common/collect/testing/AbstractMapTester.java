@@ -36,8 +36,6 @@ import java.util.Map.Entry;
  */
 public abstract class AbstractMapTester<K, V> extends
     AbstractContainerTester<Map<K, V>, Map.Entry<K, V>> {
-
-
   protected Map<K, V> getMap() {
     return container;
   }
@@ -168,8 +166,7 @@ public abstract class AbstractMapTester<K, V> extends
     return getSampleElements();
   }
 
-  @Override
-  protected void expectMissing(Entry<K, V>... entries) {
+  @Override protected void expectMissing(Entry<K, V>... entries) {
     for (Entry<K, V> entry : entries) {
       assertFalse("Should not contain entry " + entry,
           actualContents().contains(entry));
@@ -187,8 +184,7 @@ public abstract class AbstractMapTester<K, V> extends
     return Helpers.mapEntry(key, value);
   }
 
-  @Override
-  protected void expectContents(Collection<Entry<K, V>> expected) {
+  @Override protected void expectContents(Collection<Entry<K, V>> expected) {
     // TODO: move this to invariant checks once the appropriate hook exists?
     super.expectContents(expected);
     for (Entry<K, V> entry : expected) {

@@ -16,8 +16,8 @@
 
 package com.google.common.base;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.annotations.GwtCompatible;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
 import java.util.AbstractList;
@@ -55,6 +55,14 @@ import javax.annotation.Nullable;
    */
   public static Joiner on(String separator) {
     return new Joiner(separator);
+  }
+
+  /**
+   * Returns a joiner which automatically places {@code separator} between
+   * consecutive elements.
+   */
+  public static Joiner on(char separator) {
+    return new Joiner(String.valueOf(separator));
   }
 
   private final String separator;
@@ -173,7 +181,7 @@ import javax.annotation.Nullable;
     checkNotNull(nullText);
     return new Joiner(this) {
       @Override CharSequence toString(Object part) {
-        return (part == null) ? nullText : part.toString();
+        return (part == null) ? nullText : Joiner.this.toString(part);
       }
       @Override public Joiner useForNull(String nullText) {
         checkNotNull(nullText); // weird, just to satisfy NullPointerTester!
@@ -306,7 +314,9 @@ import javax.annotation.Nullable;
   }
 
   CharSequence toString(Object part) {
-    return part.toString();
+    return (part instanceof CharSequence)
+        ? (CharSequence) part
+        : part.toString();
   }
 
   private static Iterable<Object> iterable(
@@ -329,4 +339,3 @@ import javax.annotation.Nullable;
     };
   }
 }
-

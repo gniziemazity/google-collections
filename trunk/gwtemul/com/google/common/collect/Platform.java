@@ -16,14 +16,16 @@
 
 package com.google.common.collect;
 
+import com.google.common.base.ReferenceType;
 import com.google.gwt.lang.Array;
 
 import java.util.List;
+import java.util.Set;
 
 /**
- * GWT emulations.
+ * Minimal GWT emulation of {@code com.google.common.collect.ObjectArrays}.
  *
- * <b>This .java file should never be consumed by javac.</b>
+ * <p><strong>This .java file should never be consumed by javac.</strong>
  *
  * @author Hayward Chan
  */
@@ -33,7 +35,7 @@ class Platform {
     throw new UnsupportedOperationException(
         "List.subList is not supported yet.");
   }
-
+  
   static boolean isInstance(Class<?> clazz, Object obj) {
     throw new UnsupportedOperationException(
         "Class.isInstance is not supported in GWT yet.");

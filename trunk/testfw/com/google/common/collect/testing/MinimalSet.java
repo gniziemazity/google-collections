@@ -60,8 +60,7 @@ public class MinimalSet<E> extends MinimalCollection<E> implements Set<E> {
    * equals() and hashCode() are more specific in the Set contract.
    */
 
-  @Override
-  public boolean equals(Object object) {
+  @Override public boolean equals(Object object) {
     if (object instanceof Set) {
       Set<?> that = (Set<?>) object;
       return (this.size() == that.size()) && this.containsAll(that);
@@ -69,8 +68,7 @@ public class MinimalSet<E> extends MinimalCollection<E> implements Set<E> {
     return false;
   }
 
-  @Override
-  public int hashCode() {
+  @Override public int hashCode() {
     int hashCodeSum = 0;
     for (Object o : this) {
       hashCodeSum += (o == null) ? 0 : o.hashCode();

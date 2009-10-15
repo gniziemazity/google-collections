@@ -36,20 +36,10 @@ abstract class AbstractMapEntry<K, V> implements Entry<K, V> {
 
   public abstract V getValue();
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>This implementation throws an {@link UnsupportedOperationException}.
-   * Override this method to support mutable map entries.
-   */
   public V setValue(V value) {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * Indicates whether an object equals this entry, following the behavior
-   * specified in {@link Entry#equals}.
-   */
   @Override public boolean equals(@Nullable Object object) {
     if (object instanceof Entry) {
       Entry<?, ?> that = (Entry<?, ?>) object;
@@ -59,10 +49,6 @@ abstract class AbstractMapEntry<K, V> implements Entry<K, V> {
     return false;
   }
 
-  /**
-   * Return this entry's hash code, following the behavior specified in
-   * {@link Entry#hashCode}.
-   */
   @Override public int hashCode() {
     K k = getKey();
     V v = getValue();

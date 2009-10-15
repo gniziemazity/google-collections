@@ -30,6 +30,7 @@ public abstract class TestCollidingSetGenerator
   public SampleElements<Object> samples() {
     return new Colliders();
   }
+
   public Object[] createArray(int length) {
     return new Object[length];
   }

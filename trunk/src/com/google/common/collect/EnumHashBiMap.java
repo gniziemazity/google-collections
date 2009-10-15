@@ -38,7 +38,7 @@ public final class EnumHashBiMap<K extends Enum<K>, V>
   private transient Class<K> keyType;
 
   /**
-   * Returns a new empty {@code EnumHashBiMap} using the specified key type.
+   * Returns a new, empty {@code EnumHashBiMap} using the specified key type.
    *
    * @param keyType the key type
    */

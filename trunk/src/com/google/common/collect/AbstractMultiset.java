@@ -26,7 +26,6 @@ import java.util.AbstractCollection;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -53,12 +52,6 @@ abstract class AbstractMultiset<E> extends AbstractCollection<E>
 
   // Query Operations
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>This implementation iterates across {@link Multiset#entrySet()} and
-   * sums the counts of the entries.
-   */
   @Override public int size() {
     long sum = 0L;
     for (Entry<E> entry : entrySet()) {
@@ -71,23 +64,10 @@ abstract class AbstractMultiset<E> extends AbstractCollection<E>
     return entrySet().isEmpty();
   }
 
-  /**
-   * Returns {@code true} if this collection contains the specified element.
-   *
-   * <p>This implementation checks whether {@link #elementSet} contains the
-   * element.
-   */
   @Override public boolean contains(@Nullable Object element) {
     return elementSet().contains(element);
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>This implementation usually invokes methods of the
-   * {@link Multiset#entrySet()} iterator. However, the iterator's
-   * {@code remove} method sometimes calls the multiset's {@code remove}.
-   */
   @Override public Iterator<E> iterator() {
     return new MultisetIterator();
   }
@@ -135,12 +115,6 @@ abstract class AbstractMultiset<E> extends AbstractCollection<E>
     }
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>This implementation iterates across {@link Multiset#entrySet()} and
-   * sums the count of all entries.
-   */
   public int count(Object element) {
     for (Entry<E> entry : entrySet()) {
       if (Objects.equal(entry.getElement(), element)) {
@@ -152,101 +126,37 @@ abstract class AbstractMultiset<E> extends AbstractCollection<E>
 
   // Modification Operations
 
-  /**
-   * Ensures that this collection contains the specified element.
-   *
-   * <p>This implementation calls {@link #add(Object, int)} with one occurrence.
-   *
-   * @return {@code true} always
-   */
   @Override public boolean add(@Nullable E element) {
     add(element, 1);
     return true;
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>This implementation always throws an
-   * {@link UnsupportedOperationException}. To support adding elements, override
-   * it.
-   */
   public int add(E element, int occurrences) {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * Removes a single instance of the specified element from this collection, if
-   * it is present.
-   *
-   * <p>This implementation calls {@link #remove(Object, int)} with 1
-   * occurrence.
-   */
   @Override public boolean remove(Object element) {
     return remove(element, 1) > 0;
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>This implementation always throws an
-   * {@link UnsupportedOperationException}. To support removing elements,
-   * override it.
-   */
   public int remove(Object element, int occurrences) {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>This implementation compares the current count for the given element to
-   * its requested count and, if they do not match, calls
-   * {@link #add(Object, int)} or {@link #remove(Object, int)} to make the
-   * appropriate adjustment.
-   */
   public int setCount(E element, int count) {
     return setCountImpl(this, element, count);
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>This implementation compares {@code oldCount} to the current count and
-   * calls {@link #setCount(Object, int)} if they match.
-   */
   public boolean setCount(E element, int oldCount, int newCount) {
     return setCountImpl(this, element, oldCount, newCount);
   }
 
   // Bulk Operations
 
-  /**
-   * Returns {@code true} if this multiset contains all of the elements in the
-   * specified collection.
-   *
-   * <p><b>Note:</b> this method does not take into account the occurrence
-   * count of an element in the two collections; it may still return {@code
-   * true} even if {@code elements} contains several occurrences of an element
-   * and this multiset contains only one. This is no different than any other
-   * collection type like {@link List}, but it may be unexpected to the user of
-   * a multiset.
-   *
-   * <p>This implementation checks whether {@link #elementSet} contains the
-   * elements.
-   */
   @Override public boolean containsAll(Collection<?> elements) {
     return elementSet().containsAll(elements);
   }
 
-  /**
-   * Adds all of the elements in the specified collection to this multiset.
-   *
-   * <p>If the collection being added is a multiset, this implementation
-   * iterates over that multiset's entry set to add the appropriate number of
-   * occurrences of each of its elements to this multiset. Otherwise, it calls
-   * {@link AbstractCollection#addAll}.
-   */
   @Override public boolean addAll(Collection<? extends E> elementsToAdd) {
     if (elementsToAdd.isEmpty()) {
       return false;
@@ -263,16 +173,6 @@ abstract class AbstractMultiset<E> extends AbstractCollection<E>
     return true;
   }
 
-  /**
-   * Removes all of this multiset's elements that are also contained in the
-   * specified collection.
-   *
-   * <p>This implementation calls {@code removeAll()} on its
-   * {@link #elementSet()} with the given collection or, if
-   * {@code elementsToRemove} is a multiset, the elements in its element set. In
-   * some cases, this approach has better performance than
-   * {@link AbstractCollection#removeAll}.
-   */
   @Override public boolean removeAll(Collection<?> elementsToRemove) {
     Collection<?> collection = (elementsToRemove instanceof Multiset)
         ? ((Multiset<?>) elementsToRemove).elementSet() : elementsToRemove;
@@ -281,16 +181,6 @@ abstract class AbstractMultiset<E> extends AbstractCollection<E>
     // TODO: implement retainAll similarly?
   }
 
-  /**
-   * Retains only the elements in this multiset that are contained in the
-   * specified collection.
-   *
-   * <p>This implementation iterates over {@link #entrySet()}, checking each
-   * entry's element to see if it's contained in the provided collection.
-   * If it's not found, the {@code remove} method of the entry set's
-   * iterator is invoked. In some cases, this approach has better performance
-   * than {@link AbstractCollection#removeAll}.
-   */
   @Override public boolean retainAll(Collection<?> elementsToRetain) {
     checkNotNull(elementsToRetain);
     Iterator<Entry<E>> entries = entrySet().iterator();
@@ -305,11 +195,6 @@ abstract class AbstractMultiset<E> extends AbstractCollection<E>
     return modified;
   }
 
-  /**
-   * Removes all of the elements from this multiset.
-   *
-   * <p>This implementation calls {@code clear} on {@link Multiset#entrySet()}.
-   */
   @Override public void clear() {
     entrySet().clear();
   }
@@ -318,12 +203,6 @@ abstract class AbstractMultiset<E> extends AbstractCollection<E>
 
   private transient volatile Set<E> elementSet;
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>The returned set's methods are implemented by calling
-   * {@link Multiset#entrySet()} methods.
-   */
   public Set<E> elementSet() {
     Set<E> result = elementSet;
     if (result == null) {
@@ -336,7 +215,7 @@ abstract class AbstractMultiset<E> extends AbstractCollection<E>
    * Creates a new instance of this multiset's element set, which will be
    * returned by {@link #elementSet()}.
    */
-  protected Set<E> createElementSet() {
+  Set<E> createElementSet() {
     return new ElementSet();
   }
 

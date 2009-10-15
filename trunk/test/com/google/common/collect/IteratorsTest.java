@@ -168,7 +168,6 @@ public class IteratorsTest extends TestCase {
     }
   }
 
-
   public void testGetOnlyElement_withDefault_singleton() {
     Iterator<String> iterator = Collections.singletonList("foo").iterator();
     assertEquals("foo", Iterators.getOnlyElement(iterator, "bar"));
@@ -533,8 +532,8 @@ public class IteratorsTest extends TestCase {
     }.test();
   }
 
-  public void testConcatSingletonAndSingletonYieldsDoubleton() throws Exception
-  {
+  public void testConcatSingletonAndSingletonYieldsDoubleton()
+      throws Exception {
     new DoubletonIteratorTester() {
       @Override protected Iterator<Integer> newTargetIterator() {
         return Iterators.concat(iterateOver(1), iterateOver(2));
@@ -543,7 +542,7 @@ public class IteratorsTest extends TestCase {
   }
 
   public void testConcatSingletonAndSingletonWithEmptiesYieldsDoubleton()
-      throws Exception  {
+      throws Exception {
     new DoubletonIteratorTester() {
       @Override protected Iterator<Integer> newTargetIterator() {
         return Iterators.concat(
@@ -964,7 +963,6 @@ public class IteratorsTest extends TestCase {
     assertFalse(iter.hasNext());
   }
 
-
   public void testAsEnumerationEmpty() {
     Iterator<Integer> iter = Iterators.emptyIterator();
     Enumeration<Integer> enumer = Iterators.asEnumeration(iter);
@@ -1115,6 +1113,26 @@ public class IteratorsTest extends TestCase {
     assertEquals(newArrayList("a", "c", "e"), list);
   }
 
+  public void testRemoveIf() {
+    List<String> list = newArrayList("a", "b", "c", "d", "e");
+    assertTrue(Iterators.removeIf(
+        list.iterator(),
+        new Predicate<String>() {
+          public boolean apply(String s) {
+            return s.equals("b") || s.equals("d") || s.equals("f");
+          }
+        }));
+    assertEquals(newArrayList("a", "c", "e"), list);
+    assertFalse(Iterators.removeIf(
+        list.iterator(),
+        new Predicate<String>() {
+          public boolean apply(String s) {
+            return s.equals("x") || s.equals("y") || s.equals("z");
+          }
+        }));
+    assertEquals(newArrayList("a", "c", "e"), list);
+  }
+
   public void testRetainAll() {
     List<String> list = newArrayList("a", "b", "c", "d", "e");
     assertTrue(Iterators.retainAll(
@@ -1150,5 +1168,14 @@ public class IteratorsTest extends TestCase {
             CollectionFeature.ALLOWS_NULL_VALUES,
             CollectionSize.ANY)
         .createTestSuite();
+  }
+
+  public void testRecursiveCallsToPeekingIteratorShouldAvoidRewrapping() {
+    Iterator<Integer> iterator = newArrayList(1, 2, 3).iterator();
+    // Should be able to make a PeekingIterator<T> from an Iterator<? extends T>
+    PeekingIterator<Number> first = Iterators.<Number>peekingIterator(iterator);
+    PeekingIterator<Number> second = Iterators.peekingIterator(first);
+    assertSame("Should not rewrap iterator returned by peekingIterator()",
+        first, second);
   }
 }

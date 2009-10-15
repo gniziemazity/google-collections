@@ -291,6 +291,7 @@ public class SetOperationsTest extends TestCase {
       assertEquals(1, immut.size());
       assertEquals(1, mut.size());
     }
+
     public void testDifference() {
       Set<String> friends = Sets.newHashSet("Tom", "Joe", "Dave");
       Set<String> enemies = Sets.newHashSet("Dick", "Harry", "Tom");

@@ -19,17 +19,14 @@ package com.google.common.collect;
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
-import com.google.common.base.Objects;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-
-import javax.annotation.Nullable;
+import java.util.NoSuchElementException;
 
 /**
  * A comparator with added methods to support common functions. For example:
@@ -71,37 +68,7 @@ public abstract class Ordering<T> implements Comparator<T> {
   @GwtCompatible(serializable = true)
   @SuppressWarnings("unchecked") // TODO: the right way to explain this??
   public static <C extends Comparable> Ordering<C> natural() {
-    return (Ordering) NATURAL_ORDER;
-  }
-
-  private static final NaturalOrdering NATURAL_ORDER = new NaturalOrdering();
-
-  // Package-private for GWT serialization.
-  @GwtCompatible(serializable = true)
-  @SuppressWarnings("unchecked") // TODO: the right way to explain this??
-  static class NaturalOrdering extends Ordering<Comparable>
-      implements Serializable {
-    public int compare(Comparable left, Comparable right) {
-      checkNotNull(right); // left null is caught later
-      if (left == right) {
-        return 0;
-      }
-
-      @SuppressWarnings("unchecked") // we're permitted to throw CCE
-      int result = left.compareTo(right);
-      return result;
-    }
-
-    // preserving singleton-ness gives equals()/hashCode() for free
-    private Object readResolve() {
-      return NATURAL_ORDER;
-    }
-
-    @Override public String toString() {
-      return "Ordering.natural()";
-    }
-
-    private static final long serialVersionUID = 0;
+    return (Ordering) NaturalOrdering.INSTANCE;
   }
 
   /**
@@ -112,7 +79,8 @@ public abstract class Ordering<T> implements Comparator<T> {
    *
    * @param comparator the comparator that defines the order
    */
-  public static <T> Ordering<T> from(final Comparator<T> comparator) {
+  @GwtCompatible(serializable = true)
+  public static <T> Ordering<T> from(Comparator<T> comparator) {
     return (comparator instanceof Ordering)
         ? (Ordering<T>) comparator
         : new ComparatorOrdering<T>(comparator);
@@ -123,42 +91,9 @@ public abstract class Ordering<T> implements Comparator<T> {
    *
    * @deprecated no need to use this
    */
+  @GwtCompatible(serializable = true)
   @Deprecated public static <T> Ordering<T> from(Ordering<T> ordering) {
     return checkNotNull(ordering);
-  }
-
-  private static final class ComparatorOrdering<T> extends Ordering<T>
-      implements Serializable {
-    final Comparator<T> comparator;
-
-    ComparatorOrdering(Comparator<T> comparator) {
-      this.comparator = checkNotNull(comparator);
-    }
-
-    public int compare(T a, T b) {
-      return comparator.compare(a, b);
-    }
-
-    @Override public boolean equals(@Nullable Object object) {
-      if (object == this) {
-        return true;
-      }
-      if (object instanceof ComparatorOrdering) {
-        ComparatorOrdering<?> that = (ComparatorOrdering<?>) object;
-        return this.comparator.equals(that.comparator);
-      }
-      return false;
-    }
-
-    @Override public int hashCode() {
-      return comparator.hashCode();
-    }
-
-    @Override public String toString() {
-      return comparator.toString();
-    }
-
-    private static final long serialVersionUID = 0;
   }
 
   /**
@@ -182,6 +117,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    * @throws IllegalArgumentException if {@code valuesInOrder} contains any
    *     duplicate values (according to {@link Object#equals})
    */
+  @GwtCompatible(serializable = true)
   public static <T> Ordering<T> explicit(List<T> valuesInOrder) {
     return new ExplicitOrdering<T>(valuesInOrder);
   }
@@ -209,78 +145,31 @@ public abstract class Ordering<T> implements Comparator<T> {
    * @throws IllegalArgumentException if any duplicate values (according to
    *     {@link Object#equals(Object)}) are present among the method arguments
    */
+  @GwtCompatible(serializable = true)
   public static <T> Ordering<T> explicit(
       T leastValue, T... remainingValuesInOrder) {
     return explicit(Lists.asList(leastValue, remainingValuesInOrder));
   }
 
   /**
-   * This method has been renamed to {@link Ordering#explicit(List)}. <b>It
-   * will not be present in the final release of 1.0.</b>
+   * This method has been renamed to {@link Ordering#explicit(List)}.
    *
    * @deprecated use {@link Ordering#explicit(List)}
    */
+  @GwtCompatible(serializable = true)
   @Deprecated public static <T> Ordering<T> givenOrder(List<T> valuesInOrder) {
     return explicit(valuesInOrder);
   }
 
   /**
    * This method has been renamed to {@link Ordering#explicit(Object,Object[])}.
-   * <b>It will not be present in the final release of 1.0.</b>
    *
    * @deprecated use {@link Ordering#explicit(Object,Object[])}
    */
+  @GwtCompatible(serializable = true)
   @Deprecated public static <T> Ordering<T> givenOrder(
       T leastValue, T... remainingValuesInOrder) {
     return explicit(leastValue, remainingValuesInOrder);
-  }
-
-  private static class ExplicitOrdering<T> extends Ordering<T>
-      implements Serializable {
-    final ImmutableMap<T, Integer> rankMap;
-
-    ExplicitOrdering(List<T> valuesInOrder) {
-      rankMap = buildRankMap(valuesInOrder);
-    }
-
-    public int compare(T left, T right) {
-      return rank(left) - rank(right); // safe because both are nonnegative
-    }
-
-    int rank(T value) {
-      Integer rank = rankMap.get(value);
-      if (rank == null) {
-        throw new IncomparableValueException(value);
-      }
-      return rank;
-    }
-
-    static <T> ImmutableMap<T, Integer> buildRankMap(List<T> valuesInOrder) {
-      ImmutableMap.Builder<T, Integer> builder = ImmutableMap.builder();
-      int rank = 0;
-      for (T value : valuesInOrder) {
-        builder.put(value, rank++);
-      }
-      return builder.build();
-    }
-
-    @Override public boolean equals(@Nullable Object object) {
-      if (object instanceof ExplicitOrdering) {
-        ExplicitOrdering<?> that = (ExplicitOrdering<?>) object;
-        return this.rankMap.equals(that.rankMap);
-      }
-      return false;
-    }
-
-    @Override public int hashCode() {
-      return rankMap.hashCode();
-    }
-
-    @Override public String toString() {
-      return "Ordering.explicit(" + rankMap.keySet() + ")";
-    }
-
-    private static final long serialVersionUID = 0;
   }
 
   /**
@@ -310,29 +199,9 @@ public abstract class Ordering<T> implements Comparator<T> {
    *
    * <p>The comparator is serializable.
    */
+  @GwtCompatible(serializable = true)
   public static Ordering<Object> usingToString() {
-    return USING_TOSTRING;
-  }
-
-  private static final Ordering<Object> USING_TOSTRING
-      = new UsingToStringOrdering();
-
-  private static class UsingToStringOrdering extends Ordering<Object>
-      implements Serializable {
-    public int compare(Object left, Object right) {
-      return left.toString().compareTo(right.toString());
-    }
-
-    // preserve singleton-ness, so equals() and hashCode() work correctly
-    private Object readResolve() {
-      return USING_TOSTRING;
-    }
-
-    @Override public String toString() {
-      return "Ordering.usingToString()";
-    }
-
-    private static final long serialVersionUID = 0;
+    return UsingToStringOrdering.INSTANCE;
   }
 
   /**
@@ -350,61 +219,10 @@ public abstract class Ordering<T> implements Comparator<T> {
    *
    * @param comparators the comparators to try in order
    */
+  @GwtCompatible(serializable = true)
   public static <T> Ordering<T> compound(
       Iterable<? extends Comparator<? super T>> comparators) {
     return new CompoundOrdering<T>(comparators);
-  }
-
-  private static class CompoundOrdering<T> extends Ordering<T>
-      implements Serializable {
-    final ImmutableList<Comparator<? super T>> comparators;
-
-    CompoundOrdering(Comparator<? super T> primary,
-        Comparator<? super T> secondary) {
-      this.comparators
-          = ImmutableList.<Comparator<? super T>>of(primary, secondary);
-    }
-
-    CompoundOrdering(Iterable<? extends Comparator<? super T>> comparators) {
-      this.comparators = ImmutableList.copyOf(comparators);
-    }
-
-    CompoundOrdering(List<? extends Comparator<? super T>> comparators,
-        Comparator<? super T> lastComparator) {
-      this.comparators = new ImmutableList.Builder<Comparator<? super T>>()
-          .addAll(comparators).add(lastComparator).build();
-    }
-
-    public int compare(T left, T right) {
-      for (Comparator<? super T> comparator : comparators) {
-        int result = comparator.compare(left, right);
-        if (result != 0) {
-          return result;
-        }
-      }
-      return 0;
-    }
-
-    @Override public boolean equals(Object object) {
-      if (object == this) {
-        return true;
-      }
-      if (object instanceof CompoundOrdering) {
-        CompoundOrdering<?> that = (CompoundOrdering<?>) object;
-        return this.comparators.equals(that.comparators);
-      }
-      return false;
-    }
-
-    @Override public int hashCode() {
-      return comparators.hashCode();
-    }
-
-    @Override public String toString() {
-      return "Ordering.compound(" + comparators + ")";
-    }
-
-    private static final long serialVersionUID = 0;
   }
 
   /**
@@ -426,7 +244,8 @@ public abstract class Ordering<T> implements Comparator<T> {
    * is equivalent to one created using {@link Ordering#compound(Iterable)} on
    * the same component comparators.
    */
-  public final <U extends T> Ordering<U> compound(
+  @GwtCompatible(serializable = true)
+  public <U extends T> Ordering<U> compound(
       Comparator<? super U> secondaryComparator) {
     return new CompoundOrdering<U>(this, checkNotNull(secondaryComparator));
   }
@@ -437,42 +256,9 @@ public abstract class Ordering<T> implements Comparator<T> {
    */
   // type parameter <S> lets us avoid the extra <String> in statements like:
   // Ordering<String> o = Ordering.<String>natural().reverse();
-  public final <S extends T> Ordering<S> reverse() {
+  @GwtCompatible(serializable = true)
+  public <S extends T> Ordering<S> reverse() {
     return new ReverseOrdering<S>(this);
-  }
-
-  private static class ReverseOrdering<T> extends Ordering<T>
-      implements Serializable {
-    final Ordering<? super T> forwardOrder;
-
-    ReverseOrdering(Ordering<? super T> forwardOrder) {
-      this.forwardOrder = checkNotNull(forwardOrder);
-    }
-
-    public int compare(T a, T b) {
-      return forwardOrder.compare(b, a);
-    }
-
-    @Override public int hashCode() {
-      return -forwardOrder.hashCode();
-    }
-
-    @Override public boolean equals(@Nullable Object object) {
-      if (object == this) {
-        return true;
-      }
-      if (object instanceof ReverseOrdering) {
-        ReverseOrdering<?> that = (ReverseOrdering<?>) object;
-        return this.forwardOrder.equals(that.forwardOrder);
-      }
-      return false;
-    }
-
-    @Override public String toString() {
-      return forwardOrder + ".reverse()";
-    }
-
-    private static final long serialVersionUID = 0;
   }
 
   /**
@@ -484,46 +270,9 @@ public abstract class Ordering<T> implements Comparator<T> {
    *   Ordering.from(String.CASE_INSENSITIVE_ORDER)
    *       .onResultOf(Functions.toStringFunction())}</pre>
    */
-  public final <F> Ordering<F> onResultOf(Function<F, ? extends T> function) {
+  @GwtCompatible(serializable = true)
+  public <F> Ordering<F> onResultOf(Function<F, ? extends T> function) {
     return new ByFunctionOrdering<F, T>(function, this);
-  }
-
-  private static class ByFunctionOrdering<F, T> extends Ordering<F>
-      implements Serializable {
-    final Function<F, ? extends T> function;
-    final Ordering<T> ordering;
-
-    ByFunctionOrdering(
-        Function<F, ? extends T> function, Ordering<T> ordering) {
-      this.function = checkNotNull(function);
-      this.ordering = checkNotNull(ordering);
-    }
-
-    public int compare(F left, F right) {
-      return ordering.compare(function.apply(left), function.apply(right));
-    }
-
-    @Override public boolean equals(@Nullable Object object) {
-      if (object == this) {
-        return true;
-      }
-      if (object instanceof ByFunctionOrdering) {
-        ByFunctionOrdering<?, ?> that = (ByFunctionOrdering<?, ?>) object;
-        return this.function.equals(that.function)
-            && this.ordering.equals(that.ordering);
-      }
-      return false;
-    }
-
-    @Override public int hashCode() {
-      return Objects.hashCode(function, ordering);
-    }
-
-    @Override public String toString() {
-      return ordering + ".onResultOf(" + function + ")";
-    }
-
-    private static final long serialVersionUID = 0;
   }
 
   /**
@@ -532,51 +281,9 @@ public abstract class Ordering<T> implements Comparator<T> {
    */
   // type parameter <S> lets us avoid the extra <String> in statements like:
   // Ordering<String> o = Ordering.<String>natural().nullsFirst();
+  @GwtCompatible(serializable = true)
   public <S extends T> Ordering<S> nullsFirst() {
     return new NullsFirstOrdering<S>(this);
-  }
-
-  private static class NullsFirstOrdering<T> extends Ordering<T>
-      implements Serializable {
-    final Ordering<? super T> ordering;
-
-    NullsFirstOrdering(Ordering<? super T> ordering) {
-      this.ordering = ordering;
-    }
-
-    public int compare(T left, T right) {
-      if (left == right) {
-        return 0;
-      }
-      if (left == null) {
-        return RIGHT_IS_GREATER;
-      }
-      if (right == null) {
-        return LEFT_IS_GREATER;
-      }
-      return ordering.compare(left, right);
-    }
-
-    @Override public boolean equals(@Nullable Object object) {
-      if (object == this) {
-        return true;
-      }
-      if (object instanceof NullsFirstOrdering) {
-        NullsFirstOrdering<?> that = (NullsFirstOrdering<?>) object;
-        return this.ordering.equals(that.ordering);
-      }
-      return false;
-    }
-
-    @Override public int hashCode() {
-      return ordering.hashCode() ^ 957692532; // meaningless
-    }
-
-    @Override public String toString() {
-      return ordering + ".nullsFirst()";
-    }
-
-    private static final long serialVersionUID = 0;
   }
 
   /**
@@ -585,54 +292,10 @@ public abstract class Ordering<T> implements Comparator<T> {
    */
   // type parameter <S> lets us avoid the extra <String> in statements like:
   // Ordering<String> o = Ordering.<String>natural().nullsLast();
+  @GwtCompatible(serializable = true)
   public <S extends T> Ordering<S> nullsLast() {
     return new NullsLastOrdering<S>(this);
   }
-
-  private static class NullsLastOrdering<T> extends Ordering<T>
-      implements Serializable {
-    final Ordering<? super T> ordering;
-
-    NullsLastOrdering(Ordering<? super T> ordering) {
-      this.ordering = ordering;
-    }
-
-    public int compare(T left, T right) {
-      if (left == right) {
-        return 0;
-      }
-      if (left == null) {
-        return LEFT_IS_GREATER;
-      }
-      if (right == null) {
-        return RIGHT_IS_GREATER;
-      }
-      return ordering.compare(left, right);
-    }
-
-    @Override public boolean equals(@Nullable Object object) {
-      if (object == this) {
-        return true;
-      }
-      if (object instanceof NullsLastOrdering) {
-        NullsLastOrdering<?> that = (NullsLastOrdering<?>) object;
-        return this.ordering.equals(that.ordering);
-      }
-      return false;
-    }
-
-    @Override public int hashCode() {
-      return ordering.hashCode() ^ -921210296; // meaningless
-    }
-
-    @Override public String toString() {
-      return ordering + ".nullsLast()";
-    }
-
-    private static final long serialVersionUID = 0;
-  }
-
-  // The rest
 
   /**
    * {@link Collections#binarySearch(List, Object, Comparator) Searches}
@@ -642,7 +305,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    * @param sortedList the list to be searched
    * @param key the key to be searched for
    */
-  public final int binarySearch(List<? extends T> sortedList, T key) {
+  public int binarySearch(List<? extends T> sortedList, T key) {
     return Collections.binarySearch(sortedList, key, this);
   }
 
@@ -658,7 +321,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    * @param iterable the elements to be copied and sorted
    * @return a new list containing the given elements in sorted order
    */
-  public final <E extends T> List<E> sortedCopy(Iterable<E> iterable) {
+  public <E extends T> List<E> sortedCopy(Iterable<E> iterable) {
     List<E> list = Lists.newArrayList(iterable);
     Collections.sort(list, this);
     return list;
@@ -670,7 +333,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    * ordering. Note that this is always true when the iterable has fewer than
    * two elements.
    */
-  public final boolean isOrdered(Iterable<? extends T> iterable) {
+  public boolean isOrdered(Iterable<? extends T> iterable) {
     Iterator<? extends T> it = iterable.iterator();
     if (it.hasNext()) {
       T prev = it.next();
@@ -691,7 +354,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    * this ordering. Note that this is always true when the iterable has fewer
    * than two elements.
    */
-  public final boolean isStrictlyOrdered(Iterable<? extends T> iterable) {
+  public boolean isStrictlyOrdered(Iterable<? extends T> iterable) {
     Iterator<? extends T> it = iterable.iterator();
     if (it.hasNext()) {
       T prev = it.next();
@@ -711,11 +374,11 @@ public abstract class Ordering<T> implements Comparator<T> {
    * there are multiple largest values, the first of those is returned.
    *
    * @param iterable the iterable whose maximum element is to be determined
-   * @throws java.util.NoSuchElementException if {@code iterable} is empty
+   * @throws NoSuchElementException if {@code iterable} is empty
    * @throws ClassCastException if the parameters are not <i>mutually
    *     comparable</i> under this ordering.
    */
-  public final <E extends T> E max(Iterable<E> iterable) {
+  public <E extends T> E max(Iterable<E> iterable) {
     Iterator<E> iterator = iterable.iterator();
 
     // let this throw NoSuchElementException as necessary
@@ -739,7 +402,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    * @throws ClassCastException if the parameters are not <i>mutually
    *     comparable</i> under this ordering.
    */
-  public final <E extends T> E max(E a, E b, E c, E... rest) {
+  public <E extends T> E max(E a, E b, E c, E... rest) {
     E maxSoFar = max(max(a, b), c);
 
     for (E r : rest) {
@@ -753,12 +416,16 @@ public abstract class Ordering<T> implements Comparator<T> {
    * Returns the larger of the two values according to this ordering. If the
    * values compare as 0, the first is returned.
    *
+   * <p><b>Implementation note:</b> this method is invoked by the default
+   * implementations of the other {@code max} overloads, so overriding it will
+   * affect their behavior.
+   *
    * @param a value to compare, returned if greater than or equal to b.
    * @param b value to compare.
    * @throws ClassCastException if the parameters are not <i>mutually
    *     comparable</i> under this ordering.
    */
-  public final <E extends T> E max(E a, E b) {
+  public <E extends T> E max(E a, E b) {
     return compare(a, b) >= 0 ? a : b;
   }
 
@@ -767,11 +434,11 @@ public abstract class Ordering<T> implements Comparator<T> {
    * there are multiple smallest values, the first of those is returned.
    *
    * @param iterable the iterable whose minimum element is to be determined
-   * @throws java.util.NoSuchElementException if {@code iterable} is empty
+   * @throws NoSuchElementException if {@code iterable} is empty
    * @throws ClassCastException if the parameters are not <i>mutually
    *     comparable</i> under this ordering.
    */
-  public final <E extends T> E min(Iterable<E> iterable) {
+  public <E extends T> E min(Iterable<E> iterable) {
     Iterator<E> iterator = iterable.iterator();
 
     // let this throw NoSuchElementException as necessary
@@ -795,7 +462,7 @@ public abstract class Ordering<T> implements Comparator<T> {
    * @throws ClassCastException if the parameters are not <i>mutually
    *     comparable</i> under this ordering.
    */
-  public final <E extends T> E min(E a, E b, E c, E... rest) {
+  public <E extends T> E min(E a, E b, E c, E... rest) {
     E minSoFar = min(min(a, b), c);
 
     for (E r : rest) {
@@ -809,16 +476,20 @@ public abstract class Ordering<T> implements Comparator<T> {
    * Returns the smaller of the two values according to this ordering. If the
    * values compare as 0, the first is returned.
    *
+   * <p><b>Implementation note:</b> this method is invoked by the default
+   * implementations of the other {@code min} overloads, so overriding it will
+   * affect their behavior.
+   *
    * @param a value to compare, returned if less than or equal to b.
    * @param b value to compare.
    * @throws ClassCastException if the parameters are not <i>mutually
    *     comparable</i> under this ordering.
    */
-  public final <E extends T> E min(E a, E b) {
+  public <E extends T> E min(E a, E b) {
     return compare(a, b) <= 0 ? a : b;
   }
 
   // Never make these public
-  private static final int LEFT_IS_GREATER = 1;
-  private static final int RIGHT_IS_GREATER = -1;
+  static final int LEFT_IS_GREATER = 1;
+  static final int RIGHT_IS_GREATER = -1;
 }

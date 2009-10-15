@@ -57,15 +57,13 @@ public class PeekingIteratorTest extends TestCase {
           IteratorTester.KnownOrder.KNOWN_ORDER);
       this.master = master;
     }
-    @Override
-    protected Iterator<T> newTargetIterator() {
+    @Override protected Iterator<T> newTargetIterator() {
       // make copy from master to verify later
       targetList = Lists.newArrayList(master);
       Iterator<T> iterator = targetList.iterator();
       return Iterators.peekingIterator(iterator);
     }
-    @Override
-    protected void verify(List<T> elements) {
+    @Override protected void verify(List<T> elements) {
       // verify same objects were removed from reference and target
       assertEquals(elements, targetList);
     }

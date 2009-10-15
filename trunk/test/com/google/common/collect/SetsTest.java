@@ -28,15 +28,23 @@ import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.collect.testing.features.SetFeature;
 import static com.google.common.collect.testing.testers.CollectionIteratorTester.getIteratorKnownOrderRemoveSupportedMethod;
 import com.google.common.testing.junit3.JUnitAsserts;
+import static com.google.common.testing.junit3.JUnitAsserts.assertContentsInOrder;
 import com.google.common.testutils.NullPointerTester;
 import com.google.common.testutils.SerializableTester;
-import static com.google.common.testing.junit3.JUnitAsserts.assertContentsInOrder;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import static java.io.ObjectStreamConstants.TC_REFERENCE;
+import static java.io.ObjectStreamConstants.baseWireHandle;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -220,8 +228,8 @@ public class SetsTest extends TestCase {
     assertContentsInOrder(units, SomeEnum.B, SomeEnum.D);
 
     Set<SomeEnum> copy = SerializableTester.reserializeAndAssert(units);
-    assertTrue(copy instanceof ImmutableSet.ForwardingImmutableSet);
-
+    assertTrue(copy instanceof ImmutableSet.ImmutableEnumSet);
+    
     try {
       units.remove(SomeEnum.B);
       fail("ImmutableEnumSet should throw an exception on remove()");
@@ -244,6 +252,48 @@ public class SetsTest extends TestCase {
     ImmutableSet<SomeEnum> two
         = Sets.immutableEnumSet(MinimalIterable.of(SomeEnum.D, SomeEnum.B));
     assertContentsInOrder(two, SomeEnum.B, SomeEnum.D);
+  }
+
+  public void testImmutableEnumSet_deserializationMakesDefensiveCopy()
+      throws Exception {
+    ImmutableSet<SomeEnum> original =
+        Sets.immutableEnumSet(SomeEnum.A, SomeEnum.B);
+    int handleOffset = 6;
+    byte[] serializedForm = serializeWithBackReference(original, handleOffset);
+    ObjectInputStream in =
+        new ObjectInputStream(new ByteArrayInputStream(serializedForm));
+
+    ImmutableSet<?> deserialized = (ImmutableSet<?>) in.readObject();
+    EnumSet<?> delegate = (EnumSet<?>) in.readObject();
+
+    assertEquals(original, deserialized);
+    assertTrue(delegate.remove(SomeEnum.A));
+    assertTrue(deserialized.contains(SomeEnum.A));
+  }
+
+  private static byte[] serializeWithBackReference(
+      Object original, int handleOffset) throws IOException {
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    ObjectOutputStream out = new ObjectOutputStream(bos);
+
+    out.writeObject(original);
+
+    byte[] handle = toByteArray(baseWireHandle + handleOffset);
+    byte[] ref = prepended(TC_REFERENCE, handle);
+    bos.write(ref);
+
+    return bos.toByteArray();
+  }
+
+  private static byte[] prepended(byte b, byte[] array) {
+    byte[] out = new byte[array.length + 1];
+    out[0] = b;
+    System.arraycopy(array, 0, out, 1, array.length);
+    return out;
+  }
+
+  private static byte[] toByteArray(int h) {
+    return ByteBuffer.allocate(4).putInt(h).array();
   }
 
   public void testNewEnumSet_empty() {

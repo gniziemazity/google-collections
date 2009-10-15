@@ -37,7 +37,7 @@ public final class EnumBiMap<K extends Enum<K>, V extends Enum<V>>
   private transient Class<V> valueType;
 
   /**
-   * Returns a new empty {@code EnumBiMap} using the specified key and value
+   * Returns a new, empty {@code EnumBiMap} using the specified key and value
    * types.
    *
    * @param keyType the key type

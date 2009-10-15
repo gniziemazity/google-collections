@@ -16,9 +16,6 @@
 
 package com.google.common.collect;
 
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
-
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.collect.CustomConcurrentHashMap.Impl;
@@ -45,6 +42,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * Unit tests for MapMaker. Also less directly serves as the test suite for
@@ -90,14 +89,13 @@ public class MapMakerTestSuite extends TestCase {
       }
     }
 
-    // TODO: enable when ready
-    public void xtestInitialCapacity_setTwice() {
+    public void testInitialCapacity_setTwice() {
       MapMaker maker = new MapMaker().initialCapacity(16);
       try {
         // even to the same value is not allowed
         maker.initialCapacity(16);
         fail();
-      } catch (IllegalArgumentException expected) {
+      } catch (IllegalStateException expected) {
       }
     }
 
@@ -129,14 +127,13 @@ public class MapMakerTestSuite extends TestCase {
       }
     }
 
-    // TODO: enable when ready
-    public void xtestLoadFactor_setTwice() {
+    public void testLoadFactor_setTwice() {
       MapMaker maker = new MapMaker().loadFactor(0.75f);
       try {
         // even to the same value is not allowed
         maker.loadFactor(0.75f);
         fail();
-      } catch (IllegalArgumentException expected) {
+      } catch (IllegalStateException expected) {
       }
     }
 
@@ -160,14 +157,13 @@ public class MapMakerTestSuite extends TestCase {
       }
     }
 
-    // TODO: enable when ready
-    public void xtestConcurrencyLevel_setTwice() {
+    public void testConcurrencyLevel_setTwice() {
       MapMaker maker = new MapMaker().concurrencyLevel(16);
       try {
         // even to the same value is not allowed
         maker.concurrencyLevel(16);
         fail();
-      } catch (IllegalArgumentException expected) {
+      } catch (IllegalStateException expected) {
       }
     }
 
@@ -918,19 +914,16 @@ public class MapMakerTestSuite extends TestCase {
     Timer oldTimer;
     final List<TimerTask> tasks = new ArrayList<TimerTask>();
 
-    @Override
-    protected void setUp() throws Exception {
+    @Override protected void setUp() throws Exception {
       oldTimer = ExpirationTimer.instance;
       ExpirationTimer.instance = new Timer() {
-        @Override
-        public void schedule(TimerTask task, long delay) {
+        @Override public void schedule(TimerTask task, long delay) {
           tasks.add(task);
         }
       };
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @Override protected void tearDown() throws Exception {
       ExpirationTimer.instance = oldTimer;
     }
 
@@ -1068,19 +1061,16 @@ public class MapMakerTestSuite extends TestCase {
     Timer oldTimer;
     final List<TimerTask> tasks = new ArrayList<TimerTask>();
 
-    @Override
-    protected void setUp() throws Exception {
+    @Override protected void setUp() throws Exception {
       oldTimer = ExpirationTimer.instance;
       ExpirationTimer.instance = new Timer() {
-        @Override
-        public void schedule(TimerTask task, long delay) {
+        @Override public void schedule(TimerTask task, long delay) {
           tasks.add(task);
         }
       };
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @Override protected void tearDown() throws Exception {
       ExpirationTimer.instance = oldTimer;
     }
 

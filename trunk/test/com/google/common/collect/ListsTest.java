@@ -615,7 +615,6 @@ public class ListsTest extends TestCase {
     assertFalse(iterator.hasNext());
   }
 
-
   public void testPartition_badSize() {
     List<Integer> source = Collections.singletonList(1);
     try {

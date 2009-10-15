@@ -22,7 +22,6 @@ import java.io.ObjectOutputStream;
 import java.util.Map;
 
 /**
- *
  * @author Hayward Chan
  */
 final class Serialization {

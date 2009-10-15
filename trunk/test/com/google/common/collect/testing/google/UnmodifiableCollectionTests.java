@@ -59,7 +59,7 @@ public class UnmodifiableCollectionTests {
    * This test only works with iterators that iterate over a finite set.
    */
   public static void assertIteratorIsUnmodifiable(Iterator<?> iterator) {
-    while(iterator.hasNext()) {
+    while (iterator.hasNext()) {
       iterator.next();
       try {
         iterator.remove();
@@ -77,7 +77,7 @@ public class UnmodifiableCollectionTests {
   public static void assertIteratorsInOrder(
       Iterator<?> expectedIterator, Iterator<?> actualIterator) {
     int i = 0;
-    while(expectedIterator.hasNext()) {
+    while (expectedIterator.hasNext()) {
       Object expected = expectedIterator.next();
 
       assertTrue(
@@ -88,7 +88,7 @@ public class UnmodifiableCollectionTests {
       assertEquals("index " + i, expected, actual);
       i++;
     }
-    if(actualIterator.hasNext()) {
+    if (actualIterator.hasNext()) {
       fail("index " + i
           + ", expected is exhausted, actual <" + actualIterator.next() + ">");
     }
@@ -179,7 +179,7 @@ public class UnmodifiableCollectionTests {
    */
   public static <E> void assertSetIsUnmodifiable(
       Set<E> set, E sampleElement) {
-   assertCollectionIsUnmodifiable(set, sampleElement);
+    assertCollectionIsUnmodifiable(set, sampleElement);
   }
 
   /**
@@ -284,7 +284,7 @@ public class UnmodifiableCollectionTests {
     assertMultimapRemainsUnmodified(multimap, originalEntries);
     if (!multimap.isEmpty()) {
       Collection<V> values =
-        multimap.asMap().entrySet().iterator().next().getValue();
+          multimap.asMap().entrySet().iterator().next().getValue();
 
       assertCollectionIsUnmodifiable(values, sampleValue);
     }

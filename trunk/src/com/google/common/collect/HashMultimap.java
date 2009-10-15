@@ -44,7 +44,7 @@ import java.util.Set;
  *
  * @author Jared Levy
  */
-@GwtCompatible
+@GwtCompatible(serializable = true)
 public final class HashMultimap<K, V> extends StandardSetMultimap<K, V> {
   private static final int DEFAULT_VALUES_PER_KEY = 8;
 
@@ -52,7 +52,7 @@ public final class HashMultimap<K, V> extends StandardSetMultimap<K, V> {
   transient int expectedValuesPerKey = DEFAULT_VALUES_PER_KEY;
 
   /**
-   * Creates a new empty {@code HashMultimap} with the default initial
+   * Creates a new, empty {@code HashMultimap} with the default initial
    * capacities.
    */
   public static <K, V> HashMultimap<K, V> create() {
@@ -147,4 +147,3 @@ public final class HashMultimap<K, V> extends StandardSetMultimap<K, V> {
 
   private static final long serialVersionUID = 0;
 }
-

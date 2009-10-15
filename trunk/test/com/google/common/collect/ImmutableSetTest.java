@@ -36,6 +36,28 @@ public class ImmutableSetTest extends AbstractImmutableSetTest {
     return ImmutableSet.of();
   }
 
+  @Override protected Set<String> of(String e) {
+    return ImmutableSet.of(e);
+  }
+
+  @Override protected Set<String> of(String e1, String e2) {
+    return ImmutableSet.of(e1, e2);
+  }
+
+  @Override protected Set<String> of(String e1, String e2, String e3) {
+    return ImmutableSet.of(e1, e2, e3);
+  }
+
+  @Override protected Set<String> of(
+      String e1, String e2, String e3, String e4) {
+    return ImmutableSet.of(e1, e2, e3, e4);
+  }
+
+  @Override protected Set<String> of(
+      String e1, String e2, String e3, String e4, String e5) {
+    return ImmutableSet.of(e1, e2, e3, e4, e5);
+  }
+
   @Override protected Set<String> of(String... elements) {
     return ImmutableSet.of(elements);
   }

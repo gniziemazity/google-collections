@@ -46,8 +46,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Unit test for {@code Maps}.
@@ -816,8 +814,8 @@ public class MapsTest extends TestCase {
     unfiltered.put("horse", 5);
     Predicate<Entry<?, ?>> predicate = new Predicate<Entry<?, ?>>() {
       public boolean apply(Entry<?, ?> input) {
-         return "cat".equals(input.getKey())
-             || Integer.valueOf(2) == input.getValue();
+        return "cat".equals(input.getKey())
+            || Integer.valueOf(2) == input.getValue();
       }
     };
     Map<String, Integer> filtered

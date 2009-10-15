@@ -30,11 +30,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Kevin Bourrillion
  * @author Jared Levy
  */
-@GwtCompatible
+@GwtCompatible(serializable = true)
 public final class HashMultiset<E> extends AbstractMapBasedMultiset<E> {
 
   /**
-   * Creates a new empty {@code HashMultiset} using the default initial
+   * Creates a new, empty {@code HashMultiset} using the default initial
    * capacity.
    */
   public static <E> HashMultiset<E> create() {
@@ -42,8 +42,8 @@ public final class HashMultiset<E> extends AbstractMapBasedMultiset<E> {
   }
 
   /**
-   * Creates a new empty {@code HashMultiset} with the specified expected number
-   * of distinct elements.
+   * Creates a new, empty {@code HashMultiset} with the specified expected
+   * number of distinct elements.
    *
    * @param distinctElements the expected number of distinct elements
    * @throws IllegalArgumentException if {@code distinctElements} is negative

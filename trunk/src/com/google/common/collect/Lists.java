@@ -52,10 +52,10 @@ public final class Lists {
   // ArrayList
 
   /**
-   * Creates an empty {@code ArrayList} instance.
+   * Creates a <i>mutable</i>, empty {@code ArrayList} instance.
    *
-   * <p><b>Note:</b> if you need an immutable empty list, use {@link
-   * Collections#emptyList} instead.
+   * <p><b>Note:</b> if mutability is not required, use {@link
+   * ImmutableList#of()} instead.
    *
    * @return a new, empty {@code ArrayList}
    */
@@ -65,26 +65,18 @@ public final class Lists {
   }
 
   /**
-   * Creates an {@code ArrayList} instance containing the given elements.
+   * Creates a <i>mutable</i> {@code ArrayList} instance containing the given
+   * elements.
    *
-   * <p><b>Note:</b> if you need an immutable List, use {@link ImmutableList}
-   * instead.
-   *
-   * <p><b>Note:</b> due to a bug in javac 1.5.0_06, we cannot support the
-   * following:
-   *
-   * <p>{@code List<Base> list = Lists.newArrayList(sub1, sub2);}
-   *
-   * <p>where {@code sub1} and {@code sub2} are references to subtypes of {@code
-   * Base}, not of {@code Base} itself. To get around this, you must use:
-   *
-   * <p>{@code List<Base> list = Lists.<Base>newArrayList(sub1, sub2);}
+   * <p><b>Note:</b> if mutability is not required and the elements are
+   * non-null, use {@link ImmutableList#of(Object[])} instead.
    *
    * @param elements the elements that the list should contain, in order
    * @return a new {@code ArrayList} containing those elements
    */
   @GwtCompatible(serializable = true)
   public static <E> ArrayList<E> newArrayList(E... elements) {
+    checkNotNull(elements); // for GWT
     // Avoid integer overflow when a large array is passed in
     int capacity = computeArrayListCapacity(elements.length);
     ArrayList<E> list = new ArrayList<E>(capacity);
@@ -100,13 +92,18 @@ public final class Lists {
   }
 
   /**
-   * Creates an {@code ArrayList} instance containing the given elements.
+   * Creates a <i>mutable</i> {@code ArrayList} instance containing the given
+   * elements.
+   *
+   * <p><b>Note:</b> if mutability is not required and the elements are
+   * non-null, use {@link ImmutableList#copyOf(Iterator)} instead.
    *
    * @param elements the elements that the list should contain, in order
    * @return a new {@code ArrayList} containing those elements
    */
   @GwtCompatible(serializable = true)
   public static <E> ArrayList<E> newArrayList(Iterable<? extends E> elements) {
+    checkNotNull(elements); // for GWT
     // Let ArrayList's sizing logic work, if possible
     if (elements instanceof Collection) {
       @SuppressWarnings("unchecked")
@@ -118,13 +115,18 @@ public final class Lists {
   }
 
   /**
-   * Creates an {@code ArrayList} instance containing the given elements.
+   * Creates a <i>mutable</i> {@code ArrayList} instance containing the given
+   * elements.
+   *
+   * <p><b>Note:</b> if mutability is not required and the elements are
+   * non-null, use {@link ImmutableList#copyOf(Iterator)} instead.
    *
    * @param elements the elements that the list should contain, in order
    * @return a new {@code ArrayList} containing those elements
    */
   @GwtCompatible(serializable = true)
   public static <E> ArrayList<E> newArrayList(Iterator<? extends E> elements) {
+    checkNotNull(elements); // for GWT
     ArrayList<E> list = newArrayList();
     while (elements.hasNext()) {
       list.add(elements.next());
@@ -148,7 +150,7 @@ public final class Lists {
    * @param initialArraySize the exact size of the initial backing array for
    *     the returned array list ({@code ArrayList} documentation calls this
    *     value the "capacity")
-   * @return a new, empty {@code ArrayList}, which is guaranteed not to resize
+   * @return a new, empty {@code ArrayList} which is guaranteed not to resize
    *     itself unless its size reaches {@code initialArraySize + 1}
    * @throws IllegalArgumentException if {@code initialArraySize} is negative
    */
@@ -244,7 +246,9 @@ public final class Lists {
       return rest.length + 1;
     }
     @Override public E get(int index) {
-      return (index == 0) ? first : rest[index - 1]; // allow IOOBE to throw
+      // check explicitly so the IOOBE will have the right message
+      checkElementIndex(index, size());
+      return (index == 0) ? first : rest[index - 1];
     }
     private static final long serialVersionUID = 0;
   }
@@ -293,7 +297,9 @@ public final class Lists {
         case 1:
           return second;
         default:
-          return rest[index - 2]; // allow IOOBE to throw
+          // check explicitly so the IOOBE will have the right message
+          checkElementIndex(index, size());
+          return rest[index - 2];
       }
     }
     private static final long serialVersionUID = 0;

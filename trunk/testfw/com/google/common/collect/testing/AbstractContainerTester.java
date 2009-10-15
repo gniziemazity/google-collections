@@ -176,6 +176,7 @@ public abstract class AbstractContainerTester<C, E>
       this.duplicate = duplicate;
     }
   }
+
   /**
    * @return an array of the proper size with a duplicate element.
    * The size must be at least three.

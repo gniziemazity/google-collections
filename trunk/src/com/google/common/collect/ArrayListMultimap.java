@@ -56,7 +56,7 @@ import java.util.Map;
  *
  * @author Jared Levy
  */
-@GwtCompatible
+@GwtCompatible(serializable = true)
 public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
   // Default from ArrayList
   private static final int DEFAULT_VALUES_PER_KEY = 10;
@@ -64,7 +64,7 @@ public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
   @VisibleForTesting transient int expectedValuesPerKey;
 
   /**
-   * Creates a new empty {@code ArrayListMultimap} with the default initial
+   * Creates a new, empty {@code ArrayListMultimap} with the default initial
    * capacities.
    */
   public static <K, V> ArrayListMultimap<K, V> create() {
@@ -129,7 +129,7 @@ public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
   }
 
   /**
-   * Creates a new empty {@code ArrayList} to hold the collection of values for
+   * Creates a new, empty {@code ArrayList} to hold the collection of values for
    * an arbitrary key.
    */
   @Override List<V> createCollection() {

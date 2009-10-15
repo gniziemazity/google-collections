@@ -39,16 +39,16 @@ public class QueuePeekTester<E> extends AbstractQueueTester<E> {
 
   @CollectionSize.Require(ONE)
   public void testPeek_size1() {
-     assertEquals("size1Queue.peek() should return first element",
-         samples.e0, getQueue().peek());
-     expectUnchanged();
+    assertEquals("size1Queue.peek() should return first element",
+        samples.e0, getQueue().peek());
+    expectUnchanged();
   }
 
   @CollectionFeature.Require(KNOWN_ORDER)
   @CollectionSize.Require(SEVERAL)
   public void testPeek_sizeMany() {
-     assertEquals("sizeManyQueue.peek() should return first element",
-         samples.e0, getQueue().peek());
-     expectUnchanged();
+    assertEquals("sizeManyQueue.peek() should return first element",
+        samples.e0, getQueue().peek());
+    expectUnchanged();
   }
 }

@@ -17,10 +17,11 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.NoSuchElementException;
+import java.util.Iterator;
 
 import javax.annotation.Nullable;
 
@@ -203,18 +204,7 @@ public abstract class ImmutableCollection<E>
     }
 
     @Override public UnmodifiableIterator<E> iterator() {
-      return new UnmodifiableIterator<E>() {
-        int i = 0;
-        public boolean hasNext() {
-          return i < elements.length;
-        }
-        public E next() {
-          if (!hasNext()) {
-            throw new NoSuchElementException();
-          }
-          return elements[i++];
-        }
-      };
+      return Iterators.forArray(elements);
     }
   }
 
@@ -237,5 +227,91 @@ public abstract class ImmutableCollection<E>
 
   Object writeReplace() {
     return new SerializedForm(toArray());
+  }
+
+  /**
+   * Abstract base class for builders of {@link ImmutableCollection} types.
+   */
+  abstract static class Builder<E> {
+    /**
+     * Adds {@code element} to the {@code ImmutableCollection} being built.
+     *
+     * <p>Note that each builder class covariantly returns its own type from
+     * this method.
+     *
+     * @param element the element to add
+     * @return this {@code Builder} instance
+     * @throws NullPointerException if {@code element} is null
+     */
+    public abstract Builder<E> add(E element);
+
+    /**
+     * Adds each element of {@code elements} to the {@code ImmutableCollection}
+     * being built.
+     *
+     * <p>Note that each builder class overrides this method in order to
+     * covariantly return its own type.
+     *
+     * @param elements the elements to add
+     * @return this {@code Builder} instance
+     * @throws NullPointerException if {@code elements} is null or contains a
+     *     null element
+     */
+    public Builder<E> add(E... elements) {
+      checkNotNull(elements); // for GWT
+      for (E element : elements) {
+        add(element);
+      }
+      return this;
+    }
+
+    /**
+     * Adds each element of {@code elements} to the {@code ImmutableCollection}
+     * being built.
+     *
+     * <p>Note that each builder class overrides this method in order to
+     * covariantly return its own type.
+     *
+     * @param elements the elements to add
+     * @return this {@code Builder} instance
+     * @throws NullPointerException if {@code elements} is null or contains a
+     *     null element
+     */
+    public Builder<E> addAll(Iterable<? extends E> elements) {
+      checkNotNull(elements); // for GWT
+      for (E element : elements) {
+        add(element);
+      }
+      return this;
+    }
+
+    /**
+     * Adds each element of {@code elements} to the {@code ImmutableCollection}
+     * being built.
+     *
+     * <p>Note that each builder class overrides this method in order to
+     * covariantly return its own type.
+     *
+     * @param elements the elements to add
+     * @return this {@code Builder} instance
+     * @throws NullPointerException if {@code elements} is null or contains a
+     *     null element
+     */
+    public Builder<E> addAll(Iterator<? extends E> elements) {
+      checkNotNull(elements); // for GWT
+      while (elements.hasNext()) {
+        add(elements.next());
+      }
+      return this;
+    }
+
+    /**
+     * Returns a newly-created {@code ImmutableCollection} of the appropriate
+     * type, containing the elements provided to this builder.
+     *
+     * <p>Note that each builder class covariantly returns the appropriate type
+     * of {@code ImmutableCollection} from this method.
+     */
+    public abstract ImmutableCollection<E> build();
   }
 }

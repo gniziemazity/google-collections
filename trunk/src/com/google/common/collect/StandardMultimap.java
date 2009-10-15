@@ -26,6 +26,7 @@ import java.util.AbstractCollection;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
@@ -118,7 +119,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
   }
 
   /** Used during deserialization only. */
-  protected void setMap(Map<K, Collection<V>> map) {
+  final void setMap(Map<K, Collection<V>> map) {
     this.map = map;
     totalSize = 0;
     for (Collection<V> values : map.values()) {
@@ -256,6 +257,11 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
     return changed;
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The returned collection is immutable.
+   */
   public Collection<V> replaceValues(
       @Nullable K key, Iterable<? extends V> values) {
     Iterator<? extends V> iterator = values.iterator();
@@ -276,9 +282,14 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
       }
     }
 
-    return oldValues;
+    return unmodifiableCollectionSubclass(oldValues);
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The returned collection is immutable.
+   */
   public Collection<V> removeAll(@Nullable Object key) {
     Collection<V> collection = map.remove(key);
     Collection<V> output = createCollection();
@@ -289,7 +300,20 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
       collection.clear();
     }
 
-    return output;
+    return unmodifiableCollectionSubclass(output);
+  }
+
+  private Collection<V> unmodifiableCollectionSubclass(
+      Collection<V> collection) {
+    if (collection instanceof SortedSet) {
+      return Collections.unmodifiableSortedSet((SortedSet<V>) collection);
+    } else if (collection instanceof Set) {
+      return Collections.unmodifiableSet((Set<V>) collection);
+    } else if (collection instanceof List) {
+      return Collections.unmodifiableList((List<V>) collection);
+    } else {
+      return Collections.unmodifiableCollection(collection);
+    }
   }
 
   public void clear() {
@@ -1134,6 +1158,10 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
   }
 
   private transient Collection<Map.Entry<K, V>> entries;
+
+  // TODO: should we copy this javadoc to each concrete class, so that classes
+  // like LinkedHashMultimap that need to say something different are still
+  // able to {@inheritDoc} all the way from Multimap?
 
   /**
    * {@inheritDoc}

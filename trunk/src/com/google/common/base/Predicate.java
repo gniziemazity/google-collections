@@ -46,7 +46,6 @@ public interface Predicate<T> {
    */
   boolean apply(@Nullable T input);
 
-
   /**
    * Indicates whether some other object is equal to this {@code Predicate}.
    * This method can return {@code true} <i>only</i> if the specified object is

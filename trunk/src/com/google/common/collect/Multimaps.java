@@ -87,7 +87,7 @@ public final class Multimaps {
    *
    * @param map place to store the mapping from each key to its corresponding
    *     values
-   * @param factory supplier of new empty collections that will each hold all
+   * @param factory supplier of new, empty collections that will each hold all
    *     values for a given key
    * @throws IllegalArgumentException if {@code map} is not empty
    */
@@ -164,7 +164,7 @@ public final class Multimaps {
    *
    * @param map place to store the mapping from each key to its corresponding
    *     values
-   * @param factory supplier of new empty lists that will each hold all values
+   * @param factory supplier of new, empty lists that will each hold all values
    *     for a given key
    * @throws IllegalArgumentException if {@code map} is not empty
    */
@@ -239,7 +239,7 @@ public final class Multimaps {
    *
    * @param map place to store the mapping from each key to its corresponding
    *     values
-   * @param factory supplier of new empty sets that will each hold all values
+   * @param factory supplier of new, empty sets that will each hold all values
    *     for a given key
    * @throws IllegalArgumentException if {@code map} is not empty
    */
@@ -313,7 +313,7 @@ public final class Multimaps {
    *
    * @param map place to store the mapping from each key to its corresponding
    *     values
-   * @param factory supplier of new empty sorted sets that will each hold
+   * @param factory supplier of new, empty sorted sets that will each hold
    *     all values for a given key
    * @throws IllegalArgumentException if {@code map} is not empty
    */
@@ -389,7 +389,7 @@ public final class Multimaps {
    * multimap when accessing any of its collection views:
    *
    * <pre>  Multimap&lt;K,V> m = Multimaps.synchronizedMultimap(
-   *      new HashMultimap&lt;K,V>());
+   *      HashMultimap.&lt;K,V>create());
    *   ...
    *  Set&lt;K> s = m.keySet();  // Needn't be in synchronized block
    *   ...

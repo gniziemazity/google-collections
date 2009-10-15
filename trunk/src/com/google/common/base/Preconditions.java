@@ -21,8 +21,6 @@ import com.google.common.annotations.VisibleForTesting;
 
 import java.util.NoSuchElementException;
 
-import javax.annotation.Nullable;
-
 /**
  * Simple static methods to be called at the start of your own methods to verify
  * correct arguments and state. This allows constructs such as
@@ -38,7 +36,11 @@ import javax.annotation.Nullable;
  * Note that the sense of the expression is inverted; with {@code Preconditions}
  * you declare what you expect to be <i>true</i>, just as you do with an
  * <a href="http://java.sun.com/j2se/1.5.0/docs/guide/language/assert.html">
- * {@code assert}</a> or a JUnit {@code assertTrue()} call.
+ * {@code assert}</a> or a JUnit {@code assertTrue} call.
+ *
+ * <p><b>Warning:</b> only the {@code "%s"} specifier is recognized as a
+ * placeholder in these messages, not the full range of {@link
+ * String#format(String, Object[])} specifiers.
  *
  * <p>Take care not to confuse precondition checking with other similar types
  * of checks! Precondition exceptions -- including those provided here, but also
@@ -46,16 +48,8 @@ import javax.annotation.Nullable;
  * UnsupportedOperationException} and others -- are used to signal that the
  * <i>calling method</i> has made an error. This tells the caller that it should
  * not have invoked the method when it did, with the arguments it did, or
- * perhaps <i>ever</i>. Postcondition or other invariant failures should not
- * throw these types of exceptions.
- *
- * <p><b>Note:</b> The methods of the {@code Preconditions} class are highly
- * unusual in one way: they are <i>supposed to</i> throw exceptions, and promise
- * in their specifications to do so even when given perfectly valid input. That
- * is, {@code null} is a valid parameter to the method {@link
- * #checkNotNull(Object)} -- and technically this parameter could be even marked
- * as {@link Nullable} -- yet the method will still throw an exception anyway,
- * because that's what its contract says to do.
+ * perhaps ever. Postcondition or other invariant failures should not throw
+ * these types of exceptions.
  *
  * @author Kevin Bourrillion
  */
@@ -240,12 +234,13 @@ public final class Preconditions {
    * @param index a user-supplied index identifying an element of an array, list
    *     or string
    * @param size the size of that array, list or string
+   * @return the value of {@code index}
    * @throws IndexOutOfBoundsException if {@code index} is negative or is not
    *     less than {@code size}
    * @throws IllegalArgumentException if {@code size} is negative
    */
-  public static void checkElementIndex(int index, int size) {
-    checkElementIndex(index, size, "index");
+  public static int checkElementIndex(int index, int size) {
+    return checkElementIndex(index, size, "index");
   }
 
   /**
@@ -257,11 +252,12 @@ public final class Preconditions {
    *     or string
    * @param size the size of that array, list or string
    * @param desc the text to use to describe this index in an error message
+   * @return the value of {@code index}
    * @throws IndexOutOfBoundsException if {@code index} is negative or is not
    *     less than {@code size}
    * @throws IllegalArgumentException if {@code size} is negative
    */
-  public static void checkElementIndex(int index, int size, String desc) {
+  public static int checkElementIndex(int index, int size, String desc) {
     if (size < 0) {
       throw new IllegalArgumentException("negative size: " + size);
     }
@@ -273,6 +269,7 @@ public final class Preconditions {
       throw new IndexOutOfBoundsException(
           format("%s (%s) must be less than size (%s)", desc, index, size));
     }
+    return index;
   }
 
   /**
@@ -283,12 +280,13 @@ public final class Preconditions {
    * @param index a user-supplied index identifying a position in an array, list
    *     or string
    * @param size the size of that array, list or string
+   * @return the value of {@code index}
    * @throws IndexOutOfBoundsException if {@code index} is negative or is
    *     greater than {@code size}
    * @throws IllegalArgumentException if {@code size} is negative
    */
-  public static void checkPositionIndex(int index, int size) {
-    checkPositionIndex(index, size, "index");
+  public static int checkPositionIndex(int index, int size) {
+    return checkPositionIndex(index, size, "index");
   }
 
   /**
@@ -300,11 +298,12 @@ public final class Preconditions {
    *     or string
    * @param size the size of that array, list or string
    * @param desc the text to use to describe this index in an error message
+   * @return the value of {@code index}
    * @throws IndexOutOfBoundsException if {@code index} is negative or is
    *     greater than {@code size}
    * @throws IllegalArgumentException if {@code size} is negative
    */
-  public static void checkPositionIndex(int index, int size, String desc) {
+  public static int checkPositionIndex(int index, int size, String desc) {
     if (size < 0) {
       throw new IllegalArgumentException("negative size: " + size);
     }
@@ -316,6 +315,7 @@ public final class Preconditions {
       throw new IndexOutOfBoundsException(format(
           "%s (%s) must not be greater than size (%s)", desc, index, size));
     }
+    return index;
   }
 
   /**

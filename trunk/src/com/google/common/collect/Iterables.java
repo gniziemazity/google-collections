@@ -131,6 +131,55 @@ public final class Iterables {
   }
 
   /**
+   * Removes, from an iterable, every element that satisfies the provided
+   * predicate.
+   *
+   * @param removeFrom the iterable to (potentially) remove elements from
+   * @param elementsToRemove a predicate that determines whether an element
+   *     should be removed
+   * @return {@code true} if any elements were removed from the iterable
+   *
+   * @throws UnsupportedOperationException if the iterable does not support
+   *     {@code remove()}.
+   */
+  // TODO: make public post-1.0
+  static <T> boolean removeIf(
+      Iterable<T> removeFrom, Predicate<? super T> elementsToRemove) {
+    if (removeFrom instanceof RandomAccess && removeFrom instanceof List) {
+      return removeIfFromRandomAccessList(
+          (List<T>) removeFrom, checkNotNull(elementsToRemove));
+    }
+    return Iterators.removeIf(removeFrom.iterator(), elementsToRemove);
+  }
+
+  private static <T> boolean removeIfFromRandomAccessList(
+      List<T> list, Predicate<? super T> predicate) {
+    int from = 0;
+    int to = 0;
+
+    for (; from < list.size(); from++) {
+      T element = list.get(from);
+      if (!predicate.apply(element)) {
+        if (from > to) {
+          list.set(to, element);
+        }
+        to++;
+      }
+    }
+
+    // Clear the tail of any remaining items
+    // Note: hand-written GWT-compatible version of
+    // list.subList(to, list.size()).clear();
+    ListIterator<T> iter = list.listIterator(list.size());
+    for (int idx = from - to; idx > 0; idx--) {
+      iter.previous();
+      iter.remove();
+    }
+
+    return from != to;
+  }
+
+  /**
    * Determines whether two iterables contain equal elements in the same order.
    * More specifically, this method returns {@code true} if {@code iterable1}
    * and {@code iterable2} contain the same number of elements and every element
@@ -223,7 +272,7 @@ public final class Iterables {
   }
 
   /**
-   * Returns an iterable whose iterator cycles indefinitely over the elements of
+   * Returns an iterable whose iterators cycle indefinitely over the elements of
    * {@code iterable}.
    *
    * <p>That iterator supports {@code remove()} if {@code iterable.iterator()}
@@ -252,13 +301,14 @@ public final class Iterables {
   }
 
   /**
-   * Returns an iterable whose iterator cycles indefinitely over the provided
+   * Returns an iterable whose iterators cycle indefinitely over the provided
    * elements.
    *
-   * <p>That iterator supports {@code remove()} if {@code iterable.iterator()}
-   * does. After {@code remove()} is called, subsequent cycles omit the removed
-   * element, but {@code elements} does not change. The iterator's
-   * {@code hasNext()} method returns {@code true} until all of the original
+   * <p>After {@code remove} is invoked on a generated iterator, the removed
+   * element will no longer appear in either that iterator or any other iterator
+   * created from the same source iterable. That is, this method behaves exactly
+   * as {@code Iterables.cycle(Lists.newArrayList(elements))}. The iterator's
+   * {@code hasNext} method returns {@code true} until all of the original
    * elements have been removed.
    *
    * <p><b>Warning:</b> Typical uses of the resulting iterator may produce an

@@ -47,6 +47,7 @@ public final class Predicates {
   /**
    * Returns a predicate that always evaluates to {@code true}.
    */
+  @GwtCompatible(serializable = true)
   @SuppressWarnings("unchecked")
   public static <T> Predicate<T> alwaysTrue() {
     return (Predicate<T>) AlwaysTruePredicate.INSTANCE;
@@ -55,6 +56,7 @@ public final class Predicates {
   /**
    * Returns a predicate that always evaluates to {@code false}.
    */
+  @GwtCompatible(serializable = true)
   @SuppressWarnings("unchecked")
   public static <T> Predicate<T> alwaysFalse() {
     return (Predicate<T>) AlwaysFalsePredicate.INSTANCE;
@@ -217,8 +219,8 @@ public final class Predicates {
   }
 
   /** @see Predicates#alwaysTrue() */
-  // enum singleton pattern
-  private enum AlwaysTruePredicate implements Predicate<Object> {
+  // Package private for GWT serialization.
+  enum AlwaysTruePredicate implements Predicate<Object> {
     INSTANCE;
 
     public boolean apply(Object o) {
@@ -230,8 +232,8 @@ public final class Predicates {
   }
 
   /** @see Predicates#alwaysFalse() */
-  // enum singleton pattern
-  private enum AlwaysFalsePredicate implements Predicate<Object> {
+  // Package private for GWT serialization.
+  enum AlwaysFalsePredicate implements Predicate<Object> {
     INSTANCE;
 
     public boolean apply(Object o) {

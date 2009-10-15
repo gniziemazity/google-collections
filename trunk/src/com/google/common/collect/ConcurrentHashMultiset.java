@@ -52,7 +52,7 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E>
    */
 
   /** The number of occurrences of each element. */
-  private transient final ConcurrentMap<E, Integer> countMap;
+  private final transient ConcurrentMap<E, Integer> countMap;
 
   // This constant allows the deserialization code to set a final field. This
   // holder class makes sure it is not initialized unless an instance is
@@ -66,7 +66,7 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E>
   }
 
   /**
-   * Creates a new empty {@code ConcurrentHashMultiset} using the default
+   * Creates a new, empty {@code ConcurrentHashMultiset} using the default
    * initial capacity, load factor, and concurrency settings.
    */
   public static <E> ConcurrentHashMultiset<E> create() {
@@ -342,7 +342,7 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E>
 
   // Views
 
-  @Override protected Set<E> createElementSet() {
+  @Override Set<E> createElementSet() {
     final Set<E> delegate = countMap.keySet();
     return new ForwardingSet<E>() {
       @Override protected Set<E> delegate() {
@@ -476,7 +476,6 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E>
   private void readObject(ObjectInputStream stream)
       throws IOException, ClassNotFoundException {
     stream.defaultReadObject();
-    // TODO: whoa, what are we really supposed to be doing here?
     FieldSettersHolder.COUNT_MAP_FIELD_SETTER.set(
         this, new ConcurrentHashMap<Object, Object>());
     Serialization.populateMultiset(this, stream);

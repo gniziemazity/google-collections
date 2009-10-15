@@ -104,6 +104,10 @@ public abstract class AbstractMultimapTest extends TestCase {
     assertEquals(expectedSize, size2);
   }
 
+  protected boolean removedCollectionsAreModifiable() {
+    return false;
+  }
+
   public void testSize0() {
     assertSize(0);
   }
@@ -312,6 +316,20 @@ public abstract class AbstractMultimapTest extends TestCase {
     assertTrue(multimap.putAll(other));
   }
 
+  private void checkRemovedCollection(Collection<Integer> collection) {
+    if (removedCollectionsAreModifiable()) {
+      collection.add(9876);
+      collection.remove(9876);
+      assertFalse(collection.contains(9876));
+    } else {
+      try {
+        collection.add(9876);
+        fail();
+      } catch (UnsupportedOperationException expected) {
+      }
+    }
+  }
+
   public void testReplaceValues() {
     multimap.put("foo", 1);
     multimap.put("bar", 3);
@@ -323,6 +341,7 @@ public abstract class AbstractMultimapTest extends TestCase {
     assertSize(3);
     assertTrue(oldValues.contains(1));
     assertEquals(1, oldValues.size());
+    checkRemovedCollection(oldValues);
   }
 
   public void testReplaceValuesEmpty() {
@@ -336,6 +355,7 @@ public abstract class AbstractMultimapTest extends TestCase {
     assertSize(1);
     assertTrue(oldValues.contains(1));
     assertEquals(1, oldValues.size());
+    checkRemovedCollection(oldValues);
   }
 
   public void testReplaceValuesNull() {
@@ -349,6 +369,7 @@ public abstract class AbstractMultimapTest extends TestCase {
     assertSize(3);
     assertTrue(oldValues.contains(1));
     assertEquals(1, oldValues.size());
+    checkRemovedCollection(oldValues);
   }
 
   public void testReplaceValuesNotPresent() {
@@ -361,6 +382,7 @@ public abstract class AbstractMultimapTest extends TestCase {
     assertSize(3);
     assertNotNull(oldValues);
     assertTrue(oldValues.isEmpty());
+    checkRemovedCollection(oldValues);
   }
 
   public void testReplaceValuesDuplicates() {
@@ -372,6 +394,7 @@ public abstract class AbstractMultimapTest extends TestCase {
     assertEquals(replacedValues.size(), multimap.size());
     assertEquals(1, oldValues.size());
     assertTrue(oldValues.contains(3));
+    checkRemovedCollection(oldValues);
   }
 
   public void testRemove() {
@@ -423,6 +446,7 @@ public abstract class AbstractMultimapTest extends TestCase {
     assertTrue(removed.contains(1));
     assertTrue(removed.contains(3));
     assertEquals(2, removed.size());
+    checkRemovedCollection(removed);
   }
 
   public void testRemoveAllNull() {
@@ -434,6 +458,7 @@ public abstract class AbstractMultimapTest extends TestCase {
     assertTrue(removed.contains(1));
     assertTrue(removed.contains(nullValue()));
     assertEquals(2, removed.size());
+    checkRemovedCollection(removed);
   }
 
   public void testRemoveAllNotPresent() {
@@ -443,6 +468,7 @@ public abstract class AbstractMultimapTest extends TestCase {
     assertSize(2);
     assertNotNull(removed);
     assertTrue(removed.isEmpty());
+    checkRemovedCollection(removed);
   }
 
   public void testClear() {

@@ -17,7 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.RandomAccess;
 
 import javax.annotation.Nullable;
@@ -55,9 +54,6 @@ import javax.annotation.Nullable;
 @SuppressWarnings("serial") // we're overriding default serialization
 public abstract class ImmutableList<E> extends ImmutableCollection<E>
     implements List<E>, RandomAccess {
-  private static final ImmutableList<?> EMPTY_IMMUTABLE_LIST
-      = new EmptyImmutableList();
-
   /**
    * Returns the empty immutable list. This set behaves and performs comparably
    * to {@link Collections#emptyList}, and is preferable mainly for consistency
@@ -66,7 +62,7 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
   // Casting to any type is safe because the list will never hold any elements.
   @SuppressWarnings("unchecked")
   public static <E> ImmutableList<E> of() {
-    return (ImmutableList<E>) EMPTY_IMMUTABLE_LIST;
+    return (ImmutableList<E>) EmptyImmutableList.INSTANCE;
   }
 
   /**
@@ -81,10 +77,8 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
     return new SingletonImmutableList<E>(element);
   }
 
-  // TODO: Add similar overloadings to ImmutableSet and ImmutableSortedSet
-
   /**
-   * Returns an immutable list containing the given elements, in order.
+   * Identical to {@link #of(Object[])}.
    *
    * @throws NullPointerException if any element is null
    */
@@ -93,7 +87,7 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
   }
 
   /**
-   * Returns an immutable list containing the given elements, in order.
+   * Identical to {@link #of(Object[])}.
    *
    * @throws NullPointerException if any element is null
    */
@@ -102,7 +96,7 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
   }
 
   /**
-   * Returns an immutable list containing the given elements, in order.
+   * Identical to {@link #of(Object[])}.
    *
    * @throws NullPointerException if any element is null
    */
@@ -111,7 +105,7 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
   }
 
   /**
-   * Returns an immutable list containing the given elements, in order.
+   * Identical to {@link #of(Object[])}.
    *
    * @throws NullPointerException if any element is null
    */
@@ -120,11 +114,79 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
   }
 
   /**
+   * Identical to {@link #of(Object[])}.
+   *
+   * @throws NullPointerException if any element is null
+   */
+  public static <E> ImmutableList<E> of(E e1, E e2, E e3, E e4, E e5, E e6) {
+    return new RegularImmutableList<E>(copyIntoArray(e1, e2, e3, e4, e5, e6));
+  }
+
+  /**
+   * Identical to {@link #of(Object[])}.
+   *
+   * @throws NullPointerException if any element is null
+   */
+  public static <E> ImmutableList<E> of(
+      E e1, E e2, E e3, E e4, E e5, E e6, E e7) {
+    return new RegularImmutableList<E>(
+        copyIntoArray(e1, e2, e3, e4, e5, e6, e7));
+  }
+
+  /**
+   * Identical to {@link #of(Object[])}.
+   *
+   * @throws NullPointerException if any element is null
+   */
+  public static <E> ImmutableList<E> of(
+      E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8) {
+    return new RegularImmutableList<E>(
+        copyIntoArray(e1, e2, e3, e4, e5, e6, e7, e8));
+  }
+
+  /**
+   * Identical to {@link #of(Object[])}.
+   *
+   * @throws NullPointerException if any element is null
+   */
+  public static <E> ImmutableList<E> of(
+      E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8, E e9) {
+    return new RegularImmutableList<E>(
+        copyIntoArray(e1, e2, e3, e4, e5, e6, e7, e8, e9));
+  }
+
+  /**
+   * Identical to {@link #of(Object[])}.
+   *
+   * @throws NullPointerException if any element is null
+   */
+  public static <E> ImmutableList<E> of(
+      E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8, E e9, E e10) {
+    return new RegularImmutableList<E>(
+        copyIntoArray(e1, e2, e3, e4, e5, e6, e7, e8, e9, e10));
+  }
+
+  /**
+   * Identical to {@link #of(Object[])}.
+   *
+   * @throws NullPointerException if any element is null
+   */
+  public static <E> ImmutableList<E> of(
+      E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8, E e9, E e10, E e11) {
+    return new RegularImmutableList<E>(
+        copyIntoArray(e1, e2, e3, e4, e5, e6, e7, e8, e9, e10, e11));
+  }
+
+  // These go up to eleven. After that, you just get the varargs form, and
+  // whatever warnings might come along with it. :(
+
+  /**
    * Returns an immutable list containing the given elements, in order.
    *
    * @throws NullPointerException if any of {@code elements} is null
    */
   public static <E> ImmutableList<E> of(E... elements) {
+    checkNotNull(elements); // for GWT
     switch (elements.length) {
       case 0:
         return ImmutableList.of();
@@ -270,86 +332,6 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
     throw new UnsupportedOperationException();
   }
 
-  // Package-private for GWT serialization.
-  static final class EmptyImmutableList extends ImmutableList<Object> {
-    public int size() {
-      return 0;
-    }
-
-    @Override public boolean isEmpty() {
-      return true;
-    }
-
-    @Override public boolean contains(Object target) {
-      return false;
-    }
-
-    @Override public UnmodifiableIterator<Object> iterator() {
-      return Iterators.emptyIterator();
-    }
-
-    private static final Object[] EMPTY_ARRAY = new Object[0];
-
-    @Override public Object[] toArray() {
-      return EMPTY_ARRAY;
-    }
-
-    @Override public <T> T[] toArray(T[] a) {
-      if (a.length > 0) {
-        a[0] = null;
-      }
-      return a;
-    }
-
-    public Object get(int index) {
-      // guaranteed to fail, but at least we get a consistent message
-      Preconditions.checkElementIndex(index, 0);
-      throw new AssertionError("unreachable");
-    }
-
-    @Override public int indexOf(Object target) {
-      return -1;
-    }
-
-    @Override public int lastIndexOf(Object target) {
-      return -1;
-    }
-
-    @Override public ImmutableList<Object> subList(int fromIndex, int toIndex) {
-      Preconditions.checkPositionIndexes(fromIndex, toIndex, 0);
-      return this;
-    }
-
-    public ListIterator<Object> listIterator() {
-      return Collections.emptyList().listIterator();
-    }
-
-    public ListIterator<Object> listIterator(int start) {
-      Preconditions.checkPositionIndex(start, 0);
-      return Collections.emptyList().listIterator();
-    }
-
-    @Override public boolean containsAll(Collection<?> targets) {
-      return targets.isEmpty();
-    }
-
-    @Override public boolean equals(@Nullable Object object) {
-      if (object instanceof List) {
-        List<?> that = (List<?>) object;
-        return that.isEmpty();
-      }
-      return false;
-    }
-
-    @Override public int hashCode() {
-      return 1;
-    }
-
-    @Override public String toString() {
-      return "[]";
-    }
-  }
-
   private static Object[] copyIntoArray(Object... source) {
     Object[] array = new Object[source.length];
     int index = 0;
@@ -381,7 +363,7 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
 
     if (index == 0) {
       return of();
-    } else if (index == 1)  {
+    } else if (index == 1) {
       // The elements of "array" come from a Iterable<? extends E>.
       @SuppressWarnings("unchecked")
       E element = (E) array[0];
@@ -451,7 +433,7 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
    * multiple times to build multiple lists in series. Each new list
    * contains the one created before it.
    */
-  public static final class Builder<E> {
+  public static final class Builder<E> extends ImmutableCollection.Builder<E> {
     private final ArrayList<E> contents = Lists.newArrayList();
 
     /**
@@ -467,9 +449,8 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
      * @return this {@code Builder} object
      * @throws NullPointerException if {@code element} is null
      */
-    public Builder<E> add(E element) {
-      Preconditions.checkNotNull(element, "element cannot be null");
-      contents.add(element);
+    @Override public Builder<E> add(E element) {
+      contents.add(checkNotNull(element));
       return this;
     }
 
@@ -478,29 +459,51 @@ public abstract class ImmutableList<E> extends ImmutableCollection<E>
      *
      * @param elements the {@code Iterable} to add to the {@code ImmutableList}
      * @return this {@code Builder} object
-     * @throws NullPointerException if {@code elements} contains a null element
+     * @throws NullPointerException if {@code elements} is null or contains a
+     *     null element
      */
-    public Builder<E> addAll(Iterable<? extends E> elements) {
+    @Override public Builder<E> addAll(Iterable<? extends E> elements) {
       if (elements instanceof Collection) {
-        @SuppressWarnings("unchecked")
-        Collection<? extends E> collection = (Collection<? extends E>) elements;
+        Collection<?> collection = (Collection<?>) elements;
         contents.ensureCapacity(contents.size() + collection.size());
       }
-      for (E elem : elements) {
-        Preconditions.checkNotNull(elem, "elements contains a null");
-        contents.add(elem);
-      }
+      super.addAll(elements);
       return this;
     }
 
-    // TODO: Add add(E...) and add(Iterator) methods, for consistency with the
-    // ImmutableSet Builder.
+    /**
+     * Adds each element of {@code elements} to the {@code ImmutableList}.
+     *
+     * @param elements the {@code Iterable} to add to the {@code ImmutableList}
+     * @return this {@code Builder} object
+     * @throws NullPointerException if {@code elements} is null or contains a
+     *     null element
+     */
+    @Override public Builder<E> add(E... elements) {
+      checkNotNull(elements); // for GWT
+      contents.ensureCapacity(contents.size() + elements.length);
+      super.add(elements);
+      return this;
+    }
+
+    /**
+     * Adds each element of {@code elements} to the {@code ImmutableList}.
+     *
+     * @param elements the {@code Iterable} to add to the {@code ImmutableList}
+     * @return this {@code Builder} object
+     * @throws NullPointerException if {@code elements} is null or contains a
+     *     null element
+     */
+    @Override public Builder<E> addAll(Iterator<? extends E> elements) {
+      super.addAll(elements);
+      return this;
+    }
 
     /**
      * Returns a newly-created {@code ImmutableList} based on the contents of
      * the {@code Builder}.
      */
-    public ImmutableList<E> build() {
+    @Override public ImmutableList<E> build() {
       return copyOf(contents);
     }
   }

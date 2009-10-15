@@ -44,7 +44,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.Nullable;
 
@@ -61,13 +60,13 @@ public final class Maps {
   private Maps() {}
 
   /**
-   * Creates a {@code HashMap} instance.
+   * Creates a <i>mutable</i>, empty {@code HashMap} instance.
+   *
+   * <p><b>Note:</b> if mutability is not required, use {@link
+   * ImmutableMap#of()} instead.
    *
    * <p><b>Note:</b> if {@code K} is an {@code enum} type, use {@link
    * #newEnumMap} instead.
-   *
-   * <p><b>Note:</b> if you don't actually need the resulting map to be mutable,
-   * use {@link Collections#emptyMap} instead.
    *
    * @return a new, empty {@code HashMap}
    */
@@ -80,7 +79,7 @@ public final class Maps {
    * specified number of elements without rehashing.
    *
    * @param expectedSize the expected size
-   * @return a new empty {@code HashMap} with enough
+   * @return a new, empty {@code HashMap} with enough
    *     capacity to hold {@code expectedSize} elements without rehashing
    * @throws IllegalArgumentException if {@code expectedSize} is negative
    */
@@ -108,8 +107,11 @@ public final class Maps {
   }
 
   /**
-   * Creates a {@code HashMap} instance with the same mappings as the specified
-   * map.
+   * Creates a <i>mutable</i> {@code HashMap} instance with the same mappings as
+   * the specified map.
+   *
+   * <p><b>Note:</b> if mutability is not required, use {@link
+   * ImmutableMap#copyOf(Map)} instead.
    *
    * <p><b>Note:</b> if {@code K} is an {@link Enum} type, use {@link
    * #newEnumMap} instead.
@@ -124,7 +126,11 @@ public final class Maps {
   }
 
   /**
-   * Creates an insertion-ordered {@code LinkedHashMap} instance.
+   * Creates a <i>mutable</i>, empty, insertion-ordered {@code LinkedHashMap}
+   * instance.
+   *
+   * <p><b>Note:</b> if mutability is not required, use {@link
+   * ImmutableMap#of()} instead.
    *
    * @return a new, empty {@code LinkedHashMap}
    */
@@ -133,8 +139,11 @@ public final class Maps {
   }
 
   /**
-   * Creates an insertion-ordered {@code LinkedHashMap} instance with the same
-   * mappings as the specified map.
+   * Creates a <i>mutable</i>, insertion-ordered {@code LinkedHashMap} instance
+   * with the same mappings as the specified map.
+   *
+   * <p><b>Note:</b> if mutability is not required, use {@link
+   * ImmutableMap#copyOf(Map)} instead.
    *
    * @param map the mappings to be placed in the new map
    * @return a new, {@code LinkedHashMap} initialized with the
@@ -146,8 +155,11 @@ public final class Maps {
   }
 
   /**
-   * Creates a {@code TreeMap} instance using the natural ordering of its
-   * elements.
+   * Creates a <i>mutable</i>, empty {@code TreeMap} instance using the natural
+   * ordering of its elements.
+   *
+   * <p><b>Note:</b> if mutability is not required, use {@link
+   * ImmutableSortedMap#of()} instead.
    *
    * @return a new, empty {@code TreeMap}
    */
@@ -157,20 +169,27 @@ public final class Maps {
   }
 
   /**
-   * Creates a {@code TreeMap} instance with the same mappings as the specified
-   * map and using the same ordering as the specified map.
+   * Creates a <i>mutable</i> {@code TreeMap} instance with the same mappings as
+   * the specified map and using the same ordering as the specified map.
+   *
+   * <p><b>Note:</b> if mutability is not required, use {@link
+   * ImmutableSortedMap#copyOfSorted(SortedMap)} instead.
    *
    * @param map the sorted map whose mappings are to be placed in the new map
    *     and whose comparator is to be used to sort the new map
-   * @return a newly-created {@code TreeMap} initialized with the mappings
-   *     from {@code map} and using the comparator of {@code map}
+   * @return a new {@code TreeMap} initialized with the mappings from {@code
+   *     map} and using the comparator of {@code map}
    */
   public static <K, V> TreeMap<K, V> newTreeMap(SortedMap<K, ? extends V> map) {
     return new TreeMap<K, V>(map);
   }
 
   /**
-   * Creates a {@code TreeMap} instance using the given comparator.
+   * Creates a <i>mutable</i>, empty {@code TreeMap} instance using the given
+   * comparator.
+   *
+   * <p><b>Note:</b> if mutability is not required, use {@code
+   * ImmutableSortedMap.orderedBy(comparator).build()} instead. 
    *
    * @param comparator the comparator to sort the keys with
    * @return a new, empty {@code TreeMap}
@@ -196,10 +215,11 @@ public final class Maps {
   }
 
   /**
-   * Creates an {@code EnumMap} initialized from the specified map.
+   * Creates an {@code EnumMap} with the same mappings as the specified map.
    *
    * @param map the map from which to initialize this {@code EnumMap}
-   * @return a newly-created {@code EnumMap} initialized from the specified map
+   * @return a new {@code EnumMap} initialized with the mappings from {@code
+   *     map}
    * @throws IllegalArgumentException if {@code m} is not an {@code EnumMap}
    *     instance and contains no mappings
    */
@@ -207,7 +227,6 @@ public final class Maps {
       Map<K, ? extends V> map) {
     return new EnumMap<K, V>(map);
   }
-
 
   /**
    * Creates an {@code IdentityHashMap} instance.
@@ -224,19 +243,19 @@ public final class Maps {
    * to the backing bimap is accomplished through the returned bimap.
    *
    * <p>It is imperative that the user manually synchronize on the returned map
-   * when accessing any of its collection views:
+   * when accessing any of its collection views: <pre>   {@code
    *
-   * <pre>  Bimap&lt;K,V> m = Maps.synchronizedBiMap(
-   *      HashBiMap.&lt;K,V>create());
-   *   ...
-   *  Set&lt;K> s = m.keySet();  // Needn't be in synchronized block
-   *   ...
-   *  synchronized (m) {  // Synchronizing on m, not s!
-   *    Iterator&lt;K> i = s.iterator(); // Must be in synchronized block
-   *    while (i.hasNext()) {
-   *      foo(i.next());
-   *    }
-   *  }</pre>
+   *   BiMap<Long, String> map = Maps.synchronizedBiMap(
+   *       HashBiMap.<Long, String>create());
+   *    ...
+   *   Set<Long> set = map.keySet();  // Needn't be in synchronized block
+   *    ...
+   *   synchronized (map) {  // Synchronizing on map, not set!
+   *     Iterator<Long> it = set.iterator(); // Must be in synchronized block
+   *     while (it.hasNext()) {
+   *       foo(it.next());
+   *     }
+   *   }}</pre>
    *
    * Failure to follow this advice may result in non-deterministic behavior.
    *
@@ -526,7 +545,7 @@ public final class Maps {
       return entries;
     }
 
-   @Override public Iterator<Entry<K, V>> iterator() {
+    @Override public Iterator<Entry<K, V>> iterator() {
       final Iterator<Entry<K, V>> delegate = super.iterator();
       return new ForwardingIterator<Entry<K, V>>() {
         @Override public Entry<K, V> next() {
@@ -624,6 +643,7 @@ public final class Maps {
           ? inverse = new UnmodifiableBiMap<V, K>(delegate.inverse(), this)
           : result;
     }
+
     @Override public Set<V> values() {
       Set<V> result = values;
       return (result == null)

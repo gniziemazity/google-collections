@@ -19,6 +19,7 @@ package com.google.common.collect;
 import static com.google.common.collect.testing.IteratorFeature.UNMODIFIABLE;
 import com.google.common.collect.testing.IteratorTester;
 import com.google.common.collect.testing.MinimalCollection;
+import com.google.common.collect.testing.MinimalIterable;
 import com.google.common.testing.junit3.JUnitAsserts;
 
 import junit.framework.TestCase;
@@ -40,6 +41,12 @@ import java.util.Set;
 public abstract class AbstractImmutableSetTest extends TestCase {
 
   protected abstract Set<String> of();
+  protected abstract Set<String> of(String e);
+  protected abstract Set<String> of(String e1, String e2);
+  protected abstract Set<String> of(String e1, String e2, String e3);
+  protected abstract Set<String> of(String e1, String e2, String e3, String e4);
+  protected abstract Set<String> of(
+      String e1, String e2, String e3, String e4, String e5);
   protected abstract Set<String> of(String... elements);
   protected abstract Set<String> copyOf(Iterable<String> elements);
   protected abstract Set<String> copyOf(Iterator<String> elements);
@@ -53,6 +60,26 @@ public abstract class AbstractImmutableSetTest extends TestCase {
   public void testCreation_oneElement() {
     Set<String> set = of("a");
     assertEquals(Collections.singleton("a"), set);
+  }
+
+  public void testCreation_twoElements() {
+    Set<String> set = of("a", "b");
+    assertEquals(Sets.newHashSet("a", "b"), set);
+  }
+
+  public void testCreation_threeElements() {
+    Set<String> set = of("a", "b", "c");
+    assertEquals(Sets.newHashSet("a", "b", "c"), set);
+  }
+
+  public void testCreation_fourElements() {
+    Set<String> set = of("a", "b", "c", "d");
+    assertEquals(Sets.newHashSet("a", "b", "c", "d"), set);
+  }
+
+  public void testCreation_fiveElements() {
+    Set<String> set = of("a", "b", "c", "d", "e");
+    assertEquals(Sets.newHashSet("a", "b", "c", "d", "e"), set);
   }
 
   public void testCreation_emptyArray() {
@@ -220,7 +247,6 @@ public abstract class AbstractImmutableSetTest extends TestCase {
     assertTrue(c.containsAll(of("a", "b", "c")));
   }
 
-
   public void testEquals_sameType() {
     Collection<String> c = of("a", "b", "c");
     assertEquals(c, of("a", "b", "c"));
@@ -329,6 +355,13 @@ public abstract class AbstractImmutableSetTest extends TestCase {
 
     builder = this.<String>builder();
     try {
+      builder.add((String[]) null);
+      fail("expected NullPointerException");  // COV_NF_LINE
+    } catch (NullPointerException expected) {
+    }
+
+    builder = this.<String>builder();
+    try {
       builder.add("a", (String) null);
       fail("expected NullPointerException");  // COV_NF_LINE
     } catch (NullPointerException expected) {
@@ -374,6 +407,13 @@ public abstract class AbstractImmutableSetTest extends TestCase {
     List<String> listWithNulls = Arrays.asList("a", null, "b");
     try {
       builder.addAll(listWithNulls);
+      fail("expected NullPointerException");  // COV_NF_LINE
+    } catch (NullPointerException expected) {
+    }
+
+    Iterable<String> iterableWithNulls = MinimalIterable.of("a", null, "b");
+    try {
+      builder.addAll(iterableWithNulls);
       fail("expected NullPointerException");  // COV_NF_LINE
     } catch (NullPointerException expected) {
     }

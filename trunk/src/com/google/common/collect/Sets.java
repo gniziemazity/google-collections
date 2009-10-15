@@ -33,6 +33,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -56,52 +57,52 @@ public final class Sets {
 
   /**
    * Returns an immutable set instance containing the given enum elements.
-   * Internally, the returned set will be backed by an {@link EnumSet}. See
-   * {@link ImmutableSet} for a description of immutability. The set is
-   * serializable.
+   * Internally, the returned set will be backed by an {@link EnumSet}.
    *
    * <p>The iteration order of the returned set follows the enum's iteration
    * order, not the order in which the elements are provided to the method.
    *
    * @param anElement one of the elements the set should contain
    * @param otherElements the rest of the elements the set should contain
-   * @return an immutable {@code Set} instance containing those elements, minus
-   *     duplicates
+   * @return an immutable set containing those elements, minus duplicates
    */
+  // http://code.google.com/p/google-web-toolkit/issues/detail?id=3028
+  @GwtCompatible(serializable = false)
   public static <E extends Enum<E>> ImmutableSet<E> immutableEnumSet(
       E anElement, E... otherElements) {
-    return new ImmutableSet.ForwardingImmutableSet<E>(
+    return new ImmutableSet.ImmutableEnumSet<E>(
         EnumSet.of(anElement, otherElements));
   }
 
   /**
    * Returns an immutable set instance containing the given enum elements.
-   * Internally, the returned set will be backed by an {@link EnumSet}. See
-   * {@link ImmutableSet} for a description of immutability. The set is
-   * serializable.
+   * Internally, the returned set will be backed by an {@link EnumSet}.
    *
    * <p>The iteration order of the returned set follows the enum's iteration
    * order, not the order in which the elements appear in the given collection.
    *
    * @param elements the elements, all of the same {@code enum} type, that the
    *     set should contain
-   * @return an immutable {@code Set} instance containing those elements, minus
-   *     duplicates
+   * @return an immutable set containing those elements, minus duplicates
    */
+  // http://code.google.com/p/google-web-toolkit/issues/detail?id=3028
+  @GwtCompatible(serializable = false)
   public static <E extends Enum<E>> ImmutableSet<E> immutableEnumSet(
       Iterable<E> elements) {
-    // TODO: consider checking if elements is an EnumSet and cloning it.
-    // This would be very fast, but would it happen often enough?
     Iterator<E> iterator = elements.iterator();
     if (!iterator.hasNext()) {
       return ImmutableSet.of();
+    }
+    if (elements instanceof EnumSet) {
+      EnumSet<E> enumSetClone = EnumSet.copyOf((EnumSet<E>) elements);
+      return new ImmutableSet.ImmutableEnumSet<E>(enumSetClone);
     }
     E first = iterator.next();
     EnumSet<E> set = EnumSet.of(first);
     while (iterator.hasNext()) {
       set.add(iterator.next());
     }
-    return new ImmutableSet.ForwardingImmutableSet<E>(set);
+    return new ImmutableSet.ImmutableEnumSet<E>(set);
   }
 
   /**
@@ -134,42 +135,32 @@ public final class Sets {
   // HashSet
 
   /**
-   * Creates an empty {@code HashSet} instance.
+   * Creates a <i>mutable</i>, empty {@code HashSet} instance.
+   *
+   * <p><b>Note:</b> if mutability is not required, use {@link
+   * ImmutableSet#of()} instead.
    *
    * <p><b>Note:</b> if {@code E} is an {@link Enum} type, use {@link
    * EnumSet#noneOf} instead.
    *
-   * <p><b>Note:</b> if you need an <i>immutable</i> empty Set, use {@link
-   * Collections#emptySet} instead.
-   *
-   * @return a newly created, empty {@code HashSet}
+   * @return a new, empty {@code HashSet}
    */
   public static <E> HashSet<E> newHashSet() {
     return new HashSet<E>();
   }
 
   /**
-   * Creates a {@code HashSet} instance containing the given elements.
+   * Creates a <i>mutable</i> {@code HashSet} instance containing the given
+   * elements in unspecified order.
+   *
+   * <p><b>Note:</b> if mutability is not required and the elements are
+   * non-null, use {@link ImmutableSet#of(Object[])} instead.
    *
    * <p><b>Note:</b> if {@code E} is an {@link Enum} type, use {@link
-   * EnumSet#of(Enum, Enum...)} instead.
-   *
-   * <p><b>Note:</b> if you need an immutable set without nulls, you should use
-   * {@link ImmutableSet#of(Object...)}.
-   *
-   * <p><b>Note:</b> due to a bug in javac 1.5.0_06, we cannot support the
-   * following:
-   *
-   * <p>{@code Set<Base> set = Sets.newHashSet(sub1, sub2);}
-   *
-   * <p>where {@code sub1} and {@code sub2} are references to subtypes of {@code
-   * Base}, not of {@code Base} itself. To get around this, you must use:
-   *
-   * <p>{@code Set<Base> set = Sets.<Base>newHashSet(sub1, sub2);}
+   * EnumSet#of(Enum, Enum[])} instead.
    *
    * @param elements the elements that the set should contain
-   * @return a newly created {@code HashSet} containing those elements (minus
-   *     duplicates)
+   * @return a new {@code HashSet} containing those elements (minus duplicates)
    */
   public static <E> HashSet<E> newHashSet(E... elements) {
     int capacity = Maps.capacity(elements.length);
@@ -183,8 +174,8 @@ public final class Sets {
    * specified number of elements without rehashing.
    *
    * @param expectedSize the expected size
-   * @return a newly created {@code HashSet}, empty, with enough capacity to
-   *     hold {@code expectedSize} elements without rehashing.
+   * @return a new, empty {@code HashSet} with enough capacity to hold {@code
+   *     expectedSize} elements without rehashing
    * @throws IllegalArgumentException if {@code expectedSize} is negative
    */
   public static <E> HashSet<E> newHashSetWithExpectedSize(int expectedSize) {
@@ -192,17 +183,17 @@ public final class Sets {
   }
 
   /**
-   * Creates a {@code HashSet} instance containing the given elements.
+   * Creates a <i>mutable</i> {@code HashSet} instance containing the given
+   * elements in unspecified order.
+   *
+   * <p><b>Note:</b> if mutability is not required and the elements are
+   * non-null, use {@link ImmutableSet#copyOf(Iterable)} instead.
    *
    * <p><b>Note:</b> if {@code E} is an {@link Enum} type, use
    * {@link #newEnumSet(Iterable, Class)} instead.
    *
-   * <p><b>Note:</b> if you need an immutable set without nulls, you should use
-   * {@link ImmutableSet#copyOf(Iterable)}.
-   *
    * @param elements the elements that the set should contain
-   * @return a newly created {@code HashSet} containing those elements (minus
-   *     duplicates)
+   * @return a new {@code HashSet} containing those elements (minus duplicates)
    */
   public static <E> HashSet<E> newHashSet(Iterable<? extends E> elements) {
     if (elements instanceof Collection) {
@@ -215,17 +206,17 @@ public final class Sets {
   }
 
   /**
-   * Creates a {@code HashSet} instance containing the given elements.
+   * Creates a <i>mutable</i> {@code HashSet} instance containing the given
+   * elements in unspecified order.
+   *
+   * <p><b>Note:</b> if mutability is not required and the elements are
+   * non-null, use {@link ImmutableSet#copyOf(Iterable)} instead.
    *
    * <p><b>Note:</b> if {@code E} is an {@link Enum} type, you should create an
    * {@link EnumSet} instead.
    *
-   * <p><b>Note:</b> if you need an immutable set without nulls, you should use
-   * {@link ImmutableSet}.
-   *
    * @param elements the elements that the set should contain
-   * @return a newly created {@code HashSet} containing those elements (minus
-   *     duplicates)
+   * @return a new {@code HashSet} containing those elements (minus duplicates)
    */
   public static <E> HashSet<E> newHashSet(Iterator<? extends E> elements) {
     HashSet<E> set = newHashSet();
@@ -238,23 +229,27 @@ public final class Sets {
   // LinkedHashSet
 
   /**
-   * Creates an empty {@code LinkedHashSet} instance.
+   * Creates a <i>mutable</i>, empty {@code LinkedHashSet} instance.
    *
-   * @return a newly created, empty {@code LinkedHashSet}
+   * <p><b>Note:</b> if mutability is not required, use {@link
+   * ImmutableSet#of()} instead.
+   *
+   * @return a new, empty {@code LinkedHashSet}
    */
   public static <E> LinkedHashSet<E> newLinkedHashSet() {
     return new LinkedHashSet<E>();
   }
 
   /**
-   * Creates a {@code LinkedHashSet} instance containing the given elements.
+   * Creates a <i>mutable</i> {@code LinkedHashSet} instance containing the
+   * given elements in order.
    *
-   * <p><b>Note:</b> if you need an immutable set without nulls, you should use
-   * {@link ImmutableSet#copyOf(Iterable)}.
+   * <p><b>Note:</b> if mutability is not required and the elements are
+   * non-null, use {@link ImmutableSet#copyOf(Iterable)} instead.
    *
    * @param elements the elements that the set should contain, in order
-   * @return a newly created {@code LinkedHashSet} containing those elements
-   *     (minus duplicates)
+   * @return a new {@code LinkedHashSet} containing those elements (minus
+   *     duplicates)
    */
   public static <E> LinkedHashSet<E> newLinkedHashSet(
       Iterable<? extends E> elements) {
@@ -274,10 +269,13 @@ public final class Sets {
   // TreeSet
 
   /**
-   * Creates an empty {@code TreeSet} instance sorted by the natural sort
-   * ordering of its elements.
+   * Creates a <i>mutable</i>, empty {@code TreeSet} instance sorted by the
+   * natural sort ordering of its elements.
    *
-   * @return a newly created, empty {@code TreeSet}
+   * <p><b>Note:</b> if mutability is not required, use {@link
+   * ImmutableSortedSet#of()} instead.
+   *
+   * @return a new, empty {@code TreeSet}
    */
   @SuppressWarnings("unchecked")  // allow ungenerified Comparable types
   public static <E extends Comparable> TreeSet<E> newTreeSet() {
@@ -285,20 +283,19 @@ public final class Sets {
   }
 
   /**
-   * Creates a {@code TreeSet} instance containing the given elements sorted by
-   * their natural ordering.
+   * Creates a <i>mutable</i> {@code TreeSet} instance containing the given
+   * elements sorted by their natural ordering.
+   *
+   * <p><b>Note:</b> if mutability is not required, use {@link
+   * ImmutableSortedSet#copyOf(Iterable)} instead.
    *
    * <p><b>Note:</b> If {@code elements} is a {@code SortedSet} with an explicit
    * comparator, this method has different behavior than
    * {@link TreeSet#TreeSet(SortedSet)}, which returns a {@code TreeSet} with
    * that comparator.
    *
-   * <p><b>Note:</b> if you need an immutable sorted set without nulls, you
-   * should use {@link ImmutableSortedSet#copyOf(Iterable)}.
-   *
    * @param elements the elements that the set should contain
-   * @return a newly created {@code TreeSet} containing those elements (minus
-   *     duplicates)
+   * @return a new {@code TreeSet} containing those elements (minus duplicates)
    */
   @SuppressWarnings("unchecked")  // allow ungenerified Comparable types
   public static <E extends Comparable> TreeSet<E> newTreeSet(
@@ -311,10 +308,14 @@ public final class Sets {
   }
 
   /**
-   * Creates an empty {@code TreeSet} instance with the given comparator.
+   * Creates a <i>mutable</i>, empty {@code TreeSet} instance with the given
+   * comparator.
+   *
+   * <p><b>Note:</b> if mutability is not required, use {@code
+   * ImmutableSortedSet.orderedBy(comparator).build()} instead.
    *
    * @param comparator the comparator to use to sort the set
-   * @return a newly created, empty {@code TreeSet}
+   * @return a new, empty {@code TreeSet}
    * @throws NullPointerException if {@code comparator} is null
    */
   public static <E> TreeSet<E> newTreeSet(Comparator<? super E> comparator) {
@@ -490,7 +491,7 @@ public final class Sets {
    * will change as the backing sets do. Contains methods to copy the data into
    * a new set which will then remain stable.
    */
-  public static abstract class SetView<E> extends AbstractSet<E> {
+  public abstract static class SetView<E> extends AbstractSet<E> {
     private SetView() {} // no subclasses but our own
 
     /**
@@ -528,7 +529,7 @@ public final class Sets {
    *
    * <p>Results are undefined if {@code set1} and {@code set2} are sets based on
    * different equivalence relations (as {@link HashSet}, {@link TreeSet}, and
-   * the {@link Map#keySet} of an {@link java.util.IdentityHashMap} all are).
+   * the {@link Map#keySet} of an {@link IdentityHashMap} all are).
    *
    * <p><b>Note:</b> The returned view performs better when {@code set1} is the
    * smaller of the two sets. If you have reason to believe one of your sets

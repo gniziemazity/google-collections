@@ -18,7 +18,7 @@ package com.google.common.collect;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableBiMap.Builder;
-import com.google.common.collect.testing.ConcurrentMapInterfaceTest;
+import com.google.common.collect.testing.MapInterfaceTest;
 import com.google.common.collect.testing.ReserializingTestSetGenerator;
 import com.google.common.collect.testing.SampleElements;
 import com.google.common.collect.testing.SetTestSuiteBuilder;
@@ -40,7 +40,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Tests for {@link ImmutableBiMap}.
@@ -199,12 +198,12 @@ public class ImmutableBiMapTest extends TestCase {
   }
 
   public static abstract class AbstractMapTests<K, V>
-      extends ConcurrentMapInterfaceTest<K, V> {
+      extends MapInterfaceTest<K, V> {
     public AbstractMapTests() {
       super(false, false, false, false, false);
     }
 
-    @Override protected ConcurrentMap<K, V> makeEmptyMap() {
+    @Override protected Map<K, V> makeEmptyMap() {
       throw new UnsupportedOperationException();
     }
 
@@ -235,12 +234,12 @@ public class ImmutableBiMapTest extends TestCase {
   }
 
   public static class MapTests extends AbstractMapTests<String, Integer> {
-    @Override protected ConcurrentMap<String, Integer> makeEmptyMap() {
+    @Override protected Map<String, Integer> makeEmptyMap() {
       return ImmutableBiMap.of();
     }
 
-    @Override protected ConcurrentMap<String, Integer> makePopulatedMap() {
-      return ImmutableBiMap.of("one", 1,  "two", 2, "three", 3);
+    @Override protected Map<String, Integer> makePopulatedMap() {
+      return ImmutableBiMap.of("one", 1, "two", 2, "three", 3);
     }
 
     @Override protected String getKeyNotInPopulatedMap() {
@@ -250,19 +249,15 @@ public class ImmutableBiMapTest extends TestCase {
     @Override protected Integer getValueNotInPopulatedMap() {
       return -1;
     }
-
-    @Override protected Integer getSecondValueNotInPopulatedMap() {
-      return -2;
-    }
   }
 
   public static class InverseMapTests
       extends AbstractMapTests<String, Integer> {
-    @Override protected ConcurrentMap<String, Integer> makeEmptyMap() {
+    @Override protected Map<String, Integer> makeEmptyMap() {
       return ImmutableBiMap.of();
     }
 
-    @Override protected ConcurrentMap<String, Integer> makePopulatedMap() {
+    @Override protected Map<String, Integer> makePopulatedMap() {
       return ImmutableBiMap.of(1, "one", 2, "two", 3, "three").inverse();
     }
 
@@ -272,10 +267,6 @@ public class ImmutableBiMapTest extends TestCase {
 
     @Override protected Integer getValueNotInPopulatedMap() {
       return -1;
-    }
-
-    @Override protected Integer getSecondValueNotInPopulatedMap() {
-      return -2;
     }
   }
 
@@ -593,7 +584,7 @@ public class ImmutableBiMapTest extends TestCase {
       ImmutableBiMap<String, Integer> bimap = ImmutableBiMap.copyOf(
           ImmutableMap.of("one", 1, "two", 2));
       ImmutableBiMap<String, Integer> copy =
-            SerializableTester.reserializeAndAssert(bimap);
+          SerializableTester.reserializeAndAssert(bimap);
       assertEquals(Integer.valueOf(1), copy.get("one"));
       assertEquals("one", copy.inverse().get(1));
       assertSame(copy, copy.inverse().inverse());
@@ -603,7 +594,7 @@ public class ImmutableBiMapTest extends TestCase {
       ImmutableBiMap<String, Integer> bimap = ImmutableBiMap.copyOf(
           ImmutableMap.of(1, "one", 2, "two")).inverse();
       ImmutableBiMap<String, Integer> copy =
-            SerializableTester.reserializeAndAssert(bimap);
+          SerializableTester.reserializeAndAssert(bimap);
       assertEquals(Integer.valueOf(1), copy.get("one"));
       assertEquals("one", copy.inverse().get(1));
       assertSame(copy, copy.inverse().inverse());

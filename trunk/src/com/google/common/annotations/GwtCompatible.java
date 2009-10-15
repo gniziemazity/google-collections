@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
  * used with the
  * <a href="http://code.google.com/webtoolkit/">Google Web Toolkit</a> (GWT).
  * When applied to a method, the return type of the method is GWT compatible.
- * It's useful in to indicate the instance created by factory methods has a GWT
+ * It's useful to indicate that an instance created by factory methods has a GWT
  * serializable type.  In the following example,
  *
  * <pre style="code">

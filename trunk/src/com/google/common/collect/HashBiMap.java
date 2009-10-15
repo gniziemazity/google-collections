@@ -37,7 +37,7 @@ import javax.annotation.Nullable;
 public final class HashBiMap<K, V> extends StandardBiMap<K, V> {
 
   /**
-   * Returns a new empty {@code HashBiMap} with the default initial capacity
+   * Returns a new, empty {@code HashBiMap} with the default initial capacity
    * (16).
    */
   public static <K, V> HashBiMap<K, V> create() {
@@ -45,7 +45,7 @@ public final class HashBiMap<K, V> extends StandardBiMap<K, V> {
   }
 
   /**
-   * Constructs a new empty bimap with the specified expected size.
+   * Constructs a new, empty bimap with the specified expected size.
    *
    * @param expectedSize the expected number of entries
    * @throws IllegalArgumentException if the specified expected size is

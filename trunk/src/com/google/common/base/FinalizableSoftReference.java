@@ -29,7 +29,7 @@ public abstract class FinalizableSoftReference<T> extends SoftReference<T>
     implements FinalizableReference {
 
   /**
-   * Consructs a new finalizable soft reference.
+   * Constructs a new finalizable soft reference.
    *
    * @param referent to softly reference
    * @param queue that should finalize the referent

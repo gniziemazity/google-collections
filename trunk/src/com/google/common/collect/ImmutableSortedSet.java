@@ -29,11 +29,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.SortedSet;
-
-import javax.annotation.Nullable;
 
 /**
  * An immutable {@code SortedSet} that stores its elements in a sorted array.
@@ -81,10 +77,10 @@ import javax.annotation.Nullable;
  * @see ImmutableSet
  * @author Jared Levy
  */
-@GwtCompatible
+@GwtCompatible(serializable = true)
 @SuppressWarnings("serial") // we're overriding default serialization
-public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
-    implements SortedSet<E> {
+public abstract class ImmutableSortedSet<E>
+    extends ImmutableSortedSetFauxverideShim<E> implements SortedSet<E> {
 
   // TODO: Can we find a way to remove this @SuppressWarnings even for eclipse?
   @SuppressWarnings("unchecked")
@@ -124,6 +120,58 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
     return new RegularImmutableSortedSet<E>(array, Ordering.natural());
   }
 
+  /**
+   * Returns an immutable sorted set containing the given elements sorted by
+   * their natural ordering. When multiple elements are equivalent according to
+   * {@link Comparable#compareTo}, only the first one specified is included.
+   *
+   * @throws NullPointerException if any element is null
+   */
+  @SuppressWarnings("unchecked")
+  public static <E extends Comparable<? super E>> ImmutableSortedSet<E> of(
+      E e1, E e2) {
+    return ofInternal(Ordering.natural(), e1, e2);
+  }
+
+  /**
+   * Returns an immutable sorted set containing the given elements sorted by
+   * their natural ordering. When multiple elements are equivalent according to
+   * {@link Comparable#compareTo}, only the first one specified is included.
+   *
+   * @throws NullPointerException if any element is null
+   */
+  @SuppressWarnings("unchecked")
+  public static <E extends Comparable<? super E>> ImmutableSortedSet<E> of(
+      E e1, E e2, E e3) {
+    return ofInternal(Ordering.natural(), e1, e2, e3);
+  }
+
+  /**
+   * Returns an immutable sorted set containing the given elements sorted by
+   * their natural ordering. When multiple elements are equivalent according to
+   * {@link Comparable#compareTo}, only the first one specified is included.
+   *
+   * @throws NullPointerException if any element is null
+   */
+  @SuppressWarnings("unchecked")
+  public static <E extends Comparable<? super E>> ImmutableSortedSet<E> of(
+      E e1, E e2, E e3, E e4) {
+    return ofInternal(Ordering.natural(), e1, e2, e3, e4);
+  }
+
+  /**
+   * Returns an immutable sorted set containing the given elements sorted by
+   * their natural ordering. When multiple elements are equivalent according to
+   * {@link Comparable#compareTo}, only the first one specified is included.
+   *
+   * @throws NullPointerException if any element is null
+   */
+  @SuppressWarnings("unchecked")
+  public static <E extends Comparable<? super E>> ImmutableSortedSet<E> of(
+      E e1, E e2, E e3, E e4, E e5) {
+    return ofInternal(Ordering.natural(), e1, e2, e3, e4, e5);
+  }
+
   // TODO: Consider adding factory methods that throw an exception when given
   // duplicate elements.
 
@@ -141,13 +189,19 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
 
   private static <E> ImmutableSortedSet<E> ofInternal(
       Comparator<? super E> comparator, E... elements) {
+    checkNotNull(elements); // for GWT
     switch (elements.length) {
       case 0:
         return emptySet(comparator);
       default:
-        Object[] array = Platform.clone(elements);
-        for (Object element : array) {
-          checkNotNull(element);
+        /*
+         * We can't use Platform.clone() because of GWT bug 3621. See our GWT
+         * ImmutableSortedSetTest.testOf_gwtArraycopyBug() for details. We can't
+         * use System.arraycopy() here for the same reason.
+         */
+        Object[] array = new Object[elements.length];
+        for (int i = 0; i < elements.length; i++) {
+          array[i] = checkNotNull(elements[i]);
         }
         sort(array, comparator);
         array = removeDupes(array, comparator);
@@ -337,7 +391,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
    * equal. If one comparator is {@code null} and the other is
    * {@link Ordering#natural()}, this method returns {@code true}.
    */
-  private static boolean hasSameComparator(
+  static boolean hasSameComparator(
       Iterable<?> elements, Comparator<?> comparator) {
     if (elements instanceof SortedSet) {
       SortedSet<?> sortedSet = (SortedSet<?>) elements;
@@ -388,18 +442,6 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
    */
   public static <E extends Comparable<E>> Builder<E> naturalOrder() {
     return new Builder<E>(Ordering.natural());
-  }
-
-  /**
-   * Not supported. Use {@link #naturalOrder}, which offers better type-safety,
-   * instead. This method exists only to hide {@link ImmutableSet#builder}
-   * from consumers of {@code ImmutableSortedSet}.
-   *
-   * @throws UnsupportedOperationException always
-   * @deprecated Use {@link #naturalOrder}, which offers better type-safety.
-   */
-  @Deprecated public static <E> Builder<E> builder() {
-    throw new UnsupportedOperationException();
   }
 
   /**
@@ -507,9 +549,9 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
     return unsafeComparator.compare(a, b);
   }
 
-  final Comparator<? super E> comparator;
+  final transient Comparator<? super E> comparator;
 
-  private ImmutableSortedSet(Comparator<? super E> comparator) {
+  ImmutableSortedSet(Comparator<? super E> comparator) {
     this.comparator = comparator;
   }
 
@@ -584,311 +626,6 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
 
   /** Returns whether the elements are stored in a subset of a larger array. */
   abstract boolean hasPartialArray();
-
-  /** An empty immutable sorted set. */
-  private static class EmptyImmutableSortedSet<E>
-      extends ImmutableSortedSet<E> {
-
-    EmptyImmutableSortedSet(Comparator<? super E> comparator) {
-      super(comparator);
-    }
-
-    public int size() {
-      return 0;
-    }
-
-    @Override public boolean isEmpty() {
-      return true;
-    }
-
-    @Override public boolean contains(Object target) {
-      return false;
-    }
-
-    @Override public UnmodifiableIterator<E> iterator() {
-      return Iterators.emptyIterator();
-    }
-
-    private static final Object[] EMPTY_ARRAY = new Object[0];
-
-    @Override public Object[] toArray() {
-      return EMPTY_ARRAY;
-    }
-
-    @Override public <T> T[] toArray(T[] a) {
-      if (a.length > 0) {
-        a[0] = null;
-      }
-      return a;
-    }
-
-    @Override public boolean containsAll(Collection<?> targets) {
-      return targets.isEmpty();
-    }
-
-    @Override public boolean equals(@Nullable Object object) {
-      if (object instanceof Set) {
-        Set<?> that = (Set<?>) object;
-        return that.isEmpty();
-      }
-      return false;
-    }
-
-    @Override public int hashCode() {
-      return 0;
-    }
-
-    @Override public String toString() {
-      return "[]";
-    }
-
-    public E first() {
-      throw new NoSuchElementException();
-    }
-
-    public E last() {
-      throw new NoSuchElementException();
-    }
-
-    @Override ImmutableSortedSet<E> headSetImpl(E toElement) {
-      return this;
-    }
-
-    @Override ImmutableSortedSet<E> subSetImpl(E fromElement, E toElement) {
-      return this;
-    }
-
-    @Override ImmutableSortedSet<E> tailSetImpl(E fromElement) {
-      return this;
-    }
-
-    @Override boolean hasPartialArray() {
-      return false;
-    }
-  }
-
-  /**
-   * An empty immutable sorted set with one or more elements.
-   * TODO: Consider creating a separate class for a single-element sorted set.
-   */
-  @SuppressWarnings("serial")
-  static final class RegularImmutableSortedSet<E>
-      extends ImmutableSortedSet<E> {
-
-    private final Object[] elements;
-    /**
-     * The index of the first element that's in the sorted set (inclusive
-     * index).
-     */
-    private final int fromIndex;
-    /**
-     * The index after the last element that's in the sorted set (exclusive
-     * index).
-     */
-    private final int toIndex;
-
-    RegularImmutableSortedSet(Object[] elements,
-        Comparator<? super E> comparator) {
-      super(comparator);
-      this.elements = elements;
-      this.fromIndex = 0;
-      this.toIndex = elements.length;
-    }
-
-    RegularImmutableSortedSet(Object[] elements,
-        Comparator<? super E> comparator, int fromIndex, int toIndex) {
-      super(comparator);
-      this.elements = elements;
-      this.fromIndex = fromIndex;
-      this.toIndex = toIndex;
-    }
-
-    // The factory methods ensure that every element is an E.
-    @SuppressWarnings("unchecked")
-    @Override public UnmodifiableIterator<E> iterator() {
-      return (UnmodifiableIterator<E>)
-          Iterators.forArray(elements, fromIndex, size());
-    }
-
-    @Override public boolean isEmpty() {
-      return false;
-    }
-
-    public int size() {
-      return toIndex - fromIndex;
-    }
-
-    @Override public boolean contains(Object o) {
-      if (o == null) {
-        return false;
-      }
-      try {
-        return binarySearch(o) >= 0;
-      } catch (ClassCastException e) {
-        return false;
-      }
-    }
-
-    @Override public boolean containsAll(Collection<?> targets) {
-      // TODO: For optimal performance, use a binary search when
-      // targets.size() < size() / log(size())
-      if (!hasSameComparator(targets, comparator()) || (targets.size() <= 1)) {
-        return super.containsAll(targets);
-      }
-
-      /*
-       * If targets is a sorted set with the same comparator, containsAll can
-       * run in O(n) time stepping through the two collections.
-       */
-      int i = fromIndex;
-      Iterator<?> iterator = targets.iterator();
-      Object target = iterator.next();
-
-      while (true) {
-        if (i >= toIndex) {
-          return false;
-        }
-
-        int cmp = unsafeCompare(elements[i], target);
-
-        if (cmp < 0) {
-          i++;
-        } else if (cmp == 0) {
-          if (!iterator.hasNext()) {
-            return true;
-          }
-          target = iterator.next();
-          i++;
-        } else if (cmp > 0) {
-          return false;
-        }
-      }
-    }
-
-    private int binarySearch(Object key) {
-      int lower = fromIndex;
-      int upper = toIndex - 1;
-
-      while (lower <= upper) {
-        int middle = lower + (upper - lower) / 2;
-        int c = unsafeCompare(key, elements[middle]);
-        if (c < 0) {
-          upper = middle - 1;
-        } else if (c > 0) {
-          lower = middle + 1;
-        } else {
-          return middle;
-        }
-      }
-
-      return -lower - 1;
-    }
-
-    @Override public Object[] toArray() {
-      Object[] array = new Object[size()];
-      System.arraycopy(elements, fromIndex, array, 0, size());
-      return array;
-    }
-
-    // TODO: Move to ObjectArrays (same code in ImmutableList).
-    @Override public <T> T[] toArray(T[] array) {
-      int size = size();
-      if (array.length < size) {
-        array = ObjectArrays.newArray(array, size);
-      } else if (array.length > size) {
-        array[size] = null;
-      }
-      System.arraycopy(elements, fromIndex, array, 0, size);
-      return array;
-    }
-
-    @Override public boolean equals(@Nullable Object object) {
-      if (object == this) {
-        return true;
-      }
-      if (!(object instanceof Set)) {
-        return false;
-      }
-
-      Set<?> that = (Set<?>) object;
-      if (size() != that.size()) {
-        return false;
-      }
-
-      if (hasSameComparator(that, comparator)) {
-        Iterator<?> iterator = that.iterator();
-        try {
-          for (int i = fromIndex; i < toIndex; i++) {
-            Object otherElement = iterator.next();
-            if (otherElement == null
-                || unsafeCompare(elements[i], otherElement) != 0) {
-              return false;
-            }
-          }
-          return true;
-        } catch (ClassCastException e) {
-          return false;
-        } catch (NoSuchElementException e) {
-          return false; // concurrent change to other set
-        }
-      }
-      return this.containsAll(that);
-    }
-
-    @Override public int hashCode() {
-      // not caching hash code since it could change if the elements are mutable
-      // in a way that modifies their hash codes
-      int hash = 0;
-      for (int i = fromIndex; i < toIndex; i++) {
-        hash += elements[i].hashCode();
-      }
-      return hash;
-    }
-
-    // The factory methods ensure that every element is an E.
-    @SuppressWarnings("unchecked")
-    public E first() {
-      return (E) elements[fromIndex];
-    }
-
-    // The factory methods ensure that every element is an E.
-    @SuppressWarnings("unchecked")
-    public E last() {
-      return (E) elements[toIndex - 1];
-    }
-
-    @Override ImmutableSortedSet<E> headSetImpl(E toElement) {
-      return createSubset(fromIndex, findSubsetIndex(toElement));
-    }
-
-    @Override ImmutableSortedSet<E> subSetImpl(E fromElement, E toElement) {
-      return createSubset(
-          findSubsetIndex(fromElement), findSubsetIndex(toElement));
-    }
-
-    @Override ImmutableSortedSet<E> tailSetImpl(E fromElement) {
-      return createSubset(findSubsetIndex(fromElement), toIndex);
-    }
-
-    private int findSubsetIndex(E element) {
-      int index = binarySearch(element);
-      return (index >= 0) ? index : (-index - 1);
-    }
-
-    private ImmutableSortedSet<E> createSubset(
-        int newFromIndex, int newToIndex) {
-      if (newFromIndex < newToIndex) {
-        return new RegularImmutableSortedSet<E>(elements, comparator,
-            newFromIndex, newToIndex);
-      } else {
-        return emptySet(comparator);
-      }
-    }
-
-    @Override boolean hasPartialArray() {
-      return (fromIndex != 0) || (toIndex != elements.length);
-    }
-  }
 
   /*
    * This class is used to serialize all ImmutableSortedSet instances,

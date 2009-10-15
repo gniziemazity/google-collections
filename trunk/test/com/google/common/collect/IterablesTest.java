@@ -193,19 +193,19 @@ public class IterablesTest extends TestCase {
   }
 
   public void testFilter() {
-    Iterable<String> unfiltered = Lists.newArrayList("foo", "bar");
+    Iterable<String> unfiltered = newArrayList("foo", "bar");
     Iterable<String> filtered = Iterables.filter(unfiltered,
                                                  Predicates.equalTo("foo"));
 
     List<String> expected = Collections.singletonList("foo");
-    List<String> actual = Lists.newArrayList(filtered);
+    List<String> actual = newArrayList(filtered);
     assertEquals(expected, actual);
     assertCanIterateAgain(filtered);
     assertEquals("[foo]", filtered.toString());
   }
 
   public void testAny() {
-    List<String> list = Lists.newArrayList();
+    List<String> list = newArrayList();
     Predicate<String> predicate = Predicates.equalTo("pants");
 
     assertFalse(Iterables.any(list, predicate));
@@ -216,7 +216,7 @@ public class IterablesTest extends TestCase {
   }
 
   public void testAll() {
-    List<String> list = Lists.newArrayList();
+    List<String> list = newArrayList();
     Predicate<String> predicate = Predicates.equalTo("cool");
 
     assertTrue(Iterables.all(list, predicate));
@@ -227,7 +227,7 @@ public class IterablesTest extends TestCase {
   }
 
   public void testFind() {
-    Iterable<String> list = Lists.newArrayList("cool", "pants");
+    Iterable<String> list = newArrayList("cool", "pants");
     assertEquals("cool", Iterables.find(list, Predicates.equalTo("cool")));
     assertEquals("pants", Iterables.find(list, Predicates.equalTo("pants")));
     try {
@@ -245,8 +245,8 @@ public class IterablesTest extends TestCase {
 
   public void testFilterByType() throws Exception {
     HasBoth hasBoth = new HasBoth();
-    Iterable<TypeA> alist = Lists
-        .newArrayList(new TypeA(), new TypeA(), hasBoth, new TypeA());
+    Iterable<TypeA> alist =
+        newArrayList(new TypeA(), new TypeA(), hasBoth, new TypeA());
     Iterable<TypeB> blist = Iterables.filter(alist, TypeB.class);
     JUnitAsserts.assertContentsInOrder(blist, hasBoth);
   }
@@ -260,7 +260,7 @@ public class IterablesTest extends TestCase {
           }
         });
 
-    List<Integer> actual = Lists.newArrayList(result);
+    List<Integer> actual = newArrayList(result);
     List<Integer> expected = asList(1, 2, 3);
     assertEquals(expected, actual);
     assertCanIterateAgain(result);
@@ -296,7 +296,7 @@ public class IterablesTest extends TestCase {
           }
         });
 
-    List<String> actual = Lists.newArrayList(result);
+    List<String> actual = newArrayList(result);
     List<String> expected = asList("1", "2", "null", "3");
     assertEquals(expected, actual);
   }
@@ -326,41 +326,41 @@ public class IterablesTest extends TestCase {
 
   // Again, the exhaustive tests are in IteratorsTest
   public void testConcatIterable() {
-    List<Integer> list1 = Lists.newArrayList(1);
-    List<Integer> list2 = Lists.newArrayList(4);
+    List<Integer> list1 = newArrayList(1);
+    List<Integer> list2 = newArrayList(4);
 
     @SuppressWarnings("unchecked")
-    List<List<Integer>> input = Lists.newArrayList(list1, list2);
+    List<List<Integer>> input = newArrayList(list1, list2);
 
     Iterable<Integer> result = Iterables.concat(input);
-    assertEquals(asList(1, 4), Lists.newArrayList(result));
+    assertEquals(asList(1, 4), newArrayList(result));
 
     // Now change the inputs and see result dynamically change as well
 
     list1.add(2);
-    List<Integer> list3 = Lists.newArrayList(3);
+    List<Integer> list3 = newArrayList(3);
     input.add(1, list3);
 
-    assertEquals(asList(1, 2, 3, 4), Lists.newArrayList(result));
+    assertEquals(asList(1, 2, 3, 4), newArrayList(result));
     assertEquals("[1, 2, 3, 4]", result.toString());
   }
 
   public void testConcatVarargs() {
-    List<Integer> list1 = Lists.newArrayList(1);
-    List<Integer> list2 = Lists.newArrayList(4);
-    List<Integer> list3 = Lists.newArrayList(7, 8);
-    List<Integer> list4 = Lists.newArrayList(9);
-    List<Integer> list5 = Lists.newArrayList(10);
+    List<Integer> list1 = newArrayList(1);
+    List<Integer> list2 = newArrayList(4);
+    List<Integer> list3 = newArrayList(7, 8);
+    List<Integer> list4 = newArrayList(9);
+    List<Integer> list5 = newArrayList(10);
     @SuppressWarnings("unchecked")
     Iterable<Integer> result =
         Iterables.concat(list1, list2, list3, list4, list5);
-    assertEquals(asList(1, 4, 7, 8, 9, 10), Lists.newArrayList(result));
+    assertEquals(asList(1, 4, 7, 8, 9, 10), newArrayList(result));
     assertEquals("[1, 4, 7, 8, 9, 10]", result.toString());
   }
 
   public void testConcatNullPointerException() {
-    List<Integer> list1 = Lists.newArrayList(1);
-    List<Integer> list2 = Lists.newArrayList(4);
+    List<Integer> list1 = newArrayList(1);
+    List<Integer> list2 = newArrayList(4);
 
     try {
       Iterables.concat(list1, null, list2);
@@ -463,8 +463,8 @@ public class IterablesTest extends TestCase {
 
   // More tests in IteratorsTest
   public void testAddAllToList() {
-    List<String> alreadyThere = Lists.newArrayList("already", "there");
-    List<String> freshlyAdded = Lists.newArrayList("freshly", "added");
+    List<String> alreadyThere = newArrayList("already", "there");
+    List<String> freshlyAdded = newArrayList("freshly", "added");
 
     boolean changed = Iterables.addAll(alreadyThere, freshlyAdded);
     assertContentsInOrder(alreadyThere, "already", "there", "freshly", "added");
@@ -528,7 +528,7 @@ public class IterablesTest extends TestCase {
     JUnitAsserts.assertContentsInOrder(reversed, expected);
     assertEquals("[baz, bar, foo]", reversed.toString());
 
-    List<String> removable = Lists.newArrayList("foo", "bar", "bad", "baz");
+    List<String> removable = newArrayList("foo", "bar", "bad", "baz");
 
     reversed = Iterables.reverse(removable);
     JUnitAsserts.assertContentsInOrder(reversed, "baz", "bad", "bar", "foo");
@@ -546,7 +546,7 @@ public class IterablesTest extends TestCase {
     List<String> list = Collections.emptyList();
     assertEquals("[]", Iterables.toString(list));
 
-    list = Lists.newArrayList("yam", "bam", "jam", "ham");
+    list = newArrayList("yam", "bam", "jam", "ham");
     assertEquals("[yam, bam, jam, ham]", Iterables.toString(list));
   }
 
@@ -680,7 +680,7 @@ public class IterablesTest extends TestCase {
   }
 
   public void testFrequency_list() {
-    List<String> list = Lists.newArrayList("a", "b", "a", "c", "b", "a");
+    List<String> list = newArrayList("a", "b", "a", "c", "b", "a");
     assertEquals(3, Iterables.frequency(list, "a"));
     assertEquals(2, Iterables.frequency(list, "b"));
     assertEquals(1, Iterables.frequency(list, "c"));
@@ -688,7 +688,6 @@ public class IterablesTest extends TestCase {
     assertEquals(0, Iterables.frequency(list, 4.2));
     assertEquals(0, Iterables.frequency(list, null));
   }
-
 
   public void testRemoveAll_collection() {
     List<String> list = newArrayList("a", "b", "c", "d", "e");
@@ -731,6 +730,47 @@ public class IterablesTest extends TestCase {
     assertFalse(Iterables.retainAll(iterable, newArrayList("b", "e", "d")));
     assertEquals(newArrayList("b", "d"), list);
   }
+
+  public void testRemoveIf_randomAccess() {
+    List<String> list = newArrayList("a", "b", "c", "d", "e");
+    assertTrue(Iterables.removeIf(list,
+        new Predicate<String>() {
+          public boolean apply(String s) {
+            return s.equals("b") || s.equals("d") || s.equals("f");
+          }
+        }));
+    assertEquals(newArrayList("a", "c", "e"), list);
+    assertFalse(Iterables.removeIf(list,
+        new Predicate<String>() {
+          public boolean apply(String s) {
+            return s.equals("x") || s.equals("y") || s.equals("z");
+          }
+        }));
+    assertEquals(newArrayList("a", "c", "e"), list);
+  }
+
+  public void testRemoveIf_noRandomAccess() {
+    List<String> list = Lists.newLinkedList(asList("a", "b", "c", "d", "e"));
+    assertTrue(Iterables.removeIf(list,
+        new Predicate<String>() {
+          public boolean apply(String s) {
+            return s.equals("b") || s.equals("d") || s.equals("f");
+          }
+        }));
+    assertEquals(newArrayList("a", "c", "e"), list);
+    assertFalse(Iterables.removeIf(list,
+        new Predicate<String>() {
+          public boolean apply(String s) {
+            return s.equals("x") || s.equals("y") || s.equals("z");
+          }
+        }));
+    assertEquals(newArrayList("a", "c", "e"), list);
+  }
+
+  // The Maps returned by Maps.filterEntries(), Maps.filterKeys(), and
+  // Maps.filterValues() are not tested with removeIf() since Maps are not
+  // Iterable.  Those returned by Iterators.filter() and Iterables.filter()
+  // are not tested because they are unmodifiable.
 
   public void testIterableWithToString() {
     assertEquals("[]", create().toString());

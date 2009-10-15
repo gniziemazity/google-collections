@@ -108,6 +108,20 @@ public class FunctionsTest extends TestCase {
     checkCanReserialize(Functions.forMap(ImmutableMap.of(1, 2), 3));
   }
 
+  public void testForMapWithDefault_null() {
+    ImmutableMap<String, Integer> map = ImmutableMap.of("One", 1);
+    Function<String, Integer> function = Functions.forMap(map, null);
+
+    assertEquals((Integer) 1, function.apply("One"));
+    assertNull(function.apply("Two"));
+
+    // check basic sanity of equals and hashCode
+    new EqualsTester(function)
+        .addEqualObject(SerializableTester.reserialize(function))
+        .addNotEqualObject(Functions.forMap(map, 1))
+        .testEquals();
+  }
+
   public void testForMapWildCardWithDefault() {
     Map<String, Integer> map = Maps.newHashMap();
     map.put("One", 1);
@@ -126,17 +140,17 @@ public class FunctionsTest extends TestCase {
     mJapaneseToInteger.put("Ni", 2);
     mJapaneseToInteger.put("San", 3);
     Function<String, Integer> japaneseToInteger =
-           Functions.forMap(mJapaneseToInteger);
+        Functions.forMap(mJapaneseToInteger);
 
     Map<Integer, String> mIntegerToSpanish = Maps.newHashMap();
     mIntegerToSpanish.put(1, "Uno");
     mIntegerToSpanish.put(3, "Tres");
     mIntegerToSpanish.put(4, "Cuatro");
     Function<Integer, String> integerToSpanish =
-           Functions.forMap(mIntegerToSpanish);
+        Functions.forMap(mIntegerToSpanish);
 
     Function<String, String> japaneseToSpanish =
-       Functions.compose(integerToSpanish, japaneseToInteger);
+        Functions.compose(integerToSpanish, japaneseToInteger);
 
     assertEquals("Uno", japaneseToSpanish.apply("Ichi"));
     assertNull(japaneseToSpanish.apply("Ni"));
@@ -161,7 +175,7 @@ public class FunctionsTest extends TestCase {
     mJapaneseToInteger.put("Ni", 2);
     mJapaneseToInteger.put("San", 3);
     Function<String, Integer> japaneseToInteger =
-           Functions.forMap(mJapaneseToInteger);
+        Functions.forMap(mJapaneseToInteger);
 
     Map<Number, String> mNumberToSpanish = Maps.newHashMap();
     mNumberToSpanish.put(1, "Uno");
@@ -169,10 +183,10 @@ public class FunctionsTest extends TestCase {
     mNumberToSpanish.put(4, "Cuatro");
     mNumberToSpanish.put(3.5, "Tres y medio");
     Function<Number, String> numberToSpanish =
-           Functions.forMap(mNumberToSpanish);
+        Functions.forMap(mNumberToSpanish);
 
     Function<String, String> japaneseToSpanish =
-       Functions.compose(numberToSpanish, japaneseToInteger);
+        Functions.compose(numberToSpanish, japaneseToInteger);
 
     assertEquals("Uno", japaneseToSpanish.apply("Ichi"));
     assertNull(japaneseToSpanish.apply("Ni"));
