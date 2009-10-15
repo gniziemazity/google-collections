@@ -312,7 +312,6 @@ public abstract class AbstractListMultimapTest extends AbstractMultimapTest {
     sublist.remove(0);
     assertEquals(2, multimap.size());
     assertContentsInOrder(multimap.get("foo"), 1, 5);
-
   }
 
   /**

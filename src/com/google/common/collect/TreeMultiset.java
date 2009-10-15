@@ -122,9 +122,9 @@ public final class TreeMultiset<E> extends AbstractMapBasedMultiset<E> {
     }
   }
 
-  @Override protected Set<E> createElementSet() {
-     return new SortedMapBasedElementSet(
-         (SortedMap<E, AtomicInteger>) backingMap());
+  @Override Set<E> createElementSet() {
+    return new SortedMapBasedElementSet(
+        (SortedMap<E, AtomicInteger>) backingMap());
   }
 
   private class SortedMapBasedElementSet extends MapBasedElementSet

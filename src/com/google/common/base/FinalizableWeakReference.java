@@ -29,7 +29,7 @@ public abstract class FinalizableWeakReference<T> extends WeakReference<T>
     implements FinalizableReference {
 
   /**
-   * Consructs a new finalizable weak reference.
+   * Constructs a new finalizable weak reference.
    *
    * @param referent to weakly reference
    * @param queue that should finalize the referent

@@ -25,12 +25,13 @@ import com.google.common.collect.ImmutableSet.ArrayImmutableSet;
  * @author Kevin Bourrillion
  */
 @GwtCompatible(serializable = true)
+@SuppressWarnings("serial") // uses writeReplace(), not default serialization
 final class RegularImmutableSet<E> extends ArrayImmutableSet<E> {
   // the same elements in hashed positions (plus nulls)
-  private transient final Object[] table;
+  private final transient Object[] table;
   // 'and' with an int to get a valid table index.
-  private transient final int mask;
-  private transient final int hashCode;
+  private final transient int mask;
+  private final transient int hashCode;
 
   RegularImmutableSet(
       Object[] elements, int hashCode, Object[] table, int mask) {

@@ -45,7 +45,8 @@ import javax.annotation.Nullable;
  * provides the surrounding concurrent data structure which implements {@link
  * ConcurrentMap}. Additionally supports implementing maps where {@link
  * Map#get} atomically computes values on demand (see {@link
- * Builder#buildComputingMap(ComputingStrategy, Function)}
+ * Builder#buildComputingMap(CustomConcurrentHashMap.ComputingStrategy,
+ * Function)}).
  *
  * <p>The resulting hash table supports full concurrency of retrievals and
  * adjustable expected concurrency for updates. Even though all operations are
@@ -135,10 +136,17 @@ final class CustomConcurrentHashMap {
    * Builds a custom concurrent hash map.
    */
   final static class Builder {
-
-    float loadFactor = 0.75f;
-    int initialCapacity = 16;
-    int concurrencyLevel = 16;
+    private static final float DEFAULT_LOAD_FACTOR = 0.75f;
+    private static final int DEFAULT_INITIAL_CAPACITY = 16;
+    private static final int DEFAULT_CONCURRENCY_LEVEL = 16;
+    
+    private static final float UNSET_LOAD_FACTOR = 0.0f;
+    private static final int UNSET_INITIAL_CAPACITY = -1;
+    private static final int UNSET_CONCURRENCY_LEVEL = -1;
+    
+    float loadFactor = UNSET_LOAD_FACTOR;
+    int initialCapacity = UNSET_INITIAL_CAPACITY;
+    int concurrencyLevel = UNSET_CONCURRENCY_LEVEL;
 
     /**
      * Sets a custom load factor (defaults to 0.75).
@@ -146,7 +154,11 @@ final class CustomConcurrentHashMap {
      * @throws IllegalArgumentException if loadFactor <= 0
      */
     public Builder loadFactor(float loadFactor) {
-      if (loadFactor <= 0) {
+      if (this.loadFactor != UNSET_LOAD_FACTOR) {
+        throw new IllegalStateException(
+            "load factor was already set to " + this.loadFactor);
+      }
+      if (loadFactor <= 0.0f) {
         throw new IllegalArgumentException();
       }
       this.loadFactor = loadFactor;
@@ -162,6 +174,10 @@ final class CustomConcurrentHashMap {
      * @throws IllegalArgumentException if initialCapacity < 0
      */
     public Builder initialCapacity(int initialCapacity) {
+      if (this.initialCapacity != UNSET_INITIAL_CAPACITY) {
+        throw new IllegalStateException(
+            "initial capacity was already set to " + this.initialCapacity);
+      }
       if (initialCapacity < 0) {
         throw new IllegalArgumentException();
       }
@@ -186,6 +202,10 @@ final class CustomConcurrentHashMap {
      * @throws IllegalArgumentException if concurrencyLevel < 0
      */
     public Builder concurrencyLevel(int concurrencyLevel) {
+      if (this.concurrencyLevel != UNSET_CONCURRENCY_LEVEL) {
+        throw new IllegalStateException(
+            "concurrency level was already set to " + this.concurrencyLevel);
+      }
       if (concurrencyLevel <= 0) {
         throw new IllegalArgumentException();
       }
@@ -259,6 +279,21 @@ final class CustomConcurrentHashMap {
       }
 
       return new ComputingImpl<K, V, E>(strategy, this, computer);
+    }
+    
+    float getLoadFactor() {
+      return (loadFactor == UNSET_LOAD_FACTOR)
+          ? DEFAULT_LOAD_FACTOR : loadFactor;
+    }
+
+    int getInitialCapacity() {
+      return (initialCapacity == UNSET_INITIAL_CAPACITY)
+          ? DEFAULT_INITIAL_CAPACITY : initialCapacity;
+    }
+
+    int getConcurrencyLevel() {
+      return (concurrencyLevel == UNSET_CONCURRENCY_LEVEL)
+          ? DEFAULT_CONCURRENCY_LEVEL : concurrencyLevel;
     }
   }
 
@@ -467,7 +502,7 @@ final class CustomConcurrentHashMap {
    * throw {@link UnsupportedOperationException} in {@link #setValue(Object,
    * Object)} if they wish to prevent users from setting values directly.
    *
-   * @see CustomConcurrentHashMap.Builder#buildComputingMap(ComputingStrategy,
+   * @see Builder#buildComputingMap(CustomConcurrentHashMap.ComputingStrategy,
    *     Function)
    */
   public interface ComputingStrategy<K, V, E> extends Strategy<K, V, E> {
@@ -588,9 +623,9 @@ final class CustomConcurrentHashMap {
      * load factor and concurrency level.
      */
     Impl(Strategy<K, V, E> strategy, Builder builder) {
-      this.loadFactor = builder.loadFactor;
-      int concurrencyLevel = builder.concurrencyLevel;
-      int initialCapacity = builder.initialCapacity;
+      this.loadFactor = builder.getLoadFactor();
+      int concurrencyLevel = builder.getConcurrencyLevel();
+      int initialCapacity = builder.getInitialCapacity();
 
       if (concurrencyLevel > MAX_SEGMENTS) {
         concurrencyLevel = MAX_SEGMENTS;

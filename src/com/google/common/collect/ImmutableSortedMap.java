@@ -16,6 +16,7 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -47,8 +48,9 @@ import javax.annotation.Nullable;
  *
  * @author Jared Levy
  */
-public class ImmutableSortedMap<K, V> extends ImmutableMap<K, V>
-    implements SortedMap<K, V> {
+@GwtCompatible(serializable = true)
+public class ImmutableSortedMap<K, V>
+    extends ImmutableSortedMapFauxverideShim<K, V> implements SortedMap<K, V> {
 
   // TODO: Confirm that ImmutableSortedMap is faster to construct and uses less
   // memory than TreeMap; then say so in the class Javadoc.
@@ -291,24 +293,11 @@ public class ImmutableSortedMap<K, V> extends ImmutableMap<K, V>
   }
 
   /**
-   * Not supported. Use {@link #naturalOrder}, which offers better type-safety,
-   * instead. This method exists only to hide {@link ImmutableMap#builder}
-   * from consumers of {@code ImmutableSortedMap}.
-   *
-   * @throws UnsupportedOperationException always
-   *
-   * @deprecated Use {@link #naturalOrder}, which offers better type-safety.
-   */
-  @Deprecated public static <K, V> Builder<K, V> builder() {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
    * A builder for creating immutable sorted map instances, especially {@code
    * public static final} maps ("constant maps"). Example: <pre>   {@code
    *
    *   static final ImmutableSortedMap<Integer, String> INT_TO_WORD =
-   *       new ImmutableSortedMap.Builder<Integer, String>()
+   *       new ImmutableSortedMap.Builder<Integer, String>(Ordering.natural())
    *           .put(1, "one")
    *           .put(2, "two")
    *           .put(3, "three")
@@ -371,10 +360,10 @@ public class ImmutableSortedMap<K, V> extends ImmutableMap<K, V>
     }
   }
 
-  private transient final Entry<K, V>[] entries;
-  private transient final Comparator<? super K> comparator;
-  private transient final int fromIndex;
-  private transient final int toIndex;
+  private final transient Entry<K, V>[] entries;
+  private final transient Comparator<? super K> comparator;
+  private final transient int fromIndex;
+  private final transient int toIndex;
 
   private ImmutableSortedMap(Entry<?, ?>[] entries,
       Comparator<? super K> comparator, int fromIndex, int toIndex) {
@@ -457,8 +446,9 @@ public class ImmutableSortedMap<K, V> extends ImmutableMap<K, V>
         : new EntrySet<K, V>(this);
   }
 
+  @SuppressWarnings("serial") // uses writeReplace(), not default serialization
   private static class EntrySet<K, V> extends ImmutableSet<Entry<K, V>> {
-    transient final ImmutableSortedMap<K, V> map;
+    final transient ImmutableSortedMap<K, V> map;
 
     EntrySet(ImmutableSortedMap<K, V> map) {
       this.map = map;
@@ -517,8 +507,7 @@ public class ImmutableSortedMap<K, V> extends ImmutableMap<K, V>
     for (int i = fromIndex; i < toIndex; i++) {
       array[i - fromIndex] = entries[i].getKey();
     }
-    return new ImmutableSortedSet.RegularImmutableSortedSet<K>(
-        array, comparator);
+    return new RegularImmutableSortedSet<K>(array, comparator);
   }
 
   private transient ImmutableCollection<V> values;
@@ -532,7 +521,8 @@ public class ImmutableSortedMap<K, V> extends ImmutableMap<K, V>
     return (v == null) ? (values = new Values<V>(this)) : v;
   }
 
-  private static class Values<V> extends ImmutableCollection<V>  {
+  @SuppressWarnings("serial") // uses writeReplace(), not default serialization
+  private static class Values<V> extends ImmutableCollection<V> {
     private final ImmutableSortedMap<?, V> map;
 
     Values(ImmutableSortedMap<?, V> map) {
@@ -688,4 +678,8 @@ public class ImmutableSortedMap<K, V> extends ImmutableMap<K, V>
   @Override Object writeReplace() {
     return new SerializedForm(this);
   }
+
+  // This class is never actually serialized directly, but we have to make the
+  // warning go away (and suppressing would suppress for all nested classes too)
+  private static final long serialVersionUID = 0;
 }

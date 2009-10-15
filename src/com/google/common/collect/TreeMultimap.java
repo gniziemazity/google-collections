@@ -34,10 +34,7 @@ import javax.annotation.Nullable;
 
 /**
  * Implementation of {@code Multimap} whose keys and values are ordered by their
- * natural ordering or by supplied comparators. When constructing a {@code
- * TreeMultimap}, you may provide a {@link Comparator} for the keys, a {@code
- * Comparator} for the values, both, or neither. If the keys or values lack an
- * explicit {@code Comparator}, their natural ordering is used.
+ * natural ordering or by supplied comparators.
  *
  * <p>The collections returned by {@code keySet} and {@code asMap} iterate
  * through the keys according to the key comparator ordering or the natural
@@ -67,10 +64,10 @@ public final class TreeMultimap<K, V> extends StandardSortedSetMultimap<K, V> {
   private transient Comparator<? super K> keyComparator;
   private transient Comparator<? super V> valueComparator;
 
- /**
-  * Creates an empty {@code TreeMultimap} ordered by the natural ordering of its
-  * keys and values.
-  */
+  /**
+   * Creates an empty {@code TreeMultimap} ordered by the natural ordering of its
+   * keys and values.
+   */
   @SuppressWarnings("unchecked") // eclipse doesn't like the raw Comparable
   public static <K extends Comparable, V extends Comparable>
       TreeMultimap<K, V> create() {
@@ -79,6 +76,8 @@ public final class TreeMultimap<K, V> extends StandardSortedSetMultimap<K, V> {
 
   /**
    * Creates an empty {@code TreeMultimap} instance using explicit comparators.
+   * Neither comparator may be null; use {@link Ordering#natural()} to specify
+   * natural order.
    *
    * @param keyComparator the comparator that determines the key ordering
    * @param valueComparator the comparator that determines the value ordering

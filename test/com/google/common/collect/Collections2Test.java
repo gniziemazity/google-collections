@@ -19,6 +19,7 @@ package com.google.common.collect;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Lists.newLinkedList;
 import com.google.common.collect.testing.CollectionTestSuiteBuilder;
 import com.google.common.collect.testing.TestStringCollectionGenerator;
 import com.google.common.collect.testing.features.CollectionFeature;
@@ -51,9 +52,11 @@ public class Collections2Test extends TestCase {
   public static Test suite() {
     TestSuite suite = new TestSuite(Collections2Test.class.getSimpleName());
     suite.addTest(testsForFilter());
+    suite.addTest(testsForFilterAll());
+    suite.addTest(testsForFilterLinkedList());
     suite.addTest(testsForFilterNoNulls());
     suite.addTest(testsForFilterFiltered());
-    suite.addTest(testsForTransform());
+    suite.addTest(testsForTransform());    
     suite.addTestSuite(Collections2Test.class);
     return suite;
   }
@@ -81,6 +84,46 @@ public class Collections2Test extends TestCase {
         new TestStringCollectionGenerator() {
           @Override public Collection<String> create(String[] elements) {
             List<String> unfiltered = newArrayList();
+            unfiltered.add("yyy");
+            unfiltered.addAll(Arrays.asList(elements));
+            unfiltered.add("zzz");
+            return Collections2.filter(unfiltered, NOT_YYY_ZZZ);
+          }
+        })
+        .named("Collections2.filter")
+        .withFeatures(
+            CollectionFeature.GENERAL_PURPOSE,
+            CollectionFeature.ALLOWS_NULL_VALUES,
+            CollectionFeature.KNOWN_ORDER,
+            CollectionSize.ANY)
+        .suppressing(getIteratorKnownOrderRemoveSupportedMethod())
+        .createTestSuite();
+  }
+
+  private static Test testsForFilterAll() {
+    return CollectionTestSuiteBuilder.using(
+        new TestStringCollectionGenerator() {
+          @Override public Collection<String> create(String[] elements) {
+            List<String> unfiltered = newArrayList();
+            unfiltered.addAll(Arrays.asList(elements));
+            return Collections2.filter(unfiltered, NOT_YYY_ZZZ);
+          }
+        })
+        .named("Collections2.filter")
+        .withFeatures(
+            CollectionFeature.GENERAL_PURPOSE,
+            CollectionFeature.ALLOWS_NULL_VALUES,
+            CollectionFeature.KNOWN_ORDER,
+            CollectionSize.ANY)
+        .suppressing(getIteratorKnownOrderRemoveSupportedMethod())
+        .createTestSuite();
+  }
+
+  private static Test testsForFilterLinkedList() {
+    return CollectionTestSuiteBuilder.using(
+        new TestStringCollectionGenerator() {
+          @Override public Collection<String> create(String[] elements) {
+            List<String> unfiltered = newLinkedList();
             unfiltered.add("yyy");
             unfiltered.addAll(Arrays.asList(elements));
             unfiltered.add("zzz");
@@ -139,96 +182,148 @@ public class Collections2Test extends TestCase {
         .createTestSuite();
   }
 
-  public void testFilterIllegalAdd() {
-    List<String> unfiltered = Lists.newArrayList();
-    Collection<String> filtered
-        = Collections2.filter(unfiltered, NOT_YYY_ZZZ);
-    filtered.add("a");
-    filtered.add("b");
-    JUnitAsserts.assertContentsInOrder(filtered, "a", "b");
+  abstract public static class FilterChangeTest extends TestCase {
+    protected abstract <E> List<E> newList();
 
-    try {
-      filtered.add("yyy");
-      fail();
-    } catch (IllegalArgumentException expected) {}
+    public void testFilterIllegalAdd() {
+      List<String> unfiltered = newList();
+      Collection<String> filtered
+          = Collections2.filter(unfiltered, NOT_YYY_ZZZ);
+      filtered.add("a");
+      filtered.add("b");
+      JUnitAsserts.assertContentsInOrder(filtered, "a", "b");
 
-    try {
-      filtered.addAll(Arrays.asList("c", "zzz", "d"));
-      fail();
-    } catch (IllegalArgumentException expected) {}
+      try {
+        filtered.add("yyy");
+        fail();
+      } catch (IllegalArgumentException expected) {}
 
-    JUnitAsserts.assertContentsInOrder(filtered, "a", "b");
+      try {
+        filtered.addAll(Arrays.asList("c", "zzz", "d"));
+        fail();
+      } catch (IllegalArgumentException expected) {}
+
+      JUnitAsserts.assertContentsInOrder(filtered, "a", "b");
+    }
+    
+    public void testFilterChangeUnfiltered() {
+      List<String> unfiltered = newList();
+      Collection<String> filtered
+          = Collections2.filter(unfiltered, NOT_YYY_ZZZ);
+
+      unfiltered.add("a");
+      unfiltered.add("yyy");
+      unfiltered.add("b");
+      JUnitAsserts.assertContentsInOrder(unfiltered, "a", "yyy", "b");
+      JUnitAsserts.assertContentsInOrder(filtered, "a", "b");
+
+      unfiltered.remove("a");
+      JUnitAsserts.assertContentsInOrder(unfiltered, "yyy", "b");
+      JUnitAsserts.assertContentsInOrder(filtered, "b");
+
+      unfiltered.clear();
+      JUnitAsserts.assertContentsInOrder(unfiltered);
+      JUnitAsserts.assertContentsInOrder(filtered);
+      
+      unfiltered.add("yyy");
+      JUnitAsserts.assertContentsInOrder(unfiltered, "yyy");
+      JUnitAsserts.assertContentsInOrder(filtered);
+      filtered.clear();
+      JUnitAsserts.assertContentsInOrder(unfiltered, "yyy");
+      JUnitAsserts.assertContentsInOrder(filtered);
+
+      unfiltered.clear();
+      filtered.clear();
+      JUnitAsserts.assertContentsInOrder(unfiltered);
+      JUnitAsserts.assertContentsInOrder(filtered);
+
+      unfiltered.add("a");
+      JUnitAsserts.assertContentsInOrder(unfiltered, "a");
+      JUnitAsserts.assertContentsInOrder(filtered, "a");
+      filtered.clear();
+      JUnitAsserts.assertContentsInOrder(unfiltered);
+      JUnitAsserts.assertContentsInOrder(filtered);
+
+      unfiltered.clear();
+      unfiltered.add("a");
+      unfiltered.add("b");
+      unfiltered.add("yyy");
+      unfiltered.add("zzz");
+      unfiltered.add("c");
+      unfiltered.add("d");
+      unfiltered.add("yyy");
+      unfiltered.add("zzz");
+      JUnitAsserts.assertContentsInOrder(unfiltered, "a", "b", "yyy", "zzz",
+          "c", "d", "yyy", "zzz");
+      JUnitAsserts.assertContentsInOrder(filtered, "a", "b", "c", "d");
+      filtered.clear();
+      JUnitAsserts.assertContentsInOrder(unfiltered, "yyy", "zzz", "yyy", 
+          "zzz");
+      JUnitAsserts.assertContentsInOrder(filtered);
+    }
+
+    public void testFilterChangeFiltered() {
+      List<String> unfiltered = newList();
+      Collection<String> filtered
+          = Collections2.filter(unfiltered, NOT_YYY_ZZZ);
+
+      unfiltered.add("a");
+      unfiltered.add("yyy");
+      filtered.add("b");
+      JUnitAsserts.assertContentsInOrder(unfiltered, "a", "yyy", "b");
+      JUnitAsserts.assertContentsInOrder(filtered, "a", "b");
+
+      filtered.remove("a");
+      JUnitAsserts.assertContentsInOrder(unfiltered, "yyy", "b");
+      JUnitAsserts.assertContentsInOrder(filtered, "b");
+
+      filtered.clear();
+      JUnitAsserts.assertContentsInOrder(unfiltered, "yyy");
+      JUnitAsserts.assertContentsInOrder(filtered);
+    }
+
+    public void testFilterFiltered() {
+      List<String> unfiltered = newList();
+      Collection<String> filtered = Collections2.filter(
+          Collections2.filter(unfiltered, LENGTH_1), STARTS_WITH_VOWEL);
+      unfiltered.add("a");
+      unfiltered.add("b");
+      unfiltered.add("apple");
+      unfiltered.add("banana");
+      unfiltered.add("e");
+      JUnitAsserts.assertContentsInOrder(filtered, "a", "e");
+      JUnitAsserts.assertContentsInOrder(unfiltered,
+          "a", "b", "apple", "banana", "e");
+
+      try {
+        filtered.add("d");
+        fail();
+      } catch (IllegalArgumentException expected) {}
+      try {
+        filtered.add("egg");
+        fail();
+      } catch (IllegalArgumentException expected) {}
+      JUnitAsserts.assertContentsInOrder(filtered, "a", "e");
+      JUnitAsserts.assertContentsInOrder(unfiltered,
+          "a", "b", "apple", "banana", "e");
+
+      filtered.clear();
+      assertTrue(filtered.isEmpty());
+      JUnitAsserts.assertContentsInOrder(unfiltered, "b", "apple", "banana");
+    }
   }
+  
+  public static class ArrayListFilterChangeTest extends FilterChangeTest {
+    @Override protected <E> List<E> newList() {
+      return Lists.newArrayList();
+    }
+  }  
 
-  public void testFilterChangeUnfiltered() {
-    List<String> unfiltered = Lists.newArrayList();
-    Collection<String> filtered
-        = Collections2.filter(unfiltered, NOT_YYY_ZZZ);
-
-    unfiltered.add("a");
-    unfiltered.add("yyy");
-    unfiltered.add("b");
-    JUnitAsserts.assertContentsInOrder(unfiltered, "a", "yyy", "b");
-    JUnitAsserts.assertContentsInOrder(filtered, "a", "b");
-
-    unfiltered.remove("a");
-    JUnitAsserts.assertContentsInOrder(unfiltered, "yyy", "b");
-    JUnitAsserts.assertContentsInOrder(filtered, "b");
-
-    unfiltered.clear();
-    JUnitAsserts.assertContentsInOrder(unfiltered);
-    JUnitAsserts.assertContentsInOrder(filtered);
-  }
-
-  public void testFilterChangeFiltered() {
-    List<String> unfiltered = Lists.newArrayList();
-    Collection<String> filtered
-        = Collections2.filter(unfiltered, NOT_YYY_ZZZ);
-
-    unfiltered.add("a");
-    unfiltered.add("yyy");
-    filtered.add("b");
-    JUnitAsserts.assertContentsInOrder(unfiltered, "a", "yyy", "b");
-    JUnitAsserts.assertContentsInOrder(filtered, "a", "b");
-
-    filtered.remove("a");
-    JUnitAsserts.assertContentsInOrder(unfiltered, "yyy", "b");
-    JUnitAsserts.assertContentsInOrder(filtered, "b");
-
-    filtered.clear();
-    JUnitAsserts.assertContentsInOrder(unfiltered, "yyy");
-    JUnitAsserts.assertContentsInOrder(filtered);
-  }
-
-  public void testFilterFiltered() {
-    List<String> unfiltered = Lists.newArrayList();
-    Collection<String> filtered = Collections2.filter(
-        Collections2.filter(unfiltered, LENGTH_1), STARTS_WITH_VOWEL);
-    unfiltered.add("a");
-    unfiltered.add("b");
-    unfiltered.add("apple");
-    unfiltered.add("banana");
-    unfiltered.add("e");
-    JUnitAsserts.assertContentsInOrder(filtered, "a", "e");
-    JUnitAsserts.assertContentsInOrder(unfiltered,
-        "a", "b", "apple", "banana", "e");
-
-    try {
-      filtered.add("d");
-      fail();
-    } catch (IllegalArgumentException expected) {}
-    try {
-      filtered.add("egg");
-      fail();
-    } catch (IllegalArgumentException expected) {}
-    JUnitAsserts.assertContentsInOrder(filtered, "a", "e");
-    JUnitAsserts.assertContentsInOrder(unfiltered,
-        "a", "b", "apple", "banana", "e");
-
-    filtered.clear();
-    assertTrue(filtered.isEmpty());
-    JUnitAsserts.assertContentsInOrder(unfiltered, "b", "apple", "banana");
-  }
+  public static class LinkedListFilterChangeTest extends FilterChangeTest {
+    @Override protected <E> List<E> newList() {
+      return Lists.newLinkedList();
+    }
+  }  
 
   private static final Function<String, String> REMOVE_FIRST_CHAR
       = new Function<String, String>() {

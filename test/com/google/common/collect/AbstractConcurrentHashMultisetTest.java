@@ -24,7 +24,7 @@ import static java.util.Arrays.asList;
  * @author Kevin Bourrillion
  * @author Jared Levy
  */
-public abstract class AbstractConcurrentMultisetTest
+public abstract class AbstractConcurrentHashMultisetTest
     extends AbstractMultisetTest {
   // we don't support null
   @Override public void testToStringNull() {}

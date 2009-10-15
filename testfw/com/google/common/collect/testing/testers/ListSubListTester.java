@@ -330,7 +330,6 @@ public class ListSubListTester<E> extends AbstractListTester<E> {
     }
   }
 
-
   /**
    * Returns the {@link Method} instance for
    * {@link #testSubList_subListRemoveAffectsOriginalLargeList()} so that tests

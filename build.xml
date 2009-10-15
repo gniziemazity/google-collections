@@ -16,6 +16,7 @@
          destdir="${build.dir}/classes"
          source="1.5"
          target="1.5">
+      <compilerarg value="-Xlint:all"/>
       <classpath>
         <pathelement location="${lib.dir}/jsr305.jar"/>
       </classpath>
@@ -32,6 +33,7 @@
          destdir="${build.dir}/testfwclasses"
          source="1.5"
          target="1.5">
+      <compilerarg value="-Xlint:all"/>
       <classpath>
         <pathelement location="${lib.dir}/junit.jar"/>
       </classpath>
@@ -47,6 +49,7 @@
          destdir="${build.dir}/test"
          source="1.5"
          target="1.5">
+      <compilerarg value="-Xlint:all"/>
       <classpath>
         <pathelement location="${build.dir}/classes"/>
         <pathelement location="${build.dir}/testfwclasses"/>
@@ -89,14 +92,11 @@
     <delete dir="${build.dir}"/>
   </target>
 
-  <target name="jar" depends="compile,testfw" description="Build jars.">
+  <target name="jar" depends="compile" description="Build jars.">
     <mkdir dir="${build.dir}/dist"/>
     <mkdir dir="${build.dir}/dist/google-collect-${version}"/>
     <jar jarfile="${build.dir}/dist/google-collect-${version}/google-collect-${version}.jar">
       <fileset dir="${build.dir}/classes"/>
-    </jar>
-    <jar jarfile="${build.dir}/dist/google-collect-${version}/google-collect-testfw-${version}.jar">
-      <fileset dir="${build.dir}/testfwclasses"/>
     </jar>
   </target>
 

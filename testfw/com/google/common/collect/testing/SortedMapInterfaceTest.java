@@ -18,12 +18,13 @@ package com.google.common.collect.testing;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.SortedMap;
-import java.util.Map.Entry;
 
 /**
  * Tests representing the contract of {@link SortedMap}. Concrete subclasses of
@@ -138,6 +139,15 @@ public abstract class SortedMapInterfaceTest<K, V>
     return new ArrayList<E>(collection);
   }
   
+  private static <E> List<E> subListSnapshot(
+      List<E> list, int fromIndex, int toIndex) {
+    List<E> subList = new ArrayList<E>();
+    for (int i = fromIndex; i < toIndex; i++) {
+      subList.add(list.get(i));
+    }
+    return Collections.unmodifiableList(subList);
+  }
+
   public void testHeadMap() {
     final SortedMap<K, V> map;
     try {
@@ -147,7 +157,7 @@ public abstract class SortedMapInterfaceTest<K, V>
     }
     List<Entry<K, V>> list = toList(map.entrySet());
     for (int i = 0; i < list.size(); i++) {
-      List<Entry<K, V>> expected = list.subList(0, i);  
+      List<Entry<K, V>> expected = subListSnapshot(list, 0, i);  
       SortedMap<K, V> headMap = map.headMap(list.get(i).getKey());
       assertEquals(expected, toList(headMap.entrySet()));
     }
@@ -162,7 +172,7 @@ public abstract class SortedMapInterfaceTest<K, V>
     }
     List<Entry<K, V>> list = toList(map.entrySet());
     for (int i = 0; i < list.size(); i++) {
-      List<Entry<K, V>> expected = list.subList(i, list.size());
+      List<Entry<K, V>> expected = subListSnapshot(list, i, list.size());
       SortedMap<K, V> tailMap = map.tailMap(list.get(i).getKey());
       assertEquals(expected, toList(tailMap.entrySet()));
     }
@@ -178,7 +188,7 @@ public abstract class SortedMapInterfaceTest<K, V>
     List<Entry<K, V>> list = toList(map.entrySet());
     for (int i = 0; i < list.size(); i++) {
       for (int j = i; j < list.size(); j++) {
-        List<Entry<K, V>> expected = list.subList(i, j);
+        List<Entry<K, V>> expected = subListSnapshot(list, i, j);
         SortedMap<K, V> subMap
             = map.subMap(list.get(i).getKey(), list.get(j).getKey());
         assertEquals(expected, toList(subMap.entrySet()));

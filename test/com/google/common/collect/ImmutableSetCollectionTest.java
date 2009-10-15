@@ -25,8 +25,8 @@ import com.google.common.collect.testing.TestUnhashableCollectionGenerator;
 import com.google.common.collect.testing.UnhashableObject;
 import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
-import com.google.common.testutils.SerializableTester;
 import com.google.common.collect.testing.testers.SetHashCodeTester;
+import com.google.common.testutils.SerializableTester;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -214,7 +214,6 @@ public class ImmutableSetCollectionTest extends TestCase {
         .withFeatures(CollectionSize.ANY, CollectionFeature.KNOWN_ORDER)
         .createTestSuite());
 
-
     final Comparator<Comparable<?>> comparableReversed
         = Collections.reverseOrder();
 
@@ -254,8 +253,8 @@ public class ImmutableSetCollectionTest extends TestCase {
         .createTestSuite());
 
     suite.addTest(SetTestSuiteBuilder.using(new TestUnhashableSetGenerator() {
-          @Override
-          public Set<UnhashableObject> create(UnhashableObject[] elements) {
+          @Override public Set<UnhashableObject> create(
+              UnhashableObject[] elements) {
             return ImmutableSortedSet.of(elements);
           }
         })

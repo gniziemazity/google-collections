@@ -19,19 +19,19 @@ package com.google.common.collect;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.testing.CollectionTestSuiteBuilder;
-import com.google.common.collect.testing.ConcurrentMapInterfaceTest;
+import com.google.common.collect.testing.MapInterfaceTest;
 import com.google.common.collect.testing.MinimalSet;
 import com.google.common.collect.testing.ReserializingTestCollectionGenerator;
 import com.google.common.collect.testing.ReserializingTestSetGenerator;
 import com.google.common.collect.testing.SampleElements;
-import com.google.common.collect.testing.TestUnhashableCollectionGenerator;
-import com.google.common.collect.testing.UnhashableObject;
 import com.google.common.collect.testing.SampleElements.Colliders;
 import com.google.common.collect.testing.SampleElements.Unhashables;
 import com.google.common.collect.testing.SetTestSuiteBuilder;
 import com.google.common.collect.testing.TestCollectionGenerator;
 import com.google.common.collect.testing.TestMapEntrySetGenerator;
 import com.google.common.collect.testing.TestStringSetGenerator;
+import com.google.common.collect.testing.TestUnhashableCollectionGenerator;
+import com.google.common.collect.testing.UnhashableObject;
 import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.collect.testing.features.SetFeature;
@@ -50,7 +50,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Tests for {@link ImmutableMap}.
@@ -171,8 +170,7 @@ public class ImmutableMapTest extends TestCase {
   static TestCollectionGenerator<UnhashableObject> unhashableValuesGenerator() {
     return
         new TestUnhashableCollectionGenerator<Collection<UnhashableObject>>() {
-          @Override
-          public Collection<UnhashableObject> create(
+          @Override public Collection<UnhashableObject> create(
               UnhashableObject[] elements) {
             Builder<Integer, UnhashableObject> builder = ImmutableMap.builder();
             int key = 1;
@@ -184,13 +182,13 @@ public class ImmutableMapTest extends TestCase {
     };
   }
 
-  public static abstract class AbstractMapTests<K, V>
-      extends ConcurrentMapInterfaceTest<K, V> {
+  public abstract static class AbstractMapTests<K, V>
+      extends MapInterfaceTest<K, V> {
     public AbstractMapTests() {
       super(false, false, false, false, false);
     }
 
-    @Override protected ConcurrentMap<K, V> makeEmptyMap() {
+    @Override protected Map<K, V> makeEmptyMap() {
       throw new UnsupportedOperationException();
     }
 
@@ -218,12 +216,12 @@ public class ImmutableMapTest extends TestCase {
   }
 
   public static class MapTests extends AbstractMapTests<String, Integer> {
-    @Override protected ConcurrentMap<String, Integer> makeEmptyMap() {
+    @Override protected Map<String, Integer> makeEmptyMap() {
       return ImmutableMap.of();
     }
 
-    @Override protected ConcurrentMap<String, Integer> makePopulatedMap() {
-      return ImmutableMap.of("one", 1,  "two", 2, "three", 3);
+    @Override protected Map<String, Integer> makePopulatedMap() {
+      return ImmutableMap.of("one", 1, "two", 2, "three", 3);
     }
 
     @Override protected String getKeyNotInPopulatedMap() {
@@ -233,15 +231,11 @@ public class ImmutableMapTest extends TestCase {
     @Override protected Integer getValueNotInPopulatedMap() {
       return -1;
     }
-
-    @Override protected Integer getSecondValueNotInPopulatedMap() {
-      return -2;
-    }
   }
 
   public static class SingletonMapTests
       extends AbstractMapTests<String, Integer> {
-    @Override protected ConcurrentMap<String, Integer> makePopulatedMap() {
+    @Override protected Map<String, Integer> makePopulatedMap() {
       return ImmutableMap.of("one", 1);
     }
 
@@ -252,15 +246,11 @@ public class ImmutableMapTest extends TestCase {
     @Override protected Integer getValueNotInPopulatedMap() {
       return -1;
     }
-
-    @Override protected Integer getSecondValueNotInPopulatedMap() {
-      return -2;
-    }
   }
 
   public static class ReserializedMapTests
       extends AbstractMapTests<String, Integer> {
-    @Override protected ConcurrentMap<String, Integer> makePopulatedMap() {
+    @Override protected Map<String, Integer> makePopulatedMap() {
       return SerializableTester.reserialize(
           ImmutableMap.of("one", 1, "two", 2, "three", 3));
     }
@@ -272,20 +262,16 @@ public class ImmutableMapTest extends TestCase {
     @Override protected Integer getValueNotInPopulatedMap() {
       return -1;
     }
-
-    @Override protected Integer getSecondValueNotInPopulatedMap() {
-      return -2;
-    }
   }
 
   public static class MapTestsWithBadHashes
       extends AbstractMapTests<Object, Integer> {
 
-    @Override protected ConcurrentMap<Object, Integer> makeEmptyMap() {
+    @Override protected Map<Object, Integer> makeEmptyMap() {
       throw new UnsupportedOperationException();
     }
 
-    @Override protected ConcurrentMap<Object, Integer> makePopulatedMap() {
+    @Override protected Map<Object, Integer> makePopulatedMap() {
       Colliders colliders = new Colliders();
       return ImmutableMap.of(
           colliders.e0, 0,
@@ -301,21 +287,15 @@ public class ImmutableMapTest extends TestCase {
     @Override protected Integer getValueNotInPopulatedMap() {
       return 4;
     }
-
-    @Override protected Integer getSecondValueNotInPopulatedMap() {
-      return 5;
-    }
   }
 
   public static class MapTestsWithUnhashableValues
       extends AbstractMapTests<Integer, UnhashableObject> {
-    @Override
-    protected ConcurrentMap<Integer, UnhashableObject> makeEmptyMap() {
+    @Override protected Map<Integer, UnhashableObject> makeEmptyMap() {
       return ImmutableMap.of();
     }
 
-    @Override
-    protected ConcurrentMap<Integer, UnhashableObject> makePopulatedMap() {
+    @Override protected Map<Integer, UnhashableObject> makePopulatedMap() {
       Unhashables unhashables = new Unhashables();
       return ImmutableMap.of(
           0, unhashables.e0, 1, unhashables.e1, 2, unhashables.e2);
@@ -328,16 +308,11 @@ public class ImmutableMapTest extends TestCase {
     @Override protected UnhashableObject getValueNotInPopulatedMap() {
       return new Unhashables().e3;
     }
-
-    @Override protected UnhashableObject getSecondValueNotInPopulatedMap() {
-      return new Unhashables().e4;
-    }
   }
 
   public static class MapTestsWithSingletonUnhashableValue
       extends MapTestsWithUnhashableValues {
-    @Override
-    protected ConcurrentMap<Integer, UnhashableObject> makePopulatedMap() {
+    @Override protected Map<Integer, UnhashableObject> makePopulatedMap() {
       Unhashables unhashables = new Unhashables();
       return ImmutableMap.of(0, unhashables.e0);
     }

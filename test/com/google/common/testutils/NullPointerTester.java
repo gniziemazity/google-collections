@@ -45,10 +45,10 @@ import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 
 /**
- * A test utility that verifies that your methods throw
- * {@link NullPointerException} whenever any of their parameters are null.
- * To use it, you must first provide valid default values for the parameter
- * types used by the class.
+ * A test utility that verifies that your methods throw {@link
+ * NullPointerException} or {@link UnsupportedOperationException} whenever any
+ * of their parameters are null. To use it, you must first provide valid default
+ * values for the parameter types used by the class.
  *
  * @author Kevin Bourrillion
  */
@@ -63,12 +63,12 @@ public class NullPointerTester {
     setDefault(Appendable.class, new StringBuilder());
     setDefault(CharSequence.class, "");
     setDefault(Class.class, Class.class);
-    setDefault(Collection.class, MinimalCollection.of());
+    setDefault(Collection.class, MinimalCollection.<Object>of());
     setDefault(Comparable.class, 0);
     setDefault(Comparator.class, Collections.reverseOrder());
     setDefault(Function.class, Functions.identity());
     setDefault(Integer.class, 0);
-    setDefault(Iterable.class, MinimalCollection.of());
+    setDefault(Iterable.class, MinimalCollection.<Object>of());
     setDefault(Iterator.class, Iterators.emptyIterator());
     setDefault(List.class, Collections.emptyList());
     setDefault(Map.class, Collections.emptyMap());
@@ -135,7 +135,8 @@ public class NullPointerTester {
 
   /**
    * Verifies that {@code method} produces a {@link NullPointerException}
-   * whenever <i>any</i> of its non-{@link Nullable} parameters are null.
+   * or {@link UnsupportedOperationException} whenever <i>any</i> of its
+   * non-{@link Nullable} parameters are null.
    *
    * @param instance the instance to invoke {@code method} on, or null if
    *     {@code method} is static
@@ -148,8 +149,9 @@ public class NullPointerTester {
   }
 
   /**
-   * Verifies that {@code ctor} produces a {@link NullPointerException}
-   * whenever <i>any</i> of its non-{@link Nullable} parameters are null.
+   * Verifies that {@code ctor} produces a {@link NullPointerException} or
+   * {@link UnsupportedOperationException} whenever <i>any</i> of its
+   * non-{@link Nullable} parameters are null.
    */
   public void testConstructor(Constructor<?> ctor) throws Exception {
     Class<?>[] types = ctor.getParameterTypes();
@@ -159,9 +161,10 @@ public class NullPointerTester {
   }
 
   /**
-   * Verifies that {@code method} produces a {@link NullPointerException}
-   * when the parameter in position {@code paramIndex} is null.  If this
-   * parameter is marked {@link Nullable}, this method does nothing.
+   * Verifies that {@code method} produces a {@link NullPointerException} or
+   * {@link UnsupportedOperationException} when the parameter in position {@code
+   * paramIndex} is null.  If this parameter is marked {@link Nullable}, this
+   * method does nothing.
    *
    * @param instance the instance to invoke {@code method} on, or null if
    *     {@code method} is static
@@ -187,9 +190,10 @@ public class NullPointerTester {
   }
 
   /**
-   * Verifies that {@code ctor} produces a {@link NullPointerException}
-   * when the parameter in position {@code paramIndex} is null.  If this
-   * parameter is marked {@link Nullable}, this method does nothing.
+   * Verifies that {@code ctor} produces a {@link NullPointerException} or
+   * {@link UnsupportedOperationException} when the parameter in position {@code
+   * paramIndex} is null.  If this parameter is marked {@link Nullable}, this
+   * method does nothing.
    */
   public void testConstructorParameter(final Constructor<?> ctor,
       int paramIndex) throws Exception {
@@ -210,9 +214,10 @@ public class NullPointerTester {
   }
 
   /**
-   * Verifies that {@code func} produces a {@link NullPointerException}
-   * when the parameter in position {@code paramIndex} is null.  If this
-   * parameter is marked {@link Nullable}, this method does nothing.
+   * Verifies that {@code func} produces a {@link NullPointerException} or
+   * {@link UnsupportedOperationException} when the parameter in position {@code
+   * paramIndex} is null.  If this parameter is marked {@link Nullable}, this
+   * method does nothing.
    *
    * @param instance the instance to invoke {@code func} on, or null if
    *     {@code func} is static
@@ -230,7 +235,8 @@ public class NullPointerTester {
     } catch (InvocationTargetException e) {
       Throwable cause = e.getCause();
       Assert.assertTrue("wrong exception thrown from " + func + ": " + cause,
-                        cause instanceof NullPointerException);
+                        cause instanceof NullPointerException
+                            || cause instanceof UnsupportedOperationException);
     }
   }
 

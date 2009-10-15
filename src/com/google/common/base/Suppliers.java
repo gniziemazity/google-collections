@@ -16,6 +16,8 @@
 
 package com.google.common.base;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import java.io.Serializable;
 
 import javax.annotation.Nullable;
@@ -23,7 +25,7 @@ import javax.annotation.Nullable;
 /**
  * Useful suppliers.
  *
- * <p>All methods returns serializable suppliers as long as they're given
+ * <p>All methods return serializable suppliers as long as they're given
  * serializable parameters.
  *
  * @author Laurence Gonsalves
@@ -68,51 +70,32 @@ public final class Suppliers {
    * {@code get()}. See:
    * <a href="http://en.wikipedia.org/wiki/Memoization">memoization</a>
    *
-   * <p>The returned supplier will throw {@code CyclicDependencyException} if
-   * the call to {@link Supplier#get} tries to get its own value. The returned
-   * supplier is <i>not</i> thread-safe.
+   * <p>The returned supplier is thread-safe. The supplier's serialized form
+   * does not contain the cached value, which will be recalculated when {@code
+   * get()} is called on the reserialized instance.
    */
   public static <T> Supplier<T> memoize(Supplier<T> delegate) {
     return new MemoizingSupplier<T>(Preconditions.checkNotNull(delegate));
   }
 
-  private static class MemoizingSupplier<T>
+  @VisibleForTesting static class MemoizingSupplier<T>
       implements Supplier<T>, Serializable {
     final Supplier<T> delegate;
-    MemoizationState state = MemoizationState.NOT_YET;
-    T value;
+    transient boolean initialized;
+    transient T value;
 
     MemoizingSupplier(Supplier<T> delegate) {
       this.delegate = delegate;
     }
-    public T get() {
-      switch (state) {
-        case NOT_YET:
-          state = MemoizationState.COMPUTING;
-          try {
-            value = delegate.get();
-          } finally {
-            state = MemoizationState.NOT_YET;
-          }
-          state = MemoizationState.DONE;
-          break;
-        case COMPUTING:
-          throw new CyclicDependencyException();
+
+    public synchronized T get() {
+      if (!initialized) {
+        value = delegate.get();
+        initialized = true;
       }
       return value;
     }
-    private static final long serialVersionUID = 0;
-  }
 
-  private enum MemoizationState { NOT_YET, COMPUTING, DONE }
-
-  /**
-   * Exception thrown when a memoizing supplier tries to get its own value.
-   */
-  public static class CyclicDependencyException extends RuntimeException {
-    CyclicDependencyException() {
-      super("Cycle detected when invoking a memoizing supplier.");
-    }
     private static final long serialVersionUID = 0;
   }
 
@@ -152,7 +135,7 @@ public final class Suppliers {
       this.delegate = delegate;
     }
     public T get() {
-      synchronized(delegate) {
+      synchronized (delegate) {
         return delegate.get();
       }
     }

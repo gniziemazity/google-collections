@@ -139,7 +139,6 @@ public abstract class FeatureSpecificTestSuiteBuilder<
   private static final Logger logger = Logger.getLogger(
       FeatureSpecificTestSuiteBuilder.class.getName());
 
-
   /**
    * Creates a runnable JUnit test suite based on the criteria already given.
    */

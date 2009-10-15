@@ -23,6 +23,9 @@ import com.google.common.annotations.GwtCompatible;
  */
 @GwtCompatible
 public class ComputationException extends RuntimeException {
+  /**
+   * Creates a new instance with the given cause.
+   */
   public ComputationException(Throwable cause) {
     super(cause);
   }

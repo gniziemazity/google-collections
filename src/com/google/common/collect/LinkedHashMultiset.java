@@ -35,12 +35,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Kevin Bourrillion
  * @author Jared Levy
  */
-@GwtCompatible
+@GwtCompatible(serializable = true)
 @SuppressWarnings("serial") // we're overriding default serialization
 public final class LinkedHashMultiset<E> extends AbstractMapBasedMultiset<E> {
 
   /**
-   * Creates a new empty {@code LinkedHashMultiset} using the default initial
+   * Creates a new, empty {@code LinkedHashMultiset} using the default initial
    * capacity.
    */
   public static <E> LinkedHashMultiset<E> create() {
@@ -48,7 +48,7 @@ public final class LinkedHashMultiset<E> extends AbstractMapBasedMultiset<E> {
   }
 
   /**
-   * Creates a new empty {@code LinkedHashMultiset} with the specified expected
+   * Creates a new, empty {@code LinkedHashMultiset} with the specified expected
    * number of distinct elements.
    *
    * @param distinctElements the expected number of distinct elements

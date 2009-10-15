@@ -22,6 +22,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.testutils.NullPointerTester;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import java.io.IOException;
@@ -66,6 +67,14 @@ public class JoinerTest extends TestCase {
       fail();
     } catch (NullPointerException expected) {
     }
+  }
+
+  public void testOnCharOverride() {
+    Joiner onChar = Joiner.on('-');
+    checkNoOutput(onChar, ITERABLE_);
+    checkResult(onChar, ITERABLE_1, "1");
+    checkResult(onChar, ITERABLE_12, "1-2");
+    checkResult(onChar, ITERABLE_123, "1-2-3");
   }
 
   public void testSkipNulls() {
@@ -217,6 +226,29 @@ public class JoinerTest extends TestCase {
       fail();
     } catch (UnsupportedOperationException expected) {
     }
+  }
+
+  private static class DontStringMeBro implements CharSequence {
+    public int length() {
+      return 3;
+    }
+    public char charAt(int index) {
+      return "foo".charAt(index);
+    }
+    public CharSequence subSequence(int start, int end) {
+      return "foo".subSequence(start, end);
+    }
+    @Override public String toString() {
+      Assert.fail("shouldn't be invoked");
+      return null;
+    }
+  }
+
+  public void testDontConvertCharSequenceToString() {
+    assertEquals("foo,foo", Joiner.on(",").join(
+        new DontStringMeBro(), new DontStringMeBro()));
+    assertEquals("foo,bar,foo", Joiner.on(",").useForNull("bar").join(
+        new DontStringMeBro(), null, new DontStringMeBro()));
   }
 
   public void testNullPointers() throws Exception {

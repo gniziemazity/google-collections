@@ -47,7 +47,6 @@ public class ImmutableMultimapTest extends TestCase {
         listMultimap, listMultimapCopy);
   }
 
-
   public void testUnhashableSingletonValue() {
     SampleElements<UnhashableObject> unhashables = new Unhashables();
     Multimap<Integer, UnhashableObject> multimap = ImmutableMultimap.of(

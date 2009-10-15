@@ -366,7 +366,6 @@ public class MultimapCollectionTest extends TestCase {
         .withFeatures(COLLECTION_FEATURES_REMOVE_ORDER)
         .createTestSuite());
 
-
     suite.addTest(SetTestSuiteBuilder.using(
         new TestStringSortedSetGenerator() {
           @Override protected SortedSet<String> create(String[] elements) {

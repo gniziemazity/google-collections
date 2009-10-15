@@ -16,15 +16,18 @@
 
 package com.google.common.collect;
 
+import com.google.common.base.Function;
+import com.google.common.collect.testing.Helpers;
 import com.google.common.testutils.EqualsTester;
 import com.google.common.testutils.NullPointerTester;
 
 import junit.framework.TestCase;
 
+import java.util.Arrays;
 import static java.util.Arrays.asList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 
 import javax.annotation.Nullable;
 
@@ -39,10 +42,8 @@ public class OrderingTest extends TestCase {
 
   public void testNatural() {
     Ordering<Integer> comparator = Ordering.natural();
-    assertTrue(comparator.compare(1, 1) == 0);
-    assertTrue(comparator.compare(1, 2) < 0);
-    assertTrue(comparator.compare(2, 1) > 0);
-    assertTrue(comparator.compare(Integer.MIN_VALUE, Integer.MAX_VALUE) < 0);
+    Helpers.testComparator(comparator,
+        Integer.MIN_VALUE, -1, 0, 1, Integer.MAX_VALUE);
     try {
       comparator.compare(1, null);
       fail();
@@ -76,9 +77,8 @@ public class OrderingTest extends TestCase {
 
   public void testReverse() {
     Ordering<Number> reverseOrder = numberOrdering.reverse();
-    assertEquals(0, reverseOrder.compare(5, 5));
-    assertTrue(reverseOrder.compare(5, 3) < 0);
-    assertTrue(reverseOrder.compare(3, 5) > 0);
+    Helpers.testComparator(reverseOrder,
+        Integer.MAX_VALUE, 1, 0, -1, Integer.MIN_VALUE);
 
     new EqualsTester(reverseOrder)
       .addEqualObject(numberOrdering.reverse())
@@ -96,11 +96,9 @@ public class OrderingTest extends TestCase {
   }
 
   public void testReverseOfReverseSameAsForward() {
-    Ordering<Number> reverseOfReverse
-        = new NumberOrdering().reverse().reverse();
-    assertTrue(reverseOfReverse.compare(1, 1) == 0);
-    assertTrue(reverseOfReverse.compare(1, 2) < 0);
-    assertTrue(reverseOfReverse.compare(2, 1) > 0);
+    // Not guaranteed by spec, but it works, and saves us from testing
+    // exhaustively
+    assertSame(numberOrdering, numberOrdering.reverse().reverse());
   }
 
   // Note that other compound tests are still in ComparatorsTest and will be
@@ -238,41 +236,215 @@ public class OrderingTest extends TestCase {
   }
 
   public void testNullsFirst() {
-    Ordering<Integer> ordering = Ordering.natural().reverse().nullsFirst();
-    assertEquivalent(ordering, 1, 1);
-    assertEquivalent(ordering, Integer.MIN_VALUE, Integer.MIN_VALUE);
-    assertEquivalent(ordering, null, null);
-
-    assertIncreasing(ordering, 1, 0);
-    assertIncreasing(ordering, null, Integer.MIN_VALUE);
-    assertIncreasing(ordering, null, Integer.MAX_VALUE);
+    Ordering<Integer> ordering = Ordering.natural().nullsFirst();
+    Helpers.testComparator(ordering, null, Integer.MIN_VALUE, 0, 1);
   }
 
   public void testNullsLast() {
-    Ordering<Integer> ordering = Ordering.natural().reverse().nullsLast();
-    assertEquivalent(ordering, 1, 1);
-    assertEquivalent(ordering, Integer.MIN_VALUE, Integer.MIN_VALUE);
-    assertEquivalent(ordering, null, null);
+    Ordering<Integer> ordering = Ordering.natural().nullsLast();
+    Helpers.testComparator(ordering, 0, 1, Integer.MAX_VALUE, null);
+  }
 
-    assertIncreasing(ordering, 1, 0);
-    assertIncreasing(ordering, Integer.MIN_VALUE, null);
-    assertIncreasing(ordering, Integer.MAX_VALUE, null);
+  /*
+   * Now we have monster tests that create hundreds of Orderings using different
+   * combinations of methods, then checks compare(), binarySearch() and so
+   * forth on each one.
+   */
+
+  // should periodically try increasing this, but it makes the test run long
+  private static final int RECURSE_DEPTH = 2;
+
+  public void testCombinationsExhaustively_startingFromNatural() {
+    testExhaustively(Ordering.<String>natural(), Arrays.asList("a", "b"));
+  }
+
+  public void testCombinationsExhaustively_startingFromExplicit() {
+    testExhaustively(Ordering.explicit("a", "b", "c", "d"),
+        Arrays.asList("b", "d"));
+  }
+
+  public void testCombinationsExhaustively_startingFromUsingToString() {
+    testExhaustively(Ordering.usingToString(), Arrays.asList(1, 12, 2));
+  }
+
+  private static <T> void testExhaustively(
+      Ordering<? super T> ordering, List<T> list) {
+    // shoot me, but I didn't want to deal with wildcards through the whole test
+    @SuppressWarnings("unchecked")
+    Scenario<T> starter = new Scenario<T>((Ordering) ordering, list);
+    verifyScenario(starter, 0);
+  }
+
+  private static <T> void verifyScenario(Scenario<T> scenario, int level) {
+    scenario.testCompareTo();
+    scenario.testIsOrdered();
+    scenario.testMinAndMax();
+    scenario.testBinarySearch();
+
+    if (level < RECURSE_DEPTH) {
+      for (OrderingMutation alteration : OrderingMutation.values()) {
+        verifyScenario(alteration.mutate(scenario), level + 1);
+      }
+    }
+  }
+
+  /**
+   * An aggregation of an ordering with a list (of size > 1) that should prove
+   * to be in strictly increasing order according to that ordering.
+   */
+  private static class Scenario<T> {
+    final Ordering<T> ordering;
+    final List<T> strictlyOrderedList;
+
+    Scenario(Ordering<T> ordering, List<T> strictlyOrderedList) {
+      this.ordering = ordering;
+      this.strictlyOrderedList = strictlyOrderedList;
+    }
+
+    void testCompareTo() {
+      Helpers.testComparator(ordering, strictlyOrderedList);
+    }
+
+    void testIsOrdered() {
+      assertTrue(ordering.isOrdered(strictlyOrderedList));
+      assertTrue(ordering.isStrictlyOrdered(strictlyOrderedList));
+    }
+
+    void testMinAndMax() {
+      List<T> shuffledList = Lists.newArrayList(strictlyOrderedList);
+      Collections.shuffle(shuffledList, new Random(5));
+
+      assertEquals(strictlyOrderedList.get(0), ordering.min(shuffledList));
+      assertEquals(strictlyOrderedList.get(strictlyOrderedList.size() - 1),
+          ordering.max(shuffledList));
+    }
+
+    void testBinarySearch() {
+      for (int i = 0; i < strictlyOrderedList.size(); i++) {
+        assertEquals(i, ordering.binarySearch(
+            strictlyOrderedList, strictlyOrderedList.get(i)));
+      }
+      List<T> newList = Lists.newArrayList(strictlyOrderedList);
+      T valueNotInList = newList.remove(1);
+      assertEquals(-2, ordering.binarySearch(newList, valueNotInList));
+    }
+  }
+
+  /**
+   * A means for changing an Ordering into another Ordering. Each instance is
+   * responsible for creating the alternate Ordering, and providing a List that
+   * is known to be ordered, based on an input List known to be ordered
+   * according to the input Ordering.
+   */
+  private enum OrderingMutation {
+    REVERSE {
+      <T> Scenario<?> mutate(Scenario<T> scenario) {
+        List<T> newList = Lists.newArrayList(scenario.strictlyOrderedList);
+        Collections.reverse(newList);
+        return new Scenario<T>(scenario.ordering.reverse(), newList);
+      }
+    },
+    NULLS_FIRST {
+      <T> Scenario<?> mutate(Scenario<T> scenario) {
+        @SuppressWarnings("unchecked")
+        List<T> newList = Lists.newArrayList((T) null);
+        for (T t : scenario.strictlyOrderedList) {
+          if (t != null) {
+            newList.add(t);
+          }
+        }
+        return new Scenario<T>(scenario.ordering.nullsFirst(), newList);
+      }
+    },
+    NULLS_LAST {
+      <T> Scenario<?> mutate(Scenario<T> scenario) {
+        List<T> newList = Lists.newArrayList();
+        for (T t : scenario.strictlyOrderedList) {
+          if (t != null) {
+            newList.add(t);
+          }
+        }
+        newList.add(null);
+        return new Scenario<T>(scenario.ordering.nullsLast(), newList);
+      }
+    },
+    ON_RESULT_OF {
+      <T> Scenario<?> mutate(final Scenario<T> scenario) {
+        Ordering<Integer> ordering = scenario.ordering.onResultOf(
+            new Function<Integer, T>() {
+              public T apply(@Nullable Integer from) {
+                return scenario.strictlyOrderedList.get(from);
+              }
+            });
+        List<Integer> list = Lists.newArrayList();
+        for (int i = 0; i < scenario.strictlyOrderedList.size(); i++) {
+          list.add(i);
+        }
+        return new Scenario<Integer>(ordering, list);
+      }
+    },
+    COMPOUND_THIS_WITH_NATURAL {
+      <T> Scenario<?> mutate(Scenario<T> scenario) {
+        List<Composite<T>> composites = Lists.newArrayList();
+        for (T t : scenario.strictlyOrderedList) {
+          composites.add(new Composite<T>(t, 1));
+          composites.add(new Composite<T>(t, 2));
+        }
+        Ordering<Composite<T>> ordering =
+            scenario.ordering.onResultOf(Composite.<T>getValueFunction())
+                .compound(Ordering.natural());
+        return new Scenario<Composite<T>>(ordering, composites);
+      }
+    },
+    COMPOUND_NATURAL_WITH_THIS {
+      <T> Scenario<?> mutate(Scenario<T> scenario) {
+        List<Composite<T>> composites = Lists.newArrayList();
+        for (T t : scenario.strictlyOrderedList) {
+          composites.add(new Composite<T>(t, 1));
+        }
+        for (T t : scenario.strictlyOrderedList) {
+          composites.add(new Composite<T>(t, 2));
+        }
+        Ordering<Composite<T>> ordering = Ordering.natural().compound(
+            scenario.ordering.onResultOf(Composite.<T>getValueFunction()));
+        return new Scenario<Composite<T>>(ordering, composites);
+      }
+    },
+    ;
+
+    abstract <T> Scenario<?> mutate(Scenario<T> scenario);
+  }
+
+  /**
+   * A dummy object we create so that we can have something meaningful to have
+   * a compound ordering over.
+   */
+  private static class Composite<T> implements Comparable<Composite<T>> {
+    final T value;
+    final int rank;
+
+    Composite(T value, int rank) {
+      this.value = value;
+      this.rank = rank;
+    }
+
+    // natural order is by rank only; the test will compound() this with the
+    // order of 't'.
+    public int compareTo(Composite<T> that) {
+      return rank < that.rank ? -1 : rank > that.rank ? 1 : 0; 
+    }
+
+    static <T> Function<Composite<T>, T> getValueFunction() {
+      return new Function<Composite<T>, T>() {
+        public T apply(Composite<T> from) {
+          return from.value;
+        }
+      };
+    }
   }
 
   public void testNullPointerExceptions() throws Exception {
     NullPointerTester tester = new NullPointerTester();
     tester.testAllPublicStaticMethods(Ordering.class);
-  }
-
-  static <T> void assertEquivalent(
-      Comparator<T> comparator, @Nullable T left, @Nullable T right) {
-    assertEquals(0, comparator.compare(left, right));
-    assertEquals(0, comparator.compare(right, left));
-  }
-
-  static <T> void assertIncreasing(
-      Comparator<T> comparator, @Nullable T left, @Nullable T right) {
-    assertTrue(comparator.compare(left, right) < 0);
-    assertTrue(comparator.compare(right, left) > 0);
   }
 }

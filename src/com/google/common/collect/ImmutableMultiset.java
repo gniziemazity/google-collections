@@ -41,29 +41,16 @@ import javax.annotation.Nullable;
  *
  * @author Jared Levy
  */
-@GwtCompatible
+@GwtCompatible(serializable = true)
 public class ImmutableMultiset<E> extends ImmutableCollection<E>
     implements Multiset<E> {
-
-  private static final ImmutableMultiset<Object> EMPTY_MULTISET
-      = new EmptyMultiset();
-
-  private static class EmptyMultiset extends ImmutableMultiset<Object> {
-    EmptyMultiset() {
-      super(ImmutableMap.<Object, Integer>of(), 0);
-    }
-    Object readResolve() {
-      return EMPTY_MULTISET; // preserve singleton property
-    }
-    private static final long serialVersionUID = 0;
-  }
 
   /**
    * Returns the empty immutable multiset.
    */
   @SuppressWarnings("unchecked") // all supported methods are covariant
   public static <E> ImmutableMultiset<E> of() {
-    return (ImmutableMultiset<E>) EMPTY_MULTISET;
+    return (ImmutableMultiset<E>) EmptyImmutableMultiset.INSTANCE;
   }
 
   /**
@@ -115,7 +102,6 @@ public class ImmutableMultiset<E> extends ImmutableCollection<E>
     return copyOfInternal(multiset);
   }
 
-
   private static <E> ImmutableMultiset<E> copyOfInternal(
       Multiset<? extends E> multiset) {
     long size = 0;
@@ -131,6 +117,9 @@ public class ImmutableMultiset<E> extends ImmutableCollection<E>
       }
     }
 
+    if (size == 0) {
+      return of();
+    }
     return new ImmutableMultiset<E>(
         builder.build(), (int) Math.min(size, Integer.MAX_VALUE));
   }
@@ -400,7 +389,7 @@ public class ImmutableMultiset<E> extends ImmutableCollection<E>
    * multiple times to build multiple multisets in series. Each multiset
    * is a superset of the multiset created before it.
    */
-  public static final class Builder<E> {
+  public static final class Builder<E> extends ImmutableCollection.Builder<E> {
     private final Multiset<E> contents = LinkedHashMultiset.create();
 
     /**
@@ -416,9 +405,8 @@ public class ImmutableMultiset<E> extends ImmutableCollection<E>
      * @return this {@code Builder} object
      * @throws NullPointerException if {@code element} is null
      */
-    public Builder<E> add(E element) {
-      checkNotNull(element, "element cannot be null");
-      contents.add(element);
+    @Override public Builder<E> add(E element) {
+      contents.add(checkNotNull(element));
       return this;
     }
 
@@ -436,8 +424,7 @@ public class ImmutableMultiset<E> extends ImmutableCollection<E>
      *     occurrences of the element
      */
     public Builder<E> add(E element, int occurrences) {
-      checkNotNull(element, "element cannot be null");
-      contents.add(element, occurrences);
+      contents.add(checkNotNull(element), occurrences);
       return this;
     }
 
@@ -452,8 +439,7 @@ public class ImmutableMultiset<E> extends ImmutableCollection<E>
      * @throws IllegalArgumentException if {@code count} is negative
      */
     public Builder<E> setCount(E element, int count) {
-      checkNotNull(element, "element cannot be null");
-      contents.setCount(element, count);
+      contents.setCount(checkNotNull(element), count);
       return this;
     }
 
@@ -462,30 +448,24 @@ public class ImmutableMultiset<E> extends ImmutableCollection<E>
      *
      * @param elements the elements to add
      * @return this {@code Builder} object
-     * @throws NullPointerException if {@code elements} contains a null element
+     * @throws NullPointerException if {@code elements} is null or contains a
+     *     null element
      */
-    public Builder<E> add(E... elements) {
-      checkNotNull(elements, "elements cannot be null");
-      for (E element : elements) {
-        if (element == null) {
-          throw new NullPointerException(
-              "null element in: " + Arrays.toString(elements));
-        }
-        contents.add(element);
-      }
+    @Override public Builder<E> add(E... elements) {
+      super.add(elements);
       return this;
     }
 
     /**
-     * Adds each element of {@code elements} to the {@code ImmutableMultiset},
-     * ignoring duplicate elements (only the first duplicate element is added).
+     * Adds each element of {@code elements} to the {@code ImmutableMultiset}.
      *
      * @param elements the {@code Iterable} to add to the {@code
      *     ImmutableMultiset}
      * @return this {@code Builder} object
-     * @throws NullPointerException if {@code elements} contains a null element
+     * @throws NullPointerException if {@code elements} is null or contains a
+     *     null element
      */
-    public Builder<E> addAll(Iterable<? extends E> elements) {
+    @Override public Builder<E> addAll(Iterable<? extends E> elements) {
       if (elements instanceof Multiset) {
         @SuppressWarnings("unchecked")
         Multiset<? extends E> multiset = (Multiset<? extends E>) elements;
@@ -493,27 +473,21 @@ public class ImmutableMultiset<E> extends ImmutableCollection<E>
           add(entry.getElement(), entry.getCount());
         }
       } else {
-        for (E elem : elements) {
-          checkNotNull(elem, "elements contains a null");
-          contents.add(elem);
-        }
+        super.addAll(elements);
       }
       return this;
     }
 
     /**
-     * Adds each element of {@code elements} to the {@code ImmutableSet}.
+     * Adds each element of {@code elements} to the {@code ImmutableMultiset}.
      *
-     * @param elements the elements to add to the {@code ImmutableSet}
+     * @param elements the elements to add to the {@code ImmutableMultiset}
      * @return this {@code Builder} object
-     * @throws NullPointerException if {@code elements} contains a null element
+     * @throws NullPointerException if {@code elements} is null or contains a
+     *     null element
      */
-    public Builder<E> addAll(Iterator<? extends E> elements) {
-      while (elements.hasNext()) {
-        E element = elements.next();
-        checkNotNull(element, "element cannot be null");
-        contents.add(element);
-      }
+    @Override public Builder<E> addAll(Iterator<? extends E> elements) {
+      super.addAll(elements);
       return this;
     }
 
@@ -521,7 +495,7 @@ public class ImmutableMultiset<E> extends ImmutableCollection<E>
      * Returns a newly-created {@code ImmutableMultiset} based on the contents
      * of the {@code Builder}.
      */
-    public ImmutableMultiset<E> build() {
+    @Override public ImmutableMultiset<E> build() {
       return copyOf(contents);
     }
   }

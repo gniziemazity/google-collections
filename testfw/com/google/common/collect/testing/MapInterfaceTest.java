@@ -471,14 +471,15 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
 
   public void testEntrySetRemoveMissingKey() {
     final Map<K, V> map;
+    final K key;
     try {
       map = makeEitherMap();
+      key = getKeyNotInPopulatedMap();
     } catch (UnsupportedOperationException e) {
       return;
     }
 
     Set<Entry<K, V>> entrySet = map.entrySet();
-    K key = getKeyNotInPopulatedMap();
     Entry<K, V> entry
         = mapEntry(key, getValueNotInPopulatedMap());
     int initialSize = map.size();
@@ -1197,7 +1198,6 @@ public abstract class MapInterfaceTest<K, V> extends TestCase {
   public void testSize() {
     assertInvariants(makeEitherMap());
   }
-
 
   public void testKeySetClear() {
     final Map<K, V> map;

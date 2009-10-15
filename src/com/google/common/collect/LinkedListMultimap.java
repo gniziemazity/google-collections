@@ -32,6 +32,7 @@ import java.util.AbstractMap;
 import java.util.AbstractSequentialList;
 import java.util.AbstractSet;
 import java.util.Collection;
+import static java.util.Collections.unmodifiableList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -90,7 +91,7 @@ import javax.annotation.Nullable;
  *
  * @author Mike Bostock
  */
-@GwtCompatible
+@GwtCompatible(serializable = true)
 public final class LinkedListMultimap<K, V>
     implements ListMultimap<K, V>, Serializable {
   /*
@@ -125,7 +126,7 @@ public final class LinkedListMultimap<K, V>
   private transient Map<K, Node<K, V>> keyToKeyTail; // the tail for a given key
 
   /**
-   * Creates a new empty {@code LinkedListMultimap} with the default initial
+   * Creates a new, empty {@code LinkedListMultimap} with the default initial
    * capacity.
    */
   public static <K, V> LinkedListMultimap<K, V> create() {
@@ -504,7 +505,8 @@ public final class LinkedListMultimap<K, V>
    * multimap, their values are changed in-place without affecting the iteration
    * order.
    *
-   * <p>The returned list implements {@link java.util.RandomAccess}.
+   * <p>The returned list is immutable and implements
+   * {@link java.util.RandomAccess}.
    */
   public List<V> replaceValues(@Nullable K key, Iterable<? extends V> values) {
     List<V> oldValues = getCopy(key);
@@ -532,14 +534,14 @@ public final class LinkedListMultimap<K, V>
   }
 
   private List<V> getCopy(@Nullable Object key) {
-    // TODO: change to immutable
-    return Lists.newArrayList(new ValueForKeyIterator(key));
+    return unmodifiableList(Lists.newArrayList(new ValueForKeyIterator(key)));
   }
 
   /**
    * {@inheritDoc}
    *
-   * <p>The returned list implements {@link java.util.RandomAccess}.
+   * <p>The returned list is immutable and implements
+   * {@link java.util.RandomAccess}.
    */
   public List<V> removeAll(@Nullable Object key) {
     List<V> oldValues = getCopy(key);

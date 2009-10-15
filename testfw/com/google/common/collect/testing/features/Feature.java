@@ -16,7 +16,6 @@
 
 package com.google.common.collect.testing.features;
 
-
 import java.util.Set;
 
 /**

@@ -31,10 +31,11 @@ import javax.annotation.Nullable;
  * @author Kevin Bourrillion
  */
 @GwtCompatible(serializable = true)
+@SuppressWarnings("serial") // uses writeReplace(), not default serialization
 final class RegularImmutableList<E> extends ImmutableList<E> {
-  private transient final int offset;
-  private transient final int size;
-  private transient final Object[] array;
+  private final transient int offset;
+  private final transient int size;
+  private final transient Object[] array;
 
   RegularImmutableList(Object[] array, int offset, int size) {
     this.offset = offset;

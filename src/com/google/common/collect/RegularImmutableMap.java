@@ -29,11 +29,11 @@ import com.google.common.collect.ImmutableSet.TransformedImmutableSet;
 @GwtCompatible(serializable = true)
 final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
 
-  private transient final Entry<K, V>[] entries; // entries in insertion order
-  private transient final Object[] table; // alternating keys and values
+  private final transient Entry<K, V>[] entries; // entries in insertion order
+  private final transient Object[] table; // alternating keys and values
   // 'and' with an int then shift to get a table index
-  private transient final int mask;
-  private transient final int keySetHashCode;
+  private final transient int mask;
+  private final transient int keySetHashCode;
 
   RegularImmutableMap(Entry<?, ?>... entries) {
     // each of our 6 callers carefully put only Entry<K, V>s into the array!
@@ -109,7 +109,7 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
   // deserialization should call entrySet(), keySet(), or values() on the
   // deserialized map. The views are serializable since the Immutable* classes
   // are.
-
+  
   private transient ImmutableSet<Entry<K, V>> entrySet;
 
   @Override public ImmutableSet<Entry<K, V>> entrySet() {
@@ -117,8 +117,9 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
     return (es == null) ? (entrySet = new EntrySet<K, V>(this)) : es;
   }
 
+  @SuppressWarnings("serial") // uses writeReplace(), not default serialization
   private static class EntrySet<K, V> extends ArrayImmutableSet<Entry<K, V>> {
-    transient final RegularImmutableMap<K, V> map;
+    final transient RegularImmutableMap<K, V> map;
 
     EntrySet(RegularImmutableMap<K, V> map) {
       super(map.entries);
@@ -142,6 +143,7 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
     return (ks == null) ? (keySet = new KeySet<K, V>(this)) : ks;
   }
 
+  @SuppressWarnings("serial") // uses writeReplace(), not default serialization
   private static class KeySet<K, V>
       extends TransformedImmutableSet<Entry<K, V>, K> {
     final RegularImmutableMap<K, V> map;
@@ -167,9 +169,10 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
     return (v == null) ? (values = new Values<V>(this)) : v;
   }
 
-  private static class Values<V> extends ImmutableCollection<V>  {
+  @SuppressWarnings("serial") // uses writeReplace(), not default serialization
+  private static class Values<V> extends ImmutableCollection<V> {
     final RegularImmutableMap<?, V> map;
-
+    
     Values(RegularImmutableMap<?, V> map) {
       this.map = map;
     }
@@ -199,4 +202,8 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
     Collections2.standardJoiner.appendTo(result, entries);
     return result.append('}').toString();
   }
+
+  // This class is never actually serialized directly, but we have to make the
+  // warning go away (and suppressing would suppress for all nested classes too)
+  private static final long serialVersionUID = 0;
 }

@@ -16,16 +16,15 @@
 
 package com.google.common.collect;
 
-import static com.google.common.collect.testing.SampleElements.Strings.AFTER_LAST;
-import static com.google.common.collect.testing.SampleElements.Strings.BEFORE_FIRST;
-import static com.google.common.collect.testing.SampleElements.Strings.MIN_ELEMENT;
-
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSortedMap.Builder;
 import com.google.common.collect.testing.CollectionTestSuiteBuilder;
 import com.google.common.collect.testing.ReserializingTestCollectionGenerator;
 import com.google.common.collect.testing.ReserializingTestSetGenerator;
 import com.google.common.collect.testing.SampleElements;
+import static com.google.common.collect.testing.SampleElements.Strings.AFTER_LAST;
+import static com.google.common.collect.testing.SampleElements.Strings.BEFORE_FIRST;
+import static com.google.common.collect.testing.SampleElements.Strings.MIN_ELEMENT;
 import com.google.common.collect.testing.SetTestSuiteBuilder;
 import com.google.common.collect.testing.SortedMapInterfaceTest;
 import com.google.common.collect.testing.TestCollectionGenerator;
@@ -34,8 +33,8 @@ import com.google.common.collect.testing.TestStringSetGenerator;
 import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.collect.testing.features.SetFeature;
-import com.google.common.testutils.SerializableTester;
 import com.google.common.testutils.NullPointerTester;
+import com.google.common.testutils.SerializableTester;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -48,9 +47,9 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.Map.Entry;
 
 /**
  * Tests for {@link ImmutableSortedMap}.
@@ -266,8 +265,7 @@ public class ImmutableSortedMapTest extends TestCase {
     };
   }
 
-  
-  public static abstract class AbstractMapTests<K, V>
+  public abstract static class AbstractMapTests<K, V>
       extends SortedMapInterfaceTest<K, V> {
     public AbstractMapTests() {
       super(false, false, false, false, false);
@@ -306,7 +304,7 @@ public class ImmutableSortedMapTest extends TestCase {
     }
 
     @Override protected SortedMap<String, Integer> makePopulatedMap() {
-      return ImmutableSortedMap.of("one", 1,  "two", 2, "three", 3);
+      return ImmutableSortedMap.of("one", 1, "two", 2, "three", 3);
     }
 
     @Override protected String getKeyNotInPopulatedMap() {

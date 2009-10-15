@@ -21,6 +21,7 @@ import static com.google.common.testutils.SerializableTester.reserialize;
 
 import junit.framework.TestCase;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +32,7 @@ import java.util.List;
  * @author Harry Heymann
  */
 public class SuppliersTest extends TestCase {
-  public void testCompose() throws Exception {
+  public void testCompose() {
     Supplier<Integer> fiveSupplier = new Supplier<Integer>() {
       public Integer get() {
         return 5;
@@ -51,7 +52,7 @@ public class SuppliersTest extends TestCase {
     assertEquals(Integer.valueOf(5), squareSupplier.get());
   }
 
-  public void testComposeWithLists() throws Exception {
+  public void testComposeWithLists() {
     Supplier<ArrayList<Integer>> listSupplier
         = new Supplier<ArrayList<Integer>>() {
       public ArrayList<Integer> get() {
@@ -76,57 +77,53 @@ public class SuppliersTest extends TestCase {
     assertEquals(Integer.valueOf(1), result.get(1));
   }
 
-  public void testMemoize() throws Exception {
-    final List<Boolean> supplierExecuted = Lists.newArrayList();
-    Supplier<Integer> fiveSupplier = new Supplier<Integer>() {
-      public Integer get() {
-        supplierExecuted.add(Boolean.TRUE);
-        return 5;
-      }
-    };
-
-    Supplier<Integer> memoizedSupplier = Suppliers.memoize(fiveSupplier);
-
-    // the underlying supplier hasn't executed yet
-    assertEquals(0, supplierExecuted.size());
-
-    assertEquals(5, (int)memoizedSupplier.get());
-
-    // now it has
-    assertEquals(1, supplierExecuted.size());
-
-    assertEquals(5, (int)memoizedSupplier.get());
-
-    // it still should only have exectuted once due to memoization
-    assertEquals(1, supplierExecuted.size());
-  }
-
-  public void testMemoizeCycleDisallowed() throws Exception {
-    final List<Supplier<Object>> suppliers = Lists.newArrayList();
-
-    Supplier<Object> supplier0 = Suppliers.memoize(new Supplier<Object>() {
-      public Object get() {
-        return suppliers.get(1).get();
-      }
-    });
-    suppliers.add(supplier0);
-
-    Supplier<Object> supplier1 = Suppliers.memoize(new Supplier<Object>() {
-      public Object get() {
-        return suppliers.get(0).get();
-      }
-    });
-    suppliers.add(supplier1);
-
-    try {
-      supplier0.get();
-      fail();
-    } catch (Suppliers.CyclicDependencyException expectedException) {
-      // yay!
+  private static class CountingSupplier
+      implements Supplier<Integer>, Serializable {
+    transient int calls = 0;
+    public Integer get() {
+      calls++;
+      return calls * 10;
     }
   }
 
-  public void testMemoizeExceptionThrown() throws Exception {
+  public void testMemoize() {
+    CountingSupplier countingSupplier = new CountingSupplier();
+    Supplier<Integer> memoizedSupplier = Suppliers.memoize(countingSupplier);
+    checkMemoize(countingSupplier, memoizedSupplier);
+  }
+
+  public void testMemoizeSerialized() {
+    CountingSupplier countingSupplier = new CountingSupplier();
+    Supplier<Integer> memoizedSupplier = Suppliers.memoize(countingSupplier);
+    checkMemoize(countingSupplier, memoizedSupplier);
+    // Calls to the original memoized supplier shouldn't affect its copy.
+    memoizedSupplier.get();
+
+    Supplier<Integer> copy = reserialize(memoizedSupplier);
+    memoizedSupplier.get();
+
+    CountingSupplier countingCopy = (CountingSupplier)
+        ((Suppliers.MemoizingSupplier<Integer>) copy).delegate;
+    checkMemoize(countingCopy, copy);
+  }
+
+  private void checkMemoize(
+      CountingSupplier countingSupplier, Supplier<Integer> memoizedSupplier) {
+    // the underlying supplier hasn't executed yet
+    assertEquals(0, countingSupplier.calls);
+
+    assertEquals(10, (int) memoizedSupplier.get());
+
+    // now it has
+    assertEquals(1, countingSupplier.calls);
+
+    assertEquals(10, (int) memoizedSupplier.get());
+
+    // it still should only have executed once due to memoization
+    assertEquals(1, countingSupplier.calls);
+  }
+
+  public void testMemoizeExceptionThrown() {
     Supplier<Integer> exceptingSupplier = new Supplier<Integer>() {
       public Integer get() {
         throw new NullPointerException();
@@ -137,7 +134,7 @@ public class SuppliersTest extends TestCase {
 
     // call get() twice to make sure that memoization doesn't interfere
     // with throwing the exception
-    for(int i = 0; i < 2; i++) {
+    for (int i = 0; i < 2; i++) {
       try {
         memoizedSupplier.get();
         fail("failed to throw NullPointerException");
@@ -147,19 +144,19 @@ public class SuppliersTest extends TestCase {
     }
   }
 
-  public void testOfInstanceSuppliesSameInstance() throws Exception {
+  public void testOfInstanceSuppliesSameInstance() {
     Object toBeSupplied = new Object();
     Supplier<Object> objectSupplier = Suppliers.ofInstance(toBeSupplied);
     assertSame(toBeSupplied,objectSupplier.get());
     assertSame(toBeSupplied,objectSupplier.get()); // idempotent
   }
 
-  public void testOfInstanceSuppliesNull() throws Exception {
+  public void testOfInstanceSuppliesNull() {
     Supplier<Integer> nullSupplier = Suppliers.ofInstance(null);
     assertNull(nullSupplier.get());
   }
 
-  public void testThreadSafe() throws Exception {
+  public void testThreadSafe() throws InterruptedException {
     final Supplier<Integer> nonThreadSafe = new Supplier<Integer>() {
       int counter = 0;
       public Integer get() {

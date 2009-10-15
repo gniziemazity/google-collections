@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.NonFinalForGwt;
 
 import java.util.Map;
 
@@ -29,17 +30,18 @@ import javax.annotation.Nullable;
  * @author Kevin Bourrillion
  */
 @GwtCompatible(serializable = true)
+@SuppressWarnings("serial") // uses writeReplace(), not default serialization
 final class SingletonImmutableMap<K, V> extends ImmutableMap<K, V> {
 
   // These fields are not final so that GWT is able to derive the key and value
   // types by inspecting these fields at GWT compile time.  It also makes this
   // class GWT serializable without a custom field serializer.
-  private K singleKey;
-  private V singleValue;
+  @NonFinalForGwt private K singleKey;
+  @NonFinalForGwt private V singleValue;
 
   private transient Entry<K, V> entry;
 
-  // Only used in GWT deserialization.
+  @SuppressWarnings("unused") // Used only in GWT deserialization.
   private SingletonImmutableMap() {
   }
 
@@ -68,7 +70,7 @@ final class SingletonImmutableMap<K, V> extends ImmutableMap<K, V> {
     return 1;
   }
 
-  public boolean isEmpty() {
+  @Override public boolean isEmpty() {
     return false;
   }
 
@@ -101,6 +103,7 @@ final class SingletonImmutableMap<K, V> extends ImmutableMap<K, V> {
     return (v == null) ? (values = new Values<V>(singleValue)) : v;
   }
 
+  @SuppressWarnings("serial") // uses writeReplace(), not default serialization
   private static class Values<V> extends ImmutableCollection<V> {
     final V singleValue;
 

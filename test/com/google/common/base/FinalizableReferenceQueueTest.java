@@ -161,5 +161,3 @@ public class FinalizableReferenceQueueTest extends TestCase {
     assertNotNull(getClass().getResource("internal/Finalizer.class"));
   }
 }
-
-

@@ -158,7 +158,7 @@ public final class Functions {
       return false;
     }
     @Override public int hashCode() {
-      return map.hashCode() + defaultValue.hashCode();
+      return Objects.hashCode(map, defaultValue);
     }
     @Override public String toString() {
       return "forMap(" + map + ", defaultValue=" + defaultValue + ")";

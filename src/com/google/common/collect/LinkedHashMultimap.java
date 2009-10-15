@@ -65,7 +65,7 @@ import javax.annotation.Nullable;
  *
  * @author Jared Levy
  */
-@GwtCompatible
+@GwtCompatible(serializable = true)
 public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
   private static final int DEFAULT_VALUES_PER_KEY = 8;
 
@@ -76,10 +76,11 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
    * Map entries with an iteration order corresponding to the order in which the
    * key-value pairs were added to the multimap.
    */
-  private transient Collection<Map.Entry<K, V>> linkedEntries;
+  // package-private for GWT deserialization
+  transient Collection<Map.Entry<K, V>> linkedEntries;
 
   /**
-   * Creates a new empty {@code LinkedHashMultimap} with the default initial
+   * Creates a new, empty {@code LinkedHashMultimap} with the default initial
    * capacities.
    */
   public static <K, V> LinkedHashMultimap<K, V> create() {

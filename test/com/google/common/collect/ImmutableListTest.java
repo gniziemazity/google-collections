@@ -23,16 +23,16 @@ import static com.google.common.collect.ObjectArrays.concat;
 import static com.google.common.collect.Sets.newHashSet;
 import com.google.common.collect.testing.ListTestSuiteBuilder;
 import com.google.common.collect.testing.MinimalCollection;
+import com.google.common.collect.testing.MinimalIterable;
 import com.google.common.collect.testing.TestListGenerator;
 import com.google.common.collect.testing.TestStringListGenerator;
 import com.google.common.collect.testing.TestUnhashableCollectionGenerator;
 import com.google.common.collect.testing.UnhashableObject;
 import com.google.common.collect.testing.features.CollectionSize;
+import com.google.common.collect.testing.testers.ListHashCodeTester;
 import static com.google.common.testing.junit3.JUnitAsserts.assertNotEqual;
-import com.google.common.testing.junit3.JUnitAsserts;
 import com.google.common.testutils.NullPointerTester;
 import com.google.common.testutils.SerializableTester;
-import com.google.common.collect.testing.testers.ListHashCodeTester;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -180,6 +180,52 @@ public class ImmutableListTest extends TestCase {
     public void testCreation_fiveElements() {
       List<String> list = ImmutableList.of("a", "b", "c", "d", "e");
       assertEquals(Lists.newArrayList("a", "b", "c", "d", "e"), list);
+    }
+
+    public void testCreation_sixElements() {
+      List<String> list = ImmutableList.of("a", "b", "c", "d", "e", "f");
+      assertEquals(Lists.newArrayList("a", "b", "c", "d", "e", "f"), list);
+    }
+
+    public void testCreation_sevenElements() {
+      List<String> list = ImmutableList.of("a", "b", "c", "d", "e", "f", "g");
+      assertEquals(Lists.newArrayList("a", "b", "c", "d", "e", "f", "g"), list);
+    }
+
+    public void testCreation_eightElements() {
+      List<String> list = ImmutableList.of(
+          "a", "b", "c", "d", "e", "f", "g", "h");
+      assertEquals(Lists.newArrayList(
+          "a", "b", "c", "d", "e", "f", "g", "h"), list);
+    }
+
+    public void testCreation_nineElements() {
+      List<String> list = ImmutableList.of(
+          "a", "b", "c", "d", "e", "f", "g", "h", "i");
+      assertEquals(Lists.newArrayList(
+          "a", "b", "c", "d", "e", "f", "g", "h", "i"), list);
+    }
+
+    public void testCreation_tenElements() {
+      List<String> list = ImmutableList.of(
+          "a", "b", "c", "d", "e", "f", "g", "h", "i", "j");
+      assertEquals(Lists.newArrayList(
+          "a", "b", "c", "d", "e", "f", "g", "h", "i", "j"), list);
+    }
+
+    public void testCreation_elevenElements() {
+      List<String> list = ImmutableList.of(
+          "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k");
+      assertEquals(Lists.newArrayList(
+          "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"), list);
+    }
+
+    public void testCreation_twelveElements() {
+      // now we'll get the varargs overload
+      List<String> list = ImmutableList.of(
+          "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l");
+      assertEquals(Lists.newArrayList(
+          "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"), list);
     }
 
     public void testCreation_singletonNull() {
@@ -566,12 +612,31 @@ public class ImmutableListTest extends TestCase {
       assertEquals(asList("a", "b", "a", "c"), list);
     }
 
-    public void testBuilderAddAll() {
+    public void testBuilderAdd_varargs() {
+      ImmutableList<String> list = new ImmutableList.Builder<String>()
+          .add("a", "b", "a", "c")
+          .build();
+      assertEquals(asList("a", "b", "a", "c"), list);
+    }
+
+    public void testBuilderAddAll_iterable() {
       List<String> a = asList("a", "b");
       List<String> b = asList("c", "d");
       ImmutableList<String> list = new ImmutableList.Builder<String>()
           .addAll(a)
           .addAll(b)
+          .build();
+      assertEquals(asList( "a", "b", "c", "d"), list);
+      b.set(0, "f");
+      assertEquals(asList( "a", "b", "c", "d"), list);
+    }
+
+    public void testBuilderAddAll_iterator() {
+      List<String> a = asList("a", "b");
+      List<String> b = asList("c", "d");
+      ImmutableList<String> list = new ImmutableList.Builder<String>()
+          .addAll(a.iterator())
+          .addAll(b.iterator())
           .build();
       assertEquals(asList( "a", "b", "c", "d"), list);
       b.set(0, "f");
@@ -614,7 +679,19 @@ public class ImmutableListTest extends TestCase {
     public void testBuilderAddHandlesNullsCorrectly() {
       ImmutableList.Builder<String> builder = ImmutableList.builder();
       try {
-        builder.add(null);
+        builder.add((String) null);
+        fail("expected NullPointerException");
+      } catch (NullPointerException expected) {
+      }
+
+      try {
+        builder.add((String[]) null);
+        fail("expected NullPointerException");
+      } catch (NullPointerException expected) {
+      }
+
+      try {
+        builder.add("a", null, "b");
         fail("expected NullPointerException");
       } catch (NullPointerException expected) {
       }
@@ -623,7 +700,13 @@ public class ImmutableListTest extends TestCase {
     public void testBuilderAddAllHandlesNullsCorrectly() {
       ImmutableList.Builder<String> builder = ImmutableList.builder();
       try {
-        builder.addAll(null);
+        builder.addAll((Iterable<String>) null);
+        fail("expected NullPointerException");
+      } catch (NullPointerException expected) {
+      }
+
+      try {
+        builder.addAll((Iterator<String>) null);
         fail("expected NullPointerException");
       } catch (NullPointerException expected) {
       }
@@ -632,6 +715,21 @@ public class ImmutableListTest extends TestCase {
       List<String> listWithNulls = asList("a", null, "b");
       try {
         builder.addAll(listWithNulls);
+        fail("expected NullPointerException");
+      } catch (NullPointerException expected) {
+      }
+
+      builder = ImmutableList.builder();
+      Iterator<String> iteratorWithNulls = asList("a", null, "b").iterator();
+      try {
+        builder.addAll(iteratorWithNulls);
+        fail("expected NullPointerException");
+      } catch (NullPointerException expected) {
+      }
+
+      Iterable<String> iterableWithNulls = MinimalIterable.of("a", null, "b");
+      try {
+        builder.addAll(iterableWithNulls);
         fail("expected NullPointerException");
       } catch (NullPointerException expected) {
       }

@@ -17,6 +17,7 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.NonFinalForGwt;
 import com.google.common.base.Preconditions;
 
 import java.util.Set;
@@ -30,11 +31,13 @@ import javax.annotation.Nullable;
  * @author Nick Kralevich
  */
 @GwtCompatible(serializable = true)
+@SuppressWarnings("serial") // uses writeReplace(), not default serialization
 final class SingletonImmutableSet<E> extends ImmutableSet<E> {
 
   // This field is not final so that GWT is able to derive the element type
   // by inspecting this field at GWT compile time.
-  private E element;
+  @NonFinalForGwt private E element;
+
   // Non-volatile because:
   //   - Integer is immutable and thus thread-safe;
   //   - no problems if one thread overwrites the cachedHashCode from another.

@@ -17,12 +17,16 @@
 package com.google.common.collect.testing;
 
 import junit.framework.Assert;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 import junit.framework.AssertionFailedError;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -83,7 +87,7 @@ public class Helpers {
             + "expected = " + exp + ", actual = " + actString);
       }
     }
-    Assert.assertTrue("unexpected elements: " + act, act.isEmpty());
+    assertTrue("unexpected elements: " + act, act.isEmpty());
   }
 
   public static void assertContentsAnyOrder(
@@ -149,5 +153,56 @@ public class Helpers {
         new AssertionFailedError(String.valueOf(message));
     assertionFailedError.initCause(cause);
     throw assertionFailedError;
+  }
+
+  public static <T> void testComparator(
+      Comparator<? super T> comparator, T... valuesInExpectedOrder) {
+    testComparator(comparator, Arrays.asList(valuesInExpectedOrder));
+  }
+
+  public static <T> void testComparator(
+      Comparator<? super T> comparator, List<T> valuesInExpectedOrder) {
+    // This does an O(n^2) test of all pairs of values in both orders
+    for (int i = 0; i < valuesInExpectedOrder.size(); i++) {
+      T t = valuesInExpectedOrder.get(i);
+
+      for (int j = 0; j < i; j++) {
+        T lesser = valuesInExpectedOrder.get(j);
+        assertTrue(comparator + ".compare(" + lesser + ", " + t + ")",
+            comparator.compare(lesser, t) < 0);
+      }
+
+      assertEquals(comparator + ".compare(" + t + ", " + t + ")",
+          0, comparator.compare(t, t));
+
+      for (int j = i + 1; j < valuesInExpectedOrder.size(); j++) {
+        T greater = valuesInExpectedOrder.get(j);
+        assertTrue(comparator + ".compare(" + greater + ", " + t + ")",
+            comparator.compare(greater, t) > 0);
+      }
+    }
+  }
+
+  public static <T extends Comparable<? super T>> void testCompareToAndEquals(
+      List<T> valuesInExpectedOrder) {
+    // This does an O(n^2) test of all pairs of values in both orders
+    for (int i = 0; i < valuesInExpectedOrder.size(); i++) {
+      T t = valuesInExpectedOrder.get(i);
+
+      for (int j = 0; j < i; j++) {
+        T lesser = valuesInExpectedOrder.get(j);
+        assertTrue(lesser + ".compareTo(" + t + ')', lesser.compareTo(t) < 0);
+        assertFalse(lesser.equals(t));
+      }
+
+      assertEquals(t + ".compareTo(" + t + ')', 0, t.compareTo(t));
+      assertTrue(t.equals(t));
+
+      for (int j = i + 1; j < valuesInExpectedOrder.size(); j++) {
+        T greater = valuesInExpectedOrder.get(j);
+        assertTrue(greater + ".compareTo(" + t + ')', greater.compareTo(t) > 0);
+        assertFalse(greater.equals(t));
+      }
+    }
   }
 }

@@ -59,7 +59,6 @@ public interface MapDifference<K, V> {
    */
   Map<K, ValueDifference<V>> entriesDiffering();
 
-
   /**
    * Compares the specified object with this instance for equality. Returns
    * {@code true} if the given object is also a {@code MapDifference} and the

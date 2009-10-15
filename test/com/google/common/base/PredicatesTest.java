@@ -78,7 +78,7 @@ public class PredicatesTest extends TestCase {
    * Tests for Predicates.alwaysTrue().
    */
 
-  public void testAlwaysTrue_apply()  {
+  public void testAlwaysTrue_apply() {
     assertEvalsToTrue(Predicates.alwaysTrue());
   }
 
@@ -90,7 +90,7 @@ public class PredicatesTest extends TestCase {
         .testEquals();
   }
 
-  public void testAlwaysTrue_serialization()  {
+  public void testAlwaysTrue_serialization() {
     checkSerialization(Predicates.alwaysTrue());
   }
 
@@ -110,7 +110,7 @@ public class PredicatesTest extends TestCase {
         .testEquals();
   }
 
-  public void testAlwaysFalse_serialization()  {
+  public void testAlwaysFalse_serialization() {
     checkSerialization(Predicates.alwaysFalse());
   }
 
@@ -162,7 +162,7 @@ public class PredicatesTest extends TestCase {
         .testEquals();
   }
 
-  public void testNot_serialization()  {
+  public void testNot_serialization() {
     checkSerialization(Predicates.not(isOdd()));
   }
 
@@ -185,7 +185,7 @@ public class PredicatesTest extends TestCase {
   }
 
   @SuppressWarnings("unchecked")
-  public void testAnd_serializationNoArgs()  {
+  public void testAnd_serializationNoArgs() {
     checkSerialization(Predicates.and());
   }
 
@@ -206,7 +206,7 @@ public class PredicatesTest extends TestCase {
   }
 
   @SuppressWarnings("unchecked")
-  public void testAnd_serializationOneArg()  {
+  public void testAnd_serializationOneArg() {
     checkSerialization(Predicates.and(isOdd()));
   }
 
@@ -226,7 +226,7 @@ public class PredicatesTest extends TestCase {
         .testEquals();
   }
 
-  public void testAnd_serializationBinary()  {
+  public void testAnd_serializationBinary() {
     checkSerialization(Predicates.and(TRUE, isOdd()));
   }
 
@@ -249,7 +249,7 @@ public class PredicatesTest extends TestCase {
   }
 
   @SuppressWarnings("unchecked")
-  public void testAnd_serializationTernary()  {
+  public void testAnd_serializationTernary() {
     checkSerialization(Predicates.and(TRUE, isOdd(), FALSE));
   }
 
@@ -273,7 +273,7 @@ public class PredicatesTest extends TestCase {
   }
 
   @SuppressWarnings("unchecked")
-  public void testAnd_serializationIterable()  {
+  public void testAnd_serializationIterable() {
     checkSerialization(Predicates.and(Arrays.asList(TRUE, FALSE)));
   }
 
@@ -328,7 +328,7 @@ public class PredicatesTest extends TestCase {
   }
 
   @SuppressWarnings("unchecked")
-  public void testOr_serializationNoArgs()  {
+  public void testOr_serializationNoArgs() {
     checkSerialization(Predicates.or());
   }
 
@@ -350,7 +350,7 @@ public class PredicatesTest extends TestCase {
   }
 
   @SuppressWarnings("unchecked")
-  public void testOr_serializationOneArg()  {
+  public void testOr_serializationOneArg() {
     checkSerialization(Predicates.or(isOdd()));
   }
 
@@ -374,7 +374,7 @@ public class PredicatesTest extends TestCase {
     .testEquals();
   }
 
-  public void testOr_serializationBinary()  {
+  public void testOr_serializationBinary() {
     checkSerialization(Predicates.or(isOdd(), TRUE));
   }
 
@@ -397,7 +397,7 @@ public class PredicatesTest extends TestCase {
   }
 
   @SuppressWarnings("unchecked")
-  public void testOr_serializationTernary()  {
+  public void testOr_serializationTernary() {
     checkSerialization(Predicates.or(FALSE, isOdd(), TRUE));
   }
 
@@ -428,7 +428,7 @@ public class PredicatesTest extends TestCase {
   }
 
   @SuppressWarnings("unchecked")
-  public void testOr_serializationIterable()  {
+  public void testOr_serializationIterable() {
     Predicate<Integer> pre = Predicates.or(Arrays.asList(TRUE, FALSE));
     Predicate<Integer> post = SerializableTester.reserializeAndAssert(pre);
     assertEquals(pre.apply(0), post.apply(0));
@@ -486,7 +486,7 @@ public class PredicatesTest extends TestCase {
         .testEquals();
   }
 
-  public void testIsEqualTo_serialization()  {
+  public void testIsEqualTo_serialization() {
     checkSerialization(Predicates.equalTo(1));
   }
 
@@ -504,7 +504,7 @@ public class PredicatesTest extends TestCase {
         .testEquals();
   }
 
-  public void testIsEqualToNull_serialization()  {
+  public void testIsEqualToNull_serialization() {
     checkSerialization(Predicates.equalTo(null));
   }
 
@@ -547,7 +547,7 @@ public class PredicatesTest extends TestCase {
         .testEquals();
   }
 
-  public void testIsInstanceOf_serialization()  {
+  public void testIsInstanceOf_serialization() {
     checkSerialization(Predicates.instanceOf(Integer.class));
   }
 
@@ -568,7 +568,7 @@ public class PredicatesTest extends TestCase {
         .testEquals();
   }
 
-  public void testIsNull_serialization()  {
+  public void testIsNull_serialization() {
     Predicate<String> pre = Predicates.isNull();
     Predicate<String> post = SerializableTester.reserializeAndAssert(pre);
     assertEquals(pre.apply("foo"), post.apply("foo"));
@@ -588,7 +588,7 @@ public class PredicatesTest extends TestCase {
         .testEquals();
   }
 
-  public void testNotNull_serialization()  {
+  public void testNotNull_serialization() {
     checkSerialization(Predicates.notNull());
   }
 
@@ -616,7 +616,7 @@ public class PredicatesTest extends TestCase {
         .testEquals();
   }
 
-  public void testIn_serialization()  {
+  public void testIn_serialization() {
     checkSerialization(Predicates.in(Arrays.asList(1, 2, 3, null)));
   }
 
@@ -648,6 +648,18 @@ public class PredicatesTest extends TestCase {
     assertFalse(isThree.apply(3));
   }
 
+  /*
+   * Tests that compilation will work when applying explicit types.
+   */
+  public void testIn_compilesWithExplicitSupertype() {
+    Collection<Number> nums = ImmutableSet.of();
+    Predicate<Number> p1 = Predicates.in(nums);
+    Predicate<Object> p2 = Predicates.<Object>in(nums);
+    // The next two lines are not expected to compile.
+    // Predicate<Integer> p3 = Predicates.in(nums);
+    // Predicate<Integer> p4 = Predicates.<Integer>in(nums);
+  }
+
   public void testNullPointerExceptions() throws Exception {
     NullPointerTester tester = new NullPointerTester();
     tester.testAllPublicStaticMethods(Predicates.class);
@@ -655,14 +667,16 @@ public class PredicatesTest extends TestCase {
 
   @SuppressWarnings("unchecked") // varargs
   public void testCascadingSerialization() throws Exception {
-    Predicate<Object> nasty = Predicates.not(Predicates.and(Predicates.or(
-        Predicates.equalTo((Object) 1), Predicates.equalTo(null),
-        Predicates.alwaysFalse(), Predicates.alwaysTrue(),
-        Predicates.isNull(), Predicates.notNull(),
-        Predicates.in(Arrays.asList(1)))));
+    // Eclipse says Predicate<Integer>; javac says Predicate<Object>.
+    Predicate<? super Integer> nasty = Predicates.not(Predicates.and(
+        Predicates.or(
+            Predicates.equalTo((Object) 1), Predicates.equalTo(null),
+            Predicates.alwaysFalse(), Predicates.alwaysTrue(),
+            Predicates.isNull(), Predicates.notNull(),
+            Predicates.in(Arrays.asList(1)))));
     assertEvalsToFalse(nasty);
 
-    Predicate<Object> stillNasty =
+    Predicate<? super Integer> stillNasty =
         SerializableTester.reserializeAndAssert(nasty);
 
     assertEvalsToFalse(stillNasty);

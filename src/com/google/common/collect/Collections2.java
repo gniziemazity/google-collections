@@ -68,7 +68,7 @@ public final class Collections2 {
   /**
    * Converts an iterable into a collection. If the iterable is already a
    * collection, it is returned. Otherwise, an {@link java.util.ArrayList} is
-   * created with the contents of the iterable in same iteration order.
+   * created with the contents of the iterable in the same iteration order.
    */
   static <E> Collection<E> toCollection(Iterable<E> iterable) {
     return (iterable instanceof Collection)
@@ -101,10 +101,7 @@ public final class Collections2 {
     if (unfiltered instanceof FilteredCollection) {
       // Support clear(), removeAll(), and retainAll() when filtering a filtered
       // collection.
-      FilteredCollection<E> filtered = (FilteredCollection<E>) unfiltered;
-      Predicate<E> combinedPredicate
-          = Predicates.<E>and(filtered.predicate, predicate);
-      return new FilteredCollection<E>(filtered.unfiltered, combinedPredicate);
+      return ((FilteredCollection<E>) unfiltered).createCombined(predicate);
     }
 
     return new FilteredCollection<E>(
@@ -121,6 +118,12 @@ public final class Collections2 {
       this.predicate = predicate;
     }
 
+    FilteredCollection<E> createCombined(Predicate<? super E> newPredicate) {
+      return new FilteredCollection<E>(unfiltered,
+          Predicates.<E>and(predicate, newPredicate));
+      // .<E> above needed to compile in JDK 5
+    }
+
     public boolean add(E element) {
       checkArgument(predicate.apply(element));
       return unfiltered.add(element);
@@ -134,13 +137,7 @@ public final class Collections2 {
     }
 
     public void clear() {
-      Iterator<E> iterator = unfiltered.iterator();
-      while (iterator.hasNext()) {
-        E element = iterator.next();
-        if (predicate.apply(element)) {
-          iterator.remove();
-        }
-      }
+      Iterables.removeIf(unfiltered, predicate);
     }
 
     public boolean contains(Object element) {
@@ -188,32 +185,24 @@ public final class Collections2 {
       }
     }
 
-    public boolean removeAll(Collection<?> collection) {
+    public boolean removeAll(final Collection<?> collection) {
       checkNotNull(collection);
-      boolean changed = false;
-      Iterator<E> iterator = unfiltered.iterator();
-      while (iterator.hasNext()) {
-        E element = iterator.next();
-        if (predicate.apply(element) && collection.contains(element)) {
-          iterator.remove();
-          changed = true;
+      Predicate<E> combinedPredicate = new Predicate<E>() {
+        public boolean apply(E input) {
+          return predicate.apply(input) && collection.contains(input);
         }
-      }
-      return changed;
+      };
+      return Iterables.removeIf(unfiltered, combinedPredicate);
     }
 
-    public boolean retainAll(Collection<?> collection) {
+    public boolean retainAll(final Collection<?> collection) {
       checkNotNull(collection);
-      boolean changed = false;
-      Iterator<E> iterator = unfiltered.iterator();
-      while (iterator.hasNext()) {
-        E element = iterator.next();
-        if (predicate.apply(element) && !collection.contains(element)) {
-          iterator.remove();
-          changed = true;
+      Predicate<E> combinedPredicate = new Predicate<E>() {
+        public boolean apply(E input) {
+          return predicate.apply(input) && !collection.contains(input);
         }
-      }
-      return changed;
+      };
+      return Iterables.removeIf(unfiltered, combinedPredicate);
     }
 
     public int size() {

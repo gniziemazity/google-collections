@@ -181,9 +181,9 @@ public class PreconditionsTest extends TestCase {
       = new TreeSet<Integer>(Arrays.asList(1, 2));
 
   public void testCheckElementIndex_ok() {
-    Preconditions.checkElementIndex(0, 1);
-    Preconditions.checkElementIndex(0, 2);
-    Preconditions.checkElementIndex(1, 2);
+    assertEquals(0, Preconditions.checkElementIndex(0, 1));
+    assertEquals(0, Preconditions.checkElementIndex(0, 2));
+    assertEquals(1, Preconditions.checkElementIndex(1, 2));
   }
 
   public void testCheckElementIndex_badSize() {
@@ -235,9 +235,9 @@ public class PreconditionsTest extends TestCase {
   }
 
   public void testCheckPositionIndex_ok() {
-    Preconditions.checkPositionIndex(0, 0);
-    Preconditions.checkPositionIndex(0, 1);
-    Preconditions.checkPositionIndex(1, 1);
+    assertEquals(0, Preconditions.checkPositionIndex(0, 0));
+    assertEquals(0, Preconditions.checkPositionIndex(0, 1));
+    assertEquals(1, Preconditions.checkPositionIndex(1, 1));
   }
 
   public void testCheckPositionIndex_badSize() {

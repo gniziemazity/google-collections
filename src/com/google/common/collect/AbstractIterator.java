@@ -92,7 +92,7 @@ public abstract class AbstractIterator<T> extends UnmodifiableIterator<T> {
    * further attempts to use the iterator will result in an {@link
    * IllegalStateException}.
    *
-   * <p>The implementation of this method many not invoke the {@code hasNext},
+   * <p>The implementation of this method may not invoke the {@code hasNext},
    * {@code next}, or {@link #peek()} methods on this instance; if it does, an
    * {@code IllegalStateException} will result.
    *

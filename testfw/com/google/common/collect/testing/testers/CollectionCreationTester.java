@@ -67,6 +67,4 @@ public class CollectionCreationTester<E> extends AbstractCollectionTester<E> {
       throw new RuntimeException(e);
     }
   }
-
-
 }

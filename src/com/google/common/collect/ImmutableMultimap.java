@@ -224,7 +224,6 @@ public abstract class ImmutableMultimap<K, V>
     }
   }
 
-
   final transient ImmutableMap<K, ? extends ImmutableCollection<V>> map;
   final transient int size;
 
@@ -459,23 +458,15 @@ public abstract class ImmutableMultimap<K, V>
    */
   public ImmutableMultiset<K> keys() {
     ImmutableMultiset<K> result = keys;
-    return (result == null)
-        ? (keys = new ImmutableMultiset<K>(createCountMap(), size))
-        : result;
+    return (result == null) ? (keys = createKeys()) : result;
   }
 
-  /**
-   * TODO: Instead of calling createCountMap(), which creates a copy, it would
-   * better to create an ImmutableMultiset through its public methods. That will
-   * be easier once we have an ImmutableMultiset builder.
-   */
-  private ImmutableMap<K, Integer> createCountMap() {
-    ImmutableMap.Builder<K, Integer> builder = ImmutableMap.builder();
-
-    for (Map.Entry<K, ? extends ImmutableCollection> entry : map.entrySet()) {
-      builder.put(entry.getKey(), entry.getValue().size());
+  private ImmutableMultiset<K> createKeys() {
+    ImmutableMultiset.Builder<K> builder = ImmutableMultiset.builder();
+    for (Map.Entry<K, ? extends ImmutableCollection<V>> entry
+        : map.entrySet()) {
+      builder.add(entry.getKey(), entry.getValue().size());
     }
-
     return builder.build();
   }
 

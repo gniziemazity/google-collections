@@ -24,7 +24,6 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.Nullable;
 
@@ -50,13 +49,7 @@ import javax.annotation.Nullable;
  */
 @GwtCompatible(serializable = true)
 @SuppressWarnings("serial") // we're overriding default serialization
-public abstract class ImmutableMap<K, V>
-    implements ConcurrentMap<K, V>, Serializable {
-  private static final ImmutableMap<?, ?> EMPTY_IMMUTABLE_MAP
-      = new EmptyImmutableMap();
-
-  // TODO: restore prebuilder API?  optimize, compare performance to HashMap
-
+public abstract class ImmutableMap<K, V> implements Map<K, V>, Serializable {
   /**
    * Returns the empty map. This map behaves and performs comparably to
    * {@link Collections#emptyMap}, and is preferable mainly for consistency
@@ -65,7 +58,7 @@ public abstract class ImmutableMap<K, V>
   // Casting to any type is safe because the set will never hold any elements.
   @SuppressWarnings("unchecked")
   public static <K, V> ImmutableMap<K, V> of() {
-    return (ImmutableMap<K, V>) EMPTY_IMMUTABLE_MAP;
+    return (ImmutableMap<K, V>) EmptyImmutableMap.INSTANCE;
   }
 
   /**
@@ -288,42 +281,6 @@ public abstract class ImmutableMap<K, V>
    *
    * @throws UnsupportedOperationException always
    */
-  public final V putIfAbsent(K key, V value) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Guaranteed to throw an exception and leave the map unmodified.
-   *
-   * @throws UnsupportedOperationException always
-   */
-  public final boolean remove(Object key, Object value) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Guaranteed to throw an exception and leave the map unmodified.
-   *
-   * @throws UnsupportedOperationException always
-   */
-  public final boolean replace(K key, V oldValue, V newValue) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Guaranteed to throw an exception and leave the map unmodified.
-   *
-   * @throws UnsupportedOperationException always
-   */
-  public final V replace(K key, V value) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Guaranteed to throw an exception and leave the map unmodified.
-   *
-   * @throws UnsupportedOperationException always
-   */
   public final void putAll(Map<? extends K, ? extends V> map) {
     throw new UnsupportedOperationException();
   }
@@ -390,58 +347,6 @@ public abstract class ImmutableMap<K, V>
     StringBuilder result = new StringBuilder(size() * 16).append('{');
     Maps.standardJoiner.appendTo(result, this);
     return result.append('}').toString();
-  }
-
-  // Package-private for GWT serialization.
-  static final class EmptyImmutableMap extends ImmutableMap<Object, Object> {
-
-    @Override public Object get(Object key) {
-      return null;
-    }
-
-    public int size() {
-      return 0;
-    }
-
-    @Override public boolean isEmpty() {
-      return true;
-    }
-
-    @Override public boolean containsKey(Object key) {
-      return false;
-    }
-
-    @Override public boolean containsValue(Object value) {
-      return false;
-    }
-
-    @Override public ImmutableSet<Entry<Object, Object>> entrySet() {
-      return ImmutableSet.of();
-    }
-
-    @Override public ImmutableSet<Object> keySet() {
-      return ImmutableSet.of();
-    }
-
-    @Override public ImmutableCollection<Object> values() {
-      return ImmutableCollection.EMPTY_IMMUTABLE_COLLECTION;
-    }
-
-    @Override public boolean equals(@Nullable Object object) {
-      if (object instanceof Map) {
-        Map<?, ?> that = (Map<?, ?>) object;
-        return that.isEmpty();
-      }
-      return false;
-    }
-
-    @Override public int hashCode() {
-      return 0;
-    }
-
-    @Override public String toString() {
-      return "{}";
-    }
   }
 
   /**

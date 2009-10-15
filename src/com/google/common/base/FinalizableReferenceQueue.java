@@ -190,7 +190,7 @@ public class FinalizableReferenceQueue {
      * Returns Finalizer.class or null if this loader shouldn't or can't load
      * it.
      *
-     * @throws SecurityException if we don't have the appropriate priveleges
+     * @throws SecurityException if we don't have the appropriate privileges
      */
     Class<?> loadFinalizer();
   }
@@ -276,7 +276,7 @@ public class FinalizableReferenceQueue {
       }
       urlString = urlString.substring(0,
           urlString.length() - finalizerPath.length());
-      return new URL(urlString);
+      return new URL(finalizerUrl, urlString);
     }
 
     /** Creates a class loader with the given base URL as its classpath. */
@@ -311,4 +311,3 @@ public class FinalizableReferenceQueue {
     }
   }
 }
-

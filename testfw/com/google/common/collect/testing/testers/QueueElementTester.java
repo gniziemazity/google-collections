@@ -44,16 +44,16 @@ public class QueueElementTester<E> extends AbstractQueueTester<E> {
 
   @CollectionSize.Require(ONE)
   public void testElement_size1() {
-     assertEquals("size1Queue.element() should return first element",
-         samples.e0, getQueue().element());
-     expectUnchanged();
+    assertEquals("size1Queue.element() should return first element",
+        samples.e0, getQueue().element());
+    expectUnchanged();
   }
 
   @CollectionFeature.Require(KNOWN_ORDER)
   @CollectionSize.Require(SEVERAL)
   public void testElement_sizeMany() {
-     assertEquals("sizeManyQueue.element() should return first element",
-         samples.e0, getQueue().element());
-     expectUnchanged();
+    assertEquals("sizeManyQueue.element() should return first element",
+        samples.e0, getQueue().element());
+    expectUnchanged();
   }
 }

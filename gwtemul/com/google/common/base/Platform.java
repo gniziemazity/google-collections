@@ -20,7 +20,6 @@ package com.google.common.base;
  * @author Jesse Wilson
  */
 class Platform {
-
   static boolean isInstance(Class<?> clazz, Object obj) {
     throw new UnsupportedOperationException(
         "Class.isInstance is not supported in GWT yet.");

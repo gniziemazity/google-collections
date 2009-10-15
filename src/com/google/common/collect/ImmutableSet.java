@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -65,9 +66,6 @@ import javax.annotation.Nullable;
 @SuppressWarnings("serial") // we're overriding default serialization
 public abstract class ImmutableSet<E> extends ImmutableCollection<E>
     implements Set<E> {
-  private static final ImmutableSet<?> EMPTY_IMMUTABLE_SET
-      = new EmptyImmutableSet();
-
   /**
    * Returns the empty immutable set. This set behaves and performs comparably
    * to {@link Collections#emptySet}, and is preferable mainly for consistency
@@ -76,7 +74,7 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
   // Casting to any type is safe because the set will never hold any elements.
   @SuppressWarnings({"unchecked"})
   public static <E> ImmutableSet<E> of() {
-    return (ImmutableSet<E>) EMPTY_IMMUTABLE_SET;
+    return (ImmutableSet<E>) EmptyImmutableSet.INSTANCE;
   }
 
   /**
@@ -92,19 +90,68 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
   /**
    * Returns an immutable set containing the given elements, in order. Repeated
    * occurrences of an element (according to {@link Object#equals}) after the
+   * first are ignored.
+   *
+   * @throws NullPointerException if any element is null
+   */
+  @SuppressWarnings("unchecked")
+  public static <E> ImmutableSet<E> of(E e1, E e2) {
+    return create(e1, e2);
+  }
+
+  /**
+   * Returns an immutable set containing the given elements, in order. Repeated
+   * occurrences of an element (according to {@link Object#equals}) after the
+   * first are ignored.
+   *
+   * @throws NullPointerException if any element is null
+   */
+  @SuppressWarnings("unchecked")
+  public static <E> ImmutableSet<E> of(E e1, E e2, E e3) {
+    return create(e1, e2, e3);
+  }
+
+  /**
+   * Returns an immutable set containing the given elements, in order. Repeated
+   * occurrences of an element (according to {@link Object#equals}) after the
+   * first are ignored.
+   *
+   * @throws NullPointerException if any element is null
+   */
+  @SuppressWarnings("unchecked")
+  public static <E> ImmutableSet<E> of(E e1, E e2, E e3, E e4) {
+    return create(e1, e2, e3, e4);
+  }
+
+  /**
+   * Returns an immutable set containing the given elements, in order. Repeated
+   * occurrences of an element (according to {@link Object#equals}) after the
+   * first are ignored.
+   *
+   * @throws NullPointerException if any element is null
+   */
+  @SuppressWarnings("unchecked")
+  public static <E> ImmutableSet<E> of(E e1, E e2, E e3, E e4, E e5) {
+    return create(e1, e2, e3, e4, e5);
+  }
+
+  /**
+   * Returns an immutable set containing the given elements, in order. Repeated
+   * occurrences of an element (according to {@link Object#equals}) after the
    * first are ignored (but too many of these may result in the set being
    * sized inappropriately).
    *
    * @throws NullPointerException if any of {@code elements} is null
    */
   public static <E> ImmutableSet<E> of(E... elements) {
+    checkNotNull(elements); // for GWT
     switch (elements.length) {
       case 0:
         return of();
       case 1:
         return of(elements[0]);
       default:
-        return create(Arrays.asList(elements), elements.length);
+        return create(elements);
     }
   }
 
@@ -196,60 +243,8 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
   // ImmutableCollection.iterator() consistent.
   @Override public abstract UnmodifiableIterator<E> iterator();
 
-  // Package-private for GWT serialization.
-  static final class EmptyImmutableSet extends ImmutableSet<Object> {
-    public int size() {
-      return 0;
-    }
-
-    @Override public boolean isEmpty() {
-      return true;
-    }
-
-    @Override public boolean contains(Object target) {
-      return false;
-    }
-
-    @Override public UnmodifiableIterator<Object> iterator() {
-      return Iterators.emptyIterator();
-    }
-
-    private static final Object[] EMPTY_ARRAY = new Object[0];
-
-    @Override public Object[] toArray() {
-      return EMPTY_ARRAY;
-    }
-
-    @Override public <T> T[] toArray(T[] a) {
-      if (a.length > 0) {
-        a[0] = null;
-      }
-      return a;
-    }
-
-    @Override public boolean containsAll(Collection<?> targets) {
-      return targets.isEmpty();
-    }
-
-    @Override public boolean equals(@Nullable Object object) {
-      if (object instanceof Set) {
-        Set<?> that = (Set<?>) object;
-        return that.isEmpty();
-      }
-      return false;
-    }
-
-    @Override public final int hashCode() {
-      return 0;
-    }
-
-    @Override boolean isHashCodeFast() {
-      return true;
-    }
-
-    @Override public String toString() {
-      return "[]";
-    }
+  private static <E> ImmutableSet<E> create(E... elements) {
+    return create(Arrays.asList(elements), elements.length);
   }
 
   private static <E> ImmutableSet<E> create(
@@ -263,6 +258,7 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
     int hashCode = 0;
 
     for (E element : iterable) {
+      checkNotNull(element); // for GWT
       int hash = element.hashCode();
       for (int i = Hashing.smear(hash); true; i++) {
         int index = i & mask;
@@ -287,7 +283,7 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
 
   abstract static class ArrayImmutableSet<E> extends ImmutableSet<E> {
     // the elements (two or more) in the desired order.
-    transient final Object[] elements;
+    final transient Object[] elements;
 
     ArrayImmutableSet(Object[] elements) {
       this.elements = elements;
@@ -367,7 +363,7 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
     }
 
     @Override public UnmodifiableIterator<E> iterator() {
-      Iterator<E> iterator = new AbstractIterator<E>() {
+      return new AbstractIterator<E>() {
         int index = 0;
         @Override protected E computeNext() {
           return index < source.length
@@ -375,9 +371,6 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
               : endOfData();
         }
       };
-      // Though the AbstractIterator is unmodifiable, it isn't an
-      // UnmodifiableIterator.
-      return Iterators.unmodifiableIterator(iterator);
     }
 
     @Override public Object[] toArray() {
@@ -410,13 +403,18 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
   }
 
   /**
-   * Implementation that forwards all accessors to the provided delegate.
-   * Similar to {@link ForwardingSet}.
+   * Implementation of {@link ImmutableSet} backed by an {@link EnumSet}.
    */
-  static class ForwardingImmutableSet<E> extends ImmutableSet<E> {
-    private final Set<E> delegate;
+  static class ImmutableEnumSet<E extends Enum<E>> extends ImmutableSet<E> {
+    /*
+     * This class isn't an arbitrary ForwardingImmutableSet because we need to
+     * know that calling {@code clone()} during deserialization will return an
+     * object that no one else has a reference to, allowing us to guarantee
+     * immutability. Hence, we support only {@link EnumSet}.
+     */
+    private final EnumSet<E> delegate;
 
-    ForwardingImmutableSet(Set<E> delegate) {
+    ImmutableEnumSet(EnumSet<E> delegate) {
       this.delegate = delegate;
     }
 
@@ -463,7 +461,7 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
     }
 
     @Override Object writeReplace() {
-      return new ForwardingSerializedForm<E>(delegate);
+      return new EnumSerializedForm<E>(delegate);
     }
   }
 
@@ -490,15 +488,17 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
   }
 
   /*
-   * This class is used to serialize ForwardingImmutableSet instances.
+   * This class is used to serialize ImmutableEnumSet instances.
    */
-  private static class ForwardingSerializedForm<E> implements Serializable {
-    final Set<E> delegate;
-    ForwardingSerializedForm(Set<E> delegate) {
+  private static class EnumSerializedForm<E extends Enum<E>>
+      implements Serializable {
+    final EnumSet<E> delegate;
+    EnumSerializedForm(EnumSet<E> delegate) {
       this.delegate = delegate;
     }
     Object readResolve() {
-      return new ForwardingImmutableSet<E>(delegate);
+      // EJ2 #76: Write readObject() methods defensively.
+      return new ImmutableEnumSet<E>(delegate.clone());
     }
     private static final long serialVersionUID = 0;
   }
@@ -527,7 +527,8 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
    * multiple times to build multiple sets in series. Each set
    * is a superset of the set created before it.
    */
-  public static class Builder<E> {
+  public static class Builder<E> extends ImmutableCollection.Builder<E> {
+    // accessed directly by ImmutableSortedSet
     final ArrayList<E> contents = Lists.newArrayList();
 
     /**
@@ -537,18 +538,16 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
     public Builder() {}
 
     /**
-     * Adds {@code element} to the {@code ImmutableSet}.  If the
-     * {@code ImmutableSet} already contains {@code element}, then
-     * {@code add} has no effect. (only the previously added element
-     * is retained).
+     * Adds {@code element} to the {@code ImmutableSet}.  If the {@code
+     * ImmutableSet} already contains {@code element}, then {@code add} has no
+     * effect (only the previously added element is retained).
      *
      * @param element the element to add
      * @return this {@code Builder} object
      * @throws NullPointerException if {@code element} is null
      */
-    public Builder<E> add(E element) {
-      checkNotNull(element, "element cannot be null");
-      contents.add(element);
+    @Override public Builder<E> add(E element) {
+      contents.add(checkNotNull(element));
       return this;
     }
 
@@ -558,17 +557,13 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
      *
      * @param elements the elements to add
      * @return this {@code Builder} object
-     * @throws NullPointerException if {@code elements} contains a null element
+     * @throws NullPointerException if {@code elements} is null or contains a
+     *     null element
      */
-    public Builder<E> add(E... elements) {
-      checkNotNull(elements, "elements cannot be null");
-      for (E element : elements) {
-        if (element == null) {
-          throw new NullPointerException(
-              "null element in: " + Arrays.toString(elements));
-        }
-        contents.add(element);
-      }
+    @Override public Builder<E> add(E... elements) {
+      checkNotNull(elements); // for GWT
+      contents.ensureCapacity(contents.size() + elements.length);
+      super.add(elements);
       return this;
     }
 
@@ -578,18 +573,15 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
      *
      * @param elements the {@code Iterable} to add to the {@code ImmutableSet}
      * @return this {@code Builder} object
-     * @throws NullPointerException if {@code elements} contains a null element
+     * @throws NullPointerException if {@code elements} is null or contains a
+     *     null element
      */
-    public Builder<E> addAll(Iterable<? extends E> elements) {
+    @Override public Builder<E> addAll(Iterable<? extends E> elements) {
       if (elements instanceof Collection) {
-        @SuppressWarnings("unchecked")
-        Collection<? extends E> collection = (Collection<? extends E>) elements;
+        Collection<?> collection = (Collection<?>) elements;
         contents.ensureCapacity(contents.size() + collection.size());
       }
-      for (E elem : elements) {
-        checkNotNull(elem, "elements contains a null");
-        contents.add(elem);
-      }
+      super.addAll(elements);
       return this;
     }
 
@@ -599,14 +591,11 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
      *
      * @param elements the elements to add to the {@code ImmutableSet}
      * @return this {@code Builder} object
-     * @throws NullPointerException if {@code elements} contains a null element
+     * @throws NullPointerException if {@code elements} is null or contains a
+     *     null element
      */
-    public Builder<E> addAll(Iterator<? extends E> elements) {
-      while (elements.hasNext()) {
-        E element = elements.next();
-        checkNotNull(element, "element cannot be null");
-        contents.add(element);
-      }
+    @Override public Builder<E> addAll(Iterator<? extends E> elements) {
+      super.addAll(elements);
       return this;
     }
 
@@ -614,7 +603,7 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
      * Returns a newly-created {@code ImmutableSet} based on the contents of
      * the {@code Builder}.
      */
-    public ImmutableSet<E> build() {
+    @Override public ImmutableSet<E> build() {
       return copyOf(contents);
     }
   }

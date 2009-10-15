@@ -45,30 +45,16 @@ import javax.annotation.Nullable;
  *
  * @author Jared Levy
  */
-@GwtCompatible
+@GwtCompatible(serializable = true)
 public class ImmutableListMultimap<K, V>
     extends ImmutableMultimap<K, V>
     implements ListMultimap<K, V> {
-
-  private static final ImmutableListMultimap<Object, Object> EMPTY_MULTIMAP
-      = new EmptyMultimap();
-
-  private static class EmptyMultimap
-      extends ImmutableListMultimap<Object, Object> {
-    EmptyMultimap() {
-      super(ImmutableMap.<Object, ImmutableList<Object>>of(), 0);
-    }
-    Object readResolve() {
-      return EMPTY_MULTIMAP; // preserve singleton property
-    }
-    private static final long serialVersionUID = 0;
-  }
 
   /** Returns the empty multimap. */
   // Casting is safe because the multimap will never hold any elements.
   @SuppressWarnings("unchecked")
   public static <K, V> ImmutableListMultimap<K, V> of() {
-    return (ImmutableListMultimap<K, V>) EMPTY_MULTIMAP;
+    return (ImmutableListMultimap<K, V>) EmptyImmutableListMultimap.INSTANCE;
   }
 
   /**
@@ -262,8 +248,7 @@ public class ImmutableListMultimap<K, V>
     return new ImmutableListMultimap<K, V>(builder.build(), size);
   }
 
-  private ImmutableListMultimap(
-      ImmutableMap<K, ImmutableList<V>> map, int size) {
+  ImmutableListMultimap(ImmutableMap<K, ImmutableList<V>> map, int size) {
     super(map, size);
   }
 
@@ -275,7 +260,7 @@ public class ImmutableListMultimap<K, V>
    * returned. The values are in the same order as the parameters used to build
    * this multimap.
    */
-  public ImmutableList<V> get(@Nullable K key) {
+  @Override public ImmutableList<V> get(@Nullable K key) {
     // This cast is safe as its type is known in constructor.
     ImmutableList<V> list = (ImmutableList<V>) map.get(key);
     return (list == null) ? ImmutableList.<V>of() : list;
@@ -286,7 +271,7 @@ public class ImmutableListMultimap<K, V>
    *
    * @throws UnsupportedOperationException always
    */
-  public ImmutableList<V> removeAll(Object key) {
+  @Override public ImmutableList<V> removeAll(Object key) {
     throw new UnsupportedOperationException();
   }
 
@@ -295,7 +280,8 @@ public class ImmutableListMultimap<K, V>
    *
    * @throws UnsupportedOperationException always
    */
-  public ImmutableList<V> replaceValues(K key, Iterable<? extends V> values) {
+  @Override public ImmutableList<V> replaceValues(
+      K key, Iterable<? extends V> values) {
     throw new UnsupportedOperationException();
   }
 

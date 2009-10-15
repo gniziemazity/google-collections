@@ -24,7 +24,9 @@ import static com.google.common.collect.testing.features.CollectionFeature.KNOWN
 import com.google.common.collect.testing.features.CollectionSize;
 import static com.google.common.collect.testing.features.CollectionSize.ZERO;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -39,6 +41,19 @@ public class CollectionToArrayTester<E> extends AbstractCollectionTester<E> {
   public void testToArray_noArgs() {
     Object[] array = collection.toArray();
     expectArrayContentsAnyOrder(createSamplesArray(), array);
+  }
+
+  /**
+   * {@link Collection#toArray(Object[])} says: "Note that
+   * <tt>toArray(new Object[0])</tt> is identical in function to
+   * <tt>toArray()</tt>."
+   * 
+   * <p>For maximum effect, the collection under test should be created from an
+   * element array of a type other than {@code Object[]}.
+   */
+  public void testToArray_isPlainObjectArray() {
+    Object[] array = collection.toArray();
+    assertEquals(Object[].class, array.getClass());
   }
 
   public void testToArray_emptyArray() {
@@ -164,5 +179,22 @@ public class CollectionToArrayTester<E> extends AbstractCollectionTester<E> {
   private void expectArrayContentsInOrder(List<E> expected, Object[] actual) {
     assertEquals("toArray() ordered contents: ",
         expected, Arrays.asList(actual));
+  }
+
+  /**
+   * Returns the {@link Method} instance for
+   * {@link #testToArray_isPlainObjectArray()} so that tests of
+   * {@link Arrays#asList(Object[])} can suppress it with {@code
+   * FeatureSpecificTestSuiteBuilder.suppressing()} until <a
+   * href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6260652">Sun bug
+   * 6260652</a> is fixed.
+   */
+  public static Method getToArrayIsPlainObjectArrayMethod() {
+    try {
+      return CollectionToArrayTester.class
+          .getMethod("testToArray_isPlainObjectArray");
+    } catch (NoSuchMethodException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

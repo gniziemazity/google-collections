@@ -328,15 +328,14 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
 
   // Views
 
-  @Override protected Set<E> createElementSet() {
+  @Override Set<E> createElementSet() {
     return new MapBasedElementSet(backingMap);
   }
 
   class MapBasedElementSet extends ForwardingSet<E> {
-    /**
-     * This mapping is the usually the same as {@code backingMap}, but can
-     * be a submap in some implementations.
-     */
+
+    // This mapping is the usually the same as {@code backingMap}, but can be a
+    // submap in some implementations.
     private final Map<E, AtomicInteger> map;
     private final Set<E> delegate;
 
@@ -405,7 +404,7 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
     }
   }
 
-  /** Don't allow default serialization. */
+  // Don't allow default serialization.
   @SuppressWarnings("unused") // actually used during deserialization
   private void readObjectNoData() throws ObjectStreamException {
     throw new InvalidObjectException("Stream data required");
