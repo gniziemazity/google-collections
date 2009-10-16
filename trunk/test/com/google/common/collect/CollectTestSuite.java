@@ -23,7 +23,7 @@ import java.lang.reflect.Method;
 
 /**
  * Test suite for Google Collections.
- *
+ * 
  * @author Chris Povirk
  */
 public class CollectTestSuite {
@@ -61,6 +61,8 @@ public class CollectTestSuite {
       "com.google.common.collect.BiMapMapInterfaceTest$SynchronizedBiMapInterfaceTest",
       "com.google.common.collect.BiMapMapInterfaceTest$UnmodifiableBiMapInterfaceTest",
       "com.google.common.collect.Collections2Test",
+      "com.google.common.collect.Collections2Test$ArrayListFilterChangeTest",
+      "com.google.common.collect.Collections2Test$LinkedListFilterChangeTest",
       "com.google.common.collect.ConcurrentHashMultisetTest",
       "com.google.common.collect.ConcurrentHashMultisetWithChmTest",
       "com.google.common.collect.EnumBiMapTest",
@@ -84,13 +86,15 @@ public class CollectTestSuite {
       "com.google.common.collect.ImmutableBiMapTest$InverseMapTests",
       "com.google.common.collect.ImmutableBiMapTest$MapTests",
       "com.google.common.collect.ImmutableClassToInstanceMapTest",
-      "com.google.common.collect.ImmutableListTest",
       "com.google.common.collect.ImmutableListMultimapTest",
+      "com.google.common.collect.ImmutableListTest",
       "com.google.common.collect.ImmutableListTest$CreationTests",
       "com.google.common.collect.ImmutableMapTest",
       "com.google.common.collect.ImmutableMapTest$CreationTests",
       "com.google.common.collect.ImmutableMapTest$MapTests",
       "com.google.common.collect.ImmutableMapTest$MapTestsWithBadHashes",
+      "com.google.common.collect.ImmutableMapTest$MapTestsWithSingletonUnhashableValue",
+      "com.google.common.collect.ImmutableMapTest$MapTestsWithUnhashableValues",
       "com.google.common.collect.ImmutableMapTest$ReserializedMapTests",
       "com.google.common.collect.ImmutableMapTest$SingletonMapTests",
       "com.google.common.collect.ImmutableMultimapAsMapImplementsMapTest",
@@ -98,15 +102,16 @@ public class CollectTestSuite {
       "com.google.common.collect.ImmutableMultisetTest",
       "com.google.common.collect.ImmutableSetCollectionTest",
       "com.google.common.collect.ImmutableSetMultimapAsMapImplementsMapTest",
+      "com.google.common.collect.ImmutableSetMultimapTest",
       "com.google.common.collect.ImmutableSetTest",
       "com.google.common.collect.ImmutableSortedMapTest",
-      "com.google.common.collect.ImmutableSortedMapTest$MapTests",
-      "com.google.common.collect.ImmutableSortedMapTest$SingletonMapTests",
-      "com.google.common.collect.ImmutableSortedMapTest$ReserializedMapTests",
-      "com.google.common.collect.ImmutableSortedMapTest$HeadMapTests",
-      "com.google.common.collect.ImmutableSortedMapTest$TailMapTests",
-      "com.google.common.collect.ImmutableSortedMapTest$SubMapTests",
       "com.google.common.collect.ImmutableSortedMapTest$CreationTests",
+      "com.google.common.collect.ImmutableSortedMapTest$HeadMapTests",
+      "com.google.common.collect.ImmutableSortedMapTest$MapTests",
+      "com.google.common.collect.ImmutableSortedMapTest$ReserializedMapTests",
+      "com.google.common.collect.ImmutableSortedMapTest$SingletonMapTests",
+      "com.google.common.collect.ImmutableSortedMapTest$SubMapTests",
+      "com.google.common.collect.ImmutableSortedMapTest$TailMapTests",
       "com.google.common.collect.ImmutableSortedSetTest",
       "com.google.common.collect.InverseBiMapTest",
       "com.google.common.collect.IterablesTest",
