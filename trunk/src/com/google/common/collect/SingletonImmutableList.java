@@ -17,7 +17,6 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
-import com.google.common.annotations.NonFinalForGwt;
 import com.google.common.base.Preconditions;
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -41,7 +40,7 @@ final class SingletonImmutableList<E> extends ImmutableList<E> {
    * by inspecting this field at GWT compile time.  It also makes this class
    * GWT serializable without a custom field serializer.
    */
-  @NonFinalForGwt private E element;
+  private E element;
 
   @SuppressWarnings("unused") // Used only in GWT deserialization.
   private SingletonImmutableList() {
