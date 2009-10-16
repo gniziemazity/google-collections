@@ -22,7 +22,6 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
-import com.google.common.collect.testing.MinimalCollection;
 
 import junit.framework.Assert;
 
@@ -63,12 +62,12 @@ public class NullPointerTester {
     setDefault(Appendable.class, new StringBuilder());
     setDefault(CharSequence.class, "");
     setDefault(Class.class, Class.class);
-    setDefault(Collection.class, MinimalCollection.<Object>of());
+    setDefault(Collection.class, Collections.emptySet());
     setDefault(Comparable.class, 0);
     setDefault(Comparator.class, Collections.reverseOrder());
     setDefault(Function.class, Functions.identity());
     setDefault(Integer.class, 0);
-    setDefault(Iterable.class, MinimalCollection.<Object>of());
+    setDefault(Iterable.class, Collections.emptySet());
     setDefault(Iterator.class, Iterators.emptyIterator());
     setDefault(List.class, Collections.emptyList());
     setDefault(Map.class, Collections.emptyMap());
