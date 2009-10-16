@@ -1,3 +1,19 @@
+= Release 1.0 (RC3 - 20091016) =
+
+A much smaller set of API-level changes this time:
+
+  * ImmutableSetMultimap.Builder silently ignores duplicates now, just like ImmutableSet.Builder
+  * MapMaker config methods like concurrencyLevel() can't be called repeatedly
+  * ImmutableMap no longer implements ConcurrentMap
+  * Multimap methods removeAll() and replaceValues() now return immutable collections
+  * Preconditions.checkElementIndex and checkPositionIndex now return the index that was just checked
+  * add(E...) and allAll(Iterator) overloads now exist on all immutable collection builders, not just some
+  * Ordering methods are no longer final -- override with care!
+
+[http://google-collections.googlecode.com/files/google-collect-1.0-rc3.zip Download]
+
+[http://repo2.maven.org/maven2/com/google/collections/google-collections/1.0-rc3/ Maven bundle]
+
 = Release 1.0 (RC2 - 20090602) =
 
 ==NEW:==
