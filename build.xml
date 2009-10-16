@@ -1,5 +1,15 @@
 <?xml version="1.0"?>
 
+<!--
+
+  You must:
+   * have JAVA_HOME set to a recent JDK 6 installation
+   * have JAVA5_HOME set to a JDK 1.5.0 (_0) installation
+   * have unzipped $JAVA_HOME/src.zip to $JAVA_HOME/src
+   * specify -Dversion=1.0-rc1 (for example) on the ant command line
+
+-->
+
 <project name="google-collections" default="compile">
 
   <property environment="env"/>
@@ -11,28 +21,31 @@
 
   <target name="compile" description="Compile Java source.">
     <mkdir dir="${build.dir}/classes"/>
-    <javac srcdir="${src.dir}"
-         debug="on"
-         destdir="${build.dir}/classes"
-         source="1.5"
-         target="1.5">
+    <javac
+      srcdir="${src.dir}"
+      destdir="${build.dir}/classes"
+      debug="on"
+      target="1.5"
+      bootclasspath="{$env.JAVA5_HOME}/lib/rt.jar"
+      extdirs=""
+    >
       <compilerarg value="-Xlint:all"/>
       <classpath>
         <pathelement location="${lib.dir}/jsr305.jar"/>
       </classpath>
     </javac>
-    <copy toDir="${build.dir}/classes">
-      <fileset dir="${src.dir}" excludes="**/*.java"/>
-    </copy>
   </target>
 
   <target name="testfw" description="Compile test framework.">
     <mkdir dir="${build.dir}/testfwclasses"/>
-    <javac srcdir="${testfw.dir}"
-         debug="on"
-         destdir="${build.dir}/testfwclasses"
-         source="1.5"
-         target="1.5">
+    <javac
+      srcdir="${testfw.dir}"
+      destdir="${build.dir}/testfwclasses"
+      debug="on"
+      target="1.5"
+      bootclasspath="{$env.JAVA5_HOME}/lib/rt.jar"
+      extdirs=""
+    >
       <compilerarg value="-Xlint:all"/>
       <classpath>
         <pathelement location="${lib.dir}/junit.jar"/>
@@ -41,17 +54,16 @@
   </target>
 
   <target name="test.compile"
-      depends="compile,testfw"
+      depends="dist,testfw"
       description="Compile test source.">
     <mkdir dir="${build.dir}/test"/>
     <javac srcdir="${test.dir}"
-         debug="on"
-         destdir="${build.dir}/test"
-         source="1.5"
-         target="1.5">
+      destdir="${build.dir}/test"
+      debug="on"
+    >
       <compilerarg value="-Xlint:all"/>
       <classpath>
-        <pathelement location="${build.dir}/classes"/>
+        <pathelement location="${build.dir}/dist/google-collect-${version}/google-collect-${version}.jar"/>
         <pathelement location="${build.dir}/testfwclasses"/>
         <pathelement location="${lib.dir}/junit.jar"/>
         <pathelement location="${lib.dir}/tl4j-1.1.0.jar"/>
@@ -60,9 +72,6 @@
         <pathelement location="${lib.dir}/easymockclassextension-2.4.jar"/>
       </classpath>
     </javac>
-    <copy toDir="${build.dir}/test">
-      <fileset dir="${test.dir}" excludes="**/*.java"/>
-    </copy>
   </target>
 
   <target name="test"
@@ -74,7 +83,7 @@
         taskname="junit">
       <classpath>
         <pathelement location="${build.dir}/test"/>
-        <pathelement location="${build.dir}/classes"/>
+        <pathelement location="${build.dir}/dist/google-collect-${version}/google-collect-${version}.jar"/>
         <pathelement location="${build.dir}/testfwclasses"/>
         <pathelement location="${lib.dir}/junit.jar"/>
         <pathelement location="${lib.dir}/tl4j-1.1.0.jar"/>
@@ -131,7 +140,6 @@
         <pathelement location="${src.dir}"/>
         <pathelement location="${env.JAVA_HOME}/src"/>
       </sourcepath>
-      <!-- workaround for http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6442982 -->
       <classpath>
         <pathelement location="${lib.dir}/jsr305.jar"/>
       </classpath>
