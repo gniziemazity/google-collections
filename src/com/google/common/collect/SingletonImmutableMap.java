@@ -17,7 +17,6 @@
 package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
-import com.google.common.annotations.NonFinalForGwt;
 
 import java.util.Map;
 
@@ -36,8 +35,8 @@ final class SingletonImmutableMap<K, V> extends ImmutableMap<K, V> {
   // These fields are not final so that GWT is able to derive the key and value
   // types by inspecting these fields at GWT compile time.  It also makes this
   // class GWT serializable without a custom field serializer.
-  @NonFinalForGwt private K singleKey;
-  @NonFinalForGwt private V singleValue;
+  private K singleKey;
+  private V singleValue;
 
   private transient Entry<K, V> entry;
 
