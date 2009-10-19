@@ -30,7 +30,7 @@ import javax.annotation.Nullable;
  */
 @GwtCompatible(serializable = true)
 final class EmptyImmutableSet extends ImmutableSet<Object> {
-  static final ImmutableSet INSTANCE = new EmptyImmutableSet();
+  static final EmptyImmutableSet INSTANCE = new EmptyImmutableSet();
 
   private EmptyImmutableSet() {}
 

@@ -25,7 +25,7 @@ import com.google.common.annotations.GwtCompatible;
  */
 @GwtCompatible(serializable = true)
 class EmptyImmutableListMultimap extends ImmutableListMultimap<Object, Object> {
-  static final ImmutableListMultimap INSTANCE
+  static final EmptyImmutableListMultimap INSTANCE
       = new EmptyImmutableListMultimap();
 
   private EmptyImmutableListMultimap() {

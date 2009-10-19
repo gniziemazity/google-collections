@@ -35,7 +35,7 @@ import javax.annotation.Nullable;
  */
 @GwtCompatible(serializable = true)
 final class EmptyImmutableList extends ImmutableList<Object> {
-  static final ImmutableList INSTANCE = new EmptyImmutableList();
+  static final EmptyImmutableList INSTANCE = new EmptyImmutableList();
 
   private EmptyImmutableList() {}
 
