@@ -30,7 +30,7 @@ import javax.annotation.Nullable;
  */
 @GwtCompatible(serializable = true)
 final class EmptyImmutableMap extends ImmutableMap<Object, Object> {
-  static final ImmutableMap INSTANCE = new EmptyImmutableMap();
+  static final EmptyImmutableMap INSTANCE = new EmptyImmutableMap();
 
   private EmptyImmutableMap() {}
 

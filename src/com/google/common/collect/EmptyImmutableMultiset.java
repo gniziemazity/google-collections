@@ -25,7 +25,7 @@ import com.google.common.annotations.GwtCompatible;
  */
 @GwtCompatible(serializable = true)
 final class EmptyImmutableMultiset extends ImmutableMultiset<Object> {
-  static final ImmutableMultiset INSTANCE = new EmptyImmutableMultiset();
+  static final EmptyImmutableMultiset INSTANCE = new EmptyImmutableMultiset();
 
   private EmptyImmutableMultiset() {
     super(ImmutableMap.<Object, Integer>of(), 0);
