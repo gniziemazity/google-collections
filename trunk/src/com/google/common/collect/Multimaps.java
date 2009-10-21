@@ -16,6 +16,7 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Joiner.MapJoiner;
@@ -50,6 +51,7 @@ import javax.annotation.Nullable;
  * @author Robert Konigsberg
  * @author Mike Bostock
  */
+@GwtCompatible
 public final class Multimaps {
   private Multimaps() {}
 
