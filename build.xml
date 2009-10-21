@@ -26,7 +26,7 @@
       destdir="${build.dir}/classes"
       debug="on"
       target="1.5"
-      bootclasspath="{$env.JAVA5_HOME}/lib/rt.jar"
+      bootclasspath="${env.JAVA5_HOME}/lib/rt.jar"
       extdirs=""
     >
       <compilerarg value="-Xlint:all"/>
@@ -43,7 +43,7 @@
       destdir="${build.dir}/testfwclasses"
       debug="on"
       target="1.5"
-      bootclasspath="{$env.JAVA5_HOME}/lib/rt.jar"
+      bootclasspath="${env.JAVA5_HOME}/lib/rt.jar"
       extdirs=""
     >
       <compilerarg value="-Xlint:all"/>
@@ -102,14 +102,29 @@
   </target>
 
   <target name="jar" depends="compile" description="Build jars.">
-    <mkdir dir="${build.dir}/dist"/>
     <mkdir dir="${build.dir}/dist/google-collect-${version}"/>
     <jar jarfile="${build.dir}/dist/google-collect-${version}/google-collect-${version}.jar">
       <fileset dir="${build.dir}/classes"/>
     </jar>
   </target>
 
+  <target name="jargwt" description="Build GWT jar.">
+    <mkdir dir="${build.dir}/dist/google-collect-${version}"/>
+    <jar jarfile="${build.dir}/dist/google-collect-${version}/google-collect-${version}-gwt.jar">
+      <fileset dir="${src.dir}">
+        <and>
+          <contains text="@GwtCompatible"/>
+          <not>
+            <contains text="emulated = true"/>
+          </not>
+        </and>
+      </fileset>
+      <fileset dir="gwt"/>
+    </jar>
+  </target>
+
   <target name="jarsrc" description="Build jar of source.">
+    <mkdir dir="${build.dir}/dist/google-collect-${version}"/>
     <jar jarfile="${build.dir}/dist/google-collect-${version}/src-${version}.zip">
       <fileset dir="${src.dir}"/>
     </jar>

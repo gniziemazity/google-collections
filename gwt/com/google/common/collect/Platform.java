@@ -16,7 +16,6 @@
 
 package com.google.common.collect;
 
-import com.google.common.base.ReferenceType;
 import com.google.gwt.lang.Array;
 
 import java.util.List;
