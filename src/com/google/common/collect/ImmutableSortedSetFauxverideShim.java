@@ -16,6 +16,8 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
+
 import java.util.Iterator;
 
 /**
@@ -35,6 +37,7 @@ import java.util.Iterator;
  * 
  * @author Chris Povirk
  */
+@GwtCompatible
 abstract class ImmutableSortedSetFauxverideShim<E> extends ImmutableSet<E> {
   /**
    * Not supported. Use {@link ImmutableSortedSet#naturalOrder}, which offers

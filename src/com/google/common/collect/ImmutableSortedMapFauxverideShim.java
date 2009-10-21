@@ -16,6 +16,8 @@
 
 package com.google.common.collect;
 
+import com.google.common.annotations.GwtCompatible;
+
 import java.util.Map;
 
 /**
@@ -25,6 +27,7 @@ import java.util.Map;
  * 
  * @author Chris Povirk
  */
+@GwtCompatible
 abstract class ImmutableSortedMapFauxverideShim<K, V>
     extends ImmutableMap<K, V> {
   /**
