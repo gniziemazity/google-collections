@@ -34,6 +34,23 @@
         <pathelement location="${lib.dir}/jsr305.jar"/>
       </classpath>
     </javac>
+
+    <javac
+      srcdir="${gwt.dir}"
+      destdir="${build.dir}/classes"
+      debug="on"
+      target="1.5"
+      bootclasspath="${env.JAVA5_HOME}/lib/rt.jar"
+      extdirs=""
+    >
+      <include name="**/*_CustomFieldSerializer*.java"/>
+      <compilerarg value="-Xlint:all"/>
+      <classpath>
+        <pathelement location="${build.dir}/dist/google-collect-${version}/google-collect-${version}.jar"/>
+        <pathelement location="${lib.dir}/jsr305.jar"/>
+        <pathelement location="${lib.dir}/gwt-servlet.jar"/>
+      </classpath>
+    </javac>
   </target>
 
   <target name="testfw" description="Compile test framework.">
@@ -92,7 +109,7 @@
         <pathelement location="${lib.dir}/easymockclassextension-2.4.jar"/>
         <pathelement location="${lib.dir}/cglib-nodep-2.2.jar"/>
       </classpath>
-      <arg value="com.google.common.collect.CollectTestSuite" />
+      <arg value="com.google.common.collect.CollectTestSuite"/>
     </java>
   </target>
 
@@ -111,7 +128,7 @@
   <target name="jargwt" description="Build GWT jar.">
     <mkdir dir="${build.dir}/dist/google-collect-${version}"/>
     <jar jarfile="${build.dir}/dist/google-collect-${version}/google-collect-gwt-${version}.jar">
-      <fileset dir="gwt"/>
+      <fileset dir="${gwt.dir}"/>
       <fileset dir="${src.dir}">
         <and>
           <contains text="@GwtCompatible"/>
