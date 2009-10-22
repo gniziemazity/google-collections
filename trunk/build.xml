@@ -43,7 +43,7 @@
       bootclasspath="${env.JAVA5_HOME}/lib/rt.jar"
       extdirs=""
     >
-      <include name="**/*_CustomFieldSerializer*.java"/>
+      <include name="${gwt.serializers}"/>
       <compilerarg value="-Xlint:all"/>
       <classpath>
         <pathelement location="${build.dir}/dist/google-collect-${version}/google-collect-${version}.jar"/>
@@ -144,6 +144,9 @@
     <mkdir dir="${build.dir}/dist/google-collect-${version}"/>
     <jar jarfile="${build.dir}/dist/google-collect-${version}/src-${version}.zip">
       <fileset dir="${src.dir}"/>
+      <fileset dir="${gwt.dir}">
+        <include name="${gwt.serializers}"/>
+      </fileset>
     </jar>
   </target>
 
