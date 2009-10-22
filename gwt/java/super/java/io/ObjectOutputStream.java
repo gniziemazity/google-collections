@@ -34,6 +34,6 @@ public class ObjectOutputStream {
   }
 
   private static UnsupportedOperationException unsupported() {
-    throw new UnsupportedOperationException("ObjectOutputStream is not supported in GWT.");
+    return new UnsupportedOperationException("ObjectOutputStream is not supported in GWT.");
   }
 }

@@ -110,7 +110,8 @@
 
   <target name="jargwt" description="Build GWT jar.">
     <mkdir dir="${build.dir}/dist/google-collect-${version}"/>
-    <jar jarfile="${build.dir}/dist/google-collect-${version}/google-collect-${version}-gwt.jar">
+    <jar jarfile="${build.dir}/dist/google-collect-${version}/google-collect-gwt-${version}.jar">
+      <fileset dir="gwt"/>
       <fileset dir="${src.dir}">
         <and>
           <contains text="@GwtCompatible"/>
@@ -119,7 +120,6 @@
           </not>
         </and>
       </fileset>
-      <fileset dir="gwt"/>
     </jar>
   </target>
 
