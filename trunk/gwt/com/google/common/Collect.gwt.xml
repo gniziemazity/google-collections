@@ -3,5 +3,4 @@
 <module>
   <source path="" />
   <super-source path="super"/>
-  <inherits name="Jre"/>
 </module>
