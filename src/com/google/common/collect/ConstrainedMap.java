@@ -21,9 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.Nullable;
@@ -34,18 +32,36 @@ import javax.annotation.Nullable;
  * @author Mike Bostock
  */
 @GwtCompatible
-final class MapConstraints {
-  private MapConstraints() {}
+class ConstrainedMap<K, V> extends ForwardingMap<K, V> {
+  final Map<K, V> delegate;
+  final MapConstraint<? super K, ? super V> constraint;
+  private volatile Set<Entry<K, V>> entrySet;
 
-  /**
-   * Returns a constrained view of the specified entry, using the specified
-   * constraint. The {@link Entry#setValue} operation will be verified with the
-   * constraint.
-   *
-   * @param entry the entry to constrain
-   * @param constraint the constraint for the entry
-   * @return a constrained view of the specified entry
-   */
+  ConstrainedMap(
+      Map<K, V> delegate, MapConstraint<? super K, ? super V> constraint) {
+    this.delegate = checkNotNull(delegate);
+    this.constraint = checkNotNull(constraint);
+  }
+
+  @Override protected Map<K, V> delegate() {
+    return delegate;
+  }
+  @Override public Set<Entry<K, V>> entrySet() {
+    if (entrySet == null) {
+      entrySet = constrainedEntrySet(delegate.entrySet(), constraint);
+    }
+    return entrySet;
+  }
+  @Override public V put(K key, V value) {
+    constraint.checkKeyValue(key, value);
+    return delegate.put(key, value);
+  }
+  @Override public void putAll(Map<? extends K, ? extends V> map) {
+    for (Entry<? extends K, ? extends V> entry : map.entrySet()) {
+      put(entry.getKey(), entry.getValue());
+    }
+  }
+
   private static <K, V> Entry<K, V> constrainedEntry(
       final Entry<K, V> entry,
       final MapConstraint<? super K, ? super V> constraint) {
@@ -62,77 +78,12 @@ final class MapConstraints {
     };
   }
 
-  /**
-   * Returns a constrained view of the specified collection (or set) of entries,
-   * using the specified constraint. The {@link Entry#setValue} operation will
-   * be verified with the constraint, along with add operations on the returned
-   * collection. The {@code add} and {@code addAll} operations simply forward to
-   * the underlying collection, which throws an {@link
-   * UnsupportedOperationException} per the map and multimap specification.
-   *
-   * @param entries the entries to constrain
-   * @param constraint the constraint for the entries
-   * @return a constrained view of the specified entries
-   */
-  private static <K, V> Collection<Entry<K, V>> constrainedEntries(
-      Collection<Entry<K, V>> entries,
-      MapConstraint<? super K, ? super V> constraint) {
-    if (entries instanceof Set) {
-      return constrainedEntrySet((Set<Entry<K, V>>) entries, constraint);
-    }
-    return new ConstrainedEntries<K, V>(entries, constraint);
-  }
-
-  /**
-   * Returns a constrained view of the specified set of entries, using the
-   * specified constraint. The {@link Entry#setValue} operation will be verified
-   * with the constraint, along with add operations on the returned set. The
-   * {@code add} and {@code addAll} operations simply forward to the underlying
-   * set, which throws an {@link UnsupportedOperationException} per the map and
-   * multimap specification.
-   *
-   * <p>The returned multimap is not serializable.
-   *
-   * @param entries the entries to constrain
-   * @param constraint the constraint for the entries
-   * @return a constrained view of the specified entries
-   */
   private static <K, V> Set<Entry<K, V>> constrainedEntrySet(
       Set<Entry<K, V>> entries,
       MapConstraint<? super K, ? super V> constraint) {
     return new ConstrainedEntrySet<K, V>(entries, constraint);
   }
 
-  static class ConstrainedMap<K, V> extends ForwardingMap<K, V> {
-    final Map<K, V> delegate;
-    final MapConstraint<? super K, ? super V> constraint;
-    private transient volatile Set<Entry<K, V>> entrySet;
-
-    ConstrainedMap(
-        Map<K, V> delegate, MapConstraint<? super K, ? super V> constraint) {
-      this.delegate = checkNotNull(delegate);
-      this.constraint = checkNotNull(constraint);
-    }
-    @Override protected Map<K, V> delegate() {
-      return delegate;
-    }
-    @Override public Set<Entry<K, V>> entrySet() {
-      if (entrySet == null) {
-        entrySet = constrainedEntrySet(delegate.entrySet(), constraint);
-      }
-      return entrySet;
-    }
-    @Override public V put(K key, V value) {
-      constraint.checkKeyValue(key, value);
-      return delegate.put(key, value);
-    }
-    @Override public void putAll(Map<? extends K, ? extends V> map) {
-      delegate.putAll(checkMap(map, constraint));
-    }
-  }
-
-
-  /** @see MapConstraints#constrainedEntries */
   private static class ConstrainedEntries<K, V>
       extends ForwardingCollection<Entry<K, V>> {
     final MapConstraint<? super K, ? super V> constraint;
@@ -200,14 +151,5 @@ final class MapConstraints {
     @Override public int hashCode() {
       return Sets.hashCodeImpl(this);
     }
-  }
-
-  private static <K, V> Map<K, V> checkMap(Map<? extends K, ? extends V> map,
-      MapConstraint<? super K, ? super V> constraint) {
-    Map<K, V> copy = new LinkedHashMap<K, V>(map);
-    for (Entry<K, V> entry : copy.entrySet()) {
-      constraint.checkKeyValue(entry.getKey(), entry.getValue());
-    }
-    return copy;
   }
 }
