@@ -16,8 +16,6 @@
 
 package com.google.common.collect;
 
-import com.google.common.collect.MapConstraints.ConstrainedMap;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -83,16 +81,14 @@ public final class MutableClassToInstanceMap<B>
 
   private static final Map<Class<?>, Class<?>> PRIMITIVES_TO_WRAPPERS
       = new ImmutableMap.Builder<Class<?>, Class<?>>()
-          .put(boolean.class, Boolean.class)
-          .put(byte.class, Byte.class)
-          .put(char.class, Character.class)
-          .put(double.class, Double.class)
-          .put(float.class, Float.class)
-          .put(int.class, Integer.class)
-          .put(long.class, Long.class)
-          .put(short.class, Short.class)
-          .put(void.class, Void.class)
-          .build();
-
-  private static final long serialVersionUID = 0;
+      .put(boolean.class, Boolean.class)
+      .put(byte.class, Byte.class)
+      .put(char.class, Character.class)
+      .put(double.class, Double.class)
+      .put(float.class, Float.class)
+      .put(int.class, Integer.class)
+      .put(long.class, Long.class)
+      .put(short.class, Short.class)
+      .put(void.class, Void.class)
+      .build();
 }
