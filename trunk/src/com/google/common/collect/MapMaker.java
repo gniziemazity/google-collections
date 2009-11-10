@@ -124,18 +124,6 @@ public final class MapMaker {
   }
 
   /**
-   * Sets a custom load factor (defaults to 0.75).
-   *
-   * @throws IllegalArgumentException if {@code loadFactor} is
-   *     nonpositive
-   * @throws IllegalStateException if a load factor was already set
-   */
-  public MapMaker loadFactor(float loadFactor) {
-    builder.loadFactor(loadFactor);
-    return this;
-  }
-
-  /**
    * Guides the allowed concurrency among update operations. Used as a
    * hint for internal sizing. The table is internally partitioned to try
    * to permit the indicated number of concurrent updates without
@@ -299,7 +287,7 @@ public final class MapMaker {
     return useCustomMap
         ? new StrategyImpl<K, V>(this).map
         : new ConcurrentHashMap<K, V>(builder.getInitialCapacity(),
-            builder.getLoadFactor(), builder.getConcurrencyLevel());
+            0.75f, builder.getConcurrencyLevel());
   }
 
   /**

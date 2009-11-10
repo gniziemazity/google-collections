@@ -135,35 +135,15 @@ final class CustomConcurrentHashMap {
   /**
    * Builds a custom concurrent hash map.
    */
-  final static class Builder {
-    private static final float DEFAULT_LOAD_FACTOR = 0.75f;
+  static final class Builder {
     private static final int DEFAULT_INITIAL_CAPACITY = 16;
     private static final int DEFAULT_CONCURRENCY_LEVEL = 16;
     
-    private static final float UNSET_LOAD_FACTOR = 0.0f;
     private static final int UNSET_INITIAL_CAPACITY = -1;
     private static final int UNSET_CONCURRENCY_LEVEL = -1;
     
-    float loadFactor = UNSET_LOAD_FACTOR;
     int initialCapacity = UNSET_INITIAL_CAPACITY;
     int concurrencyLevel = UNSET_CONCURRENCY_LEVEL;
-
-    /**
-     * Sets a custom load factor (defaults to 0.75).
-     *
-     * @throws IllegalArgumentException if loadFactor <= 0
-     */
-    public Builder loadFactor(float loadFactor) {
-      if (this.loadFactor != UNSET_LOAD_FACTOR) {
-        throw new IllegalStateException(
-            "load factor was already set to " + this.loadFactor);
-      }
-      if (loadFactor <= 0.0f) {
-        throw new IllegalArgumentException();
-      }
-      this.loadFactor = loadFactor;
-      return this;
-    }
 
     /**
      * Sets a custom initial capacity (defaults to 16). Resizing this or any
@@ -281,11 +261,6 @@ final class CustomConcurrentHashMap {
       return new ComputingImpl<K, V, E>(strategy, this, computer);
     }
     
-    float getLoadFactor() {
-      return (loadFactor == UNSET_LOAD_FACTOR)
-          ? DEFAULT_LOAD_FACTOR : loadFactor;
-    }
-
     int getInitialCapacity() {
       return (initialCapacity == UNSET_INITIAL_CAPACITY)
           ? DEFAULT_INITIAL_CAPACITY : initialCapacity;
@@ -614,16 +589,10 @@ final class CustomConcurrentHashMap {
     final Segment[] segments;
 
     /**
-     * The load factor for the hash table.
-     */
-    final float loadFactor;
-
-    /**
      * Creates a new, empty map with the specified strategy, initial capacity,
      * load factor and concurrency level.
      */
     Impl(Strategy<K, V, E> strategy, Builder builder) {
-      this.loadFactor = builder.getLoadFactor();
       int concurrencyLevel = builder.getConcurrencyLevel();
       int initialCapacity = builder.getInitialCapacity();
 
@@ -805,7 +774,7 @@ final class CustomConcurrentHashMap {
        * constructor.
        */
       void setTable(AtomicReferenceArray<E> newTable) {
-        this.threshold = (int) (newTable.length() * loadFactor);
+        this.threshold = newTable.length() * 3 / 4;
         this.table = newTable;
       }
 
@@ -1023,7 +992,7 @@ final class CustomConcurrentHashMap {
 
         Strategy<K, V, E> s = Impl.this.strategy;
         AtomicReferenceArray<E> newTable = newEntryArray(oldCapacity << 1);
-        threshold = (int) (newTable.length() * loadFactor);
+        threshold = newTable.length() * 3 / 4;
         int newMask = newTable.length() - 1;
         for (int oldIndex = 0; oldIndex < oldCapacity; oldIndex++) {
           // We need to guarantee that any existing reads of old Map can
@@ -1912,12 +1881,11 @@ final class CustomConcurrentHashMap {
 
     /* ---------------- Serialization Support -------------- */
 
-    private static final long serialVersionUID = 0;
+    private static final long serialVersionUID = 1;
 
     private void writeObject(java.io.ObjectOutputStream out)
         throws IOException {
       out.writeInt(size());
-      out.writeFloat(loadFactor);
       out.writeInt(segments.length); // concurrencyLevel
       out.writeObject(strategy);
       for (Entry<K, V> entry : entrySet()) {
@@ -1934,7 +1902,6 @@ final class CustomConcurrentHashMap {
      */
     static class Fields {
 
-      static final Field loadFactor = findField("loadFactor");
       static final Field segmentShift = findField("segmentShift");
       static final Field segmentMask = findField("segmentMask");
       static final Field segments = findField("segments");
@@ -1956,11 +1923,8 @@ final class CustomConcurrentHashMap {
         throws IOException, ClassNotFoundException {
       try {
         int initialCapacity = in.readInt();
-        float loadFactor = in.readFloat();
         int concurrencyLevel = in.readInt();
         Strategy<K, V, E> strategy = (Strategy<K, V, E>) in.readObject();
-
-        Fields.loadFactor.set(this, loadFactor);
 
         if (concurrencyLevel > MAX_SEGMENTS) {
           concurrencyLevel = MAX_SEGMENTS;

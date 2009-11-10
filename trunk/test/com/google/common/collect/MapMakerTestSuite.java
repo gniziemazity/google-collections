@@ -56,7 +56,6 @@ public class MapMakerTestSuite extends TestCase {
       Impl<?, ?, ?> map = makeCustomMap(new MapMaker());
       assertEquals(16, map.segments.length); // concurrency level
       assertEquals(1, map.segments[0].table.length()); // capacity / conc level
-      assertEquals(0.75f, map.loadFactor);
     }
 
     public void testInitialCapacity_small() {
@@ -94,44 +93,6 @@ public class MapMakerTestSuite extends TestCase {
       try {
         // even to the same value is not allowed
         maker.initialCapacity(16);
-        fail();
-      } catch (IllegalStateException expected) {
-      }
-    }
-
-    public void testLoadFactor_small() {
-      MapMaker maker = new MapMaker().loadFactor(Float.MIN_VALUE);
-      Impl<?, ?, ?> map = makeCustomMap(maker);
-      assertEquals(Float.MIN_VALUE, map.loadFactor);
-
-      // has no other effect until we add an entry (which would be bad)
-      assertEquals(1, map.segments[0].table.length());
-    }
-
-    public void testLoadFactor_large() {
-      MapMaker maker = new MapMaker().loadFactor(Float.MAX_VALUE);
-      Impl<?, ?, ?> map = makeCustomMap(maker);
-      assertEquals(Float.MAX_VALUE, map.loadFactor);
-
-      // these tables will never grow... we could add a ton of entries to
-      // check that if we wanted to.
-      assertEquals(1, map.segments[0].table.length());
-    }
-
-    public void testLoadFactor_zero() {
-      MapMaker maker = new MapMaker();
-      try {
-        maker.loadFactor(0);
-        fail();
-      } catch (IllegalArgumentException expected) {
-      }
-    }
-
-    public void testLoadFactor_setTwice() {
-      MapMaker maker = new MapMaker().loadFactor(0.75f);
-      try {
-        // even to the same value is not allowed
-        maker.loadFactor(0.75f);
         fail();
       } catch (IllegalStateException expected) {
       }
@@ -231,7 +192,6 @@ public class MapMakerTestSuite extends TestCase {
     public void testReturnsPlainConcurrentHashMapWhenPossible() {
       Map<?, ?> map = new MapMaker()
           .concurrencyLevel(5)
-          .loadFactor(0.5f)
           .initialCapacity(5)
           .makeMap();
       assertTrue(map instanceof ConcurrentHashMap);
