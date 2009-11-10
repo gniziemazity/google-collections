@@ -35,6 +35,7 @@
       </classpath>
     </javac>
 
+<!-- uncomment when GWT support is official
     <javac
       srcdir="${gwt.dir}"
       destdir="${build.dir}/classes"
@@ -51,6 +52,7 @@
         <pathelement location="${lib.dir}/gwt-servlet.jar"/>
       </classpath>
     </javac>
+-->
   </target>
 
   <target name="testfw" description="Compile test framework.">
@@ -144,9 +146,11 @@
     <mkdir dir="${build.dir}/dist/google-collect-${version}"/>
     <jar jarfile="${build.dir}/dist/google-collect-${version}/src-${version}.zip">
       <fileset dir="${src.dir}"/>
+<!-- uncomment when GWT support is official 
       <fileset dir="${gwt.dir}">
         <include name="${gwt.serializers}"/>
       </fileset>
+-->
     </jar>
   </target>
 
