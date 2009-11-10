@@ -26,22 +26,22 @@ import javax.annotation.Nullable;
 
 /**
  * Basic implementation of the {@link SortedSetMultimap} interface. It's a
- * wrapper around {@link StandardMultimap} that converts the returned
+ * wrapper around {@link AbstractMultimap} that converts the returned
  * collections into sorted sets. The {@link #createCollection} method
  * must return a {@code SortedSet}.
  *
  * @author Jared Levy
  */
 @GwtCompatible
-abstract class StandardSortedSetMultimap<K, V>
-    extends StandardSetMultimap<K, V> implements SortedSetMultimap<K, V> {
+abstract class AbstractSortedSetMultimap<K, V>
+    extends AbstractSetMultimap<K, V> implements SortedSetMultimap<K, V> {
   /**
    * Creates a new multimap that uses the provided map.
    *
    * @param map place to store the mapping from each key to its corresponding
    *     values
    */
-  protected StandardSortedSetMultimap(Map<K, Collection<V>> map) {
+  protected AbstractSortedSetMultimap(Map<K, Collection<V>> map) {
     super(map);
   }
 
@@ -69,4 +69,6 @@ abstract class StandardSortedSetMultimap<K, V>
   @Override public Collection<V> values() {
     return super.values();
   }
+  
+  private static final long serialVersionUID = 430848587173315748L;  
 }

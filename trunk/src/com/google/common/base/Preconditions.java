@@ -258,18 +258,21 @@ public final class Preconditions {
    * @throws IllegalArgumentException if {@code size} is negative
    */
   public static int checkElementIndex(int index, int size, String desc) {
-    if (size < 0) {
-      throw new IllegalArgumentException("negative size: " + size);
-    }
-    if (index < 0) {
-      throw new IndexOutOfBoundsException(
-          format("%s (%s) must not be negative", desc, index));
-    }
-    if (index >= size) {
-      throw new IndexOutOfBoundsException(
-          format("%s (%s) must be less than size (%s)", desc, index, size));
+    // Carefully optimized for execution by hotspot (explanatory comment above)
+    if (index < 0 || index >= size) {
+      throw new IndexOutOfBoundsException(badElementIndex(index, size, desc));
     }
     return index;
+  }
+
+  private static String badElementIndex(int index, int size, String desc) {
+    if (index < 0) {
+      return format("%s (%s) must not be negative", desc, index);
+    } else if (size < 0) {
+      throw new IllegalArgumentException("negative size: " + size);
+    } else { // index >= size
+      return format("%s (%s) must be less than size (%s)", desc, index, size);
+    }
   }
 
   /**
@@ -304,18 +307,22 @@ public final class Preconditions {
    * @throws IllegalArgumentException if {@code size} is negative
    */
   public static int checkPositionIndex(int index, int size, String desc) {
-    if (size < 0) {
-      throw new IllegalArgumentException("negative size: " + size);
-    }
-    if (index < 0) {
-      throw new IndexOutOfBoundsException(format(
-          "%s (%s) must not be negative", desc, index));
-    }
-    if (index > size) {
-      throw new IndexOutOfBoundsException(format(
-          "%s (%s) must not be greater than size (%s)", desc, index, size));
+    // Carefully optimized for execution by hotspot (explanatory comment above)
+    if (index < 0 || index > size) {
+      throw new IndexOutOfBoundsException(badPositionIndex(index, size, desc));
     }
     return index;
+  }
+
+  private static String badPositionIndex(int index, int size, String desc) {
+    if (index < 0) {
+      return format("%s (%s) must not be negative", desc, index);
+    } else if (size < 0) {
+      throw new IllegalArgumentException("negative size: " + size);
+    } else { // index > size
+      return format("%s (%s) must not be greater than size (%s)",
+                    desc, index, size);
+    }
   }
 
   /**
@@ -333,12 +340,22 @@ public final class Preconditions {
    * @throws IllegalArgumentException if {@code size} is negative
    */
   public static void checkPositionIndexes(int start, int end, int size) {
-    checkPositionIndex(start, size, "start index");
-    checkPositionIndex(end, size, "end index");
-    if (end < start) {
-      throw new IndexOutOfBoundsException(format(
-          "end index (%s) must not be less than start index (%s)", end, start));
+    // Carefully optimized for execution by hotspot (explanatory comment above)
+    if (start < 0 || end < start || end > size) {
+      throw new IndexOutOfBoundsException(badPositionIndexes(start, end, size));
     }
+  }
+
+  private static String badPositionIndexes(int start, int end, int size) {
+    if (start < 0 || start > size) {
+      return badPositionIndex(start, size, "start index");
+    }
+    if (end < 0 || end > size) {
+      return badPositionIndex(end, size, "end index");
+    }
+    // end < start
+    return format("end index (%s) must not be less than start index (%s)",
+                  end, start);
   }
 
   /**

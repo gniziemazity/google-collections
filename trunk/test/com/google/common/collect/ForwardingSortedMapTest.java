@@ -134,4 +134,9 @@ public class ForwardingSortedMapTest extends ForwardingTestCase {
     forward.values();
     assertEquals("[values]", getCalls());
   }
+      
+  public void testToString() {
+    forward.toString();
+    assertEquals("[toString]", getCalls());
+  }
 }

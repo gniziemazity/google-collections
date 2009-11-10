@@ -66,7 +66,7 @@ import javax.annotation.Nullable;
  * @author Jared Levy
  */
 @GwtCompatible(serializable = true)
-public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
+public final class LinkedHashMultimap<K, V> extends AbstractSetMultimap<K, V> {
   private static final int DEFAULT_VALUES_PER_KEY = 8;
 
   @VisibleForTesting
@@ -115,16 +115,11 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
     return new LinkedHashMultimap<K, V>(multimap);
   }
 
-  /** Constructs an empty {@code LinkedHashMultimap}. */
   private LinkedHashMultimap() {
     super(new LinkedHashMap<K, Collection<V>>());
     linkedEntries = Sets.newLinkedHashSet();
   }
 
-  /**
-   * Constructs an empty {@code LinkedHashMultimap} with enough capacity to hold
-   * the specified numbers of keys and values without rehashing.
-   */
   private LinkedHashMultimap(int expectedKeys, int expectedValuesPerKey) {
     super(new LinkedHashMap<K, Collection<V>>(expectedKeys));
     Preconditions.checkArgument(expectedValuesPerKey >= 0);
@@ -133,13 +128,6 @@ public final class LinkedHashMultimap<K, V> extends StandardSetMultimap<K, V> {
         expectedKeys * expectedValuesPerKey);
   }
 
-  /**
-   * Constructs a {@code LinkedHashMultimap} with the same mappings as the
-   * specified {@code Multimap}. If a key-value mapping appears multiple times
-   * in the input multimap, it only appears once in the constructed multimap.
-   * The new multimap has the same {@link Multimap#entries()} iteration order as
-   * the input multimap, except for excluding duplicate mappings.
-   */
   private LinkedHashMultimap(Multimap<? extends K, ? extends V> multimap) {
     super(new LinkedHashMap<K, Collection<V>>(
         Maps.capacity(multimap.keySet().size())));

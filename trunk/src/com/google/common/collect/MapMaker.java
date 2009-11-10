@@ -315,21 +315,23 @@ public final class MapMaker {
    * other words, an entry isn't externally visible until the value's
    * computation completes.
    *
-   * <p>{@link Map#get} in the returned map implementation throws:
+   * <p>{@link Map#get} on the returned map will never return {@code null}. It
+   * may throw:
    *
    * <ul>
-   * <li>{@link NullPointerException} if the key is null or the computer returns
-   *     null</li>
-   * <li>or {@link ComputationException} wrapping an exception thrown by the
-   *     computation.  If a {@link ComputationException} was thrown from the
-   *     computer, it will be propagated.</li>
+   * <li>{@link NullPointerException} if the key is null or the computing
+   *     function returns null
+   * <li>{@link ComputationException} if an exception was thrown by the
+   *     computing function. If that exception is already of type {@link
+   *     ComputationException}, it is propagated directly; otherwise it is
+   *     wrapped.
    * </ul>
    *
    * <p><b>Note:</b> Callers of {@code get} <i>must</i> ensure that the key
    * argument is of type {@code K}. The {@code get} method accepts {@code
    * Object}, so the key type is not checked at compile time. Passing an object
    * of a type other than {@code K} can result in that object being unsafely
-   * passed to the computer function as type {@code K}, and unsafely stored in
+   * passed to the computing function as type {@code K}, and unsafely stored in
    * the map.
    *
    * <p>If {@link Map#put} is called before a computation completes, other
@@ -341,8 +343,8 @@ public final class MapMaker {
    * so it can be invoked again to create multiple independent maps.
    */
   public <K, V> ConcurrentMap<K, V> makeComputingMap(
-      Function<? super K, ? extends V> computer) {
-    return new StrategyImpl<K, V>(this, computer).map;
+      Function<? super K, ? extends V> computingFunction) {
+    return new StrategyImpl<K, V>(this, computingFunction).map;
   }
 
   // Remainder of this file is private implementation details

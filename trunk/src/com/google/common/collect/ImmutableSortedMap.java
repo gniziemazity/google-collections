@@ -152,13 +152,25 @@ public class ImmutableSortedMap<K, V>
    * <p><b>Note:</b> Despite what the method name suggests, if {@code map} is an
    * {@code ImmutableSortedMap}, it may be returned instead of a copy.
    *
+   * <p>This method is not type-safe, as it may be called on a map with keys
+   * that are not mutually comparable.
+   *
+   * @throws ClassCastException if the keys in {@code map} are not mutually
+   *     comparable
    * @throws NullPointerException if any key or value in {@code map} is null
    * @throws IllegalArgumentException if any two keys are equal according to
    *     their natural ordering
    */
-  public static <K extends Comparable<? super K>, V> ImmutableSortedMap<K, V>
-      copyOf(Map<? extends K, ? extends V> map) {
-    return copyOfInternal(map, Ordering.natural());
+  @SuppressWarnings("unchecked") // unsafe; see ImmutableSortedSetFauxverideShim
+  public static <K, V> ImmutableSortedMap<K, V> copyOf(
+      Map<? extends K, ? extends V> map) {
+    /*
+     * Eclipse 3.5 doesn't like the method call if we cast to raw Map, and once
+     * we're casting to Map<Comparable, Object>, we need to cast the return
+     * value, too.
+     */
+    return (ImmutableSortedMap)
+        copyOfInternal((Map<Comparable, Object>) map, Ordering.natural());
   }
 
   /**
@@ -376,7 +388,7 @@ public class ImmutableSortedMap<K, V>
     this.toIndex = toIndex;
   }
 
-  private ImmutableSortedMap(Entry<?, ?>[] entries,
+  ImmutableSortedMap(Entry<?, ?>[] entries,
       Comparator<? super K> comparator) {
     this(entries, comparator, 0, entries.length);
   }

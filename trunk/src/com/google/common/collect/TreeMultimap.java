@@ -60,7 +60,7 @@ import javax.annotation.Nullable;
  * @author Jared Levy
  */
 @GwtCompatible
-public final class TreeMultimap<K, V> extends StandardSortedSetMultimap<K, V> {
+public final class TreeMultimap<K, V> extends AbstractSortedSetMultimap<K, V> {
   private transient Comparator<? super K> keyComparator;
   private transient Comparator<? super V> valueComparator;
 
@@ -115,24 +115,11 @@ public final class TreeMultimap<K, V> extends StandardSortedSetMultimap<K, V> {
    * 5) There is no create(Comparator, Comparator, Multimap) method.
    */
 
-  /**
-   * Constructs an empty {@code TreeMultimap} using the natural ordering of the
-   * key and value classes. The key and value classes must satisfy the {@link
-   * Comparable} interface.
-   */
-  private TreeMultimap() {
+  TreeMultimap() {
     this(null, null);
   }
 
-  /**
-   * Constructs an empty {@code TreeMultimap} with explicit comparators.
-   *
-   * @param keyComparator the comparator that determines key ordering, or
-   *     {@code null} for natural ordering
-   * @param valueComparator the comparator that determines value ordering, or
-   *     {@code null} for natural ordering
-   */
-  private TreeMultimap(@Nullable Comparator<? super K> keyComparator,
+  TreeMultimap(@Nullable Comparator<? super K> keyComparator,
       @Nullable Comparator<? super V> valueComparator) {
     super((keyComparator == null)
         ? new TreeMap<K, Collection<V>>()
@@ -141,24 +128,8 @@ public final class TreeMultimap<K, V> extends StandardSortedSetMultimap<K, V> {
     this.valueComparator = valueComparator;
   }
 
-  /**
-   * Constructs a {@code TreeMultimap} with the same mappings as the specified
-   * multimap.
-   *
-   * <p>If the supplied multimap is an instance of {@code TreeMultimap}, the
-   * supplied multimap's key comparator is copied to the new instance.
-   * Otherwise, the new multimap uses the natural ordering of the keys, and the
-   * key class must satisfy the {@link Comparable} interface.
-   *
-   * <p>If the supplied multimap is a {@link SortedSetMultimap}, the supplied
-   * multimap's value comparator is copied to the new instance. Otherwise, the
-   * new multimap uses the natural ordering of the values, and the value class
-   * must satisfy the {@link Comparable} interface.
-   *
-   * @param multimap the multimap whose contents are copied to this multimap
-   */
   @SuppressWarnings("unchecked")
-  private TreeMultimap(Multimap<? extends K, ? extends V> multimap) {
+  TreeMultimap(Multimap<? extends K, ? extends V> multimap) {
     this((multimap instanceof TreeMultimap)
             ? ((TreeMultimap<K, V>) multimap).keyComparator() : null,
         (multimap instanceof SortedSetMultimap)
@@ -166,17 +137,7 @@ public final class TreeMultimap<K, V> extends StandardSortedSetMultimap<K, V> {
         multimap);
   }
 
-  /**
-   * Constructs a {@code TreeMultimap} with explicit comparators and the same
-   * mappings as the specified multimap.
-   *
-   * @param keyComparator the comparator that determines key ordering, or
-   *     {@code null} for natural ordering
-   * @param valueComparator the comparator that determines value ordering, or
-   *     {@code null} for natural ordering
-   * @param multimap the multimap whose contents are copied to this multimap
-   */
-  private TreeMultimap(@Nullable Comparator<? super K> keyComparator,
+  TreeMultimap(@Nullable Comparator<? super K> keyComparator,
       @Nullable Comparator<? super V> valueComparator,
       Multimap<? extends K, ? extends V> multimap) {
     this(keyComparator, valueComparator);

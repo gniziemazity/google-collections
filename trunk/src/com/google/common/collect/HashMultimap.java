@@ -45,7 +45,7 @@ import java.util.Set;
  * @author Jared Levy
  */
 @GwtCompatible(serializable = true)
-public final class HashMultimap<K, V> extends StandardSetMultimap<K, V> {
+public final class HashMultimap<K, V> extends AbstractSetMultimap<K, V> {
   private static final int DEFAULT_VALUES_PER_KEY = 8;
 
   @VisibleForTesting
@@ -90,23 +90,12 @@ public final class HashMultimap<K, V> extends StandardSetMultimap<K, V> {
     super(new HashMap<K, Collection<V>>());
   }
 
-  /**
-   * Constructs an empty {@code HashMultimap} with enough capacity to hold the
-   * specified numbers of keys and values without rehashing.
-   */
   private HashMultimap(int expectedKeys, int expectedValuesPerKey) {
     super(Maps.<K, Collection<V>>newHashMapWithExpectedSize(expectedKeys));
     Preconditions.checkArgument(expectedValuesPerKey >= 0);
     this.expectedValuesPerKey = expectedValuesPerKey;
   }
 
-  /**
-   * Constructs a {@code HashMultimap} with the same mappings as the specified
-   * multimap. If a key-value mapping appears multiple times in the input
-   * multimap, it only appears once in the constructed multimap.
-   *
-   * @param multimap the multimap whose contents are copied to this multimap.
-   */
   private HashMultimap(Multimap<? extends K, ? extends V> multimap) {
     super(Maps.<K, Collection<V>>newHashMapWithExpectedSize(
         multimap.keySet().size()));

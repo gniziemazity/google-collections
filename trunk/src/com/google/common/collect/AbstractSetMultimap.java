@@ -26,21 +26,21 @@ import javax.annotation.Nullable;
 
 /**
  * Basic implementation of the {@link SetMultimap} interface. It's a wrapper
- * around {@link StandardMultimap} that converts the returned collections into
+ * around {@link AbstractMultimap} that converts the returned collections into
  * {@code Sets}. The {@link #createCollection} method must return a {@code Set}.
  *
  * @author Jared Levy
  */
 @GwtCompatible
-abstract class StandardSetMultimap<K, V>
-    extends StandardMultimap<K, V> implements SetMultimap<K, V> {
+abstract class AbstractSetMultimap<K, V>
+    extends AbstractMultimap<K, V> implements SetMultimap<K, V> {
   /**
    * Creates a new multimap that uses the provided map.
    *
    * @param map place to store the mapping from each key to its corresponding
    *     values
    */
-  protected StandardSetMultimap(Map<K, Collection<V>> map) {
+  protected AbstractSetMultimap(Map<K, Collection<V>> map) {
     super(map);
   }
 
@@ -90,4 +90,6 @@ abstract class StandardSetMultimap<K, V>
   @Override public boolean equals(@Nullable Object object) {
     return super.equals(object);
   }
+  
+  private static final long serialVersionUID = 7431625294878419160L;  
 }

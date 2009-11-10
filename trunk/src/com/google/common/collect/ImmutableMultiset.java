@@ -379,10 +379,10 @@ public class ImmutableMultiset<E> extends ImmutableCollection<E>
    * <pre>   {@code
    *   public static final ImmutableMultiset<Bean> BEANS
    *       = new ImmutableMultiset.Builder<Bean>()
-   *           .add(Bean.COCOA, 4)
-   *           .add(Bean.GARDEN, 6)
-   *           .add(Bean.RED, 8)
-   *           .add(Bean.BLACK_EYED, 10)
+   *           .addCopies(Bean.COCOA, 4)
+   *           .addCopies(Bean.GARDEN, 6)
+   *           .addCopies(Bean.RED, 8)
+   *           .addCopies(Bean.BLACK_EYED, 10)
    *           .build();}</pre>
    *
    * <p>Builder instances can be reused - it is safe to call {@link #build}
@@ -423,7 +423,7 @@ public class ImmutableMultiset<E> extends ImmutableCollection<E>
      *     if this operation would result in more than {@link Integer#MAX_VALUE}
      *     occurrences of the element
      */
-    public Builder<E> add(E element, int occurrences) {
+    public Builder<E> addCopies(E element, int occurrences) {
       contents.add(checkNotNull(element), occurrences);
       return this;
     }
@@ -470,7 +470,7 @@ public class ImmutableMultiset<E> extends ImmutableCollection<E>
         @SuppressWarnings("unchecked")
         Multiset<? extends E> multiset = (Multiset<? extends E>) elements;
         for (Entry<? extends E> entry : multiset.entrySet()) {
-          add(entry.getElement(), entry.getCount());
+          addCopies(entry.getElement(), entry.getCount());
         }
       } else {
         super.addAll(elements);

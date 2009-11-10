@@ -38,7 +38,7 @@ final class Multiset_CustomFieldSerializerBase {
     for (int i = 0; i < distinctElements; i++) {
       Object element = reader.readObject();
       int count = reader.readInt();
-      builder.add(element, count);
+      builder.addCopies(element, count);
     }
     return builder.build();
   }

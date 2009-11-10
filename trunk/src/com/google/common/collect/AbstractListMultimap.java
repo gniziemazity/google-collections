@@ -26,22 +26,22 @@ import javax.annotation.Nullable;
 
 /**
  * Basic implementation of the {@link ListMultimap} interface. It's a wrapper
- * around {@link StandardMultimap} that converts the returned collections into
+ * around {@link AbstractMultimap} that converts the returned collections into
  * {@code Lists}. The {@link #createCollection} method must return a {@code
  * List}.
  *
  * @author Jared Levy
  */
 @GwtCompatible
-abstract class StandardListMultimap<K, V>
-    extends StandardMultimap<K, V> implements ListMultimap<K, V> {
+abstract class AbstractListMultimap<K, V>
+    extends AbstractMultimap<K, V> implements ListMultimap<K, V> {
   /**
    * Creates a new multimap that uses the provided map.
    *
    * @param map place to store the mapping from each key to its corresponding
    *     values
    */
-  protected StandardListMultimap(Map<K, Collection<V>> map) {
+  protected AbstractListMultimap(Map<K, Collection<V>> map) {
     super(map);
   }
 
@@ -81,4 +81,6 @@ abstract class StandardListMultimap<K, V>
   @Override public boolean equals(@Nullable Object object) {
     return super.equals(object);
   }
+  
+  private static final long serialVersionUID = 6588350623831699109L;  
 }

@@ -464,4 +464,21 @@ public class TreeMultimapNaturalTest<E> extends AbstractSetMultimapTest {
     assertEquals(ImmutableMap.of("google", googleValues),
         asMap.subMap("g", "h"));
   }
+
+  public void testTailSetClear() {
+    TreeMultimap<String, Integer> multimap = TreeMultimap.create();
+    multimap.put("a", 1);
+    multimap.put("a", 11);
+    multimap.put("b", 2);
+    multimap.put("c", 3);
+    multimap.put("d", 4);
+    multimap.put("e", 5);
+    multimap.put("e", 55);
+
+    multimap.keySet().tailSet("d").clear();
+    assertEquals(ImmutableSet.of("a", "b", "c"), multimap.keySet());
+    assertEquals(4, multimap.size());
+    assertEquals(4, multimap.values().size());
+    assertEquals(4, multimap.keys().size());
+  }
 }

@@ -32,10 +32,7 @@ import javax.annotation.Nullable;
 @GwtCompatible(serializable = true)
 @SuppressWarnings("serial") // uses writeReplace(), not default serialization
 final class SingletonImmutableSet<E> extends ImmutableSet<E> {
-
-  // This field is not final so that GWT is able to derive the element type
-  // by inspecting this field at GWT compile time.
-  private E element;
+  final transient E element;
 
   // Non-volatile because:
   //   - Integer is immutable and thus thread-safe;
@@ -115,10 +112,5 @@ final class SingletonImmutableSet<E> extends ImmutableSet<E> {
         .append(elementToString)
         .append(']')
         .toString();
-  }
-
-  /** Returns the only element in this set. */
-  E getElement() {
-    return element;
   }
 }

@@ -1,35 +1,21 @@
-/*
- * Copyright (C) 2007 Google Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2009 Google Inc. All Rights Reserved.
 
 package com.google.common.collect;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 
 /**
- * Tests for {@code ForwardingSet}.
+ * Tests for {@link ForwardingMultiset}.
  *
- * @author Robert Konigsberg
+ * @author hhchan@google.com (Hayward Chan)
  */
-public class ForwardingSetTest extends ForwardingTestCase {
-  private static final List<String> EMPTY_LIST =
-      Collections.<String> emptyList();
+public class ForwardingMultisetTest extends ForwardingTestCase {
 
-  private Set<String> forward;
+  private static final Collection<String> EMPTY_COLLECTION =
+      Collections.emptyList();
+
+  private Multiset<String> forward;
 
   @Override public void setUp() throws Exception {
     super.setUp();
@@ -39,10 +25,10 @@ public class ForwardingSetTest extends ForwardingTestCase {
      * the type is irrelevant at runtime.
      */
     @SuppressWarnings("unchecked")
-    final Set<String> set = createProxyInstance(Set.class);
-    forward = new ForwardingSet<String>() {
-      @Override protected Set<String> delegate() {
-        return set;
+    final Multiset<String> multiset = createProxyInstance(Multiset.class);
+    forward = new ForwardingMultiset<String>() {
+      @Override protected Multiset<String> delegate() {
+        return multiset;
       }
     };
   }
@@ -53,7 +39,7 @@ public class ForwardingSetTest extends ForwardingTestCase {
   }
 
   public void testAddAll_Collection() {
-    forward.addAll(EMPTY_LIST);
+    forward.addAll(EMPTY_COLLECTION);
     assertEquals("[addAll(Collection)]", getCalls());
   }
 
@@ -68,7 +54,7 @@ public class ForwardingSetTest extends ForwardingTestCase {
   }
 
   public void testContainsAll_Collection() {
-    forward.containsAll(EMPTY_LIST);
+    forward.containsAll(EMPTY_COLLECTION);
     assertEquals("[containsAll(Collection)]", getCalls());
   }
 
@@ -88,12 +74,12 @@ public class ForwardingSetTest extends ForwardingTestCase {
   }
 
   public void testRemoveAll_Collection() {
-    forward.removeAll(EMPTY_LIST);
+    forward.removeAll(EMPTY_COLLECTION);
     assertEquals("[removeAll(Collection)]", getCalls());
   }
 
   public void testRetainAll_Collection() {
-    forward.retainAll(EMPTY_LIST);
+    forward.retainAll(EMPTY_COLLECTION);
     assertEquals("[retainAll(Collection)]", getCalls());
   }
 
@@ -115,5 +101,50 @@ public class ForwardingSetTest extends ForwardingTestCase {
   public void testToString() {
     forward.toString();
     assertEquals("[toString]", getCalls());
+  }
+
+  public void testEquals_Object() {
+    forward.equals("asdf");
+    assertEquals("[equals(Object)]", getCalls());
+  }
+
+  public void testHashCode() {
+    forward.hashCode();
+    assertEquals("[hashCode]", getCalls());
+  }
+
+  public void testCount_Object() {
+    forward.count(null);
+    assertEquals("[count(Object)]", getCalls());
+  }
+
+  public void testAdd_Object_int() {
+    forward.add("asd", 23);
+    assertEquals("[add(Object,int)]", getCalls());
+  }
+
+  public void testRemove_Object_int() {
+    forward.remove("asd", 23);
+    assertEquals("[remove(Object,int)]", getCalls());
+  }
+
+  public void testSetCount_Object_int() {
+    forward.setCount("asdf", 233);
+    assertEquals("[setCount(Object,int)]", getCalls());
+  }
+
+  public void testSetCount_Object_oldCount_newCount() {
+    forward.setCount("asdf", 4552, 1233);
+    assertEquals("[setCount(Object,int,int)]", getCalls());
+  }  
+
+  public void testElementSet() {
+    forward.elementSet();
+    assertEquals("[elementSet]", getCalls());
+  }
+
+  public void testEntrySet() {
+    forward.entrySet();
+    assertEquals("[entrySet]", getCalls());
   }
 }

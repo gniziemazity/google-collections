@@ -67,11 +67,10 @@ public final class Sets {
    * @return an immutable set containing those elements, minus duplicates
    */
   // http://code.google.com/p/google-web-toolkit/issues/detail?id=3028
-  @GwtCompatible(serializable = false)
+  @GwtCompatible(serializable = true)
   public static <E extends Enum<E>> ImmutableSet<E> immutableEnumSet(
       E anElement, E... otherElements) {
-    return new ImmutableSet.ImmutableEnumSet<E>(
-        EnumSet.of(anElement, otherElements));
+    return new ImmutableEnumSet<E>(EnumSet.of(anElement, otherElements));
   }
 
   /**
@@ -86,7 +85,7 @@ public final class Sets {
    * @return an immutable set containing those elements, minus duplicates
    */
   // http://code.google.com/p/google-web-toolkit/issues/detail?id=3028
-  @GwtCompatible(serializable = false)
+  @GwtCompatible(serializable = true)
   public static <E extends Enum<E>> ImmutableSet<E> immutableEnumSet(
       Iterable<E> elements) {
     Iterator<E> iterator = elements.iterator();
@@ -95,14 +94,14 @@ public final class Sets {
     }
     if (elements instanceof EnumSet) {
       EnumSet<E> enumSetClone = EnumSet.copyOf((EnumSet<E>) elements);
-      return new ImmutableSet.ImmutableEnumSet<E>(enumSetClone);
+      return new ImmutableEnumSet<E>(enumSetClone);
     }
     E first = iterator.next();
     EnumSet<E> set = EnumSet.of(first);
     while (iterator.hasNext()) {
       set.add(iterator.next());
     }
-    return new ImmutableSet.ImmutableEnumSet<E>(set);
+    return new ImmutableEnumSet<E>(set);
   }
 
   /**
@@ -489,7 +488,10 @@ public final class Sets {
   /**
    * An unmodifiable view of a set which may be backed by other sets; this view
    * will change as the backing sets do. Contains methods to copy the data into
-   * a new set which will then remain stable.
+   * a new set which will then remain stable. There is usually no reason to
+   * retain a reference of type {@code SetView}; typically, you either use it
+   * as a plain {@link Set}, or immediately invoke {@link #immutableCopy} or
+   * {@link #copyInto} and forget the {@code SetView} itself.
    */
   public abstract static class SetView<E> extends AbstractSet<E> {
     private SetView() {} // no subclasses but our own

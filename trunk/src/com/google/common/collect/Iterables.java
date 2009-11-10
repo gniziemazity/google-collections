@@ -41,11 +41,11 @@ import javax.annotation.Nullable;
 
 /**
  * This class contains static utility methods that operate on or return objects
- * of type {@code Iterable}. Also see the parallel implementations in {@link
- * Iterators}.
+ * of type {@code Iterable}. Except as noted, each method has a corresponding
+ * {@link Iterator}-based method in the {@link Iterators} class.
  *
  * @author Kevin Bourrillion
- * @author Scott Bonneau
+ * @author Jared Levy
  */
 @GwtCompatible
 public final class Iterables {
@@ -135,21 +135,20 @@ public final class Iterables {
    * predicate.
    *
    * @param removeFrom the iterable to (potentially) remove elements from
-   * @param elementsToRemove a predicate that determines whether an element
-   *     should be removed
+   * @param predicate a predicate that determines whether an element should
+   *     be removed
    * @return {@code true} if any elements were removed from the iterable
    *
    * @throws UnsupportedOperationException if the iterable does not support
    *     {@code remove()}.
    */
-  // TODO: make public post-1.0
   static <T> boolean removeIf(
-      Iterable<T> removeFrom, Predicate<? super T> elementsToRemove) {
+      Iterable<T> removeFrom, Predicate<? super T> predicate) {
     if (removeFrom instanceof RandomAccess && removeFrom instanceof List) {
       return removeIfFromRandomAccessList(
-          (List<T>) removeFrom, checkNotNull(elementsToRemove));
+          (List<T>) removeFrom, checkNotNull(predicate));
     }
-    return Iterators.removeIf(removeFrom.iterator(), elementsToRemove);
+    return Iterators.removeIf(removeFrom.iterator(), predicate);
   }
 
   private static <T> boolean removeIfFromRandomAccessList(
@@ -231,9 +230,10 @@ public final class Iterables {
    *     have been copied
    */
   @GwtIncompatible("Array.newInstance(Class, int)")
-  public static <T> T[] toArray(Iterable<T> iterable, Class<T> type) {
-    Collection<T> collection = (iterable instanceof Collection)
-        ? (Collection<T>) iterable
+  public static <T> T[] toArray(Iterable<? extends T> iterable, Class<T> type) {
+    @SuppressWarnings("unchecked") // bugs.sun.com/view_bug.do?bug_id=6558557
+    Collection<? extends T> collection = (iterable instanceof Collection)
+        ? (Collection<? extends T>) iterable
         : Lists.newArrayList(iterable);
     T[] array = ObjectArrays.newArray(type, collection.size());
     return collection.toArray(array);
@@ -634,14 +634,18 @@ public final class Iterables {
 
   /**
    * Adapts a list to an iterable with reversed iteration order. It is
-   * especially useful in foreach-style loops:
-   * <pre>
-   * List<String> mylist = ...
-   * for (String str : Iterables.reverse(mylist)) {
-   *   ...
-   * } </pre>
+   * especially useful in foreach-style loops: <pre class="code">   {@code
    *
-   * @return an iterable with the same elements as the list, in reverse.
+   *   List<String> mylist = ...
+   *   for (String str : Iterables.reverse(mylist)) {
+   *     ...
+   *   }}</pre>
+   *
+   * There is no corresponding method in {@link Iterators}, since {@link
+   * Iterable#iterator} can simply be invoked on the result of calling this
+   * method.
+   *
+   * @return an iterable with the same elements as the list, in reverse
    */
   public static <T> Iterable<T> reverse(final List<T> list) {
     checkNotNull(list);
@@ -664,10 +668,13 @@ public final class Iterables {
   }
 
   /**
-   * Returns whether the given iterable contains no elements.
+   * Determines if the given iterable contains no elements.
    *
-   * @return {@code true} if the iterable has no elements, {@code false} if the
-   *     iterable has one or more elements
+   * <p>There is no precise {@link Iterator} equivalent to this method, since
+   * one can only ask an iterator whether it has any elements <i>remaining</i>
+   * (which one does using {@link Iterator#hasNext}).
+   *
+   * @return {@code true} if the iterable contains no elements
    */
   public static <T> boolean isEmpty(Iterable<T> iterable) {
     return !iterable.iterator().hasNext();

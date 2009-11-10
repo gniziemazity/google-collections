@@ -18,13 +18,11 @@ package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
 
-import java.util.Map;
-
 /**
  * "Overrides" the {@link ImmutableMap} static methods that lack
  * {@link ImmutableSortedMap} equivalents with deprecated, exception-throwing
  * versions. See {@link ImmutableSortedSetFauxverideShim} for details.
- * 
+ *
  * @author Chris Povirk
  */
 @GwtCompatible
@@ -34,7 +32,7 @@ abstract class ImmutableSortedMapFauxverideShim<K, V>
    * Not supported. Use {@link ImmutableSortedMap#naturalOrder}, which offers
    * better type-safety, instead. This method exists only to hide
    * {@link ImmutableMap#builder} from consumers of {@code ImmutableSortedMap}.
-   * 
+   *
    * @throws UnsupportedOperationException always
    * @deprecated Use {@link ImmutableSortedMap#naturalOrder}, which offers
    *     better type-safety.
@@ -47,7 +45,7 @@ abstract class ImmutableSortedMapFauxverideShim<K, V>
    * Not supported. <b>You are attempting to create a map that may contain a
    * non-{@code Comparable} key.</b> Proper calls will resolve to the version in
    * {@code ImmutableSortedMap}, not this dummy version.
-   * 
+   *
    * @throws UnsupportedOperationException always
    * @deprecated <b>Pass a key of type {@code Comparable} to use {@link
    *     ImmutableSortedMap#of(Comparable, Object)}.</b>
@@ -60,7 +58,7 @@ abstract class ImmutableSortedMapFauxverideShim<K, V>
    * Not supported. <b>You are attempting to create a map that may contain
    * non-{@code Comparable} keys.</b> Proper calls will resolve to the version
    * in {@code ImmutableSortedMap}, not this dummy version.
-   * 
+   *
    * @throws UnsupportedOperationException always
    * @deprecated <b>Pass keys of type {@code Comparable} to use {@link
    *     ImmutableSortedMap#of(Comparable, Object, Comparable, Object)}.</b>
@@ -74,7 +72,7 @@ abstract class ImmutableSortedMapFauxverideShim<K, V>
    * Not supported. <b>You are attempting to create a map that may contain
    * non-{@code Comparable} keys.</b> Proper calls to will resolve to the
    * version in {@code ImmutableSortedMap}, not this dummy version.
-   * 
+   *
    * @throws UnsupportedOperationException always
    * @deprecated <b>Pass keys of type {@code Comparable} to use {@link
    *     ImmutableSortedMap#of(Comparable, Object, Comparable, Object,
@@ -89,7 +87,7 @@ abstract class ImmutableSortedMapFauxverideShim<K, V>
    * Not supported. <b>You are attempting to create a map that may contain
    * non-{@code Comparable} keys.</b> Proper calls will resolve to the version
    * in {@code ImmutableSortedMap}, not this dummy version.
-   * 
+   *
    * @throws UnsupportedOperationException always
    * @deprecated <b>Pass keys of type {@code Comparable} to use {@link
    *     ImmutableSortedMap#of(Comparable, Object, Comparable, Object,
@@ -104,7 +102,7 @@ abstract class ImmutableSortedMapFauxverideShim<K, V>
    * Not supported. <b>You are attempting to create a map that may contain
    * non-{@code Comparable} keys.</b> Proper calls will resolve to the version
    * in {@code ImmutableSortedMap}, not this dummy version.
-   * 
+   *
    * @throws UnsupportedOperationException always
    * @deprecated <b>Pass keys of type {@code Comparable} to use {@link
    *     ImmutableSortedMap#of(Comparable, Object, Comparable, Object,
@@ -115,21 +113,5 @@ abstract class ImmutableSortedMapFauxverideShim<K, V>
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * Not supported. <b>You are attempting to copy a map that may contain
-   * non-{@code Comparable} keys.</b> Proper calls will resolve to the version
-   * in {@code ImmutableSortedMap}, not this dummy version.
-   * 
-   * @throws UnsupportedOperationException always
-   * @deprecated <b>Pass a map whose key type implements {@code Comparable} to
-   *     use {@link ImmutableSortedMap#copyOf(Map)}.</b>
-   */
-  /*
-   * Do NOT declare a return type of "ImmutableSortedMap": See the comments on
-   * ImmutableSortedSetFauxverideShim.copyOf() for details.
-   */
-  @Deprecated public static <K, V> ImmutableMap<K, V> copyOf(
-      Map<? extends K, ? extends V> map) {
-    throw new UnsupportedOperationException();
-  }
+  // No copyOf() fauxveride; see ImmutableSortedSetFauxverideShim.
 }

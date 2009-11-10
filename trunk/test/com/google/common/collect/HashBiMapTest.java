@@ -16,6 +16,8 @@
 
 package com.google.common.collect;
 
+import java.util.IdentityHashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -84,5 +86,38 @@ public class HashBiMapTest extends AbstractBiMapTest {
     for (int i = 0; i < N; i++) {
       assertEquals(2 * N + 2 * i - 1, (int) bimap.get(2 * i));
     }
+  }
+
+  // The next two tests verify that map entries are not accessed after they're
+  // removed, since IdentityHashMap throws an exception when that occurs.
+
+  public void testIdentityKeySetIteratorRemove() {
+    bimap = new AbstractBiMap<Integer, String>(
+        new IdentityHashMap<Integer, String>(),
+        new IdentityHashMap<String, Integer>()) {};
+    putOneTwoThree();
+    Iterator<Integer> iterator = bimap.keySet().iterator();
+    iterator.next();
+    iterator.next();
+    iterator.remove();
+    iterator.next();
+    iterator.remove();
+    assertEquals(1, bimap.size());
+    assertEquals(1, bimap.inverse().size());
+  }
+
+  public void testIdentityEntrySetIteratorRemove() {
+    bimap = new AbstractBiMap<Integer, String>(
+        new IdentityHashMap<Integer, String>(),
+        new IdentityHashMap<String, Integer>()) {};
+    putOneTwoThree();
+    Iterator<Entry<Integer, String>> iterator = bimap.entrySet().iterator();
+    iterator.next();
+    iterator.next();
+    iterator.remove();
+    iterator.next();
+    iterator.remove();
+    assertEquals(1, bimap.size());
+    assertEquals(1, bimap.inverse().size());
   }
 }

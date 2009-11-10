@@ -98,7 +98,7 @@ public final class Multimaps {
     return new CustomMultimap<K, V>(map, factory);
   }
 
-  private static class CustomMultimap<K, V> extends StandardMultimap<K, V> {
+  private static class CustomMultimap<K, V> extends AbstractMultimap<K, V> {
     transient Supplier<? extends Collection<V>> factory;
 
     CustomMultimap(Map<K, Collection<V>> map,
@@ -176,7 +176,7 @@ public final class Multimaps {
   }
 
   private static class CustomListMultimap<K, V>
-      extends StandardListMultimap<K, V> {
+      extends AbstractListMultimap<K, V> {
     transient Supplier<? extends List<V>> factory;
 
     CustomListMultimap(Map<K, Collection<V>> map,
@@ -251,7 +251,7 @@ public final class Multimaps {
   }
 
   private static class CustomSetMultimap<K, V>
-      extends StandardSetMultimap<K, V> {
+      extends AbstractSetMultimap<K, V> {
     transient Supplier<? extends Set<V>> factory;
 
     CustomSetMultimap(Map<K, Collection<V>> map,
@@ -326,7 +326,7 @@ public final class Multimaps {
   }
 
   private static class CustomSortedSetMultimap<K, V>
-      extends StandardSortedSetMultimap<K, V> {
+      extends AbstractSortedSetMultimap<K, V> {
     transient Supplier<? extends SortedSet<V>> factory;
     transient Comparator<? super V> valueComparator;
 

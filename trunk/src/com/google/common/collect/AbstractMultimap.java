@@ -20,6 +20,7 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 import java.io.Serializable;
 import java.util.AbstractCollection;
@@ -51,7 +52,7 @@ import javax.annotation.Nullable;
  *
  * <p>The multimap constructor takes a map that has a single entry for each
  * distinct key. When you insert a key-value pair with a key that isn't already
- * in the multimap, {@code StandardMultimap} calls {@link #createCollection()}
+ * in the multimap, {@code AbstractMultimap} calls {@link #createCollection()}
  * to create the collection of values for that key. The subclass should not call
  * {@link #createCollection()} directly, and a new instance should be created
  * every time the method is called.
@@ -83,7 +84,7 @@ import javax.annotation.Nullable;
  * @author Jared Levy
  */
 @GwtCompatible
-abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
+abstract class AbstractMultimap<K, V> implements Multimap<K, V>, Serializable {
   /*
    * Here's an outline of the overall design.
    *
@@ -113,7 +114,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
    *     values
    * @throws IllegalArgumentException if {@code map} is not empty
    */
-  protected StandardMultimap(Map<K, Collection<V>> map) {
+  protected AbstractMultimap(Map<K, Collection<V>> map) {
     checkArgument(map.isEmpty());
     this.map = map;
   }
@@ -372,7 +373,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
    *
    * <p>Full collections, identified by a null ancestor field, contain all
    * multimap values for a given key. Its delegate is a value in {@link
-   * StandardMultimap#map} whenever the delegate is non-empty. The {@code
+   * AbstractMultimap#map} whenever the delegate is non-empty. The {@code
    * refreshIfEmpty}, {@code removeIfEmpty}, and {@code addToMap} methods ensure
    * that the {@code WrappedCollection} and map remain consistent.
    *
@@ -862,9 +863,11 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
           return entry.getKey();
         }
         public void remove() {
+          checkState(entry != null);
+          Collection<V> collection = entry.getValue();
           entryIterator.remove();
-          totalSize -= entry.getValue().size();
-          entry.getValue().clear();
+          totalSize -= collection.size();
+          collection.clear();
         }
       };
     }
@@ -978,7 +981,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
     }
 
     @Override public Set<K> elementSet() {
-      return StandardMultimap.this.keySet();
+      return AbstractMultimap.this.keySet();
     }
 
     transient Set<Multiset.Entry<K>> entrySet;
@@ -1008,7 +1011,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
             (collection.size() == entry.getCount());
       }
       @Override public void clear() {
-        StandardMultimap.this.clear();
+        AbstractMultimap.this.clear();
       }
       @Override public boolean remove(Object o) {
         return contains(o) &&
@@ -1038,7 +1041,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
     }
 
     @Override public void clear() {
-      StandardMultimap.this.clear();
+      AbstractMultimap.this.clear();
     }
   }
 
@@ -1134,7 +1137,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
     // The following methods are included to improve performance.
 
     @Override public void clear() {
-      StandardMultimap.this.clear();
+      AbstractMultimap.this.clear();
     }
 
     @Override public boolean contains(Object value) {
@@ -1203,7 +1206,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
     }
 
     @Override public void clear() {
-      StandardMultimap.this.clear();
+      AbstractMultimap.this.clear();
     }
 
     @Override public boolean remove(Object o) {
@@ -1211,7 +1214,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
         return false;
       }
       Map.Entry<?, ?> entry = (Map.Entry<?, ?>) o;
-      return StandardMultimap.this.remove(entry.getKey(), entry.getValue());
+      return AbstractMultimap.this.remove(entry.getKey(), entry.getValue());
     }
   }
 
@@ -1219,7 +1222,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
    * Returns an iterator across all key-value map entries, used by {@code
    * entries().iterator()} and {@code values().iterator()}. The default
    * behavior, which traverses the values for one key, the values for a second
-   * key, and so on, suffices for most {@code StandardMultimap} implementations.
+   * key, and so on, suffices for most {@code AbstractMultimap} implementations.
    *
    * @return an iterator across map entries
    */
@@ -1327,7 +1330,7 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
     }
 
     @Override public Set<K> keySet() {
-      return StandardMultimap.this.keySet();
+      return AbstractMultimap.this.keySet();
     }
 
     @Override public Collection<V> remove(Object key) {
@@ -1484,4 +1487,6 @@ abstract class StandardMultimap<K, V> implements Multimap<K, V>, Serializable {
   @Override public String toString() {
     return map.toString();
   }
+  
+  private static final long serialVersionUID = 2447537837011683357L; 
 }

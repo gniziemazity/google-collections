@@ -17,15 +17,21 @@
 package com.google.common.collect;
 
 import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.collect.Ordering.IncomparableValueException;
 import com.google.common.collect.testing.Helpers;
+import static com.google.common.testing.junit3.JUnitAsserts.assertContentsInOrder;
 import com.google.common.testutils.EqualsTester;
 import com.google.common.testutils.NullPointerTester;
+import static com.google.common.testutils.SerializableTester.reserialize;
+import static com.google.common.testutils.SerializableTester.reserializeAndAssert;
 
 import junit.framework.TestCase;
 
 import java.util.Arrays;
 import static java.util.Arrays.asList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
@@ -56,6 +62,8 @@ public class OrderingTest extends TestCase {
       comparator.compare(null, null);
       fail();
     } catch (NullPointerException expected) {}
+    assertSame(comparator, reserialize(comparator));
+    assertEquals("Ordering.natural()", comparator.toString());
   }
 
   public void testFrom() {
@@ -75,34 +83,126 @@ public class OrderingTest extends TestCase {
         .testEquals();
   }
 
-  public void testReverse() {
-    Ordering<Number> reverseOrder = numberOrdering.reverse();
-    Helpers.testComparator(reverseOrder,
-        Integer.MAX_VALUE, 1, 0, -1, Integer.MIN_VALUE);
-
-    new EqualsTester(reverseOrder)
-      .addEqualObject(numberOrdering.reverse())
-      .addNotEqualObject(Ordering.natural().reverse())
-      .addNotEqualObject(Collections.reverseOrder())
-      .testEquals();
+  public void testExplicit_none() {
+    Comparator<Integer> c
+        = Ordering.explicit(Collections.<Integer>emptyList());
+    try {
+      c.compare(0, 0);
+      fail();
+    } catch (IncomparableValueException expected) {
+      assertEquals(0, expected.value);
+    }
+    reserializeAndAssert(c);
   }
 
-  public void testReverseEqualsAndHashCode() {
-    Ordering<Number> a = numberOrdering.reverse();
-    Ordering<Number> b = new NumberOrdering().reverse();
-    assertEquals(a, b);
-    assertEquals(a.hashCode(), b.hashCode());
-    assertFalse(a.equals(Collections.reverseOrder()));
+  public void testExplicit_one() {
+    Comparator<Integer> c = Ordering.explicit(0);
+    assertEquals(0, c.compare(0, 0));
+    try {
+      c.compare(0, 1);
+      fail();
+    } catch (IncomparableValueException expected) {
+      assertEquals(1, expected.value);
+    }
+    reserializeAndAssert(c);
+    assertEquals("Ordering.explicit([0])", c.toString());
   }
 
-  public void testReverseOfReverseSameAsForward() {
-    // Not guaranteed by spec, but it works, and saves us from testing
-    // exhaustively
-    assertSame(numberOrdering, numberOrdering.reverse().reverse());
+  public void testExplicit_two() {
+    Comparator<Integer> c = Ordering.explicit(42, 5);
+    assertEquals(0, c.compare(5, 5));
+    assertTrue(c.compare(5, 42) > 0);
+    assertTrue(c.compare(42, 5) < 0);
+    try {
+      c.compare(5, 666);
+      fail();
+    } catch (IncomparableValueException expected) {
+      assertEquals(666, expected.value);
+    }
+    new EqualsTester(c)
+        .addEqualObject(Ordering.explicit(42, 5))
+        .addNotEqualObject(Ordering.explicit(5, 42))
+        .addNotEqualObject(Ordering.explicit(42))
+        .testEquals();
+    reserializeAndAssert(c);
   }
 
-  // Note that other compound tests are still in ComparatorsTest and will be
-  // copied over soonish.
+  public void testExplicit_sortingExample() {
+    Comparator<Integer> c
+        = Ordering.explicit(2, 8, 6, 1, 7, 5, 3, 4, 0, 9);
+    List<Integer> list = Arrays.asList(0, 3, 5, 6, 7, 8, 9);
+    Collections.sort(list, c);
+    assertContentsInOrder(list, 8, 6, 7, 5, 3, 0, 9);
+    reserializeAndAssert(c);
+  }
+
+  public void testExplicit_withDuplicates() {
+    try {
+      Ordering.explicit(1, 2, 3, 4, 2);
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+  }
+
+  public void testUsingToString() {
+    Ordering<Object> ordering = Ordering.usingToString();
+    Helpers.testComparator(ordering, 1, 12, 124, 2);
+    assertEquals("Ordering.usingToString()", ordering.toString());
+    assertSame(ordering, reserialize(ordering));
+  }
+
+  // use an enum to get easy serializability
+  private enum CharAtFunction implements Function<String, Character> {
+    AT0(0),
+    AT1(1),
+    AT2(2),
+    AT3(3),
+    AT4(4),
+    AT5(5),
+    ;
+
+    final int index;
+    CharAtFunction(int index) {
+      this.index = index;
+    }
+    public Character apply(String string) {
+      return string.charAt(index);
+    }
+  }
+
+  private static Ordering<String> byCharAt(int index) {
+    return Ordering.natural().onResultOf(CharAtFunction.values()[index]);
+  }
+
+  public void testCompound_static() {
+    Comparator<String> comparator = Ordering.compound(
+        Iterables.unmodifiableIterable(ImmutableList.of(
+            byCharAt(0), byCharAt(1), byCharAt(2),
+            byCharAt(3), byCharAt(4), byCharAt(5))));
+    Helpers.testComparator(comparator, ImmutableList.of(
+        "applesauce",
+        "apricot",
+        "artichoke",
+        "banality",
+        "banana",
+        "banquet",
+        "tangelo",
+        "tangerine"));
+    reserializeAndAssert(comparator);
+  }
+
+  public void testCompound_instance() {
+    Comparator<String> comparator = byCharAt(1).compound(byCharAt(0));
+    Helpers.testComparator(comparator, ImmutableList.of(
+        "red",
+        "yellow",
+        "violet",
+        "blue",
+        "indigo",
+        "green",
+        "orange"));
+  }
+
   public void testCompound_instance_generics() {
     Ordering<Object> objects = Ordering.explicit((Object) 1);
     Ordering<Number> numbers = Ordering.explicit((Number) 1);
@@ -140,6 +240,81 @@ public class OrderingTest extends TestCase {
     // Sadly, the following works in javac 1.6, but at least it fails for
     // eclipse, and is *correctly* highlighted red in IDEA.
     // Ordering<Object> n = objects.compound(numbers);
+  }
+
+  public void testReverse() {
+    Ordering<Number> reverseOrder = numberOrdering.reverse();
+    Helpers.testComparator(reverseOrder,
+        Integer.MAX_VALUE, 1, 0, -1, Integer.MIN_VALUE);
+
+    new EqualsTester(reverseOrder)
+        .addEqualObject(numberOrdering.reverse())
+        .addNotEqualObject(Ordering.natural().reverse())
+        .addNotEqualObject(Collections.reverseOrder())
+        .testEquals();
+  }
+
+  public void testReverseOfReverseSameAsForward() {
+    // Not guaranteed by spec, but it works, and saves us from testing
+    // exhaustively
+    assertSame(numberOrdering, numberOrdering.reverse().reverse());
+  }
+
+  private enum StringLengthFunction implements Function<String, Integer> {
+    StringLength;
+
+    public Integer apply(String string) {
+      return string.length();
+    }
+  }
+  
+  private static final Ordering<Integer> DECREASING_INTEGER
+      = Ordering.natural().reverse();
+  
+  public void testOnResultOf_natural() {
+    Comparator<String> comparator
+        = Ordering.natural().onResultOf(StringLengthFunction.StringLength);
+    assertTrue(comparator.compare("to", "be") == 0);
+    assertTrue(comparator.compare("or", "not") < 0);
+    assertTrue(comparator.compare("that", "to") > 0);
+
+    new EqualsTester(comparator)
+        .addEqualObject(
+            Ordering.natural().onResultOf(StringLengthFunction.StringLength))
+        .addNotEqualObject(DECREASING_INTEGER)
+        .testEquals();
+    reserializeAndAssert(comparator);
+    assertEquals("Ordering.natural().onResultOf(StringLength)",
+        comparator.toString());
+  }
+
+  public void testOnResultOf_chained() {
+    Comparator<String> comparator = DECREASING_INTEGER.onResultOf(
+        StringLengthFunction.StringLength);
+    assertTrue(comparator.compare("to", "be") == 0);
+    assertTrue(comparator.compare("not", "or") < 0);
+    assertTrue(comparator.compare("to", "that") > 0);
+
+    new EqualsTester(comparator)
+        .addEqualObject(
+            DECREASING_INTEGER.onResultOf(StringLengthFunction.StringLength))
+        .addNotEqualObject(
+            DECREASING_INTEGER.onResultOf(Functions.constant(1)))
+        .addNotEqualObject(Ordering.natural())
+        .testEquals();
+    reserializeAndAssert(comparator);
+    assertEquals("Ordering.natural().reverse().onResultOf(StringLength)",
+        comparator.toString());
+  }
+
+  public void testNullsFirst() {
+    Ordering<Integer> ordering = Ordering.natural().nullsFirst();
+    Helpers.testComparator(ordering, null, Integer.MIN_VALUE, 0, 1);
+  }
+
+  public void testNullsLast() {
+    Ordering<Integer> ordering = Ordering.natural().nullsLast();
+    Helpers.testComparator(ordering, 0, 1, Integer.MAX_VALUE, null);
   }
 
   public void testBinarySearch() {
@@ -233,16 +408,6 @@ public class OrderingTest extends TestCase {
       return other instanceof NumberOrdering;
     }
     private static final long serialVersionUID = 0;
-  }
-
-  public void testNullsFirst() {
-    Ordering<Integer> ordering = Ordering.natural().nullsFirst();
-    Helpers.testComparator(ordering, null, Integer.MIN_VALUE, 0, 1);
-  }
-
-  public void testNullsLast() {
-    Ordering<Integer> ordering = Ordering.natural().nullsLast();
-    Helpers.testComparator(ordering, 0, 1, Integer.MAX_VALUE, null);
   }
 
   /*
@@ -446,5 +611,8 @@ public class OrderingTest extends TestCase {
   public void testNullPointerExceptions() throws Exception {
     NullPointerTester tester = new NullPointerTester();
     tester.testAllPublicStaticMethods(Ordering.class);
+    
+    // any Ordering<Object> instance should be good enough
+    tester.testAllPublicInstanceMethods(Ordering.usingToString());
   }
 }
