@@ -72,9 +72,9 @@ public class Jsr166HashMap<K, V> extends ForwardingConcurrentMap<K, V>
    */
   public Jsr166HashMap(int initialCapacity,
       float loadFactor, int concurrencyLevel) {
+    // just ignore loadFactor.
     this.delegate = new CustomConcurrentHashMap.Builder()
         .initialCapacity(initialCapacity)
-        .loadFactor(loadFactor)
         .concurrencyLevel(concurrencyLevel)
         .buildMap(new Strategy<K, V>());
   }
