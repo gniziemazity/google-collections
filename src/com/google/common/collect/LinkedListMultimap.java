@@ -156,28 +156,18 @@ public final class LinkedListMultimap<K, V>
     return new LinkedListMultimap<K, V>(multimap);
   }
 
-  /** Constructs an empty {@code LinkedListMultimap}. */
   private LinkedListMultimap() {
     keyCount = LinkedHashMultiset.create();
     keyToKeyHead = Maps.newHashMap();
     keyToKeyTail = Maps.newHashMap();
   }
 
-  /**
-   * Constructs an empty {@code LinkedListMultimap} with enough capacity to hold
-   * the specified number of keys without rehashing.
-   */
   private LinkedListMultimap(int expectedKeys) {
     keyCount = LinkedHashMultiset.create(expectedKeys);
     keyToKeyHead = Maps.newHashMapWithExpectedSize(expectedKeys);
     keyToKeyTail = Maps.newHashMapWithExpectedSize(expectedKeys);
   }
 
-  /**
-   * Constructs a {@code LinkedListMultimap} with the same mappings as the
-   * specified {@code Multimap}. The new multimap has the same
-   * {@link Multimap#entries()} iteration order as the input multimap.
-   */
   private LinkedListMultimap(Multimap<? extends K, ? extends V> multimap) {
     this(multimap.keySet().size());
     putAll(multimap);

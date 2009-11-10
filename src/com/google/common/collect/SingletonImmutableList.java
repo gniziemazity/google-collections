@@ -34,17 +34,7 @@ import javax.annotation.Nullable;
 @GwtCompatible(serializable = true)
 @SuppressWarnings("serial") // uses writeReplace(), not default serialization
 final class SingletonImmutableList<E> extends ImmutableList<E> {
-
-  /**
-   * This field is not final so that GWT is able to derive the element type
-   * by inspecting this field at GWT compile time.  It also makes this class
-   * GWT serializable without a custom field serializer.
-   */
-  private E element;
-
-  @SuppressWarnings("unused") // Used only in GWT deserialization.
-  private SingletonImmutableList() {
-  }
+  final transient E element;
 
   SingletonImmutableList(E element) {
     this.element = checkNotNull(element);

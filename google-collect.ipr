@@ -10,7 +10,7 @@
       <properties />
     </buildFile>
   </component>
-  <component name="BlazePluginSettings" buildBeforeRefresh="true" />
+  <component name="BlazePluginSettings" buildBeforeRefresh="true" blazeTestProducers="true" updater="default" />
   <component name="BuildJarProjectSettings">
     <option name="BUILD_JARS_ON_MAKE" value="false" />
   </component>
@@ -354,7 +354,7 @@
       <module fileurl="file://$PROJECT_DIR$/testfw/testfw.iml" filepath="$PROJECT_DIR$/testfw/testfw.iml" />
     </modules>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_5" assert-keyword="true" jdk-15="true" project-jdk-name="OpenJDK 6" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_5" assert-keyword="true" jdk-15="true" project-jdk-name="OpenJDK (gg5)" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/ideaclasses" />
   </component>
   <component name="RmicSettings">
@@ -365,6 +365,59 @@
     <option name="ADDITIONAL_OPTIONS_STRING" value="" />
   </component>
   <component name="SvnBranchConfigurationManager">
+    <option name="myConfigurationMap">
+      <map>
+        <entry key="$PROJECT_DIR$">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchMap">
+                <map>
+                  <entry key="https://google-collections.googlecode.com/svn/branches">
+                    <value>
+                      <list />
+                    </value>
+                  </entry>
+                  <entry key="https://google-collections.googlecode.com/svn/tags">
+                    <value>
+                      <list />
+                    </value>
+                  </entry>
+                  <entry key="https://google-collections.googlecode.com/svn/wiki">
+                    <value>
+                      <list>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1255731267701" />
+                          <option name="revision" value="104" />
+                          <option name="url" value="https://google-collections.googlecode.com/svn/wiki/Releases.wiki" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1239132425666" />
+                          <option name="revision" value="86" />
+                          <option name="url" value="https://google-collections.googlecode.com/svn/wiki/Faq.wiki" />
+                        </SvnBranchItem>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1219084359156" />
+                          <option name="revision" value="54" />
+                          <option name="url" value="https://google-collections.googlecode.com/svn/wiki/Acknowledgements.wiki" />
+                        </SvnBranchItem>
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://google-collections.googlecode.com/svn/branches" />
+                  <option value="https://google-collections.googlecode.com/svn/tags" />
+                  <option value="https://google-collections.googlecode.com/svn/wiki" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://google-collections.googlecode.com/svn/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+      </map>
+    </option>
     <option name="myVersion" value="124" />
     <option name="mySupportsUserInfoFilter" value="true" />
   </component>

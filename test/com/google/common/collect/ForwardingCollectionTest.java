@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Google Inc.
+ * Copyright (C) 2009 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,31 +16,34 @@
 
 package com.google.common.collect;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Queue;
 
 /**
- * Tests for {@code ForwardingQueue}.
+ * Tests for {@link ForwardingCollection}.
  *
  * @author Robert Konigsberg
+ * @author Hayward Chan
  */
-public class ForwardingQueueTest extends ForwardingTestCase {
+public class ForwardingCollectionTest extends ForwardingTestCase {
 
-  private Queue<String> forward;
-  private Queue<String> queue;
+  private static final Collection<String> EMPTY_COLLECTION =
+      Collections.emptyList();
 
-  /*
-   * Class parameters must be raw, so we can't create a proxy with generic
-   * type arguments. The created proxy only records calls and returns null, so
-   * the type is irrelevant at runtime.
-   */
-  @SuppressWarnings("unchecked")
-  @Override protected void setUp() throws Exception {
+  private Collection<String> forward;
+
+  @Override public void setUp() throws Exception {
     super.setUp();
-    queue = createProxyInstance(Queue.class);
-    forward = new ForwardingQueue<String>() {
-      @Override protected Queue<String> delegate() {
-        return queue;
+    /*
+     * Class parameters must be raw, so we can't create a proxy with generic
+     * type arguments. The created proxy only records calls and returns null, so
+     * the type is irrelevant at runtime.
+     */
+    @SuppressWarnings("unchecked")
+    final Collection<String> list = createProxyInstance(Collection.class);
+    forward = new ForwardingCollection<String>() {
+      @Override protected Collection<String> delegate() {
+        return list;
       }
     };
   }
@@ -51,7 +54,7 @@ public class ForwardingQueueTest extends ForwardingTestCase {
   }
 
   public void testAddAll_Collection() {
-    forward.addAll(Collections.singleton("asdf"));
+    forward.addAll(EMPTY_COLLECTION);
     assertEquals("[addAll(Collection)]", getCalls());
   }
 
@@ -60,24 +63,14 @@ public class ForwardingQueueTest extends ForwardingTestCase {
     assertEquals("[clear]", getCalls());
   }
 
-  public void testContains_T() {
-    forward.contains("asdf");
+  public void testContains_Object() {
+    forward.contains(null);
     assertEquals("[contains(Object)]", getCalls());
   }
 
   public void testContainsAll_Collection() {
-    forward.containsAll(Collections.singleton("asdf"));
+    forward.containsAll(EMPTY_COLLECTION);
     assertEquals("[containsAll(Collection)]", getCalls());
-  }
-
-  public void testElement() {
-    forward.element();
-    assertEquals("[element]", getCalls());
-  }
-
-  public void testIterator() {
-    forward.iterator();
-    assertEquals("[iterator]", getCalls());
   }
 
   public void testIsEmpty() {
@@ -85,38 +78,23 @@ public class ForwardingQueueTest extends ForwardingTestCase {
     assertEquals("[isEmpty]", getCalls());
   }
 
-  public void testOffer_T() {
-    forward.offer("asdf");
-    assertEquals("[offer(Object)]", getCalls());
-  }
-
-  public void testPeek() {
-    forward.peek();
-    assertEquals("[peek]", getCalls());
-  }
-
-  public void testPoll() {
-    forward.poll();
-    assertEquals("[poll]", getCalls());
-  }
-
-  public void testRemove() {
-    forward.remove();
-    assertEquals("[remove]", getCalls());
+  public void testIterator() {
+    forward.iterator();
+    assertEquals("[iterator]", getCalls());
   }
 
   public void testRemove_Object() {
-    forward.remove(Object.class);
+    forward.remove(null);
     assertEquals("[remove(Object)]", getCalls());
   }
 
   public void testRemoveAll_Collection() {
-    forward.removeAll(Collections.singleton("asdf"));
+    forward.removeAll(EMPTY_COLLECTION);
     assertEquals("[removeAll(Collection)]", getCalls());
   }
 
   public void testRetainAll_Collection() {
-    forward.retainAll(Collections.singleton("asdf"));
+    forward.retainAll(EMPTY_COLLECTION);
     assertEquals("[retainAll(Collection)]", getCalls());
   }
 
@@ -134,9 +112,19 @@ public class ForwardingQueueTest extends ForwardingTestCase {
     forward.toArray(new String[0]);
     assertEquals("[toArray(Object[])]", getCalls());
   }
-      
+
   public void testToString() {
     forward.toString();
     assertEquals("[toString]", getCalls());
+  }
+
+  public void testEquals_Object() {
+    forward.equals("asdf");
+    assertFalse("equals() should not be forwarded.", isCalled());
+  }
+
+  public void testHashCode() {
+    forward.hashCode();
+    assertFalse("hashCode() should not be forwarded.", isCalled());
   }
 }

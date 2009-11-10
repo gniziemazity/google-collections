@@ -292,7 +292,7 @@ public abstract class ImmutableBiMap<K, V> extends ImmutableMap<K,V>
    *
    * Since the bimap is immutable, ImmutableBiMap doesn't require special logic
    * for keeping the bimap and its inverse in sync during serialization, the way
-   * StandardBiMap does.
+   * AbstractBiMap does.
    */
   private static class SerializedForm extends ImmutableMap.SerializedForm {
     SerializedForm(ImmutableBiMap<?, ?> bimap) {

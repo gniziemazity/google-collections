@@ -75,8 +75,13 @@ public class FunctionsTest extends TestCase {
     Function<String, Integer> function = Functions.forMap(map);
 
     assertEquals(1, function.apply("One").intValue());
-    assertNull(function.apply("Two"));
     assertEquals(3, function.apply("Three").intValue());
+
+    try {
+      function.apply("Two");
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
 
     new EqualsTester(function)
         .addEqualObject(Functions.forMap(map))
@@ -153,9 +158,17 @@ public class FunctionsTest extends TestCase {
         Functions.compose(integerToSpanish, japaneseToInteger);
 
     assertEquals("Uno", japaneseToSpanish.apply("Ichi"));
-    assertNull(japaneseToSpanish.apply("Ni"));
+    try {
+      japaneseToSpanish.apply("Ni");
+      fail();
+    } catch (IllegalArgumentException e) {
+    }
     assertEquals("Tres", japaneseToSpanish.apply("San"));
-    assertNull(japaneseToSpanish.apply("Shi"));
+    try {
+      japaneseToSpanish.apply("Shi");
+      fail();
+    } catch (IllegalArgumentException e) {
+    }
 
     new EqualsTester(japaneseToSpanish)
         .addEqualObject(
@@ -170,28 +183,14 @@ public class FunctionsTest extends TestCase {
   }
 
   public void testCompositionWildcard() {
-    Map<String, Integer> mJapaneseToInteger = Maps.newHashMap();
-    mJapaneseToInteger.put("Ichi", 1);
-    mJapaneseToInteger.put("Ni", 2);
-    mJapaneseToInteger.put("San", 3);
+    Map<String, Integer> mapJapaneseToInteger = Maps.newHashMap();
     Function<String, Integer> japaneseToInteger =
-        Functions.forMap(mJapaneseToInteger);
+        Functions.forMap(mapJapaneseToInteger);
 
-    Map<Number, String> mNumberToSpanish = Maps.newHashMap();
-    mNumberToSpanish.put(1, "Uno");
-    mNumberToSpanish.put(3, "Tres");
-    mNumberToSpanish.put(4, "Cuatro");
-    mNumberToSpanish.put(3.5, "Tres y medio");
-    Function<Number, String> numberToSpanish =
-        Functions.forMap(mNumberToSpanish);
+    Function<Object, String> numberToSpanish = Functions.constant("Yo no se");
 
     Function<String, String> japaneseToSpanish =
         Functions.compose(numberToSpanish, japaneseToInteger);
-
-    assertEquals("Uno", japaneseToSpanish.apply("Ichi"));
-    assertNull(japaneseToSpanish.apply("Ni"));
-    assertEquals("Tres", japaneseToSpanish.apply("San"));
-    assertNull(japaneseToSpanish.apply("Shi"));
   }
 
   private static class HashCodeFunction implements Function<Object, Integer> {
@@ -287,7 +286,19 @@ public class FunctionsTest extends TestCase {
   private <Y> void checkCanReserialize(Function<? super Integer, Y> f) {
     Function<? super Integer, Y> g = SerializableTester.reserializeAndAssert(f);
     for (int i = 1; i < 5; i++) {
-      assertEquals(f.apply(i), g.apply(i));
+      // convoluted way to check that the same result happens from each
+      Y expected = null;
+      try {
+        expected = f.apply(i);
+      } catch (IllegalArgumentException e) {
+        try {
+          g.apply(i);
+          fail();
+        } catch (IllegalArgumentException ok) {
+          continue;
+        }
+      }
+      assertEquals(expected, g.apply(i));
     }
   }
 

@@ -107,7 +107,7 @@ public abstract class ImmutableMultimap<K, V>
    * value orderings, allows duplicate values, and performs better than
    * {@link LinkedListMultimap}.
    */
-  private static class BuilderMultimap<K, V> extends StandardMultimap<K, V> {
+  private static class BuilderMultimap<K, V> extends AbstractMultimap<K, V> {
     BuilderMultimap() {
       super(new LinkedHashMap<K, Collection<V>>());
     }
@@ -465,7 +465,7 @@ public abstract class ImmutableMultimap<K, V>
     ImmutableMultiset.Builder<K> builder = ImmutableMultiset.builder();
     for (Map.Entry<K, ? extends ImmutableCollection<V>> entry
         : map.entrySet()) {
-      builder.add(entry.getKey(), entry.getValue().size());
+      builder.addCopies(entry.getKey(), entry.getValue().size());
     }
     return builder.build();
   }

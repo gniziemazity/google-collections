@@ -106,7 +106,7 @@ public class SynchronizedBiMapTest extends SynchronizedMapTest {
      * inverse of one won't be the same as the other.
      *
      * To make them the same, the inverse synchronized bimap would need a custom
-     * serialized form, similar to what {@code StandardBiMap.Inverse} does.
+     * serialized form, similar to what {@code AbstractBiMap.Inverse} does.
      */
     @Override public void testSerializationWithInverseSame() {}
   }

@@ -39,11 +39,11 @@ import javax.annotation.Nullable;
 
 /**
  * This class contains static utility methods that operate on or return objects
- * of type {@code Iterator}. Also see the parallel implementations in {@link
- * Iterables}.
+ * of type {@link Iterator}. Except as noted, each method has a corresponding
+ * {@link Iterable}-based method in the {@link Iterables} class.
  *
  * @author Kevin Bourrillion
- * @author Scott Bonneau
+ * @author Jared Levy
  */
 @GwtCompatible
 public final class Iterators {
@@ -59,7 +59,12 @@ public final class Iterators {
         }
       };
 
-  /** Returns the empty {@code Iterator}. */
+  /**
+   * Returns the empty iterator.
+   *
+   * <p>The {@link Iterable} equivalent of this method is {@link
+   * Collections#emptySet}.
+   */
   // Casting to any type is safe since there are no actual elements.
   @SuppressWarnings("unchecked")
   public static <T> UnmodifiableIterator<T> emptyIterator() {
@@ -147,16 +152,17 @@ public final class Iterators {
    * provided collection. The iterator will be left exhausted: its
    * {@code hasNext()} method will return {@code false}.
    *
-   * @param iterator the iterator to (potentially) remove elements from
-   * @param c the elements to remove
+   * @param removeFrom the iterator to (potentially) remove elements from
+   * @param elementsToRemove the elements to remove
    * @return {@code true} if any elements are removed from {@code iterator}
    */
-  public static boolean removeAll(Iterator<?> iterator, Collection<?> c) {
-    checkNotNull(c);
+  public static boolean removeAll(
+      Iterator<?> removeFrom, Collection<?> elementsToRemove) {
+    checkNotNull(elementsToRemove);
     boolean modified = false;
-    while (iterator.hasNext()) {
-      if (c.contains(iterator.next())) {
-        iterator.remove();
+    while (removeFrom.hasNext()) {
+      if (elementsToRemove.contains(removeFrom.next())) {
+        removeFrom.remove();
         modified = true;
       }
     }
@@ -168,19 +174,19 @@ public final class Iterators {
    * iterator. The iterator will be left exhausted: its {@code hasNext()}
    * method will return {@code false}.
    *
-   * @param iterator the iterator to (potentially) remove elements from
-   * @param predicate a predicate that determines whether an element should be
-   *     removed
+   * @param removeFrom the iterator to (potentially) remove elements from
+   * @param predicate a predicate that determines whether an element should
+   *     be removed
    * @return {@code true} if any elements were removed from the iterator
    */
   // TODO: make public post-1.0
   static <T> boolean removeIf(
-      Iterator<T> iterator, Predicate<? super T> predicate) {
+      Iterator<T> removeFrom, Predicate<? super T> predicate) {
     checkNotNull(predicate);
     boolean modified = false;
-    while (iterator.hasNext()) {
-      if (predicate.apply(iterator.next())) {
-        iterator.remove();
+    while (removeFrom.hasNext()) {
+      if (predicate.apply(removeFrom.next())) {
+        removeFrom.remove();
         modified = true;
       }
     }
@@ -192,16 +198,17 @@ public final class Iterators {
    * provided collection. The iterator will be left exhausted: its
    * {@code hasNext()} method will return {@code false}.
    *
-   * @param iterator the iterator to (potentially) remove elements from
-   * @param c the elements to retain
+   * @param removeFrom the iterator to (potentially) remove elements from
+   * @param elementsToRetain the elements to retain
    * @return {@code true} if any elements are removed from {@code iterator}
    */
-  public static boolean retainAll(Iterator<?> iterator, Collection<?> c) {
-    checkNotNull(c);
+  public static boolean retainAll(
+      Iterator<?> removeFrom, Collection<?> elementsToRetain) {
+    checkNotNull(elementsToRetain);
     boolean modified = false;
-    while (iterator.hasNext()) {
-      if (!c.contains(iterator.next())) {
-        iterator.remove();
+    while (removeFrom.hasNext()) {
+      if (!elementsToRetain.contains(removeFrom.next())) {
+        removeFrom.remove();
         modified = true;
       }
     }
@@ -313,11 +320,11 @@ public final class Iterators {
    *         operation
    */
   public static <T> boolean addAll(
-      Collection<T> collection, Iterator<? extends T> iterator) {
-    checkNotNull(collection);
+      Collection<T> addTo, Iterator<? extends T> iterator) {
+    checkNotNull(addTo);
     boolean wasModified = false;
     while (iterator.hasNext()) {
-      wasModified |= collection.add(iterator.next());
+      wasModified |= addTo.add(iterator.next());
     }
     return wasModified;
   }
@@ -749,6 +756,9 @@ public final class Iterators {
    * <p><b>Note:</b> It is often preferable to represent your data using a
    * collection type, for example using {@link Arrays#asList(Object[])}, making
    * this method unnecessary.
+   *
+   * <p>The {@code Iterable} equivalent of this method is either {@link
+   * Arrays#asList(Object[])} or {@link ImmutableList#of(Object[])}}.
    */
   public static <T> UnmodifiableIterator<T> forArray(final T... array) {
     // optimized. benchmarks at nearly 2x of the straightforward impl
@@ -776,6 +786,9 @@ public final class Iterators {
    * {@code array} in order. The returned iterator is a view of the array;
    * subsequent changes to the array will be reflected in the iterator.
    *
+   * <p>The {@code Iterable} equivalent of this method is {@code
+   * Arrays.asList(array).subList(offset, offset + length)}.
+   *
    * @param array array to read elements out of
    * @param offset index of first array element to retrieve
    * @param length number of elements in iteration
@@ -783,8 +796,8 @@ public final class Iterators {
    * @throws IndexOutOfBoundsException if {@code offset} is negative,
    *    {@code length} is negative, or {@code offset + length > array.length}
    */
-  public static <T> UnmodifiableIterator<T> forArray(
-      final T[] array, final int offset, final int length) {
+  static <T> UnmodifiableIterator<T> forArray(
+      final T[] array, final int offset, int length) {
     checkArgument(length >= 0);
     final int end = offset + length;
 
@@ -809,6 +822,9 @@ public final class Iterators {
 
   /**
    * Returns an iterator containing only {@code value}.
+   *
+   * <p>The {@link Iterable} equivalent of this method is {@link
+   * Collections#singleton}.
    */
   public static <T> UnmodifiableIterator<T> singletonIterator(
       @Nullable final T value) {
@@ -829,6 +845,11 @@ public final class Iterators {
 
   /**
    * Adapts an {@code Enumeration} to the {@code Iterator} interface.
+   *
+   * <p>This method has no equivalent in {@link Iterables} because viewing an
+   * {@code Enumeration} as an {@code Iterable} is impossible. However, the
+   * contents can be <i>copied</i> into a collection using {@link
+   * Collections#list}.
    */
   public static <T> UnmodifiableIterator<T> forEnumeration(
       final Enumeration<T> enumeration) {
@@ -846,7 +867,9 @@ public final class Iterators {
   /**
    * Adapts an {@code Iterator} to the {@code Enumeration} interface.
    *
-   * @see Collections#enumeration(Collection)
+   * <p>The {@code Iterable} equivalent of this method is either {@link
+   * Collections#enumeration} (if you have a {@link Collection}), or
+   * {@code Iterators.asEnumeration(collection.iterator())}.
    */
   public static <T> Enumeration<T> asEnumeration(final Iterator<T> iterator) {
     checkNotNull(iterator);
@@ -928,6 +951,9 @@ public final class Iterators {
    * method <i>might</i> choose to pass through recognized implementations of
    * {@code PeekingIterator} when the behavior of the implementation is
    * known to meet the contract guaranteed by this method.
+   *
+   * <p>There is no {@link Iterable} equivalent to this method, so use this
+   * method to wrap each individual iterator as it is generated.
    *
    * @param iterator the backing iterator. The {@link PeekingIterator} assumes
    *     ownership of this iterator, so users should cease making direct calls

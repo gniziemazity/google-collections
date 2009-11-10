@@ -269,11 +269,11 @@ public class ImmutableMultisetTest extends TestCase {
     assertEquals(HashMultiset.create(asList("a", "b", "a", "c")), multiset);
   }
 
-  public void testBuilderAddOccurrences() {
+  public void testBuilderAddCopies() {
     ImmutableMultiset<String> multiset = new ImmutableMultiset.Builder<String>()
-        .add("a", 2)
-        .add("b", 3)
-        .add("c", 0)
+        .addCopies("a", 2)
+        .addCopies("b", 3)
+        .addCopies("c", 0)
         .build();
     assertEquals(
         HashMultiset.create(asList("a", "a", "b", "b", "b")), multiset);
@@ -320,18 +320,18 @@ public class ImmutableMultisetTest extends TestCase {
     } catch (NullPointerException expected) {}
   }
 
-  public void testBuilderAddOccurrencesHandlesNullsCorrectly() {
+  public void testBuilderAddCopiesHandlesNullsCorrectly() {
     ImmutableMultiset.Builder<String> builder = ImmutableMultiset.builder();
     try {
-      builder.add(null, 2);
+      builder.addCopies(null, 2);
       fail("expected NullPointerException");
     } catch (NullPointerException expected) {}
   }
 
-  public void testBuilderAddOccurrencesIllegal() {
+  public void testBuilderAddCopiesIllegal() {
     ImmutableMultiset.Builder<String> builder = ImmutableMultiset.builder();
     try {
-      builder.add("a", -2);
+      builder.addCopies("a", -2);
       fail("expected IllegalArgumentException");
     } catch (IllegalArgumentException expected) {}
   }

@@ -17,6 +17,7 @@
 package com.google.common.base;
 
 import com.google.common.annotations.GwtCompatible;
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.Serializable;
@@ -82,15 +83,9 @@ public final class Functions {
   }
 
   /**
-   * Returns a function which performs a map lookup.
-   *
-   * <p>The difference between a map and a function is that a map is defined on
-   * a set of keys, while a function is defined on all inputs of the correct
-   * type. The function created by this method returns {@code null} for all
-   * inputs that do not belong to the map's key set.
-   *
-   * @param map source map that determines the function behavior
-   * @return function that returns {@code map.get(a)} for each {@code a}
+   * Returns a function which performs a map lookup. The returned function
+   * throws an {@link IllegalArgumentException} if given a key that does not
+   * exist in the map.
    */
   public static <K, V> Function<K, V> forMap(Map<K, V> map) {
     return new FunctionForMapNoDefault<K, V>(map);
@@ -98,13 +93,16 @@ public final class Functions {
 
   private static class FunctionForMapNoDefault<K, V>
       implements Function<K, V>, Serializable {
-    private final Map<K, V> map;
+    final Map<K, V> map;
 
-    public FunctionForMapNoDefault(Map<K, V> map) {
+    FunctionForMapNoDefault(Map<K, V> map) {
       this.map = checkNotNull(map);
     }
-    public V apply(K a) {
-      return map.get(a);
+    public V apply(K key) {
+      V result = map.get(key);
+      checkArgument(result != null || map.containsKey(key),
+          "Key '%s' not present in map", key);
+      return result;
     }
     @Override public boolean equals(Object o) {
       if (o instanceof FunctionForMapNoDefault) {
@@ -139,15 +137,15 @@ public final class Functions {
 
   private static class ForMapWithDefault<K, V>
       implements Function<K, V>, Serializable {
-    private final Map<K, ? extends V> map;
-    private final V defaultValue;
+    final Map<K, ? extends V> map;
+    final V defaultValue;
 
-    public ForMapWithDefault(Map<K, ? extends V> map, V defaultValue) {
+    ForMapWithDefault(Map<K, ? extends V> map, V defaultValue) {
       this.map = checkNotNull(map);
       this.defaultValue = defaultValue;
     }
-    public V apply(K a) {
-      return map.containsKey(a) ? map.get(a) : defaultValue;
+    public V apply(K key) {
+      return map.containsKey(key) ? map.get(key) : defaultValue;
     }
     @Override public boolean equals(Object o) {
       if (o instanceof ForMapWithDefault) {

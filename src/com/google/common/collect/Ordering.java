@@ -152,27 +152,6 @@ public abstract class Ordering<T> implements Comparator<T> {
   }
 
   /**
-   * This method has been renamed to {@link Ordering#explicit(List)}.
-   *
-   * @deprecated use {@link Ordering#explicit(List)}
-   */
-  @GwtCompatible(serializable = true)
-  @Deprecated public static <T> Ordering<T> givenOrder(List<T> valuesInOrder) {
-    return explicit(valuesInOrder);
-  }
-
-  /**
-   * This method has been renamed to {@link Ordering#explicit(Object,Object[])}.
-   *
-   * @deprecated use {@link Ordering#explicit(Object,Object[])}
-   */
-  @GwtCompatible(serializable = true)
-  @Deprecated public static <T> Ordering<T> givenOrder(
-      T leastValue, T... remainingValuesInOrder) {
-    return explicit(leastValue, remainingValuesInOrder);
-  }
-
-  /**
    * Exception thrown by a {@link Ordering#explicit(List)} or {@link
    * Ordering#explicit(Object, Object[])} comparator when comparing a value
    * outside the set of values it can compare. Extending {@link

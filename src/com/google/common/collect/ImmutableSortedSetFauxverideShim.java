@@ -18,23 +18,20 @@ package com.google.common.collect;
 
 import com.google.common.annotations.GwtCompatible;
 
-import java.util.Iterator;
-
 /**
  * "Overrides" the {@link ImmutableSet} static methods that lack
  * {@link ImmutableSortedSet} equivalents with deprecated, exception-throwing
  * versions. This prevents accidents like the following:<pre>   {@code
- * 
+ *
  *   List<Object> objects = ...;
- *   // Sort them: 
+ *   // Sort them:
  *   Set<Object> sorted = ImmutableSortedSet.copyOf(objects);
  *   // BAD CODE! The returned set is actually an unsorted ImmutableSet!}</pre>
- * 
- * <p>We would put the overrides in {@link ImmutableSortedSet} itself, but it is
- * impossible to define both {@code <E> copyOf(Iterable)} and {@code <E extends
- * Comparable<? super E>> copyOf(Iterable)} in the same class (ditto for the
- * {@code Iterator} variant).
- * 
+ *
+ * <p>While we could put the overrides in {@link ImmutableSortedSet} itself, it
+ * seems clearer to separate these "do not call" methods from those intended for
+ * normal use.
+ *
  * @author Chris Povirk
  */
 @GwtCompatible
@@ -43,7 +40,7 @@ abstract class ImmutableSortedSetFauxverideShim<E> extends ImmutableSet<E> {
    * Not supported. Use {@link ImmutableSortedSet#naturalOrder}, which offers
    * better type-safety, instead. This method exists only to hide
    * {@link ImmutableSet#builder} from consumers of {@code ImmutableSortedSet}.
-   * 
+   *
    * @throws UnsupportedOperationException always
    * @deprecated Use {@link ImmutableSortedSet#naturalOrder}, which offers
    *     better type-safety.
@@ -56,7 +53,7 @@ abstract class ImmutableSortedSetFauxverideShim<E> extends ImmutableSet<E> {
    * Not supported. <b>You are attempting to create a set that may contain a
    * non-{@code Comparable} element.</b> Proper calls will resolve to the
    * version in {@code ImmutableSortedSet}, not this dummy version.
-   * 
+   *
    * @throws UnsupportedOperationException always
    * @deprecated <b>Pass a parameter of type {@code Comparable} to use {@link
    *     ImmutableSortedSet#of(Comparable)}.</b>
@@ -64,12 +61,12 @@ abstract class ImmutableSortedSetFauxverideShim<E> extends ImmutableSet<E> {
   @Deprecated public static <E> ImmutableSortedSet<E> of(E element) {
     throw new UnsupportedOperationException();
   }
-  
+
   /**
    * Not supported. <b>You are attempting to create a set that may contain a
    * non-{@code Comparable} element.</b> Proper calls will resolve to the
    * version in {@code ImmutableSortedSet}, not this dummy version.
-   * 
+   *
    * @throws UnsupportedOperationException always
    * @deprecated <b>Pass the parameters of type {@code Comparable} to use {@link
    *     ImmutableSortedSet#of(Comparable, Comparable)}.</b>
@@ -77,12 +74,12 @@ abstract class ImmutableSortedSetFauxverideShim<E> extends ImmutableSet<E> {
   @Deprecated public static <E> ImmutableSortedSet<E> of(E e1, E e2) {
     throw new UnsupportedOperationException();
   }
-  
+
   /**
    * Not supported. <b>You are attempting to create a set that may contain a
    * non-{@code Comparable} element.</b> Proper calls will resolve to the
    * version in {@code ImmutableSortedSet}, not this dummy version.
-   * 
+   *
    * @throws UnsupportedOperationException always
    * @deprecated <b>Pass the parameters of type {@code Comparable} to use {@link
    *     ImmutableSortedSet#of(Comparable, Comparable, Comparable)}.</b>
@@ -90,12 +87,12 @@ abstract class ImmutableSortedSetFauxverideShim<E> extends ImmutableSet<E> {
   @Deprecated public static <E> ImmutableSortedSet<E> of(E e1, E e2, E e3) {
     throw new UnsupportedOperationException();
   }
-  
+
   /**
    * Not supported. <b>You are attempting to create a set that may contain a
    * non-{@code Comparable} element.</b> Proper calls will resolve to the
    * version in {@code ImmutableSortedSet}, not this dummy version.
-   * 
+   *
    * @throws UnsupportedOperationException always
    * @deprecated <b>Pass the parameters of type {@code Comparable} to use {@link
    *     ImmutableSortedSet#of(Comparable, Comparable, Comparable, Comparable)}.
@@ -105,12 +102,12 @@ abstract class ImmutableSortedSetFauxverideShim<E> extends ImmutableSet<E> {
       E e1, E e2, E e3, E e4) {
     throw new UnsupportedOperationException();
   }
-  
+
   /**
    * Not supported. <b>You are attempting to create a set that may contain a
    * non-{@code Comparable} element.</b> Proper calls will resolve to the
    * version in {@code ImmutableSortedSet}, not this dummy version.
-   * 
+   *
    * @throws UnsupportedOperationException always
    * @deprecated <b>Pass the parameters of type {@code Comparable} to use {@link
    *     ImmutableSortedSet#of(
@@ -125,7 +122,7 @@ abstract class ImmutableSortedSetFauxverideShim<E> extends ImmutableSet<E> {
    * Not supported. <b>You are attempting to create a set that may contain
    * non-{@code Comparable} elements.</b> Proper calls will resolve to the
    * version in {@code ImmutableSortedSet}, not this dummy version.
-   * 
+   *
    * @throws UnsupportedOperationException always
    * @deprecated <b>Pass parameters of type {@code Comparable} to use {@link
    *     ImmutableSortedSet#of(Comparable[])}.</b>
@@ -134,63 +131,22 @@ abstract class ImmutableSortedSetFauxverideShim<E> extends ImmutableSet<E> {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * Not supported. <b>You are attempting to copy a collection that may contain
-   * non-{@code Comparable} elements.</b> Proper calls will resolve to the
-   * version in {@code ImmutableSortedSet}, not this dummy version.
-   * 
-   * @throws UnsupportedOperationException always
-   * @deprecated <b>Pass a collection whose element type implements {@code
-   *     Comparable} to use {@link ImmutableSortedSet#copyOf(Iterable)}.</b>
-   */
   /*
-   * Do NOT declare a return type of "ImmutableSortedSet": See the comment in
-   * the method body for details.
-   */
-  @Deprecated public static <E> ImmutableSet<E> copyOf(
-      Iterable<? extends E> elements) {
-    /*
-     * The compiler will interpret a call to
-     * "ImmutableSortedSet.copyOf(noncomparables)" as a call to this method and
-     * report that it's deprecated, but it will write
-     * "ImmutableSet ImmutableSortedSet#copyOf(Iterable)" in the bytecode
-     * because that's how indirect static-method invocations are compiled. Only
-     * later will the VM will resolve which version to call -- and without
-     * generic-type information, we need another way to keep it from choosing
-     * the version in ImmutableSortedSet. (That version assumes that the given
-     * elements all implement Comparable, but this version doesn't guarantee
-     * that, so the caller might get a ClassCastException.)
-     * 
-     * The key is the return type. Method references in bytecode contain the
-     * return type. If this method returned ImmutableSortedSet, it would match
-     * the version in ImmutableSortedSet exactly, and at runtime, that version
-     * would be selected over this one. By returning ImmutableSet here, we
-     * distinguish this method from the ImmutableSortedSet method, and the VM
-     * will choose this version at runtime.
-     * 
-     * (The of() methods, by contrast, can declare a return type of
-     * ImmutableSortedSet because their parameter types distinguish them from
-     * the versions in ImmutableSet. And builder() isn't overridden in
-     * ImmutableSortedSet at all; we could define it there if we wanted.)
-     */
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported. <b>You are attempting to copy an iterator that may contain
-   * non-{@code Comparable} elements.</b> Proper calls will resolve to the
-   * version in {@code ImmutableSortedSet}, not this dummy version.
+   * We would like to include an unsupported "<E> copyOf(Iterable<E>)" here,
+   * providing only the properly typed
+   * "<E extends Comparable<E>> copyOf(Iterable<E>)" in ImmutableSortedSet (and
+   * likewise for the Iterator equivalent). However, due to a change in Sun's
+   * interpretation of the JLS (as described at
+   * http://bugs.sun.com/view_bug.do?bug_id=6182950), the OpenJDK 7 compiler
+   * available as of this writing rejects our attempts. To maintain
+   * compatibility with that version and with any other compilers that interpret
+   * the JLS similarly, there is no definition of copyOf() here, and the
+   * definition in ImmutableSortedSet matches that in ImmutableSet.
    * 
-   * @throws UnsupportedOperationException always
-   * @deprecated <b>Pass an iterator whose element type implements {@code
-   *     Comparable} to use {@link ImmutableSortedSet#copyOf(Iterator)}.</b>
+   * The result is that ImmutableSortedSet.copyOf() may be called on
+   * non-Comparable elements. We have not discovered a better solution. In
+   * retrospect, the static factory methods should have gone in a separate class
+   * so that ImmutableSortedSet wouldn't "inherit" too-permissive factory
+   * methods from ImmutableSet.
    */
-  /*
-   * Do NOT declare a return type of "ImmutableSortedSet": See the comments on
-   * copyOf(Iterable) for details.
-   */
-  @Deprecated public static <E> ImmutableSet<E> copyOf(
-      Iterator<? extends E> elements) {
-    throw new UnsupportedOperationException();
-  }
 }

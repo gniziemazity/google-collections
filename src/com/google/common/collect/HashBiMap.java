@@ -34,7 +34,7 @@ import javax.annotation.Nullable;
  * @author Mike Bostock
  */
 @GwtCompatible
-public final class HashBiMap<K, V> extends StandardBiMap<K, V> {
+public final class HashBiMap<K, V> extends AbstractBiMap<K, V> {
 
   /**
    * Returns a new, empty {@code HashBiMap} with the default initial capacity

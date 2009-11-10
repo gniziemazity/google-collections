@@ -39,6 +39,6 @@ public class SingletonImmutableSet_CustomFieldSerializer {
   
   public static void serialize(SerializationStreamWriter writer,
       SingletonImmutableSet<?> instance) throws SerializationException {
-    writer.writeObject(instance.getElement());
+    writer.writeObject(instance.element);
   }
 }

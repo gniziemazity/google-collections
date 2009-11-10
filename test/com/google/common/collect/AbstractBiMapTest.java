@@ -478,7 +478,7 @@ public abstract class AbstractBiMapTest extends TestCase {
     assertEquals(bimap.inverse(), copy.inverse());
   }
 
-  private void putOneTwoThree() {
+  void putOneTwoThree() {
     bimap.put(1, "one");
     bimap.put(2, "two");
     bimap.put(3, "three");

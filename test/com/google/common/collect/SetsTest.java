@@ -228,8 +228,8 @@ public class SetsTest extends TestCase {
     assertContentsInOrder(units, SomeEnum.B, SomeEnum.D);
 
     Set<SomeEnum> copy = SerializableTester.reserializeAndAssert(units);
-    assertTrue(copy instanceof ImmutableSet.ImmutableEnumSet);
-    
+    assertTrue(copy instanceof ImmutableEnumSet);
+
     try {
       units.remove(SomeEnum.B);
       fail("ImmutableEnumSet should throw an exception on remove()");

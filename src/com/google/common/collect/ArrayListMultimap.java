@@ -57,7 +57,7 @@ import java.util.Map;
  * @author Jared Levy
  */
 @GwtCompatible(serializable = true)
-public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
+public final class ArrayListMultimap<K, V> extends AbstractListMultimap<K, V> {
   // Default from ArrayList
   private static final int DEFAULT_VALUES_PER_KEY = 10;
 
@@ -97,29 +97,17 @@ public final class ArrayListMultimap<K, V> extends StandardListMultimap<K, V> {
   }
 
   /** Constructs an empty {@code ArrayListMultimap}. */
-  private ArrayListMultimap() {
+  ArrayListMultimap() {
     super(new HashMap<K, Collection<V>>());
     expectedValuesPerKey = DEFAULT_VALUES_PER_KEY;
   }
 
-  /**
-   * Constructs an empty {@code ArrayListMultimap} with the expected number of
-   * distinct keys and the expected number of values per distinct key.
-   *
-   * @param expectedKeys the expected number of distinct keys
-   * @param expectedValuesPerKey the expected average number of values per key
-   * @throws IllegalArgumentException if either argument is negative
-   */
   private ArrayListMultimap(int expectedKeys, int expectedValuesPerKey) {
     super(Maps.<K, Collection<V>>newHashMapWithExpectedSize(expectedKeys));
     checkArgument(expectedValuesPerKey >= 0);
     this.expectedValuesPerKey = expectedValuesPerKey;
   }
 
-  /**
-   * Constructs an {@code ArrayListMultimap} with the same mappings as the
-   * specified multimap.
-   */
   private ArrayListMultimap(Multimap<? extends K, ? extends V> multimap) {
     this(multimap.keySet().size(),
         (multimap instanceof ArrayListMultimap) ?

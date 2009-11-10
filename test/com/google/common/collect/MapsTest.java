@@ -20,7 +20,11 @@ import com.google.common.base.Functions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.SetsTest.Derived;
-import com.google.common.collect.testing.MapInterfaceTest;
+import com.google.common.collect.testing.MapTestSuiteBuilder;
+import com.google.common.collect.testing.TestStringMapGenerator;
+import com.google.common.collect.testing.features.CollectionSize;
+import com.google.common.collect.testing.features.MapFeature;
+import static com.google.common.collect.testing.testers.CollectionIteratorTester.getIteratorUnknownOrderRemoveSupportedMethod;
 import com.google.common.testing.junit3.JUnitAsserts;
 import com.google.common.testutils.EqualsTester;
 import com.google.common.testutils.NullPointerTester;
@@ -58,17 +62,6 @@ public class MapsTest extends TestCase {
 
   private static final Comparator<Integer> SOME_COMPARATOR =
       Collections.reverseOrder();
-
-  public static Test suite() {
-    TestSuite suite = new TestSuite();
-    suite.addTestSuite(MapsTest.class);
-    suite.addTestSuite(FilteredKeysMapInterfaceTest.class);
-    suite.addTestSuite(FilteredValuesMapInterfaceTest.class);
-    suite.addTestSuite(FilteredEntriesMapInterfaceTest.class);
-    suite.addTestSuite(FilteredKeysFilteredValuesMapInterfaceTest.class);
-    suite.addTestSuite(FilteredValuesFilteredKeysMapInterfaceTest.class);
-    return suite;
-  }
 
   public void testHashMap() {
     HashMap<Integer, Integer> map = Maps.newHashMap();
@@ -647,14 +640,6 @@ public class MapsTest extends TestCase {
         }
       };
 
-  private static final Predicate<Entry<String, Integer>> NOT_LENGTH_3_EVEN
-      = new Predicate<Entry<String, Integer>>() {
-        public boolean apply(Entry<String, Integer> input) {
-          return NOT_LENGTH_3.apply(input.getKey())
-              && EVEN.apply(input.getValue());
-        }
-      };
-
   private static final Predicate<Entry<String, Integer>> CORRECT_LENGTH
       = new Predicate<Entry<String, Integer>>() {
         public boolean apply(Entry<String, Integer> input) {
@@ -823,163 +808,139 @@ public class MapsTest extends TestCase {
     assertEquals(ImmutableMap.of("cat", 3, "dog", 2), filtered);
   }
 
-  public static class FilteredKeysMapInterfaceTest
-      extends MapInterfaceTest<String, Integer> {
+  // TestStringMapGenerator uses entries of the form "one=January" and so forth.
+  // To test the filtered collections, we'll create a map containing the entries
+  // they ask for, plus some bogus numeric entries. Then our predicates will
+  // simply filter numeric entries back out.
 
-    public FilteredKeysMapInterfaceTest() {
-      super(true, true, true, true, true, false);
-    }
+  private static ImmutableMap<String, String> ENTRIES_TO_FILTER_OUT =
+      new ImmutableMap.Builder<String, String>()
+          .put("0", "0")
+          .put("1", "1")
+          .put("2", "2")
+          .build();
 
-    @Override protected String getKeyNotInPopulatedMap() {
-      return "zero";
-    }
+  public static class FilteredMapTests extends TestCase {
+    public static Test suite() {
+      TestSuite suite = new TestSuite();
 
-    @Override protected Integer getValueNotInPopulatedMap() {
-      return 0;
-    }
+      suite.addTest(MapTestSuiteBuilder.using(
+          new TestStringMapGenerator() {
+            @Override protected Map<String, String> create(
+                Entry<String, String>[] entries) {
+              Map<String, String> map = Maps.newHashMap();
+              for (Entry<String, String> entry : entries) {
+                map.put(entry.getKey(), entry.getValue());
+              }
+              map.putAll(ENTRIES_TO_FILTER_OUT);
+              return Maps.filterKeys(map, new Predicate<String>() {
+                public boolean apply(String input) {
+                  return input == null
+                      || (input.charAt(0) >= 'a' && input.charAt(0) <= 'z');
+                }
+              });
+            }
+          })
+          .named("Maps.filterKeys")
+          .withFeatures(
+              CollectionSize.ANY,
+              MapFeature.ALLOWS_NULL_KEYS,
+              MapFeature.ALLOWS_NULL_VALUES,
+              MapFeature.GENERAL_PURPOSE)
+          .suppressing(getIteratorUnknownOrderRemoveSupportedMethod())
+          .createTestSuite());
 
-    @Override protected Map<String, Integer> makeEmptyMap() {
-      Map<String, Integer> unfiltered = Maps.newHashMap();
-      unfiltered.put("one", 1);
-      unfiltered.put("two", 2);
-      unfiltered.put("six", 6);
-      return Maps.filterKeys(unfiltered, NOT_LENGTH_3);
-    }
+      suite.addTest(MapTestSuiteBuilder.using(
+          new TestStringMapGenerator() {
+            @Override protected Map<String, String> create(
+                Entry<String, String>[] entries) {
+              Map<String, String> map = Maps.newHashMap();
+              for (Entry<String, String> entry : entries) {
+                map.put(entry.getKey(), entry.getValue());
+              }
+              map.putAll(ENTRIES_TO_FILTER_OUT);
+              return Maps.filterValues(map, new Predicate<String>() {
+                public boolean apply(String input) {
+                  return input == null
+                      || (input.charAt(0) >= 'A' && input.charAt(0) <= 'Z');
+                }
+              });
+            }
+          })
+          .named("Maps.filterValues")
+          .withFeatures(
+              CollectionSize.ANY,
+              MapFeature.ALLOWS_NULL_KEYS,
+              MapFeature.ALLOWS_NULL_VALUES,
+              MapFeature.GENERAL_PURPOSE)
+          .suppressing(getIteratorUnknownOrderRemoveSupportedMethod())
+          .createTestSuite());
 
-    @Override protected Map<String, Integer> makePopulatedMap() {
-      Map<String, Integer> map = makeEmptyMap();
-      map.put("three", 3);
-      map.put("four", 4);
-      map.put("five", 5);
-      return map;
-    }
-  }
+      suite.addTest(MapTestSuiteBuilder.using(
+          new TestStringMapGenerator() {
+            @Override protected Map<String, String> create(
+                Entry<String, String>[] entries) {
+              Map<String, String> map = Maps.newHashMap();
+              for (Entry<String, String> entry : entries) {
+                map.put(entry.getKey(), entry.getValue());
+              }
+              map.putAll(ENTRIES_TO_FILTER_OUT);
+              return Maps.filterEntries(map,
+                  new Predicate<Entry<String, String>>() {
+                    public boolean apply(Entry<String, String> entry) {
+                      String input = entry.getKey();
+                      return input == null
+                          || (input.charAt(0) >= 'a' && input.charAt(0) <= 'z');
+                    }
+                  });
+            }
+          })
+          .named("Maps.filterEntries")
+          .withFeatures(
+              CollectionSize.ANY,
+              MapFeature.ALLOWS_NULL_KEYS,
+              MapFeature.ALLOWS_NULL_VALUES,
+              MapFeature.GENERAL_PURPOSE)
+          .suppressing(getIteratorUnknownOrderRemoveSupportedMethod())
+          .createTestSuite());
 
-  public static class FilteredValuesMapInterfaceTest
-      extends MapInterfaceTest<String, Integer> {
+      suite.addTest(MapTestSuiteBuilder.using(
+          new TestStringMapGenerator() {
+            @Override protected Map<String, String> create(
+                Entry<String, String>[] entries) {
+              Map<String, String> map = Maps.newHashMap();
+              for (Entry<String, String> entry : entries) {
+                map.put(entry.getKey(), entry.getValue());
+              }
+              map.putAll(ENTRIES_TO_FILTER_OUT);
+              map.put("", "weird");
+              Map<String, String> withoutEmptyKey = Maps.filterKeys(map,
+                  new Predicate<String>() {
+                    public boolean apply(String input) {
+                      return input == null || input.length() != 0;
+                    }
+                  });
+              return Maps.filterKeys(withoutEmptyKey, new Predicate<String>() {
+                public boolean apply(String input) {
+                  return input == null
+                      || (input.charAt(0) >= 'a' && input.charAt(0) <= 'z');
+                }
+              });
+              // note: these filters were deliberately chosen so that an
+              // element somehow getting around the first filter would cause
+              // an exception in the second
+            }
+          })
+          .named("Maps.filterKeys, chained")
+          .withFeatures(
+              CollectionSize.ANY,
+              MapFeature.ALLOWS_NULL_KEYS,
+              MapFeature.ALLOWS_NULL_VALUES,
+              MapFeature.GENERAL_PURPOSE)
+          .suppressing(getIteratorUnknownOrderRemoveSupportedMethod())
+          .createTestSuite());
 
-    public FilteredValuesMapInterfaceTest() {
-      super(true, true, true, true, true, false);
-    }
-
-    @Override protected String getKeyNotInPopulatedMap() {
-      return "zero";
-    }
-
-    @Override protected Integer getValueNotInPopulatedMap() {
-      return 0;
-    }
-
-    @Override protected Map<String, Integer> makeEmptyMap() {
-      Map<String, Integer> unfiltered = Maps.newHashMap();
-      unfiltered.put("one", 1);
-      unfiltered.put("three", 3);
-      unfiltered.put("five", 5);
-      return Maps.filterValues(unfiltered, EVEN);
-    }
-
-    @Override protected Map<String, Integer> makePopulatedMap() {
-      Map<String, Integer> map = makeEmptyMap();
-      map.put("two", 2);
-      map.put("six", 6);
-      map.put("four", 4);
-      return map;
-    }
-  }
-
-  public static class FilteredEntriesMapInterfaceTest
-      extends MapInterfaceTest<String, Integer> {
-
-    public FilteredEntriesMapInterfaceTest() {
-      super(true, true, true, true, true, false);
-    }
-
-    @Override protected String getKeyNotInPopulatedMap() {
-      return "zero";
-    }
-
-    @Override protected Integer getValueNotInPopulatedMap() {
-      return 0;
-    }
-
-    @Override protected Map<String, Integer> makeEmptyMap() {
-      Map<String, Integer> unfiltered = Maps.newHashMap();
-      unfiltered.put("one", 1);
-      unfiltered.put("two", 2);
-      unfiltered.put("three", 3);
-      return Maps.filterEntries(unfiltered, NOT_LENGTH_3_EVEN);
-    }
-
-    @Override protected Map<String, Integer> makePopulatedMap() {
-      Map<String, Integer> map = makeEmptyMap();
-      map.put("four", 4);
-      map.put("eight", 8);
-      map.put("tweleve", 12);
-      return map;
-    }
-  }
-
-  public static class FilteredKeysFilteredValuesMapInterfaceTest
-      extends MapInterfaceTest<String, Integer> {
-
-    public FilteredKeysFilteredValuesMapInterfaceTest() {
-      super(true, true, true, true, true, false);
-    }
-
-    @Override protected String getKeyNotInPopulatedMap() {
-      return "zero";
-    }
-
-    @Override protected Integer getValueNotInPopulatedMap() {
-      return 0;
-    }
-
-    @Override protected Map<String, Integer> makeEmptyMap() {
-      Map<String, Integer> unfiltered = Maps.newHashMap();
-      unfiltered.put("one", 1);
-      unfiltered.put("two", 2);
-      unfiltered.put("three", 3);
-      return Maps.filterValues(Maps.filterKeys(unfiltered, NOT_LENGTH_3), EVEN);
-    }
-
-    @Override protected Map<String, Integer> makePopulatedMap() {
-      Map<String, Integer> map = makeEmptyMap();
-      map.put("four", 4);
-      map.put("eight", 8);
-      map.put("twelve", 12);
-      return map;
-    }
-  }
-
-  public static class FilteredValuesFilteredKeysMapInterfaceTest
-      extends MapInterfaceTest<String, Integer> {
-
-    public FilteredValuesFilteredKeysMapInterfaceTest() {
-      super(true, true, true, true, true, false);
-    }
-
-    @Override protected String getKeyNotInPopulatedMap() {
-      return "zero";
-    }
-
-    @Override protected Integer getValueNotInPopulatedMap() {
-      return 0;
-    }
-
-    @Override protected Map<String, Integer> makeEmptyMap() {
-      Map<String, Integer> unfiltered = Maps.newHashMap();
-      unfiltered.put("one", 1);
-      unfiltered.put("two", 2);
-      unfiltered.put("three", 3);
-      return Maps.filterKeys(Maps.filterValues(unfiltered, EVEN), NOT_LENGTH_3);
-    }
-
-    @Override protected Map<String, Integer> makePopulatedMap() {
-      Map<String, Integer> map = makeEmptyMap();
-      map.put("four", 4);
-      map.put("eight", 8);
-      map.put("tweleve", 12);
-      return map;
+      return suite;
     }
   }
 }

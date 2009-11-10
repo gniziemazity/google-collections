@@ -48,6 +48,10 @@ public abstract class ForwardingTestCase extends TestCase {
     return calls.toString();
   }
 
+  protected boolean isCalled() {
+    return !calls.isEmpty();
+  }
+
   @SuppressWarnings("unchecked")
   protected <T> T createProxyInstance(Class<T> c) {
     /*
@@ -81,7 +85,7 @@ public abstract class ForwardingTestCase extends TestCase {
         new Class[] { c }, handler);
   }
 
-  private static final Joiner commaJoiner = Joiner.on(",");
+  private static final Joiner COMMA_JOINER = Joiner.on(",");
 
   /*
    * Returns string representation of a method.
@@ -105,6 +109,6 @@ public abstract class ForwardingTestCase extends TestCase {
             return from.getSimpleName();
           }
     });
-    return methodName + "(" + commaJoiner.join(parameterNames) + ")";
+    return methodName + "(" + COMMA_JOINER.join(parameterNames) + ")";
   }
 }

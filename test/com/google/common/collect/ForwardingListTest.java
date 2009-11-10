@@ -175,4 +175,9 @@ public class ForwardingListTest extends ForwardingTestCase {
   public void testRandomAccess() {
     assertFalse(forward instanceof RandomAccess);
   }
+
+  public void testToString() {
+    forward.toString();
+    assertEquals("[toString]", getCalls());
+  }
 }

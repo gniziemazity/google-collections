@@ -34,7 +34,7 @@ import javax.annotation.Nullable;
  * @author Mike Bostock
  */
 public final class EnumHashBiMap<K extends Enum<K>, V>
-    extends StandardBiMap<K, V> {
+    extends AbstractBiMap<K, V> {
   private transient Class<K> keyType;
 
   /**

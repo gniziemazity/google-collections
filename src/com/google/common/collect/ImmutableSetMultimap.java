@@ -139,7 +139,7 @@ public class ImmutableSetMultimap<K, V>
    * Multimap for {@link ImmutableSetMultimap.Builder} that maintains key
    * and value orderings and performs better than {@link LinkedHashMultimap}.
    */
-  private static class BuilderMultimap<K, V> extends StandardMultimap<K, V> {
+  private static class BuilderMultimap<K, V> extends AbstractMultimap<K, V> {
     BuilderMultimap() {
       super(new LinkedHashMap<K, Collection<V>>());
     }

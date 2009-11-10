@@ -76,66 +76,15 @@ public abstract class ForwardingMap<K, V> extends ForwardingObject
     delegate().putAll(map);
   }
 
-  private transient Set<K> keySet;
-
   public Set<K> keySet() {
-    return (keySet == null) ? keySet = createKeySet() : keySet;
-  }
-
-  /**
-   * Generates a {@link Set} for use by {@link #keySet()}.
-   *
-   * <p>ForwardingMap's implementation of keySet() calls this method to
-   * generate a collection of values, and then reuses that Set
-   * for subsequent invocations.  By default, this Set is the
-   * result of invoking keySet() on the delegate.  Override this method if you
-   * want to provide another implementation.
-   *
-   * @return A set for use by keySet().
-   */
-  protected Set<K> createKeySet() {
     return delegate().keySet();
   }
 
-  private transient Collection<V> values;
-
   public Collection<V> values() {
-    return (values == null) ? values = createValues() : values;
-  }
-
-  /**
-   * Generates a {@link Collection} for use by {@link #values()}.
-   *
-   * <p>ForwardingMap's implementation of {@code values()} calls this method to
-   * generate a collection of values, and then reuses that collection
-   * for subsequent invocations.  By default, this collection is the
-   * result of invoking values() on the delegate.  Override this method if you
-   * want to provide another implementation.
-   *
-   * @return A set for use by values().
-   */
-  protected Collection<V> createValues() {
     return delegate().values();
   }
 
-  private transient Set<Entry<K, V>> entrySet;
-
   public Set<Entry<K, V>> entrySet() {
-    return (entrySet == null) ? entrySet = createEntrySet() : entrySet;
-  }
-
-  /**
-   * Generates a {@link Set} for use by {@link #entrySet()}.
-   *
-   * <p>ForwardingMap's implementation of entrySet() calls this method to
-   * generate a set of entries, and then reuses that set for subsequent
-   * invocations.  By default, this set is the result of invoking
-   * entrySet() on the delegate.  Override this method if you want to
-   * provide another implementation.
-   *
-   * @return A set for use by entrySet().
-   */
-  protected Set<Entry<K, V>> createEntrySet() {
     return delegate().entrySet();
   }
 

@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -402,75 +401,12 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
     }
   }
 
-  /**
-   * Implementation of {@link ImmutableSet} backed by an {@link EnumSet}.
-   */
-  static class ImmutableEnumSet<E extends Enum<E>> extends ImmutableSet<E> {
-    /*
-     * This class isn't an arbitrary ForwardingImmutableSet because we need to
-     * know that calling {@code clone()} during deserialization will return an
-     * object that no one else has a reference to, allowing us to guarantee
-     * immutability. Hence, we support only {@link EnumSet}.
-     */
-    private final EnumSet<E> delegate;
-
-    ImmutableEnumSet(EnumSet<E> delegate) {
-      this.delegate = delegate;
-    }
-
-    @Override public UnmodifiableIterator<E> iterator() {
-      return Iterators.unmodifiableIterator(delegate.iterator());
-    }
-
-    public int size() {
-      return delegate.size();
-    }
-
-    @Override public boolean contains(Object object) {
-      return delegate.contains(object);
-    }
-
-    @Override public boolean containsAll(Collection<?> collection) {
-      return delegate.containsAll(collection);
-    }
-
-    @Override public boolean isEmpty() {
-      return delegate.isEmpty();
-    }
-
-    @Override public Object[] toArray() {
-      return delegate.toArray();
-    }
-
-    @Override public <T> T[] toArray(T[] array) {
-      return delegate.toArray(array);
-    }
-
-    @Override public boolean equals(Object object) {
-      return object == this || delegate.equals(object);
-    }
-
-    private transient int hash;
-
-    @Override public int hashCode() {
-      return (hash == 0) ? hash = delegate.hashCode() : hash;
-    }
-
-    @Override public String toString() {
-      return delegate.toString();
-    }
-
-    @Override Object writeReplace() {
-      return new EnumSerializedForm<E>(delegate);
-    }
-  }
-
   /*
    * This class is used to serialize all ImmutableSet instances, except for
-   * ForwardingImmutableSet, regardless of implementation type. It captures
-   * their "logical contents" and they are reconstructed using public static
-   * factories. This is necessary to ensure that the existence of a particular
-   * implementation type is an implementation detail.
+   * ImmutableEnumSet/ImmutableSortedSet, regardless of implementation type. It
+   * captures their "logical contents" and they are reconstructed using public
+   * static factories. This is necessary to ensure that the existence of a
+   * particular implementation type is an implementation detail.
    */
   private static class SerializedForm implements Serializable {
     final Object[] elements;
@@ -485,22 +421,6 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
 
   @Override Object writeReplace() {
     return new SerializedForm(toArray());
-  }
-
-  /*
-   * This class is used to serialize ImmutableEnumSet instances.
-   */
-  private static class EnumSerializedForm<E extends Enum<E>>
-      implements Serializable {
-    final EnumSet<E> delegate;
-    EnumSerializedForm(EnumSet<E> delegate) {
-      this.delegate = delegate;
-    }
-    Object readResolve() {
-      // EJ2 #76: Write readObject() methods defensively.
-      return new ImmutableEnumSet<E>(delegate.clone());
-    }
-    private static final long serialVersionUID = 0;
   }
 
   /**

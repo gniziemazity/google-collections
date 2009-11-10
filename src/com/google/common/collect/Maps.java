@@ -1217,6 +1217,7 @@ public final class Maps {
       }
 
       @Override public boolean removeAll(Collection<?> collection) {
+        checkNotNull(collection); // for GWT
         boolean changed = false;
         for (Object obj : collection) {
           changed |= remove(obj);
@@ -1225,7 +1226,7 @@ public final class Maps {
       }
 
       @Override public boolean retainAll(Collection<?> collection) {
-        checkNotNull(collection);
+        checkNotNull(collection); // for GWT
         boolean changed = false;
         Iterator<Entry<K, V>> iterator = unfiltered.entrySet().iterator();
         while (iterator.hasNext()) {

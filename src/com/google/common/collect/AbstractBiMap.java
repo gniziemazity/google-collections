@@ -36,23 +36,26 @@ import javax.annotation.Nullable;
  * A general-purpose bimap implementation using any two backing {@code Map}
  * instances.
  *
+ * <p>Note that this class contains {@code equals()} calls that keep it from
+ * supporting {@code IdentityHashMap} backing maps.
+ *
  * @author Kevin Bourrillion
  * @author Mike Bostock
  */
 @GwtCompatible
-class StandardBiMap<K, V> extends ForwardingMap<K, V>
+abstract class AbstractBiMap<K, V> extends ForwardingMap<K, V>
     implements BiMap<K, V>, Serializable {
 
   private transient Map<K, V> delegate;
-  private transient StandardBiMap<V, K> inverse;
+  private transient AbstractBiMap<V, K> inverse;
 
   /** Package-private constructor for creating a map-backed bimap. */
-  StandardBiMap(Map<K, V> forward, Map<V, K> backward) {
+  AbstractBiMap(Map<K, V> forward, Map<V, K> backward) {
     setDelegates(forward, backward);
   }
 
   /** Private constructor for inverse bimap. */
-  private StandardBiMap(Map<K, V> backward, StandardBiMap<V, K> forward) {
+  private AbstractBiMap(Map<K, V> backward, AbstractBiMap<V, K> forward) {
     delegate = backward;
     inverse = forward;
   }
@@ -75,7 +78,7 @@ class StandardBiMap<K, V> extends ForwardingMap<K, V>
     inverse = new Inverse<V, K>(backward, this);
   }
 
-  void setInverse(StandardBiMap<V, K> inverse) {
+  void setInverse(AbstractBiMap<V, K> inverse) {
     this.inverse = inverse;
   }
 
@@ -164,7 +167,7 @@ class StandardBiMap<K, V> extends ForwardingMap<K, V>
     }
 
     @Override public void clear() {
-      StandardBiMap.this.clear();
+      AbstractBiMap.this.clear();
     }
 
     @Override public boolean remove(Object key) {
@@ -196,8 +199,10 @@ class StandardBiMap<K, V> extends ForwardingMap<K, V>
           return entry.getKey();
         }
         public void remove() {
+          checkState(entry != null);
+          V value = entry.getValue();
           iterator.remove();
-          removeFromInverseMap(entry.getValue());
+          removeFromInverseMap(value);
         }
       };
     }
@@ -269,7 +274,7 @@ class StandardBiMap<K, V> extends ForwardingMap<K, V>
     }
 
     @Override public void clear() {
-      StandardBiMap.this.clear();
+      AbstractBiMap.this.clear();
     }
 
     @Override public boolean remove(Object object) {
@@ -318,8 +323,10 @@ class StandardBiMap<K, V> extends ForwardingMap<K, V>
         }
 
         /*@Override*/ public void remove() {
+          checkState(entry != null);
+          V value = entry.getValue();
           iterator.remove();
-          removeFromInverseMap(entry.getValue());
+          removeFromInverseMap(value);
         }
       };
     }
@@ -346,9 +353,9 @@ class StandardBiMap<K, V> extends ForwardingMap<K, V>
     }
   }
 
-  /** The inverse of any other {@code StandardBiMap} subclass. */
-  private static class Inverse<K, V> extends StandardBiMap<K, V> {
-    private Inverse(Map<K, V> backward, StandardBiMap<V, K> forward) {
+  /** The inverse of any other {@code AbstractBiMap} subclass. */
+  private static class Inverse<K, V> extends AbstractBiMap<K, V> {
+    private Inverse(Map<K, V> backward, AbstractBiMap<V, K> forward) {
       super(backward, forward);
     }
 
@@ -373,7 +380,7 @@ class StandardBiMap<K, V> extends ForwardingMap<K, V>
     private void readObject(ObjectInputStream stream)
         throws IOException, ClassNotFoundException {
       stream.defaultReadObject();
-      setInverse((StandardBiMap<V, K>) stream.readObject());
+      setInverse((AbstractBiMap<V, K>) stream.readObject());
     }
 
     Object readResolve() {

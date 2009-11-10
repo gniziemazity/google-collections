@@ -260,11 +260,22 @@ public abstract class ImmutableSortedSet<E>
    * <p><b>Note:</b> Despite what the method name suggests, if {@code elements}
    * is an {@code ImmutableSortedSet}, it may be returned instead of a copy.
    *
+   * <p>This method is not type-safe, as it may be called on elements that are
+   * not mutually comparable.
+   *
+   * @throws ClassCastException if the elements are not mutually comparable
    * @throws NullPointerException if any of {@code elements} is null
    */
-  public static <E extends Comparable<? super E>> ImmutableSortedSet<E> copyOf(
+  @SuppressWarnings("unchecked") // unsafe; see ImmutableSortedSetFauxverideShim
+  public static <E> ImmutableSortedSet<E> copyOf(
       Iterable<? extends E> elements) {
-    return copyOfInternal(Ordering.natural(), elements, false);
+    /*
+     * Eclipse 3.5 doesn't like the method call if we cast to raw Iterable, and
+     * once we're casting to Iterable<Comparable>, we need to cast the return
+     * value, too.
+     */
+    return (ImmutableSortedSet) copyOfInternal(
+        Ordering.natural(), (Iterable<Comparable>) elements, false);
   }
 
   /**
@@ -272,11 +283,22 @@ public abstract class ImmutableSortedSet<E>
    * their natural ordering. When multiple elements are equivalent according to
    * {@code compareTo()}, only the first one specified is included.
    *
+   * <p>This method is not type-safe, as it may be called on elements that are
+   * not mutually comparable.
+   *
+   * @throws ClassCastException if the elements are not mutually comparable
    * @throws NullPointerException if any of {@code elements} is null
    */
-  public static <E extends Comparable<? super E>> ImmutableSortedSet<E> copyOf(
+  @SuppressWarnings("unchecked") // unsafe; see ImmutableSortedSetFauxverideShim
+  public static <E> ImmutableSortedSet<E> copyOf(
       Iterator<? extends E> elements) {
-    return copyOfInternal(Ordering.natural(), elements);
+    /*
+     * Eclipse 3.5 doesn't like the method call if we cast to raw Iterator, and
+     * once we're casting to Iterable<Comparable>, we need to cast the return
+     * value, too.
+     */
+    return (ImmutableSortedSet) copyOfInternal(
+        Ordering.natural(), (Iterator<Comparable>) elements);
   }
 
   /**
