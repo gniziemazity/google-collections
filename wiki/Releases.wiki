@@ -1,10 +1,10 @@
 = Release 1.0 (RC4 - 20091110) =
 
-  * Functions.forMap(Map) now has no default-default value. The function it returns just throws an exception now on an unrecognized key. For the old behavior, use forMap(Map, null).
-  * ForwardingMap no longer has createEntrySet(), createKeySet() and createValues() methods. Just override entrySet(), keySet() and values() like usual. Cache your view collection in a field IF you want to; this is no longer done for you.
-  * In ImmutableMultiset.Builder, the add(E, int) overload is renamed to addCopies, while other overloads are unchanged.
-  * Ordering.givenOrder(), which was superseded by Ordering.explicit() in rc1, is now removed.
-  * MapMaker.loadFactor(), a method no one should really use, was removed; unfortunately, there's no time left to go through a deprecation cycle, but I doubt this will affect many people. This alters the serialized form of "MapMade" maps, so the serialversionuid has been incremented.
+  * `Functions.forMap(Map)` now has no default-default value. The function it returns just throws an exception now on an unrecognized key. For the old behavior, use `forMap(Map, null)`.
+  * ForwardingMap no longer has `createEntrySet()`, `createKeySet()` and `createValues()` methods. Just override `entrySet()`, `keySet()` and `values()` like usual. Cache your view collection in a field IF you want to; this is no longer done for you.
+  * In `ImmutableMultiset.Builder`, the `add(E, int)` overload is renamed to `addCopies`, while other overloads are unchanged.
+  * `Ordering.givenOrder()`, which was superseded by `Ordering.explicit()` in rc1, is now removed.
+  * `MapMaker.loadFactor()`, a method no one should really use, was removed; unfortunately, there's no time left to go through a deprecation cycle, but I doubt this will affect many people. This alters the serialized form of "MapMade" maps, so the serialversionuid has been incremented.
 
 [http://google-collections.googlecode.com/files/google-collect-1.0-rc4.zip Download]
 
