@@ -122,7 +122,7 @@ public abstract class ImmutableMultimap<K, V>
    * {@code public static final} multimaps ("constant multimaps"). Example:
    * <pre>   {@code
    *
-   *   static final Multimap<String,Integer> STRING_TO_INTEGER_MULTIMAP =
+   *   static final Multimap<String, Integer> STRING_TO_INTEGER_MULTIMAP =
    *       new ImmutableMultimap.Builder<String, Integer>()
    *           .put("one", 1)
    *           .putAll("several", 1, 2, 3)

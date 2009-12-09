@@ -131,11 +131,11 @@ public class ImmutableListMultimap<K, V>
   }
 
   /**
-   * A builder for creating immutable multimap instances, especially
+   * A builder for creating immutable {@code ListMultimap} instances, especially
    * {@code public static final} multimaps ("constant multimaps"). Example:
    * <pre>   {@code
    *
-   *   static final Multimap<String,Integer> STRING_TO_INTEGER_MULTIMAP =
+   *   static final Multimap<String, Integer> STRING_TO_INTEGER_MULTIMAP =
    *       new ImmutableListMultimap.Builder<String, Integer>()
    *           .put("one", 1)
    *           .putAll("several", 1, 2, 3)

@@ -388,19 +388,19 @@ public final class Multimaps {
    * returned multimap.
    *
    * <p>It is imperative that the user manually synchronize on the returned
-   * multimap when accessing any of its collection views:
+   * multimap when accessing any of its collection views: <pre>  {@code
    *
-   * <pre>  Multimap&lt;K,V> m = Multimaps.synchronizedMultimap(
-   *      HashMultimap.&lt;K,V>create());
-   *   ...
-   *  Set&lt;K> s = m.keySet();  // Needn't be in synchronized block
-   *   ...
+   *  Multimap<K, V> m = Multimaps.synchronizedMultimap(
+   *      HashMultimap.<K, V>create());
+   *  ...
+   *  Set<K> s = m.keySet();  // Needn't be in synchronized block
+   *  ...
    *  synchronized (m) {  // Synchronizing on m, not s!
-   *    Iterator&lt;K> i = s.iterator(); // Must be in synchronized block
+   *    Iterator<K> i = s.iterator(); // Must be in synchronized block
    *    while (i.hasNext()) {
    *      foo(i.next());
    *    }
-   *  }</pre>
+   *  }}</pre>
    *
    * Failure to follow this advice may result in non-deterministic behavior.
    *
@@ -444,11 +444,11 @@ public final class Multimaps {
   private static class UnmodifiableMultimap<K, V>
       extends ForwardingMultimap<K, V> implements Serializable {
     final Multimap<K, V> delegate;
-    transient volatile Collection<Entry<K, V>> entries;
-    transient volatile Multiset<K> keys;
-    transient volatile Set<K> keySet;
-    transient volatile Collection<V> values;
-    transient volatile Map<K, Collection<V>> map;
+    transient Collection<Entry<K, V>> entries;
+    transient Multiset<K> keys;
+    transient Set<K> keySet;
+    transient Collection<V> values;
+    transient Map<K, Collection<V>> map;
 
     UnmodifiableMultimap(final Multimap<K, V> delegate) {
       this.delegate = delegate;
@@ -463,10 +463,11 @@ public final class Multimaps {
     }
 
     @Override public Map<K, Collection<V>> asMap() {
-      if (map == null) {
+      Map<K, Collection<V>> result = map;
+      if (result == null) {
         final Map<K, Collection<V>> unmodifiableMap
             = Collections.unmodifiableMap(delegate.asMap());
-        map = new ForwardingMap<K, Collection<V>>() {
+        map = result = new ForwardingMap<K, Collection<V>>() {
           @Override protected Map<K, Collection<V>> delegate() {
             return unmodifiableMap;
           }
@@ -502,14 +503,15 @@ public final class Multimaps {
           }
         };
       }
-      return map;
+      return result;
     }
 
     @Override public Collection<Entry<K, V>> entries() {
-      if (entries == null) {
-        entries = unmodifiableEntries(delegate.entries());
+      Collection<Entry<K, V>> result = entries;
+      if (result == null) {
+        entries = result = unmodifiableEntries(delegate.entries());
       }
-      return entries;
+      return result;
     }
 
     @Override public Collection<V> get(K key) {
@@ -517,17 +519,19 @@ public final class Multimaps {
     }
 
     @Override public Multiset<K> keys() {
-      if (keys == null) {
-        keys = Multisets.unmodifiableMultiset(delegate.keys());
+      Multiset<K> result = keys;
+      if (result == null) {
+        keys = result = Multisets.unmodifiableMultiset(delegate.keys());
       }
-      return keys;
+      return result;
     }
 
     @Override public Set<K> keySet() {
-      if (keySet == null) {
-        keySet = Collections.unmodifiableSet(delegate.keySet());
+      Set<K> result = keySet;
+      if (result == null) {
+        keySet = result = Collections.unmodifiableSet(delegate.keySet());
       }
-      return keySet;
+      return result;
     }
 
     @Override public boolean put(K key, V value) {
@@ -558,10 +562,11 @@ public final class Multimaps {
     }
 
     @Override public Collection<V> values() {
-      if (values == null) {
-        values = Collections.unmodifiableCollection(delegate.values());
+      Collection<V> result = values;
+      if (result == null) {
+        values = result = Collections.unmodifiableCollection(delegate.values());
       }
-      return values;
+      return result;
     }
 
     private static final long serialVersionUID = 0;
@@ -943,7 +948,7 @@ public final class Multimaps {
   private static class MapMultimap<K, V>
       implements SetMultimap<K, V>, Serializable {
     final Map<K, V> map;
-    transient volatile Map<K, Collection<V>> asMap;
+    transient Map<K, Collection<V>> asMap;
 
     MapMultimap(Map<K, V> map) {
       this.map = checkNotNull(map);
@@ -1051,10 +1056,11 @@ public final class Multimaps {
     }
 
     public Map<K, Collection<V>> asMap() {
-      if (asMap == null) {
-        asMap = new AsMap();
+      Map<K, Collection<V>> result = asMap;
+      if (result == null) {
+        asMap = result = new AsMap();
       }
-      return asMap;
+      return result;
     }
 
     @Override public boolean equals(@Nullable Object object) {
@@ -1178,20 +1184,18 @@ public final class Multimaps {
    * snapshot, it does <em>not</em> reflect subsequent changes on the input
    * iterable.
    *
-   * <p>For example,
+   * <p>For example, <pre class="code">  {@code
    *
-   * <pre class="code"> {@code
-   * List<String> badGuys
-   *     = Arrays.asList("Inky", "Blinky", "Pinky", "Pinky", "Clyde");
-   * Function<String, Integer> stringLengthFunction = ...;
-   * Multimap<Integer, String> index
-   *     = Multimaps.index(badGuys, stringLengthFunction);
-   * System.out.println(index);}</pre>
+   *  List<String> badGuys
+   *      = Arrays.asList("Inky", "Blinky", "Pinky", "Pinky", "Clyde");
+   *  Function<String, Integer> stringLengthFunction = ...;
+   *  Multimap<Integer, String> index
+   *      = Multimaps.index(badGuys, stringLengthFunction);
+   *  System.out.println(index);}</pre>
    *
-   * prints
+   * prints <pre class="code">  {@code
    *
-   * <pre class="code">
-   * {4=[Inky], 5=[Pinky, Pinky, Clyde], 6=[Blinky]} </pre>
+   *  {4=[Inky], 5=[Pinky, Pinky, Clyde], 6=[Blinky]}}</pre>
    *
    * <p>The returned multimap is serializable if its keys and values are all
    * serializable.

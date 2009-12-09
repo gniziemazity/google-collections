@@ -20,11 +20,9 @@ import com.google.common.annotations.GwtCompatible;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 import javax.annotation.Nullable;
 
@@ -44,10 +42,10 @@ import javax.annotation.Nullable;
  * <p>{@code Multiset} refines the specifications of several methods from
  * {@code Collection}. It also defines an additional query operation, {@link
  * #count}, which returns the count of an element. There are five new
- * bulk-modification operations, for example {@link #add(Object,int)}, to add or
- * remove multiple occurrences of an element at once, or to set the count of an
- * element to a specific value. These modification operations are optional, but
- * implementations which support the standard collection operations {@link
+ * bulk-modification operations, for example {@link #add(Object, int)}, to add
+ * or remove multiple occurrences of an element at once, or to set the count of
+ * an element to a specific value. These modification operations are optional,
+ * but implementations which support the standard collection operations {@link
  * #add(Object)} or {@link #remove(Object)} are encouraged to implement the
  * related methods as well. Finally, two collection views are provided: {@link
  * #elementSet} contains the distinct elements of the multiset "with duplicates
@@ -68,33 +66,9 @@ import javax.annotation.Nullable;
  * or none of them, all removal operations or none of them, and if and only if
  * all of these are supported, the {@code setCount} methods as well.
  *
- *
- *    <p>(TODO: after writing the below section, I became very unsure
- *    if we really want to bother taking such an approach. I could
- *    instead just go to TreeMultiset and remind callers of the
- *    danger of using a comparator inconsistent with equals().)
- *
- *
- * <p><b>Note on element equivalence:</b> Like all collections, a {@code
- * Multiset} implementation often needs to compare two instances to see whether
- * they are "the same." {@code Multiset} does not specify which equivalence
- * relation will be used for this purpose; it is left implementation-dependent.
- * For example, given non-null instances, {@link HashMultiset} uses the typical
- * choice of relation : <pre>   {@code
- *
- *   {(x, y) | x.hashCode() == y.hashCode() && x.equals(y)}}</pre>
- *
- * ... whereas {@link TreeMultiset} instead uses the slightly-less-common
- * relation: <pre>   {@code
- *
- *   {(x, y) | comparator.compare(x, y) == 0}}</pre>
- *
- * ... and other implementations may use something else entirely. This approach
- * may seem novel compared to existing collection specifications such as {@link
- * Set}, however, it matches precisely the <i>de facto</i> specifications of
- * these interfaces. That is, in practice, it is well-known that JDK
- * implementation classes such as {@link TreeSet} and {@link IdentityHashMap}
- * freely substitute their own equivalence relations however it suits them.
+ * <p>A multiset uses {@link Object#equals} to determine whether two instances
+ * should be considered "the same," <i>unless specified otherwise</i> by the
+ * implementation.
  *
  * @author Kevin Bourrillion
  */
@@ -173,7 +147,7 @@ public interface Multiset<E> extends Collection<E> {
 
   /**
    * Conditionally sets the count of an element to a new value, as described in
-   * {@link #setCount(Object,int)}, provided that the element has the expected
+   * {@link #setCount(Object, int)}, provided that the element has the expected
    * current count. If the current count is not {@code oldCount}, no change is
    * made.
    *

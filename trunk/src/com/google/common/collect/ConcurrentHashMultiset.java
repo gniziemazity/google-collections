@@ -360,7 +360,7 @@ public final class ConcurrentHashMultiset<E> extends AbstractMultiset<E>
     };
   }
 
-  private volatile transient EntrySet entrySet;
+  private transient EntrySet entrySet;
 
   @Override public Set<Multiset.Entry<E>> entrySet() {
     EntrySet result = entrySet;

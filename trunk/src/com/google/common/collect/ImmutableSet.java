@@ -274,10 +274,16 @@ public abstract class ImmutableSet<E> extends ImmutableCollection<E>
       }
     }
 
-    // The iterable might have contained only duplicates of the same element.
-    return (elements.size() == 1)
-        ? new SingletonImmutableSet<E>(elements.get(0), hashCode)
-        : new RegularImmutableSet<E>(elements.toArray(), hashCode, table, mask);
+    if (elements.size() == 1) {
+      // The iterable contained only duplicates of the same element.
+      return new SingletonImmutableSet<E>(elements.get(0), hashCode); 
+    } else if (tableSize > Hashing.chooseTableSize(elements.size())) {
+      // Resize the table when the iterable includes too many duplicates.
+      return create(elements, elements.size()); 
+    } else {
+      return new RegularImmutableSet<E>(
+          elements.toArray(), hashCode, table, mask);
+    }
   }
 
   abstract static class ArrayImmutableSet<E> extends ImmutableSet<E> {

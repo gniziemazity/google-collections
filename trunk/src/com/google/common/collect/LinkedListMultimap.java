@@ -575,11 +575,12 @@ public final class LinkedListMultimap<K, V>
     };
   }
 
-  private transient volatile Set<K> keySet;
+  private transient Set<K> keySet;
 
   public Set<K> keySet() {
-    if (keySet == null) {
-      keySet = new AbstractSet<K>() {
+    Set<K> result = keySet;
+    if (result == null) {
+      keySet = result = new AbstractSet<K>() {
         @Override public int size() {
           return keyCount.elementSet().size();
         }
@@ -591,16 +592,17 @@ public final class LinkedListMultimap<K, V>
         }
       };
     }
-    return keySet;
+    return result;
   }
 
-  private transient volatile Multiset<K> keys;
+  private transient Multiset<K> keys;
 
   public Multiset<K> keys() {
-    if (keys == null) {
-      keys = new MultisetView();
+    Multiset<K> result = keys;
+    if (result == null) {
+      keys = result = new MultisetView();
     }
-    return keys;
+    return result;
   }
 
   private class MultisetView extends AbstractCollection<K>
@@ -665,6 +667,7 @@ public final class LinkedListMultimap<K, V>
     }
 
     public Set<Entry<K>> entrySet() {
+      // TODO: lazy init?
       return new AbstractSet<Entry<K>>() {
         @Override public int size() {
           return keyCount.elementSet().size();
@@ -708,7 +711,7 @@ public final class LinkedListMultimap<K, V>
     }
   }
 
-  private transient volatile Collection<V> valuesCollection;
+  private transient Collection<V> valuesCollection;
 
   /**
    * {@inheritDoc}
@@ -717,8 +720,9 @@ public final class LinkedListMultimap<K, V>
    * in the order they were added to the multimap.
    */
   public Collection<V> values() {
-    if (valuesCollection == null) {
-      valuesCollection = new AbstractCollection<V>() {
+    Collection<V> result = valuesCollection;
+    if (result == null) {
+      valuesCollection = result = new AbstractCollection<V>() {
         @Override public int size() {
           return keyCount.size();
         }
@@ -738,10 +742,10 @@ public final class LinkedListMultimap<K, V>
         }
       };
     }
-    return valuesCollection;
+    return result;
   }
 
-  private transient volatile Collection<Entry<K, V>> entries;
+  private transient Collection<Entry<K, V>> entries;
 
   /**
    * {@inheritDoc}
@@ -759,8 +763,9 @@ public final class LinkedListMultimap<K, V>
    * to a revised value being returned by {@code getValue()}.
    */
   public Collection<Entry<K, V>> entries() {
-    if (entries == null) {
-      entries = new AbstractCollection<Entry<K, V>>() {
+    Collection<Entry<K, V>> result = entries;
+    if (result == null) {
+      entries = result = new AbstractCollection<Entry<K, V>>() {
         @Override public int size() {
           return keyCount.size();
         }
@@ -796,7 +801,7 @@ public final class LinkedListMultimap<K, V>
         }
       };
     }
-    return entries;
+    return result;
   }
 
   private class AsMapEntries extends AbstractSet<Entry<K, Collection<V>>> {
@@ -834,18 +839,20 @@ public final class LinkedListMultimap<K, V>
     }
   }
 
-  private transient volatile Map<K, Collection<V>> map;
+  private transient Map<K, Collection<V>> map;
 
   public Map<K, Collection<V>> asMap() {
-    if (map == null) {
-      map = new AbstractMap<K, Collection<V>>() {
-        volatile Set<Entry<K, Collection<V>>> entrySet;
+    Map<K, Collection<V>> result = map;
+    if (result == null) {
+      map = result = new AbstractMap<K, Collection<V>>() {
+        Set<Entry<K, Collection<V>>> entrySet;
 
         @Override public Set<Entry<K, Collection<V>>> entrySet() {
-          if (entrySet == null) {
-            entrySet = new AsMapEntries();
+          Set<Entry<K, Collection<V>>> result = entrySet;
+          if (result == null) {
+            entrySet = result = new AsMapEntries();
           }
-          return entrySet;
+          return result;
         }
 
         // The following methods are included for performance.
@@ -867,7 +874,7 @@ public final class LinkedListMultimap<K, V>
       };
     }
 
-    return map;
+    return result;
   }
 
   // Comparison and hashing

@@ -95,17 +95,17 @@ final class Synchronized {
    * accomplished through the returned collection.
    *
    * <p>It is imperative that the user manually synchronize on the specified
-   * mutex when iterating over the returned collection:
+   * mutex when iterating over the returned collection: <pre>  {@code
    *
-   * <pre>Collection&lt;E&gt; s = Synchronized.collection(
-   *      new HashSet&lt;E&gt;(), mutex);
-   *   ...
-   * synchronized (mutex) {
-   *   Iterator&lt;E&gt; i = s.iterator(); // Must be in synchronized block
-   *   while (i.hasNext()) {
-   *     foo(i.next());
-   *   }
-   * }</pre>
+   *  Collection<E> s = Synchronized.collection(
+   *      new HashSet<E>(), mutex);
+   *  ...
+   *  synchronized (mutex) {
+   *    Iterator<E> i = s.iterator(); // Must be in synchronized block
+   *    while (i.hasNext()) {
+   *      foo(i.next());
+   *    }
+   *  }}</pre>
    *
    * Failure to follow this advice may result in non-deterministic behavior.
    *
@@ -216,16 +216,16 @@ final class Synchronized {
    * returned set.
    *
    * <p>It is imperative that the user manually synchronize on the specified
-   * mutex when iterating over the returned set:
+   * mutex when iterating over the returned set:  <pre>  {@code
    *
-   * <pre>Set&lt;E&gt; s = Synchronized.set(new HashSet&lt;E&gt;(), mutex);
-   *   ...
-   * synchronized (mutex) {
-   *   Iterator&lt;E&gt; i = s.iterator(); // Must be in synchronized block
-   *   while (i.hasNext()) {
-   *     foo(i.next());
-   *   }
-   * }</pre>
+   *  Set<E> s = Synchronized.set(new HashSet<E>(), mutex);
+   *  ...
+   *  synchronized (mutex) {
+   *    Iterator<E> i = s.iterator(); // Must be in synchronized block
+   *    while (i.hasNext()) {
+   *      foo(i.next());
+   *    }
+   *  }}</pre>
    *
    * Failure to follow this advice may result in non-deterministic behavior.
    *
@@ -272,17 +272,17 @@ final class Synchronized {
    * accomplished through the returned sorted set.
    *
    * <p>It is imperative that the user manually synchronize on the specified
-   * mutex when iterating over the returned sorted set:
+   * mutex when iterating over the returned sorted set: <pre>  {@code
    *
-   * <pre>SortedSet&lt;E&gt; s = Synchronized.sortedSet(
-   *      new TreeSet&lt;E&gt;(), mutex);
-   *   ...
-   * synchronized (mutex) {
-   *   Iterator&lt;E&gt; i = s.iterator(); // Must be in synchronized block
-   *   while (i.hasNext()) {
-   *     foo(i.next());
-   *   }
-   * }</pre>
+   *  SortedSet<E> s = Synchronized.sortedSet(
+   *      new TreeSet<E>(), mutex);
+   *  ...
+   *  synchronized (mutex) {
+   *    Iterator<E> i = s.iterator(); // Must be in synchronized block
+   *    while (i.hasNext()) {
+   *      foo(i.next());
+   *    }
+   *  }}</pre>
    *
    * Failure to follow this advice may result in non-deterministic behavior.
    *
@@ -351,16 +351,16 @@ final class Synchronized {
    * through the returned list.
    *
    * <p>It is imperative that the user manually synchronize on the specified
-   * mutex when iterating over the returned list:
+   * mutex when iterating over the returned list: <pre>  {@code
    *
-   * <pre>List&lt;E&gt; l = Synchronized.list(new ArrayList&lt;E&gt;(), mutex);
-   *   ...
-   * synchronized (mutex) {
-   *   Iterator&lt;E&gt; i = l.iterator(); // Must be in synchronized block
-   *   while (i.hasNext()) {
-   *     foo(i.next());
-   *   }
-   * }</pre>
+   *  List<E> l = Synchronized.list(new ArrayList<E>(), mutex);
+   *  ...
+   *  synchronized (mutex) {
+   *    Iterator<E> i = l.iterator(); // Must be in synchronized block
+   *    while (i.hasNext()) {
+   *      foo(i.next());
+   *    }
+   *  }}</pre>
    *
    * Failure to follow this advice may result in non-deterministic behavior.
    *
@@ -478,17 +478,17 @@ final class Synchronized {
    * through the returned multiset.
    *
    * <p>It is imperative that the user manually synchronize on the specified
-   * mutex when iterating over the returned multiset:
+   * mutex when iterating over the returned multiset: <pre>  {@code
    *
-   * <pre>Multiset&lt;E&gt; s = Synchronized.multiset(
-   *      HashMultiset.&lt;E&gt;create(), mutex);
-   *   ...
-   * synchronized (mutex) {
-   *   Iterator&lt;E&gt; i = s.iterator(); // Must be in synchronized block
-   *   while (i.hasNext()) {
-   *     foo(i.next());
-   *   }
-   * }</pre>
+   *  Multiset<E> s = Synchronized.multiset(
+   *      HashMultiset.<E>create(), mutex);
+   *  ...
+   *  synchronized (mutex) {
+   *    Iterator<E> i = s.iterator(); // Must be in synchronized block
+   *    while (i.hasNext()) {
+   *      foo(i.next());
+   *    }
+   *  }}</pre>
    *
    * Failure to follow this advice may result in non-deterministic behavior.
    *
@@ -588,18 +588,19 @@ final class Synchronized {
    *
    * <p>It is imperative that the user manually synchronize on the specified
    * mutex when accessing any of the return multimap's collection views:
+   * <pre>  {@code
    *
-   * <pre>Multimap&lt;K,V> m = Synchronized.multimap(
+   *  Multimap<K, V> m = Synchronized.multimap(
    *      HashMultimap.create(), mutex);
-   *   ...
-   *  Set&lt;K> s = m.keySet();  // Needn't be in synchronized block
-   *   ...
+   *  ...
+   *  Set<K> s = m.keySet();  // Needn't be in synchronized block
+   *  ...
    *  synchronized (mutex) {
-   *    Iterator&lt;K> i = s.iterator(); // Must be in synchronized block
+   *    Iterator<K> i = s.iterator(); // Must be in synchronized block
    *    while (i.hasNext()) {
    *      foo(i.next());
    *    }
-   *  }</pre>
+   *  }}</pre>
    *
    * Failure to follow this advice may result in non-deterministic behavior.
    *
@@ -920,17 +921,17 @@ final class Synchronized {
    * accomplished through the returned collection.
    *
    * <p>It is imperative that the user manually synchronize on the specified
-   * mutex when iterating over the returned collection:
+   * mutex when iterating over the returned collection: <pre>  {@code
    *
-   * <pre>Collection&lt;E&gt; s = Synchronized.typePreservingCollection(
-   *      new HashSet&lt;E&gt;(), mutex);
-   *   ...
-   * synchronized (mutex) {
-   *   Iterator&lt;E&gt; i = s.iterator(); // Must be in synchronized block
-   *   while (i.hasNext()) {
-   *     foo(i.next());
-   *   }
-   * }</pre>
+   *  Collection<E> s = Synchronized.typePreservingCollection(
+   *      new HashSet<E>(), mutex);
+   *  ...
+   *  synchronized (mutex) {
+   *    Iterator<E> i = s.iterator(); // Must be in synchronized block
+   *    while (i.hasNext()) {
+   *      foo(i.next());
+   *    }
+   *  }}</pre>
    *
    * Failure to follow this advice may result in non-deterministic behavior.
    *
@@ -961,17 +962,17 @@ final class Synchronized {
    * the returned collection.
    *
    * <p>It is imperative that the user manually synchronize on the specified
-   * mutex when iterating over the returned collection:
+   * mutex when iterating over the returned collection: <pre>  {@code
    *
-   * <pre>Set&lt;E&gt; s = Synchronized.typePreservingSet(
-   *      new HashSet&lt;E&gt;(), mutex);
-   *   ...
-   * synchronized (mutex) {
-   *   Iterator&lt;E&gt; i = s.iterator(); // Must be in synchronized block
-   *   while (i.hasNext()) {
-   *     foo(i.next());
-   *   }
-   * }</pre>
+   *  Set<E> s = Synchronized.typePreservingSet(
+   *      new HashSet<E>(), mutex);
+   *  ...
+   *  synchronized (mutex) {
+   *    Iterator<E> i = s.iterator(); // Must be in synchronized block
+   *    while (i.hasNext()) {
+   *      foo(i.next());
+   *    }
+   *  }}</pre>
    *
    * Failure to follow this advice may result in non-deterministic behavior.
    *
@@ -999,8 +1000,8 @@ final class Synchronized {
     }
 
     @Override public Iterator<Map.Entry<K, Collection<V>>> iterator() {
+      // Must be manually synchronized.
       final Iterator<Map.Entry<K, Collection<V>>> iterator = super.iterator();
-      // The iterator and entry aren't synchronized, but the entry value is.
       return new ForwardingIterator<Map.Entry<K, Collection<V>>>() {
         @Override protected Iterator<Map.Entry<K, Collection<V>>> delegate() {
           return iterator;
@@ -1077,18 +1078,19 @@ final class Synchronized {
    *
    * <p>It is imperative that the user manually synchronize on the specified
    * mutex when accessing any of the return map's collection views:
+   * <pre>  {@code
    *
-   * <pre>Map&lt;K,V> m = Synchronized.map(
-   *      new HashMap&lt;K,V>(), mutex);
-   *   ...
-   *  Set&lt;K> s = m.keySet();  // Needn't be in synchronized block
-   *   ...
+   *  Map<K, V> m = Synchronized.map(
+   *      new HashMap<K, V>(), mutex);
+   *  ...
+   *  Set<K> s = m.keySet();  // Needn't be in synchronized block
+   *  ...
    *  synchronized (mutex) {
-   *    Iterator&lt;K> i = s.iterator(); // Must be in synchronized block
+   *    Iterator<K> i = s.iterator(); // Must be in synchronized block
    *    while (i.hasNext()) {
    *      foo(i.next());
    *    }
-   *  }</pre>
+   *  }}</pre>
    *
    * Failure to follow this advice may result in non-deterministic behavior.
    *
@@ -1222,18 +1224,19 @@ final class Synchronized {
    *
    * <p>It is imperative that the user manually synchronize on the specified
    * mutex when accessing any of the return bimap's collection views:
+   * <pre>  {@code
    *
-   * <pre>BiMap&lt;K,V> m = Synchronized.biMap(
-   *      HashBiMap.&lt;K,V>create(), mutex);
-   *   ...
-   *  Set&lt;K> s = m.keySet();  // Needn't be in synchronized block
-   *   ...
+   *  BiMap<K, V> m = Synchronized.biMap(
+   *      HashBiMap.<K, V>create(), mutex);
+   *  ...
+   *  Set<K> s = m.keySet();  // Needn't be in synchronized block
+   *  ...
    *  synchronized (mutex) {
-   *    Iterator&lt;K> i = s.iterator(); // Must be in synchronized block
+   *    Iterator<K> i = s.iterator(); // Must be in synchronized block
    *    while (i.hasNext()) {
    *      foo(i.next());
    *    }
-   *  }</pre>
+   *  }}</pre>
    *
    * Failure to follow this advice may result in non-deterministic behavior.
    *
@@ -1310,22 +1313,27 @@ final class Synchronized {
     }
 
     @Override public Set<Map.Entry<K, Collection<V>>> entrySet() {
-      if (asMapEntrySet == null) {
-        asMapEntrySet = new SynchronizedAsMapEntries<K, V>(
-            delegate().entrySet(), mutex);
+      synchronized (mutex) {
+        if (asMapEntrySet == null) {
+          asMapEntrySet = new SynchronizedAsMapEntries<K, V>(
+              delegate().entrySet(), mutex);
+        }
+        return asMapEntrySet;
       }
-      return asMapEntrySet;
     }
 
     @Override public Collection<Collection<V>> values() {
-      if (asMapValues == null) {
-        asMapValues
-            = new SynchronizedAsMapValues<V>(delegate().values(), mutex);
+      synchronized (mutex) {
+        if (asMapValues == null) {
+          asMapValues
+              = new SynchronizedAsMapValues<V>(delegate().values(), mutex);
+        }
+        return asMapValues;
       }
-      return asMapValues;
     }
 
     @Override public boolean containsValue(Object o) {
+      // values() and its contains() method are both synchronized.
       return values().contains(o);
     }
 
@@ -1341,7 +1349,7 @@ final class Synchronized {
     }
 
     @Override public Iterator<Collection<V>> iterator() {
-      // The iterator isn't synchronized, but its value is.
+      // Must be manually synchronized.
       final Iterator<Collection<V>> iterator = super.iterator();
       return new ForwardingIterator<Collection<V>>() {
         @Override protected Iterator<Collection<V>> delegate() {
@@ -1351,44 +1359,6 @@ final class Synchronized {
           return typePreservingCollection(iterator.next(), mutex);
         }
       };
-    }
-
-    // See Collections.CheckedMap.CheckedEntrySet for details on attacks.
-
-    @Override public Object[] toArray() {
-      synchronized (mutex) {
-        return ObjectArrays.toArrayImpl(delegate());
-      }
-    }
-    @Override public <T> T[] toArray(T[] array) {
-      synchronized (mutex) {
-        return ObjectArrays.toArrayImpl(delegate(), array);
-      }
-    }
-    @Override public boolean contains(Object o) {
-      synchronized (mutex) {
-        return Iterators.contains(delegate().iterator(), o);
-      }
-    }
-    @Override public boolean containsAll(Collection<?> c) {
-      synchronized (mutex) {
-        return Collections2.containsAll(delegate(), c);
-      }
-    }
-    @Override public boolean remove(Object o) {
-      synchronized (mutex) {
-        return Iterables.remove(delegate(), o);
-      }
-    }
-    @Override public boolean removeAll(Collection<?> c) {
-      synchronized (mutex) {
-        return Iterators.removeAll(delegate().iterator(), c);
-      }
-    }
-    @Override public boolean retainAll(Collection<?> c) {
-      synchronized (mutex) {
-        return Iterators.retainAll(delegate().iterator(), c);
-      }
     }
 
     private static final long serialVersionUID = 0;

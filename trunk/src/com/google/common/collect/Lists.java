@@ -232,7 +232,7 @@ public final class Lists {
     return new OnePlusArrayList<E>(first, rest);
   }
 
-  /** @see Lists#asList(Object,Object[]) */
+  /** @see Lists#asList(Object, Object[]) */
   private static class OnePlusArrayList<E> extends AbstractList<E>
       implements Serializable, RandomAccess {
     final E first;
@@ -275,7 +275,7 @@ public final class Lists {
     return new TwoPlusArrayList<E>(first, second, rest);
   }
 
-  /** @see Lists#asList(Object,Object,Object[]) */
+  /** @see Lists#asList(Object, Object, Object[]) */
   private static class TwoPlusArrayList<E> extends AbstractList<E>
       implements Serializable, RandomAccess {
     final E first;
