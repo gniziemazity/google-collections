@@ -149,6 +149,22 @@ public class ImmutableSetMultimap<K, V>
     private static final long serialVersionUID = 0;
   }
 
+  /**
+   * A builder for creating immutable {@code SetMultimap} instances, especially
+   * {@code public static final} multimaps ("constant multimaps"). Example:
+   * <pre>   {@code
+   *
+   *   static final Multimap<String, Integer> STRING_TO_INTEGER_MULTIMAP =
+   *       new ImmutableSetMultimap.Builder<String, Integer>()
+   *           .put("one", 1)
+   *           .putAll("several", 1, 2, 3)
+   *           .putAll("many", 1, 2, 3, 4, 5)
+   *           .build();}</pre>
+   *
+   * <p>Builder instances can be reused - it is safe to call {@link #build}
+   * multiple times to build multiple multimaps in series. Each multimap
+   * contains the key-value mappings in the previously created multimaps.
+   */
   public static final class Builder<K, V>
       extends ImmutableMultimap.Builder<K, V> {
     private final Multimap<K, V> builderMultimap = new BuilderMultimap<K, V>();

@@ -370,41 +370,6 @@
         <entry key="$PROJECT_DIR$">
           <value>
             <SvnBranchConfiguration>
-              <option name="branchMap">
-                <map>
-                  <entry key="https://google-collections.googlecode.com/svn/branches">
-                    <value>
-                      <list />
-                    </value>
-                  </entry>
-                  <entry key="https://google-collections.googlecode.com/svn/tags">
-                    <value>
-                      <list />
-                    </value>
-                  </entry>
-                  <entry key="https://google-collections.googlecode.com/svn/wiki">
-                    <value>
-                      <list>
-                        <SvnBranchItem>
-                          <option name="creationDateMillis" value="1255731267701" />
-                          <option name="revision" value="104" />
-                          <option name="url" value="https://google-collections.googlecode.com/svn/wiki/Releases.wiki" />
-                        </SvnBranchItem>
-                        <SvnBranchItem>
-                          <option name="creationDateMillis" value="1239132425666" />
-                          <option name="revision" value="86" />
-                          <option name="url" value="https://google-collections.googlecode.com/svn/wiki/Faq.wiki" />
-                        </SvnBranchItem>
-                        <SvnBranchItem>
-                          <option name="creationDateMillis" value="1219084359156" />
-                          <option name="revision" value="54" />
-                          <option name="url" value="https://google-collections.googlecode.com/svn/wiki/Acknowledgements.wiki" />
-                        </SvnBranchItem>
-                      </list>
-                    </value>
-                  </entry>
-                </map>
-              </option>
               <option name="branchUrls">
                 <list>
                   <option value="https://google-collections.googlecode.com/svn/branches" />

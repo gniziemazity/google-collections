@@ -1300,7 +1300,7 @@ abstract class AbstractMultimap<K, V> implements Multimap<K, V>, Serializable {
      * Usually the same as map, but smaller for the headMap(), tailMap(), or
      * subMap() of a SortedAsMap.
      */
-    transient Map<K, Collection<V>> submap;
+    final transient Map<K, Collection<V>> submap;
 
     AsMap(Map<K, Collection<V>> submap) {
       this.submap = submap;
@@ -1487,6 +1487,6 @@ abstract class AbstractMultimap<K, V> implements Multimap<K, V>, Serializable {
   @Override public String toString() {
     return map.toString();
   }
-  
-  private static final long serialVersionUID = 2447537837011683357L; 
+
+  private static final long serialVersionUID = 2447537837011683357L;
 }

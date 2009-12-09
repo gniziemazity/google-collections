@@ -189,7 +189,7 @@ public final class Maps {
    * comparator.
    *
    * <p><b>Note:</b> if mutability is not required, use {@code
-   * ImmutableSortedMap.orderedBy(comparator).build()} instead. 
+   * ImmutableSortedMap.orderedBy(comparator).build()} instead.
    *
    * @param comparator the comparator to sort the keys with
    * @return a new, empty {@code TreeMap}
@@ -770,13 +770,14 @@ public final class Maps {
       fromMap.clear();
     }
 
-    volatile EntrySet entrySet;
+    EntrySet entrySet;
 
     @Override public Set<Entry<K, V2>> entrySet() {
-      if (entrySet == null) {
-        entrySet = new EntrySet();
+      EntrySet result = entrySet;
+      if (result == null) {
+        entrySet = result = new EntrySet();
       }
-      return entrySet;
+      return result;
     }
 
     class EntrySet extends AbstractSet<Entry<K, V2>> {
@@ -1013,7 +1014,7 @@ public final class Maps {
 
     @Override public Collection<V> values() {
       Collection<V> result = values;
-      return (result == null) ? values = new Values() : values;
+      return (result == null) ? values = new Values() : result;
     }
 
     class Values extends AbstractCollection<V> {
@@ -1156,7 +1157,7 @@ public final class Maps {
 
       @Override public Iterator<Entry<K, V>> iterator() {
         final Iterator<Entry<K, V>> iterator = filteredEntrySet.iterator();
-        return new UnmodifiableIterator<Entry<K,V>>() {
+        return new UnmodifiableIterator<Entry<K, V>>() {
           public boolean hasNext() {
             return iterator.hasNext();
           }
@@ -1270,19 +1271,21 @@ public final class Maps {
 
     private transient Set<Entry<K, V>> entrySet;
 
-    @Override public synchronized Set<Entry<K, V>> entrySet() {
-      if (entrySet == null) {
-        entrySet = createEntrySet();
+    @Override public Set<Entry<K, V>> entrySet() {
+      Set<Entry<K, V>> result = entrySet;
+      if (result == null) {
+        entrySet = result = createEntrySet();
       }
-      return entrySet;
+      return result;
     }
 
     private transient Set<K> keySet;
 
-    @Override public synchronized Set<K> keySet() {
-      if (keySet == null) {
+    @Override public Set<K> keySet() {
+      Set<K> result = keySet;
+      if (result == null) {
         final Set<K> delegate = super.keySet();
-        keySet = new ForwardingSet<K>() {
+        keySet = result = new ForwardingSet<K>() {
           @Override protected Set<K> delegate() {
             return delegate;
           }
@@ -1292,15 +1295,16 @@ public final class Maps {
           }
         };
       }
-      return keySet;
+      return result;
     }
 
     private transient Collection<V> values;
 
-    @Override public synchronized Collection<V> values() {
-      if (values == null) {
+    @Override public Collection<V> values() {
+      Collection<V> result = values;
+      if (result == null) {
         final Collection<V> delegate = super.values();
-        values = new ForwardingCollection<V>() {
+        values = result = new ForwardingCollection<V>() {
           @Override protected Collection<V> delegate() {
             return delegate;
           }
@@ -1310,7 +1314,7 @@ public final class Maps {
           }
         };
       }
-      return values;
+      return result;
     }
 
     /**

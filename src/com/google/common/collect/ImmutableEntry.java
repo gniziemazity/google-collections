@@ -23,7 +23,7 @@ import java.io.Serializable;
 import javax.annotation.Nullable;
 
 /**
- * @see com.google.common.collect.Maps#immutableEntry(Object,Object)
+ * @see com.google.common.collect.Maps#immutableEntry(Object, Object)
  */
 @GwtCompatible
 class ImmutableEntry<K, V> extends AbstractMapEntry<K, V>

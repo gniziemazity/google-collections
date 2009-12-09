@@ -327,7 +327,7 @@ public final class Sets {
    * method has the same behavior as {@link EnumSet#complementOf}. Otherwise,
    * the specified collection must contain at least one element, in order to
    * determine the element type. If the collection could be empty, use
-   * {@link #complementOf(Collection,Class)} instead of this method.
+   * {@link #complementOf(Collection, Class)} instead of this method.
    *
    * @param collection the collection whose complement should be stored in the
    *     enum set
@@ -400,10 +400,10 @@ public final class Sets {
    * and should not be accessed directly after this method returns. These
    * conditions are ensured if the map is created empty, passed directly
    * to this method, and no reference to the map is retained, as illustrated
-   * in the following code fragment:
-   * <pre>
-   *    Set&lt;Object&gt; identityHashSet = Sets.newSetFromMap(
-   *        new IdentityHashMap&lt;Object, Boolean&gt;()); </pre>
+   * in the following code fragment: <pre>  {@code
+   *
+   *  Set<Object> identityHashSet = Sets.newSetFromMap(
+   *      new IdentityHashMap<Object, Boolean>());}</pre>
    *
    * This method has the same behavior as the JDK 6 method
    * {@code Collections.newSetFromMap()}. The returned set is serializable if
@@ -587,15 +587,15 @@ public final class Sets {
    * your sets will generally be smaller than the other, pass it first.
    * Unfortunately, since this method sets the generic type of the returned set
    * based on the type of the first set passed, this could in rare cases force
-   * you to make a cast, for example: <pre>   {@code
+   * you to make a cast, for example: <pre>  {@code
    *
-   *   Set<Object> aFewBadObjects = ...
-   *   Set<String> manyBadStrings = ...
+   *  Set<Object> aFewBadObjects = ...
+   *  Set<String> manyBadStrings = ...
    *
-   *   // impossible for a non-String to be in the intersection
-   *   SuppressWarnings("unchecked")
-   *   Set<String> badStrings = (Set) Sets.intersection(
-   *       aFewBadObjects, manyBadStrings);}</pre>
+   *  // impossible for a non-String to be in the intersection
+   *  SuppressWarnings("unchecked")
+   *  Set<String> badStrings = (Set) Sets.intersection(
+   *      aFewBadObjects, manyBadStrings);}</pre>
    *
    * This is unfortunate, but should come up only very rarely.
    */
@@ -683,7 +683,7 @@ public final class Sets {
    * <p>Many of the filtered set's methods, such as {@code size()}, iterate
    * across every element in the underlying set and determine which elements
    * satisfy the filter. When a live view is <i>not</i> needed, it may be faster
-   * to copy the filtered set and use the copy.
+   * to copy {@code Iterables.filter(unfiltered, predicate)} and use the copy.
    */
   public static <E> Set<E> filter(
       Set<E> unfiltered, Predicate<? super E> predicate) {

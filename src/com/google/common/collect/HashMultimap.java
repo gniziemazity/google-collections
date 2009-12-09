@@ -85,7 +85,6 @@ public final class HashMultimap<K, V> extends AbstractSetMultimap<K, V> {
     return new HashMultimap<K, V>(multimap);
   }
 
-  /** Constructs an empty {@code HashMultimap}. */
   private HashMultimap() {
     super(new HashMap<K, Collection<V>>());
   }

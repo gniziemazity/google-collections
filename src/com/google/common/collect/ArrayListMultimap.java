@@ -96,8 +96,7 @@ public final class ArrayListMultimap<K, V> extends AbstractListMultimap<K, V> {
     return new ArrayListMultimap<K, V>(multimap);
   }
 
-  /** Constructs an empty {@code ArrayListMultimap}. */
-  ArrayListMultimap() {
+  private ArrayListMultimap() {
     super(new HashMap<K, Collection<V>>());
     expectedValuesPerKey = DEFAULT_VALUES_PER_KEY;
   }

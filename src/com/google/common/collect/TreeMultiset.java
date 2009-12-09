@@ -26,13 +26,22 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nullable;
 
 /**
- * Multiset implementation backed by a {@code TreeMap}. The multiset elements
- * are ordered by their natural sort ordering or by a comparator.
+ * A multiset which maintains the ordering of its elements, according to either
+ * their natural order or an explicit {@link Comparator}. In all cases, this
+ * implementation uses {@link Comparable#compareTo} or {@link
+ * Comparator#compare} instead of {@link Object#equals} to determine
+ * equivalence of instances.
+ *
+ * <p><b>Warning:</b> The comparison must be <i>consistent with equals</i> as
+ * explained by the {@link Comparable} class specification. Otherwise, the
+ * resulting multiset will violate the {@link Collection} contract, which it is
+ * specified in terms of {@link Object#equals}.
  *
  * @author Neal Kanodia
  * @author Jared Levy

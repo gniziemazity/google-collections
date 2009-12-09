@@ -154,11 +154,11 @@ abstract class AbstractBiMap<K, V> extends ForwardingMap<K, V>
     return inverse;
   }
 
-  private transient volatile Set<K> keySet;
+  private transient Set<K> keySet;
 
   @Override public Set<K> keySet() {
     Set<K> result = keySet;
-    return (result == null) ? keySet = new KeySet() : keySet;
+    return (result == null) ? keySet = new KeySet() : result;
   }
 
   private class KeySet extends ForwardingSet<K> {
@@ -208,7 +208,7 @@ abstract class AbstractBiMap<K, V> extends ForwardingMap<K, V>
     }
   }
 
-  private transient volatile Set<V> valueSet;
+  private transient Set<V> valueSet;
 
   @Override public Set<V> values() {
     /*
@@ -216,7 +216,7 @@ abstract class AbstractBiMap<K, V> extends ForwardingMap<K, V>
      * iteration order so that it is consistent with the forward map.
      */
     Set<V> result = valueSet;
-    return (result == null) ? valueSet = new ValueSet() : valueSet;
+    return (result == null) ? valueSet = new ValueSet() : result;
   }
 
   private class ValueSet extends ForwardingSet<V> {
@@ -259,11 +259,11 @@ abstract class AbstractBiMap<K, V> extends ForwardingMap<K, V>
     }
   }
 
-  private transient volatile Set<Entry<K, V>> entrySet;
+  private transient Set<Entry<K, V>> entrySet;
 
   @Override public Set<Entry<K, V>> entrySet() {
     Set<Entry<K, V>> result = entrySet;
-    return (result == null) ? entrySet = new EntrySet() : entrySet;
+    return (result == null) ? entrySet = new EntrySet() : result;
   }
 
   private class EntrySet extends ForwardingSet<Entry<K, V>> {

@@ -16,9 +16,10 @@
 
 package com.google.common.collect;
 
-import com.google.common.annotations.GwtCompatible;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+
+import com.google.common.annotations.GwtCompatible;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -161,16 +162,13 @@ public class ImmutableSortedMap<K, V>
    * @throws IllegalArgumentException if any two keys are equal according to
    *     their natural ordering
    */
-  @SuppressWarnings("unchecked") // unsafe; see ImmutableSortedSetFauxverideShim
   public static <K, V> ImmutableSortedMap<K, V> copyOf(
       Map<? extends K, ? extends V> map) {
-    /*
-     * Eclipse 3.5 doesn't like the method call if we cast to raw Map, and once
-     * we're casting to Map<Comparable, Object>, we need to cast the return
-     * value, too.
-     */
-    return (ImmutableSortedMap)
-        copyOfInternal((Map<Comparable, Object>) map, Ordering.natural());
+    // Hack around K not being a subtype of Comparable.
+    // Unsafe, see ImmutableSortedSetFauxverideShim.
+    @SuppressWarnings("unchecked")
+    Ordering<K> naturalOrder = (Ordering) Ordering.<Comparable>natural();
+    return copyOfInternal(map, naturalOrder);
   }
 
   /**

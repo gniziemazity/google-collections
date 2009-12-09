@@ -126,7 +126,10 @@ public abstract class ImmutableMap<K, V> implements Map<K, V>, Serializable {
 
   /**
    * Verifies that {@code key} and {@code value} are non-null, and returns a new
-   * entry with those values.
+   * immutable entry with those values.
+   *
+   * <p>A call to {@link Map.Entry#setValue} on the returned entry will always
+   * throw {@link UnsupportedOperationException}.
    */
   static <K, V> Entry<K, V> entryOf(K key, V value) {
     return Maps.immutableEntry(checkNotNull(key), checkNotNull(value));
@@ -229,30 +232,21 @@ public abstract class ImmutableMap<K, V> implements Map<K, V>, Serializable {
       return kvMap;
     }
 
-    int size = map.size();
-    switch (size) {
+    @SuppressWarnings("unchecked") // we won't write to this array
+    Entry<K, V>[] entries = map.entrySet().toArray(new Entry[0]);
+    switch (entries.length) {
       case 0:
         return of();
       case 1:
-        Map.Entry<? extends K, ? extends V> loneEntry
-            = getOnlyElement(map.entrySet());
-        /*
-         * Must cast next line to (K) and (V) to avoid returning an
-         * ImmutableMap<? extends K, ? extends V>, which is incompatible
-         * with the return type ImmutableMap<K, V>.  (Eclipse will complain
-         * mightily about this line if there's no cast.)
-         */
-        return of((K) loneEntry.getKey(), (V) loneEntry.getValue());
+        return new SingletonImmutableMap<K, V>(entryOf(
+            entries[0].getKey(), entries[0].getValue()));
       default:
-        Entry<?, ?>[] array = new Entry<?, ?>[size];
-        int i = 0;
-        for (Entry<? extends K, ? extends V> entry : map.entrySet()) {
-          /*
-           * See comment above re: <? extends K, ? extends V> to <K, V>.
-           */
-          array[i++] = entryOf((K) entry.getKey(), (V) entry.getValue());
+        for (int i = 0; i < entries.length; i++) {
+          K k = entries[i].getKey();
+          V v = entries[i].getValue();
+          entries[i] = entryOf(k, v);
         }
-        return new RegularImmutableMap<K, V>(array);
+        return new RegularImmutableMap<K, V>(entries);
     }
   }
 

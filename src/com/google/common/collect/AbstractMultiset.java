@@ -201,7 +201,7 @@ abstract class AbstractMultiset<E> extends AbstractCollection<E>
 
   // Views
 
-  private transient volatile Set<E> elementSet;
+  private transient Set<E> elementSet;
 
   public Set<E> elementSet() {
     Set<E> result = elementSet;

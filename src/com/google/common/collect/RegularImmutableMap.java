@@ -35,13 +35,13 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
   private final transient int mask;
   private final transient int keySetHashCode;
 
-  RegularImmutableMap(Entry<?, ?>... entries) {
+  RegularImmutableMap(Entry<?, ?>... immutableEntries) {
     // each of our 6 callers carefully put only Entry<K, V>s into the array!
     @SuppressWarnings("unchecked")
-    Entry<K, V>[] tmp = (Entry<K, V>[]) entries;
+    Entry<K, V>[] tmp = (Entry<K, V>[]) immutableEntries;
     this.entries = tmp;
 
-    int tableSize = Hashing.chooseTableSize(entries.length);
+    int tableSize = Hashing.chooseTableSize(immutableEntries.length);
     table = new Object[tableSize * 2];
     mask = tableSize - 1;
 
@@ -109,7 +109,7 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
   // deserialization should call entrySet(), keySet(), or values() on the
   // deserialized map. The views are serializable since the Immutable* classes
   // are.
-  
+
   private transient ImmutableSet<Entry<K, V>> entrySet;
 
   @Override public ImmutableSet<Entry<K, V>> entrySet() {
@@ -172,7 +172,7 @@ final class RegularImmutableMap<K, V> extends ImmutableMap<K, V> {
   @SuppressWarnings("serial") // uses writeReplace(), not default serialization
   private static class Values<V> extends ImmutableCollection<V> {
     final RegularImmutableMap<?, V> map;
-    
+
     Values(RegularImmutableMap<?, V> map) {
       this.map = map;
     }

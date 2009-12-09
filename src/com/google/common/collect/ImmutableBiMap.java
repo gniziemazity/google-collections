@@ -39,7 +39,7 @@ import javax.annotation.Nullable;
  * @author Jared Levy
  */
 @GwtCompatible(serializable = true)
-public abstract class ImmutableBiMap<K, V> extends ImmutableMap<K,V>
+public abstract class ImmutableBiMap<K, V> extends ImmutableMap<K, V>
     implements BiMap<K, V> {
 
   private static final ImmutableBiMap<Object, Object> EMPTY_IMMUTABLE_BIMAP

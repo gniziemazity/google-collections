@@ -76,7 +76,7 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
 
   // Required Implementations
 
-  private transient volatile EntrySet entrySet;
+  private transient EntrySet entrySet;
 
   /**
    * {@inheritDoc}
@@ -409,6 +409,6 @@ abstract class AbstractMapBasedMultiset<E> extends AbstractMultiset<E>
   private void readObjectNoData() throws ObjectStreamException {
     throw new InvalidObjectException("Stream data required");
   }
-  
-  private static final long serialVersionUID = -2250766705698539974L;  
+
+  private static final long serialVersionUID = -2250766705698539974L;
 }

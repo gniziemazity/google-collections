@@ -86,10 +86,11 @@ final class ImmutableEnumSet<E /*extends Enum<E>*/> extends ImmutableSet<E> {
     return object == this || delegate.equals(object);
   }
 
-  private transient int hash;
+  private transient int hashCode;
 
   @Override public int hashCode() {
-    return (hash == 0) ? hash = delegate.hashCode() : hash;
+    int result = hashCode;
+    return (result == 0) ? hashCode = delegate.hashCode() : result;
   }
 
   @Override public String toString() {

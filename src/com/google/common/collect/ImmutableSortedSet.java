@@ -16,9 +16,10 @@
 
 package com.google.common.collect;
 
-import com.google.common.annotations.GwtCompatible;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+
+import com.google.common.annotations.GwtCompatible;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -266,16 +267,13 @@ public abstract class ImmutableSortedSet<E>
    * @throws ClassCastException if the elements are not mutually comparable
    * @throws NullPointerException if any of {@code elements} is null
    */
-  @SuppressWarnings("unchecked") // unsafe; see ImmutableSortedSetFauxverideShim
   public static <E> ImmutableSortedSet<E> copyOf(
       Iterable<? extends E> elements) {
-    /*
-     * Eclipse 3.5 doesn't like the method call if we cast to raw Iterable, and
-     * once we're casting to Iterable<Comparable>, we need to cast the return
-     * value, too.
-     */
-    return (ImmutableSortedSet) copyOfInternal(
-        Ordering.natural(), (Iterable<Comparable>) elements, false);
+    // Hack around K not being a subtype of Comparable.
+    // Unsafe, see ImmutableSortedSetFauxverideShim.
+    @SuppressWarnings("unchecked")
+    Ordering<E> naturalOrder = (Ordering) Ordering.<Comparable>natural();
+    return copyOfInternal(naturalOrder, elements, false);
   }
 
   /**
@@ -289,16 +287,13 @@ public abstract class ImmutableSortedSet<E>
    * @throws ClassCastException if the elements are not mutually comparable
    * @throws NullPointerException if any of {@code elements} is null
    */
-  @SuppressWarnings("unchecked") // unsafe; see ImmutableSortedSetFauxverideShim
   public static <E> ImmutableSortedSet<E> copyOf(
       Iterator<? extends E> elements) {
-    /*
-     * Eclipse 3.5 doesn't like the method call if we cast to raw Iterator, and
-     * once we're casting to Iterable<Comparable>, we need to cast the return
-     * value, too.
-     */
-    return (ImmutableSortedSet) copyOfInternal(
-        Ordering.natural(), (Iterator<Comparable>) elements);
+    // Hack around K not being a subtype of Comparable.
+    // Unsafe, see ImmutableSortedSetFauxverideShim.
+    @SuppressWarnings("unchecked")
+    Ordering<E> naturalOrder = (Ordering) Ordering.<Comparable>natural();
+    return copyOfInternal(naturalOrder, elements);
   }
 
   /**

@@ -94,7 +94,8 @@ public final class Collections2 {
    * <p>Many of the filtered collection's methods, such as {@code size()},
    * iterate across every element in the underlying collection and determine
    * which elements satisfy the filter. When a live view is <i>not</i> needed,
-   * it may be faster to copy the filtered collection and use the copy.
+   * it may be faster to copy {@code Iterables.filter(unfiltered, predicate)}
+   * and use the copy.
    */
   public static <E> Collection<E> filter(
       Collection<E> unfiltered, Predicate<? super E> predicate) {

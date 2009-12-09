@@ -33,8 +33,16 @@ import java.util.TreeSet;
 import javax.annotation.Nullable;
 
 /**
- * Implementation of {@code Multimap} whose keys and values are ordered by their
- * natural ordering or by supplied comparators.
+ * Implementation of {@code Multimap} whose keys and values are ordered by
+ * their natural ordering or by supplied comparators. In all cases, this
+ * implementation uses {@link Comparable#compareTo} or {@link
+ * Comparator#compare} instead of {@link Object#equals} to determine
+ * equivalence of instances.
+ *
+ * <p><b>Warning:</b> The comparators or comparables used must be <i>consistent
+ * with equals</i> as explained by the {@link Comparable} class specification.
+ * Otherwise, the resulting multiset will violate the general contract of {@link
+ * SetMultimap}, which it is specified in terms of {@link Object#equals}.
  *
  * <p>The collections returned by {@code keySet} and {@code asMap} iterate
  * through the keys according to the key comparator ordering or the natural
@@ -59,14 +67,14 @@ import javax.annotation.Nullable;
  *
  * @author Jared Levy
  */
-@GwtCompatible
-public final class TreeMultimap<K, V> extends AbstractSortedSetMultimap<K, V> {
+@GwtCompatible(serializable = true)
+public class TreeMultimap<K, V> extends AbstractSortedSetMultimap<K, V> {
   private transient Comparator<? super K> keyComparator;
   private transient Comparator<? super V> valueComparator;
 
   /**
-   * Creates an empty {@code TreeMultimap} ordered by the natural ordering of its
-   * keys and values.
+   * Creates an empty {@code TreeMultimap} ordered by the natural ordering of
+   * its keys and values.
    */
   @SuppressWarnings("unchecked") // eclipse doesn't like the raw Comparable
   public static <K extends Comparable, V extends Comparable>
@@ -98,27 +106,18 @@ public final class TreeMultimap<K, V> extends AbstractSortedSetMultimap<K, V> {
   @SuppressWarnings("unchecked") // eclipse doesn't like the raw Comparable
   public static <K extends Comparable, V extends Comparable>
       TreeMultimap<K, V> create(Multimap<? extends K, ? extends V> multimap) {
-    return new TreeMultimap<K, V>(
-        Ordering.natural(), Ordering.natural(), multimap);
+    return new TreeMultimap<K, V>(Ordering.natural(), Ordering.natural(),
+        multimap);
   }
 
-  /*
-   * Note that the create methods differ from the constructors:
-   *
-   * 1) create() and create(Multimap) have the constraint
-   * <K extends Comparable, V extends Comparable>.
-   * 2) create() and create(Multimap) generate instances whose keyComparator()
-   * and valueComparator() methods return Ordering.natural().
-   * 3) create(Multimap) always sorts its keys and values by their natural
-   * ordering.
-   * 4) create(Comparator, Comparator) does not allow null inputs.
-   * 5) There is no create(Comparator, Comparator, Multimap) method.
-   */
-
+  // Used by the TreeMultimap serialization test.
   TreeMultimap() {
     this(null, null);
   }
 
+  // Must be package-private so multimaps with null comparators can be
+  // serialized (which can be created with Multimaps.newTreeMultimap()). Once
+  // that method is removed, this constructor can be made private.
   TreeMultimap(@Nullable Comparator<? super K> keyComparator,
       @Nullable Comparator<? super V> valueComparator) {
     super((keyComparator == null)
@@ -128,17 +127,8 @@ public final class TreeMultimap<K, V> extends AbstractSortedSetMultimap<K, V> {
     this.valueComparator = valueComparator;
   }
 
-  @SuppressWarnings("unchecked")
-  TreeMultimap(Multimap<? extends K, ? extends V> multimap) {
-    this((multimap instanceof TreeMultimap)
-            ? ((TreeMultimap<K, V>) multimap).keyComparator() : null,
-        (multimap instanceof SortedSetMultimap)
-            ? ((SortedSetMultimap<K, V>) multimap).valueComparator() : null,
-        multimap);
-  }
-
-  TreeMultimap(@Nullable Comparator<? super K> keyComparator,
-      @Nullable Comparator<? super V> valueComparator,
+  private TreeMultimap(Comparator<? super K> keyComparator,
+      Comparator<? super V> valueComparator,
       Multimap<? extends K, ? extends V> multimap) {
     this(keyComparator, valueComparator);
     putAll(multimap);
