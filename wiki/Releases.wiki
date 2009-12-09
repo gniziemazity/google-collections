@@ -1,3 +1,7 @@
+= Release 1.0 (RC5 - 20091209) =
+
+  * Bug fixes and doc fixes only!
+
 = Release 1.0 (RC4 - 20091110) =
 
   * `Functions.forMap(Map)` now has no default-default value. The function it returns just throws an exception now on an unrecognized key. For the old behavior, use `forMap(Map, null)`.
