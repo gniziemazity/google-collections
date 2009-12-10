@@ -88,7 +88,7 @@ public class ForwardingMultimapTest extends ForwardingTestCase {
   }
 
   public void testPutAll_Multimap() {
-    forward.putAll(new ArrayListMultimap<String, Boolean>());
+    forward.putAll(ArrayListMultimap.<String, Boolean>create());
     assertEquals("[putAll(Multimap)]", getCalls());
   }
 
