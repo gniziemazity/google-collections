@@ -1,6 +1,18 @@
+= Release 1.0 (FINAL - 20091230) =
+
+  * No further changes!
+
+[http://google-collections.googlecode.com/files/google-collect-1.0.zip Download]
+
+[http://repo2.maven.org/maven2/com/google/collections/google-collections/1.0/ Maven bundle]
+
 = Release 1.0 (RC5 - 20091209) =
 
   * Bug fixes and doc fixes only!
+
+[http://google-collections.googlecode.com/files/google-collect-1.0-rc5.zip Download]
+
+[http://repo2.maven.org/maven2/com/google/collections/google-collections/1.0-rc5/ Maven bundle]
 
 = Release 1.0 (RC4 - 20091110) =
 
