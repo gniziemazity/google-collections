@@ -242,8 +242,6 @@ public interface Multiset<E> extends Collection<E> {
     /**
      * {@inheritDoc}
      *
-     * TODO: check this wrt TreeMultiset
-     *
      * <p>Returns {@code true} if the given object is also a multiset entry and
      * the two entries represent the same element and count. More formally, two
      * entries {@code a} and {@code b} are equal if:
@@ -252,6 +250,7 @@ public interface Multiset<E> extends Collection<E> {
      *      ? (b.getElement() == null) : a.getElement().equals(b.getElement()))
      *    && (a.getCount() == b.getCount())</pre>
      */
+    // TODO: check this wrt TreeMultiset?
     boolean equals(Object o);
 
     /**
@@ -280,9 +279,8 @@ public interface Multiset<E> extends Collection<E> {
    * Compares the specified object with this multiset for equality. Returns
    * {@code true} if the given object is also a multiset and contains equal
    * elements with equal counts, regardless of order.
-   *
-   * TODO: caveats about equivalence-relation.
    */
+  // TODO: caveats about equivalence-relation?
   boolean equals(@Nullable Object object);
 
   /**
